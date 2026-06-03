@@ -15,7 +15,7 @@ import {
 import type { ReactNode } from "react";
 
 const navItems = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/jobs", label: "Referral Jobs", icon: Briefcase },
   { to: "/applications", label: "Applications", icon: FileText },
   { to: "/referrals", label: "My Referrals", icon: UserCheck },
@@ -25,28 +25,21 @@ const navItems = [
   { to: "/activity", label: "Activity Feed", icon: Activity },
 ];
 
-const bottomItems = [
-  { to: "/profile", label: "Profile", icon: User },
-  { to: "/settings", label: "Settings", icon: Settings },
-];
-
 export function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-
-  const isActive = (to: string, exact?: boolean) =>
-    exact ? pathname === to : pathname.startsWith(to);
+  const profileActive = pathname === "/" || pathname.startsWith("/edit-profile");
 
   return (
     <div className="flex min-h-screen w-full bg-background text-foreground">
       <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
-        <div className="flex items-center gap-2 px-6 py-5">
+        <Link to="/" className="flex items-center gap-2 px-6 py-5">
           <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary">
             <span className="h-2 w-2 rounded-full bg-sidebar" />
           </span>
           <span className="text-lg font-semibold tracking-tight">
             Referd<span className="text-primary">.</span>
           </span>
-        </div>
+        </Link>
 
         <div className="px-4 pb-4">
           <div className="flex items-center gap-2 rounded-lg bg-sidebar-accent px-3 py-2 text-sm text-muted-foreground">
@@ -58,17 +51,13 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
 
         <nav className="flex-1 space-y-1 px-3">
           {navItems.map((item) => {
-            const active = isActive(item.to, item.exact);
             const Icon = item.icon;
             return (
-              <Link
+              <a
                 key={item.to}
-                to={item.to as "/"}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
-                  active
-                    ? "bg-accent text-accent-foreground"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent"
-                }`}
+                href={item.to}
+                onClick={(e) => e.preventDefault()}
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
               >
                 <Icon className="h-4 w-4" />
                 <span className="flex-1">{item.label}</span>
@@ -77,30 +66,31 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
                     {item.badge}
                   </span>
                 )}
-              </Link>
+              </a>
             );
           })}
         </nav>
 
         <div className="space-y-1 px-3 py-4">
-          {bottomItems.map((item) => {
-            const active = isActive(item.to);
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.to}
-                to={item.to as "/profile"}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
-                  active
-                    ? "bg-accent text-accent-foreground"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent"
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
+          <Link
+            to="/"
+            className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+              profileActive
+                ? "bg-accent text-accent-foreground"
+                : "text-sidebar-foreground hover:bg-sidebar-accent"
+            }`}
+          >
+            <User className="h-4 w-4" />
+            <span>Profile</span>
+          </Link>
+          <a
+            href="/settings"
+            onClick={(e) => e.preventDefault()}
+            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
+          >
+            <Settings className="h-4 w-4" />
+            <span>Settings</span>
+          </a>
         </div>
 
         <div className="flex items-center gap-3 border-t border-sidebar-border px-4 py-3">
