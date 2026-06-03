@@ -1,0 +1,115 @@
+import Link from "next/link";
+import ReferralCard from "@/components/ui/ReferralCard";
+
+const referralJobs = [
+  {
+    companyLogo: "G",
+    title: "Software Engineer",
+    company: "Google",
+    location: "Bengaluru",
+    match: "94%",
+    postedByInitials: "AS",
+    postedByName: "Ananya Sharma",
+    college: "VIPS '21",
+    salary: "₹28–42 LPA",
+  },
+  {
+    companyLogo: "S",
+    title: "Product Manager",
+    company: "Stripe",
+    location: "Remote",
+    match: "88%",
+    postedByInitials: "RV",
+    postedByName: "Rohit Verma",
+    college: "IIT Delhi '19",
+    salary: "₹45–70 LPA",
+  },
+  {
+    companyLogo: "R",
+    title: "Backend Engineer",
+    company: "Razorpay",
+    location: "Bengaluru",
+    match: "91%",
+    postedByInitials: "PI",
+    postedByName: "Priya Iyer",
+    college: "VIPS '22",
+    salary: "₹22–35 LPA",
+  },
+  {
+    companyLogo: "L",
+    title: "Design Engineer",
+    company: "Linear",
+    location: "Remote",
+    match: "86%",
+    postedByInitials: "KS",
+    postedByName: "Kabir Singh",
+    college: "NID '20",
+    salary: "₹18–28 LPA",
+  },
+  {
+    companyLogo: "M",
+    title: "Data Scientist",
+    company: "Microsoft",
+    location: "Hyderabad",
+    match: "82%",
+    postedByInitials: "MR",
+    postedByName: "Megha Rao",
+    college: "BITS Pilani '18",
+    salary: "₹30–48 LPA",
+  },
+  {
+    companyLogo: "N",
+    title: "Frontend Engineer",
+    company: "Notion",
+    location: "Remote",
+    match: "90%",
+    postedByInitials: "VP",
+    postedByName: "Vikram Patel",
+    college: "VIPS '20",
+    salary: "₹25–40 LPA",
+  },
+];
+
+export default function ReferralJobs() {
+  return (
+    <section
+      id="referrals"
+      className="border-t border-[var(--border)] bg-[var(--background)] px-6 py-24 sm:px-8 lg:px-10"
+    >
+      <div className="mx-auto max-w-7xl">
+        <p className="mb-7 font-mono text-[14px] font-semibold uppercase tracking-[0.35em] text-[var(--primary)]">
+          Referral Jobs
+        </p>
+
+        <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
+          <div>
+            <h2 className="max-w-3xl text-[34px] font-bold leading-tight tracking-[-0.04em] text-white md:text-[42px]">
+              Referral opportunities
+              <br />
+              from real employees.
+            </h2>
+
+            <p className="mt-6 max-w-5xl text-[18px] leading-8 text-[var(--text-primary)]">
+              Every role is posted by someone who can actually pass your resume
+              to the hiring manager.
+            </p>
+          </div>
+
+          <Link
+            href="/signup"
+            className="flex items-center gap-4 text-[16px] font-mono text-[var(--text-primary)] transition hover:text-white"
+          >
+            See all referrals
+            <span className="text-[26px]">→</span>
+          </Link>
+        </div>
+
+        <div className="mt-10 grid gap-6 lg:grid-cols-3">
+          {referralJobs.map((job) => (
+            <ReferralCard key={`${job.company}-${job.title}`} {...job} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
