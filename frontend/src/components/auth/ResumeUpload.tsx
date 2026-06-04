@@ -1,100 +1,284 @@
+"use client";
+
 import { ChangeEvent, useState } from "react";
-import { FileText, Upload, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import {
+  UploadIcon,
+  FileText,
+  CheckCircle,
+  ChevronRight,
+  X,
+} from "lucide-react";
+
 type ResumeUploadProps = {
-  onUpload?: (file: File) => void;
+  isOpen?: boolean;
+  onClose?: () => void;
 };
 
-export default function ResumeUpload({ onUpload }: ResumeUploadProps) {
+type ParsedResumeResponse = {
+  name?: string;
+  email?: string;
+  phone?: string;
+  skills?: string[];
+  linkedin_url?: string;
+  github_url?: string;
+  portfolio_url?: string;
+  education?: {
+    institution?: string;
+    degree?: string;
+    field_of_study?: string;
+    year?: string;
+  }[];
+  work_experience?: {
+    organization?: string;
+    title?: string;
+    start_date?: string;
+    end_date?: string;
+    description?: string | string[];
+  }[];
+  total_experience_years?: number;
+};
+
+export default function ResumeUpload({
+  isOpen = true,
+  onClose,
+}: ResumeUploadProps) {
+  const router = useRouter();
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-   const router=useRouter();
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [hasUploadFailed, setHasUploadFailed] = useState(false);
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+  if (!isOpen) return null;
+
+  const getNextRoute = () => {
+    return "/onboarding/stepTwo";
+  };
+
+  const moveToNextStep = () => {
+    router.push(getNextRoute());
+  };
+
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
     if (!file) return;
 
+    setMessage("");
+    setIsSuccess(false);
+    setHasUploadFailed(false);
+
+    if (file.type !== "application/pdf") {
+      setSelectedFile(null);
+      setMessage("Only PDF file is allowed.");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setSelectedFile(null);
+      setMessage("File size must be less than 5MB.");
+      return;
+    }
+
     setSelectedFile(file);
   };
 
-  const handleUpload = () => {
-    if (!selectedFile) return;
-     
-    onUpload?.(selectedFile);
-    
-    console.log("Uploaded file:", selectedFile);
+  const handleUpload = async () => {
+    if (!selectedFile) {
+      moveToNextStep();
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setIsSuccess(false);
+      setHasUploadFailed(false);
+      setMessage("Parsing your resume... Please wait.");
+
+      const token = localStorage.getItem("token");
+
+      const formData = new FormData();
+      formData.append("resume", selectedFile);
+
+      const response = await fetch(`${API_URL}/api/upload/resume`, {
+        method: "POST",
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: formData,
+        credentials: "include",
+      });
+
+      const data: ParsedResumeResponse | { message?: string } =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          "message" in data
+            ? data.message || "Failed to upload resume"
+            : "Failed to upload resume"
+        );
+      }
+
+      localStorage.setItem("parsedResume", JSON.stringify(data));
+
+      setIsSuccess(true);
+      setHasUploadFailed(false);
+      setMessage("Success! Resume parsed successfully.");
+
+      moveToNextStep();
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Something went wrong";
+
+      console.error("Resume upload error:", error);
+
+      setMessage(errorMessage);
+      setIsSuccess(false);
+      setHasUploadFailed(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleMainButtonClick = () => {
+    if (hasUploadFailed) {
+      moveToNextStep();
+      return;
+    }
+
+    handleUpload();
+  };
+
+  const getButtonText = () => {
+    if (hasUploadFailed) return "Skip";
+    if (selectedFile) return "Continue";
+    return "Skip for now";
   };
 
   return (
-    <div className="w-full max-w-xl rounded-3xl border border-[var(--border)] bg-[var(--card)]/70 p-7 shadow-2xl backdrop-blur-xl">
-      <div className="mb-7">
-        <p className="mb-3 font-mono text-[11px] font-semibold uppercase tracking-[0.25em] text-[var(--primary)]">
-          Resume Upload
-        </p>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-5 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-3xl border border-[var(--border)] bg-[var(--background)] p-6 text-white shadow-2xl">
+        <div className="mb-6 flex items-start justify-between">
+          <div>
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--primary-soft)]">
+              <FileText className="h-7 w-7 text-[var(--primary)]" />
+            </div>
 
-        <h1 className="text-[24px] font-bold tracking-[-0.04em] text-white">
-          Upload your resume
-        </h1>
+            <h2 className="text-[24px] font-bold tracking-[-0.04em] text-white">
+              Upload Your Resume
+            </h2>
 
-        <p className="mt-2 text-[13px] leading-6 text-[var(--text-primary)]">
-          Add your resume so we can complete your profile and match you with
-          better referral opportunities.
-        </p>
-      </div>
+            <p className="mt-1 text-[13px] text-[var(--text-primary)]">
+              Upload a PDF to pre-fill your profile, or skip for now.
+            </p>
+          </div>
 
-      <label className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-[var(--background)] px-5 py-10 text-center transition hover:border-[var(--primary)] hover:bg-[var(--primary-soft)]">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--primary-soft)] text-[var(--primary)]">
-          <Upload size={22} />
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isLoading}
+              className="rounded-full p-2 text-[var(--text-primary)] transition hover:bg-white/10 hover:text-white disabled:opacity-50"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          )}
         </div>
 
-        <span className="mt-4 text-[14px] font-semibold text-white">
-          Click to upload resume
-        </span>
+        <label
+          className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 transition ${
+            isLoading
+              ? "cursor-wait border-yellow-400/40 bg-yellow-400/10"
+              : isSuccess
+              ? "border-green-400/50 bg-green-400/10"
+              : "border-white/10 bg-white/[0.03] hover:border-[var(--primary)] hover:bg-[var(--primary-soft)]"
+          }`}
+        >
+          {isSuccess ? (
+            <CheckCircle className="mb-3 h-12 w-12 text-green-400" />
+          ) : (
+            <UploadIcon
+              className={`mb-3 h-12 w-12 ${
+                isLoading
+                  ? "animate-pulse text-yellow-400"
+                  : "text-[var(--text-primary)]"
+              }`}
+            />
+          )}
 
-        <span className="mt-1 text-[12px] text-[var(--text-primary)]">
-          PDF, DOC, or DOCX supported
-        </span>
+          <p className="text-center text-[13px] font-medium text-white">
+            {isLoading
+              ? "Processing your resume..."
+              : isSuccess
+              ? "Successfully parsed!"
+              : "Click to upload or drag and drop"}
+          </p>
 
-        <input
-          type="file"
-          accept=".pdf,.doc,.docx"
-          onChange={handleFileChange}
-          className="hidden"
-        />
-      </label>
+          <p className="mt-1 text-center text-[11px] text-[var(--text-primary)]">
+            PDF only, max 5MB
+          </p>
 
-      {selectedFile && (
-        <div className="mt-4 flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--background)] p-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--primary-soft)] text-[var(--primary)]">
-            <FileText size={16} />
-          </div>
-
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-[13px] font-medium text-white">
-              {selectedFile.name}
+          {selectedFile && !isLoading && (
+            <p className="mt-4 max-w-xs truncate text-[12px] font-medium text-[var(--primary)]">
+              Selected: {selectedFile.name}
             </p>
-            <p className="text-[11px] text-[var(--text-primary)]">
-              {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-            </p>
+          )}
+
+          <input
+            type="file"
+            accept=".pdf"
+            onChange={handleFileChange}
+            disabled={isLoading}
+            className="hidden"
+          />
+        </label>
+
+        {message && (
+          <div
+            className={`mt-4 rounded-xl border p-3 text-[12px] font-medium ${
+              isSuccess
+                ? "border-green-400/30 bg-green-400/10 text-green-300"
+                : isLoading
+                ? "border-yellow-400/30 bg-yellow-400/10 text-yellow-300"
+                : "border-red-400/30 bg-red-400/10 text-red-300"
+            }`}
+          >
+            {message}
           </div>
+        )}
+
+        <div className="mt-6 flex gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isLoading}
+            className="h-10 flex-1 rounded-lg border border-white/10 text-[13px] font-semibold text-white transition hover:bg-white/10 disabled:opacity-50"
+          >
+            Cancel
+          </button>
 
           <button
             type="button"
-            onClick={() => setSelectedFile(null)}
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] text-[var(--text-primary)] transition hover:border-white/20 hover:text-white"
+            onClick={handleMainButtonClick}
+            disabled={isLoading}
+            className="button-color flex h-10 flex-1 items-center justify-center rounded-lg text-[13px] font-semibold text-black transition-all duration-300 hover:brightness-110 active:scale-[0.99] disabled:opacity-60"
           >
-            <X size={14} />
+            {isLoading ? (
+              "Processing..."
+            ) : (
+              <>
+                {getButtonText()}
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </>
+            )}
           </button>
         </div>
-      )}
-
-      <button
-        type="button"
-        disabled={!selectedFile}
-        onClick={handleUpload}
-        className="button-color hover:cursor-pointer mt-5 h-10 w-full rounded-lg text-[13px] font-semibold text-black transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
-      >
-        Continue
-      </button>
+      </div>
     </div>
   );
 }

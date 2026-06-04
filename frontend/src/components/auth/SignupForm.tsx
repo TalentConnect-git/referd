@@ -3,19 +3,23 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
+import {
+  sendSignupOtp,
+  signupUser,
+  UserType,
+} from "@/services/auth.service";
 
 import GoogleLoginButton from "./GoogleLoginButton";
 import LinkedinLoginButton from "./LinkedinLoginButton";
 
-type UserRole = "student" | "fresher" | "professional";
-
-const roles: UserRole[] = ["student", "fresher", "professional"];
-const DUMMY_OTP = "123456";
+const roles: UserType[] = ["student", "fresher", "professional"];
 
 export default function SignupForm() {
   const router = useRouter();
+  const { login } = useAuth();
 
-  const [role, setRole] = useState<UserRole>("student");
+  const [role, setRole] = useState<UserType>("student");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -23,33 +27,63 @@ export default function SignupForm() {
   const [showOtpField, setShowOtpField] = useState(false);
   const [otp, setOtp] = useState("");
   const [otpError, setOtpError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const getNextRoute = () => {
     return "/onboarding/resume-upload";
   };
 
-  const handleSignup = (e: FormEvent<HTMLFormElement>) => {
+  const handleSignup = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setOtpError("");
 
-    if (!showOtpField) {
-      if (password !== confirmPassword) {
-        alert("Password and confirm password do not match");
+    try {
+      setLoading(true);
+
+      if (!showOtpField) {
+        if (!email) {
+          setOtpError("Please enter your email");
+          return;
+        }
+        if (!password) {
+          setOtpError("Please enter a password");
+          return;
+        }
+        if (password !== confirmPassword) {
+          setOtpError("Passwords do not match");
+          return;
+        }
+
+        await sendSignupOtp(email);
+        setShowOtpField(true);
         return;
       }
 
-      console.log("Dummy OTP sent:", DUMMY_OTP);
-      setShowOtpField(true);
-      return;
-    }
+      if (otp.length !== 6) {
+        setOtpError("Please enter a valid 6-digit OTP");
+        return;
+      }
 
-    if (otp !== DUMMY_OTP) {
-      setOtpError("Invalid OTP. Use 123456 for testing.");
-      return;
-    }
+      const data = await signupUser({
+        email,
+        password,
+        userType: role,
+        otp,
+      });
 
-    console.log("Signup verified:", { role, email });
-    router.push(getNextRoute());
+      login(data.user, data.token);
+      localStorage.setItem("selectedRole", role);
+
+      router.push(getNextRoute());
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Something went wrong";
+
+      setOtpError(message);
+      alert(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -68,7 +102,7 @@ export default function SignupForm() {
             key={item}
             type="button"
             onClick={() => setRole(item)}
-            disabled={showOtpField}
+            disabled={showOtpField || loading}
             className={`h-10 rounded-lg border font-mono text-[10px] font-semibold uppercase tracking-[0.16em] transition disabled:cursor-not-allowed disabled:opacity-60 ${
               role === item
                 ? "border-[var(--primary)] bg-[var(--primary-soft)] text-white"
@@ -102,7 +136,8 @@ export default function SignupForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="h-10 w-full rounded-lg border border-white/10 bg-[var(--background)] px-4 text-[13px] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15"
+              disabled={loading}
+              className="h-10 w-full rounded-lg border border-white/10 bg-[var(--background)] px-4 text-[13px] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15 disabled:opacity-60"
             />
 
             <input
@@ -111,7 +146,8 @@ export default function SignupForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="h-10 w-full rounded-lg border border-white/10 bg-[var(--background)] px-4 text-[13px] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15"
+              disabled={loading}
+              className="h-10 w-full rounded-lg border border-white/10 bg-[var(--background)] px-4 text-[13px] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15 disabled:opacity-60"
             />
 
             <input
@@ -120,7 +156,8 @@ export default function SignupForm() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              className="h-10 w-full rounded-lg border border-white/10 bg-[var(--background)] px-4 text-[13px] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15"
+              disabled={loading}
+              className="h-10 w-full rounded-lg border border-white/10 bg-[var(--background)] px-4 text-[13px] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15 disabled:opacity-60"
             />
           </>
         ) : (
@@ -140,7 +177,8 @@ export default function SignupForm() {
               }}
               required
               maxLength={6}
-              className="h-10 w-full rounded-lg border border-white/10 bg-[var(--background)] px-4 text-center font-mono text-[14px] tracking-[0.35em] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15"
+              disabled={loading}
+              className="h-10 w-full rounded-lg border border-white/10 bg-[var(--background)] px-4 text-center font-mono text-[14px] tracking-[0.35em] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15 disabled:opacity-60"
             />
 
             {otpError && (
@@ -149,12 +187,13 @@ export default function SignupForm() {
 
             <button
               type="button"
+              disabled={loading}
               onClick={() => {
                 setShowOtpField(false);
                 setOtp("");
                 setOtpError("");
               }}
-              className="text-[12px] text-[var(--text-primary)] transition hover:text-[var(--primary)]"
+              className="text-[12px] text-[var(--text-primary)] transition hover:text-[var(--primary)] disabled:opacity-60"
             >
               Change email
             </button>
@@ -163,9 +202,16 @@ export default function SignupForm() {
 
         <button
           type="submit"
-          className="button-color h-10 w-full rounded-lg text-[13px] font-semibold text-black transition-all duration-300 hover:brightness-110 hover:shadow-[0_0_22px_rgba(49,170,64,0.28)] active:scale-[0.99]"
+          disabled={loading}
+          className="button-color h-10 w-full rounded-lg text-[13px] font-semibold text-black transition-all duration-300 hover:brightness-110 hover:shadow-[0_0_22px_rgba(49,170,64,0.28)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {showOtpField ? "Verify OTP" : "Enter Portal"}
+          {loading
+            ? showOtpField
+              ? "Verifying..."
+              : "Sending OTP..."
+            : showOtpField
+            ? "Verify OTP"
+            : "Enter Portal"}
         </button>
       </form>
 
