@@ -64,12 +64,12 @@ export default function Navbar() {
   const getDashboardRoute = () => {
     switch (user?.userType) {
       case "professional":
-        return "/professional/home";
+        return "/professional/dashboard";
       case "fresher":
-        return "/fresher/home";
+        return "/professional/dashboard";
       case "student":
       default:
-        return "/student/home";
+        return "/professional/dashboard";
     }
   };
 

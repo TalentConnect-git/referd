@@ -28,7 +28,7 @@ else if (userType === "professional")
     jobs = jobsResponse.data.data || [];
     const referralRes = await axiosInstance.get("/application/status/candidate/Referral");
     applications = referralRes.data.data || [];
-}
+  }
 }
 catch(err)
 {
@@ -49,3 +49,6 @@ catch(err)
     </div>
   );
 }
+
+
+
