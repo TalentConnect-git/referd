@@ -1,54 +1,112 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
 import DashboardJobs from "./DashboardJobs";
 import DashboardAppStatus from "./DashboardAppStatus";
-import axiosInstance from "@/lib/axios";
+import axiosInstance from "@/lib/axiosInstance";
+import { useAuth } from "@/context/AuthContext";
 
-export default async function DashboardBody() 
-{
-let jobs:any[] = [];
-let applications:any[] = [];
-try{
-  const response = await axiosInstance.get("/api/auth/me");
-  const userType = response.data.user?.userType;
-  if (userType === "student" || userType === "fresher") 
-    {
-      const jobsResponse = await axiosInstance.get("/api/student-dashboard/job-postings");
-      jobs = jobsResponse.data.data || [];
+type UserType = "student" | "fresher" | "professional";
 
+export default function DashboardBody() {
+  const [jobs, setJobs] = useState<any[]>([]);
+  const [applications, setApplications] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-      const [offCampusRes,internshipRes,referralRes] = await Promise.all([
-                  axiosInstance.get("/application/status/candidate/Off-campus"),
-                  axiosInstance.get("/application/status/candidate/Internship"),
-                  axiosInstance.get("/application/status/candidate/Referral")
-                ]);
-      applications = [...(offCampusRes.data.data || []),...(internshipRes.data.data || []),...(referralRes.data.data || [])];
+  const { profile} = useAuth();
+
+  const role=profile?.profileType;
+
+  const userType = useMemo(() => {
+    return (role || profile?.profileType ) as
+      | UserType
+      | undefined;
+  }, [role, profile?.profileType]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchDashboardBodyData() {
+      if (!userType) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+
+        if (userType === "student" || userType === "fresher") {
+          const [jobsResponse, offCampusRes, internshipRes, referralRes] =
+            await Promise.all([
+              axiosInstance.get("/api/student-dashboard/job-postings"),
+              axiosInstance.get("/application/status/candidate/Off-campus"),
+              axiosInstance.get("/application/status/candidate/Internship"),
+              axiosInstance.get("/application/status/candidate/Referral"),
+            ]);
+
+          if (!isMounted) return;
+
+          setJobs(jobsResponse.data?.data || []);
+
+          setApplications([
+            ...(offCampusRes.data?.data || []),
+            ...(internshipRes.data?.data || []),
+            ...(referralRes.data?.data || []),
+          ]);
+        }
+
+        if (userType === "professional") {
+          const [jobsResponse, referralRes] = await Promise.all([
+            axiosInstance.get("/api/student-dashboard/referral-jobs"),
+            axiosInstance.get("/application/status/candidate/Referral"),
+          ]);
+
+          if (!isMounted) return;
+
+          setJobs(jobsResponse.data?.data || []);
+
+          console.log("job data",jobs)
+          setApplications(referralRes.data?.data || []);
+        }
+      } catch (err) {
+        console.error("Error fetching dashboard body data:", err);
+
+        if (!isMounted) return;
+
+        setJobs([]);
+        setApplications([]);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    fetchDashboardBodyData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [userType]);
+
+  if (loading) {
+    return (
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="h-80 animate-pulse rounded-2xl border border-[var(--border)] bg-[var(--card)] lg:col-span-2" />
+        <div className="h-80 animate-pulse rounded-2xl border border-[var(--border)] bg-[var(--card)]" />
+      </div>
+    );
   }
-else if (userType === "professional") 
-  {
-    const jobsResponse = await axiosInstance.get("/api/student-dashboard/referral-postings");
-    jobs = jobsResponse.data.data || [];
-    const referralRes = await axiosInstance.get("/application/status/candidate/Referral");
-    applications = referralRes.data.data || [];
-  }
-}
-catch(err)
-{
-    console.error("Error fetching dashboard body data:", err);
-}
+
   return (
-
-    <div className="grid grid-cols-3 gap-6 mt-6">
-
-      <div className="col-span-2">
+    <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="lg:col-span-2">
         <DashboardJobs jobs={jobs} />
       </div>
 
       <div>
         <DashboardAppStatus applications={applications} />
       </div>
-
     </div>
   );
 }
-
-
-

@@ -10,33 +10,11 @@ import {
   X,
 } from "lucide-react";
 
+import { uploadResumeApi } from "@/services/auth.service";
+
 type ResumeUploadProps = {
   isOpen?: boolean;
   onClose?: () => void;
-};
-
-type ParsedResumeResponse = {
-  name?: string;
-  email?: string;
-  phone?: string;
-  skills?: string[];
-  linkedin_url?: string;
-  github_url?: string;
-  portfolio_url?: string;
-  education?: {
-    institution?: string;
-    degree?: string;
-    field_of_study?: string;
-    year?: string;
-  }[];
-  work_experience?: {
-    organization?: string;
-    title?: string;
-    start_date?: string;
-    end_date?: string;
-    description?: string | string[];
-  }[];
-  total_experience_years?: number;
 };
 
 export default function ResumeUpload({
@@ -51,8 +29,6 @@ export default function ResumeUpload({
   const [isSuccess, setIsSuccess] = useState(false);
   const [hasUploadFailed, setHasUploadFailed] = useState(false);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-
   if (!isOpen) return null;
 
   const getNextRoute = () => {
@@ -63,7 +39,7 @@ export default function ResumeUpload({
     router.push(getNextRoute());
   };
 
-  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
     if (!file) return;
@@ -99,30 +75,7 @@ export default function ResumeUpload({
       setHasUploadFailed(false);
       setMessage("Parsing your resume... Please wait.");
 
-      const token = localStorage.getItem("token");
-
-      const formData = new FormData();
-      formData.append("resume", selectedFile);
-
-      const response = await fetch(`${API_URL}/api/upload/resume`, {
-        method: "POST",
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: formData,
-        credentials: "include",
-      });
-
-      const data: ParsedResumeResponse | { message?: string } =
-        await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          "message" in data
-            ? data.message || "Failed to upload resume"
-            : "Failed to upload resume"
-        );
-      }
+      const data = await uploadResumeApi(selectedFile);
 
       localStorage.setItem("parsedResume", JSON.stringify(data));
 

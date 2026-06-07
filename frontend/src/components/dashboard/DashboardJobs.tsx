@@ -1,42 +1,104 @@
-import JobRow from './JobRow';
-interface DashboardJobsProps{
-  jobs:any[];
-} 
-export default async function DashboardJobs({ jobs }: DashboardJobsProps) 
-{
-    // const response = await fetch("http://localhost:5000/api/student-dashboard/job-postings");
-    // const jobs = await response.json();
+import JobRow from "./JobRow";
+
+type CandidatePosted = {
+  _id?: string;
+  name?: string;
+  email?: string;
+  currentCompany?: string;
+  userId?: string;
+};
+
+type Job = {
+  _id?: string;
+  id?: string;
+
+  jobTitle?: string | string[];
+  title?: string;
+
+  companyName?: string;
+  currentCompany?: string;
+  company?: string;
+
+  location?: string | string[];
+  workLocation?: string[];
+
+  jobType?: string;
+  employmentType?: string[];
+  workMode?: string[];
+
+  matchScore?: number;
+  candidatePosted?: CandidatePosted;
+};
+
+interface DashboardJobsProps {
+  jobs: Job[];
+}
+
+function getFirstValue(value?: string | string[]) {
+  if (Array.isArray(value)) return value[0] || "";
+  return value || "";
+}
+
+export default function DashboardJobs({ jobs }: DashboardJobsProps) {
   return (
-
-    
-    <div className="rounded-2xl border border-[#1e293b] bg-[#0f172a] min-h-[500px] ml-5">
-
-      <div className="flex text-pink-700 items-center justify-between p-3 border-b border-[#1e293b]">
-
+    <div className="ml-5 min-h-[500px] rounded-2xl border border-[#1e293b] bg-[#0f172a]">
+      <div className="flex items-center justify-between border-b border-[#1e293b] px-5 py-5">
         <div>
-          <h2 className="text-lg font-semibold text-white">
-            Jobs For You
+          <h2 className="text-[15px] font-semibold text-white">
+            Jobs for you
           </h2>
 
-          <p className="text-gray-400 text-sm">
+          <p className="mt-1 text-sm text-[#bfdbfe]">
             Ranked by our matching engine
           </p>
         </div>
 
-        <button className="text-gray-400 hover:text-white">
-          View All →
+        <button className="text-sm text-gray-400 hover:text-white">
+          View all →
         </button>
-
       </div>
+
       <div>
-        <div>
-        { jobs.length > 0 ? (jobs.map((job) => (
-                <JobRow id={job._id} title={job.jobTitle} location={job.location} type={job.jobType} />
-                ))) : ( <p className="p-4 text-gray-400">No jobs found</p>)
-                }
-      </div>
-      </div>
+        {jobs.length > 0 ? (
+          jobs.map((job, index) => {
+            const title =
+              getFirstValue(job.jobTitle) || job.title || "Untitled Job";
 
+            const company =
+              job.candidatePosted?.currentCompany ||
+              job.companyName ||
+              job.currentCompany ||
+              job.company ||
+              "Company";
+
+            const location =
+              getFirstValue(job.location) ||
+              getFirstValue(job.workLocation) ||
+              "Not specified";
+
+            const referredBy = job.candidatePosted?.name || "Alumni";
+
+            const matchScore = job.matchScore ?? 0;
+
+            const logoLetter = company.charAt(0).toUpperCase();
+
+            return (
+              <JobRow
+                key={job._id || job.id || index}
+                id={job._id || job.id || ""}
+                logoLetter={logoLetter}
+                title={title}
+                company={company}
+                location={location}
+                referredBy={referredBy}
+                matchScore={matchScore}
+              />
+            );
+          })
+        ) : (
+          <p className="p-5 text-sm text-gray-400">No jobs found</p>
+        )}
+      </div>
     </div>
   );
 }

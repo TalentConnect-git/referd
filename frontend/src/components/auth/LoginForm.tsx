@@ -16,7 +16,6 @@ type UserRole = "student" | "fresher" | "professional";
 export default function LoginForm() {
   const router = useRouter();
   const { login } = useAuth();
-   
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,17 +23,17 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // const getDashboardRoute = (role: UserRole) => {
-  //   switch (role) {
-  //     case "professional":
-  //       return "/layout";
-  //     case "fresher":
-  //       return "/fresher/dashboard";
-  //     case "student":
-  //     default:
-  //       return "/student/dashboard";
-  //   }
-  // };
+  const getDashboardRoute = (role: UserRole) => {
+    switch (role) {
+      case "professional":
+        return "/professional/dashboard";
+      case "fresher":
+        return "/fresher/dashboard";
+      case "student":
+      default:
+        return "/student/dashboard";
+    }
+  };
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -50,7 +49,7 @@ export default function LoginForm() {
 
       login(data.user, data.token);
 
-       router.replace("/");
+      router.replace(getDashboardRoute(data.user.userType));
     } catch (err: any) {
       setError(err?.response?.data?.message || "Invalid credentials");
     } finally {
@@ -72,7 +71,7 @@ export default function LoginForm() {
 
       <div className="mt-8 space-y-3">
         <LinkedinLoginButton onClick={() => {}} />
-        <OAuth/>
+        <OAuth />
       </div>
 
       <div className="my-7 flex items-center gap-3">

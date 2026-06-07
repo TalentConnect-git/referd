@@ -11,6 +11,27 @@ import PrivacyModal from "@/components/common/TermsModal/TermsModal";
 
 type AccountType = "student" | "fresher" | "professional";
 
+type EducationInfo = {
+  college?: string;
+  collegeName?: string;
+  institution?: string;
+  schoolName?: string;
+  degree?: string;
+  specialization?: string;
+  fieldOfStudy?: string;
+  semester?: string;
+  cgpa?: string;
+  yearOfGraduation?: string;
+  graduationYear?: string;
+  degreeCertificate?: string;
+  startDate?: string;
+  endDate?: string;
+  educationType?: string;
+  isCurrent?: boolean;
+};
+
+type AnyObject = Record<string, any>;
+
 export default function ConfirmationPage() {
   const router = useRouter();
   const { refreshUser, login } = useAuth();
@@ -24,7 +45,7 @@ export default function ConfirmationPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    const user = safeJsonParse<AnyObject>("user", {});
 
     const role =
       localStorage.getItem("selectedRole") || user?.userType || "student";
@@ -32,48 +53,139 @@ export default function ConfirmationPage() {
     setAccountType(role as AccountType);
   }, []);
 
-  const educationInfo = JSON.parse(
-    localStorage.getItem("educationInfo") || "{}",
-  );
-  console.log(educationInfo);
+  const safeJsonParse = <T,>(key: string, fallback: T): T => {
+    try {
+      const value = localStorage.getItem(key);
+
+      if (!value) return fallback;
+
+      return JSON.parse(value) || fallback;
+    } catch {
+      return fallback;
+    }
+  };
+
+  const isEmptyValue = (value: unknown) => {
+    if (value === null || value === undefined || value === "") return true;
+
+    if (typeof value === "string" && value.trim() === "") return true;
+
+    if (Array.isArray(value) && value.length === 0) return true;
+
+    return false;
+  };
+
+  const cleanObject = (obj: AnyObject) => {
+    return Object.fromEntries(
+      Object.entries(obj).filter(([_, value]) => !isEmptyValue(value)),
+    );
+  };
+
+  const hasUsefulEducationData = (edu: AnyObject) => {
+    const usefulKeys = [
+      "college",
+      "degree",
+      "specialization",
+      "semester",
+      "cgpa",
+      "yearOfGraduation",
+      "degreeCertificate",
+      "startDate",
+      "endDate",
+    ];
+
+    return usefulKeys.some((key) => !isEmptyValue(edu[key]));
+  };
+
+  const normalizeEducation = (edu: EducationInfo) => {
+    const normalized = {
+      college:
+        edu.college ||
+        edu.collegeName ||
+        edu.institution ||
+        edu.schoolName ||
+        "",
+
+      degree: edu.degree || "",
+
+      specialization: edu.specialization || edu.fieldOfStudy || "",
+
+      semester: edu.semester || "",
+
+      cgpa: edu.cgpa || "",
+
+      yearOfGraduation: edu.yearOfGraduation || edu.graduationYear || "",
+
+      degreeCertificate: edu.degreeCertificate || "",
+
+      startDate: edu.startDate || "",
+
+      endDate: edu.endDate || "",
+
+      educationType: edu.educationType || "bachelors",
+
+      isCurrent: Boolean(edu.isCurrent),
+    };
+
+    return cleanObject(normalized);
+  };
 
   const buildOnboardingFormData = () => {
     const dataToSend = new FormData();
 
-    const parsedResume = JSON.parse(
-      localStorage.getItem("parsedResume") || "{}",
+    const parsedResume = safeJsonParse<AnyObject>("parsedResume", {});
+    const basicInfo = safeJsonParse<AnyObject>("basicInfo", {});
+    const educationInfo = safeJsonParse<EducationInfo | EducationInfo[]>(
+      "educationInfo",
+      {},
     );
-    const basicInfo = JSON.parse(localStorage.getItem("basicInfo") || "{}");
-    const educationInfo = JSON.parse(
-      localStorage.getItem("educationInfo") || "{}",
+    const careerPreferences = safeJsonParse<AnyObject>(
+      "careerPreferences",
+      {},
     );
-    console.log(educationInfo);
-    const careerPreferences = JSON.parse(
-      localStorage.getItem("careerPreferences") || "{}",
-    );
-    const skillsAchievements = JSON.parse(
-      localStorage.getItem("skillsAchievements") || "{}",
+    const skillsAchievements = safeJsonParse<AnyObject>(
+      "skillsAchievements",
+      {},
     );
 
-    const finalData = {
+    const normalizedEducations = Array.isArray(educationInfo)
+      ? educationInfo.map(normalizeEducation)
+      : [normalizeEducation(educationInfo)];
+
+    const filteredEducations = normalizedEducations.filter(
+      hasUsefulEducationData,
+    );
+
+    console.log("info",basicInfo)
+     
+    const finalData: AnyObject = {
       ...parsedResume,
       ...basicInfo,
       ...careerPreferences,
       ...skillsAchievements,
       profileType: accountType,
-      educations: [educationInfo],
     };
 
+    if (filteredEducations.length > 0) {
+      finalData.educations = filteredEducations;
+    }
+
+    console.log("Final data sending:", finalData);
+
     Object.entries(finalData).forEach(([key, value]) => {
-      if (value === null || value === undefined || value === "") return;
+      if (isEmptyValue(value)) return;
 
       if (value instanceof File) {
         dataToSend.append(key, value, value.name);
-      } else if (Array.isArray(value) || typeof value === "object") {
-        dataToSend.append(key, JSON.stringify(value));
-      } else {
-        dataToSend.append(key, String(value));
+        return;
       }
+
+      if (Array.isArray(value) || typeof value === "object") {
+        dataToSend.append(key, JSON.stringify(value));
+        return;
+      }
+
+      dataToSend.append(key, String(value));
     });
 
     return dataToSend;
@@ -104,7 +216,7 @@ export default function ConfirmationPage() {
 
       await refreshUser();
 
-      router.replace("/login");
+     router.replace(`/${createdAccountType}/dashboard`);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Something went wrong";

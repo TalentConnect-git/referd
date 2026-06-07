@@ -3,30 +3,18 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 
 const navLinks = [
-  {
-    label: "Product",
-    href: "#product",
-  },
-  {
-    label: "Referrals",
-    href: "#referrals",
-  },
-  {
-    label: "Network",
-    href: "#network",
-  },
-  {
-    label: "How it works",
-    href: "#how-it-works",
-  },
+  { label: "Product", href: "#product" },
+  { label: "Referrals", href: "#referrals" },
+  { label: "Network", href: "#network" },
+  { label: "How it works", href: "#how-it-works" },
 ];
 
 export default function Navbar() {
   const router = useRouter();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, profile, isAuthenticated, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -40,41 +28,49 @@ export default function Navbar() {
         setDropdownOpen(false);
       }
     }
-
     if (dropdownOpen) {
       document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
+      return () => document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [dropdownOpen]);
 
+  // ---------- Derived display values ----------
+  const displayName = useMemo(() => {
+    if (profile?.fullName) return profile.fullName;
+    if (profile?.name) return profile.name;
+    if (user?.name) return user.name;
+    if (user?.email) return user.email.split("@")[0];
+    return "User";
+  }, [profile, user]);
+
+  const displayEmail = useMemo(() => {
+    return profile?.email || user?.email || "";
+  }, [profile, user]);
+
+  const userType = useMemo(() => {
+    return profile?.profileType || user?.userType || "student";
+  }, [profile, user]);
+
+  // ---------- Routes ----------
   const getProfileRoute = () => {
-    switch (user?.userType) {
-      case "professional":
-        return "/professional/profile";
-      case "fresher":
-        return "/fresher/profile";
-      case "student":
-      default:
-        return "/student/profile";
+    switch (userType) {
+      case "professional": return "/professional/profile";
+      case "fresher": return "/fresher/profile";
+      default: return "/student/profile";
     }
   };
 
   const getDashboardRoute = () => {
-    switch (user?.userType) {
+    switch (userType) {
       case "professional":
-        return "/professional/dashboard";
+        return "/professional/home";
       case "fresher":
-        return "/professional/dashboard";
+        return "/fresher/home";
       case "student":
       default:
-        return "/professional/dashboard";
+        return "/student/home";
     }
   };
-
-  const displayName =
-    user?.name || (user?.email ? user.email.split("@")[0] : "User");
 
   const handleLogout = async () => {
     setDropdownOpen(false);
@@ -87,13 +83,11 @@ export default function Navbar() {
       <nav className="mx-auto flex h-13 max-w-7xl items-center justify-between px-5 sm:px-8">
         <div className="flex items-center gap-10">
           <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-6 w-6 items-center  justify-center rounded-b-lg rounded-t-lg border border-[rgba(49,170,64,0.35)] bg-[var(--primary-soft)]">
+            <div className="flex h-6 w-6 items-center justify-center rounded-b-lg rounded-t-lg border border-[rgba(49,170,64,0.35)] bg-[var(--primary-soft)]">
               <span className="h-2.5 w-2.5 rounded-full bg-[var(--primary)]" />
             </div>
-
             <span className="text-[13px] font-bold tracking-tight text-white">
-              Referd
-              <span className="text-[var(--primary)]">.</span>
+              Referd<span className="text-[var(--primary)]">.</span>
             </span>
           </Link>
 
@@ -119,10 +113,9 @@ export default function Navbar() {
               >
                 Sign in
               </Link>
-
               <Link
                 href="/signup"
-                className="button-color rounded-lg  px-4 py-2 text-[13px] font-mono transition hover:opacity-90"
+                className="button-color rounded-lg px-4 py-2 text-[13px] font-mono transition hover:opacity-90"
               >
                 Get Started
               </Link>
@@ -146,7 +139,7 @@ export default function Navbar() {
                       {displayName}
                     </p>
                     <p className="text-[12px] text-[var(--text-muted)] truncate">
-                      {user?.email}
+                      {displayEmail}
                     </p>
                   </div>
 
