@@ -8,6 +8,7 @@ type JobRowProps = {
   location: string;
   referredBy: string;
   matchScore: number;
+  onClick: () => void;
 };
 
 export default function JobRow({
@@ -18,6 +19,7 @@ export default function JobRow({
   location,
   referredBy,
   matchScore,
+  onClick
 }: JobRowProps) {
   const handleSave = () => {
     console.log("Save job:", id);
@@ -28,7 +30,7 @@ export default function JobRow({
   };
 
   return (
-    <div className="flex items-center justify-between border-b border-[#1e293b] px-5 py-4 last:border-b-0">
+    <div onClick={onClick} className="flex items-center justify-between border-b border-[#1e293b] px-5 py-4 last:border-b-0">
       <div className="flex min-w-0 items-center gap-4">
         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[#334155] bg-[#1e293b] text-sm font-bold text-white">
           {logoLetter || "J"}

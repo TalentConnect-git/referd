@@ -28,7 +28,7 @@ export default function DashboardContainer() {
 
       <br />
 
-      <DashboardAlumini />
+      <DashboardAlumini userType={userRole}/>
     </>
   );
 }

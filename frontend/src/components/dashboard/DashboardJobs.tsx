@@ -1,5 +1,6 @@
 import JobRow from "./JobRow";
-
+import JobDetailsModal from "./JobsDetailModel";
+import {useState} from "react";
 type CandidatePosted = {
   _id?: string;
   name?: string;
@@ -38,8 +39,9 @@ function getFirstValue(value?: string | string[]) {
   if (Array.isArray(value)) return value[0] || "";
   return value || "";
 }
-
 export default function DashboardJobs({ jobs }: DashboardJobsProps) {
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [open, setOpen] = useState(false);
   return (
     <div className="ml-5 min-h-[500px] rounded-2xl border border-[#1e293b] bg-[#0f172a]">
       <div className="flex items-center justify-between border-b border-[#1e293b] px-5 py-5">
@@ -92,6 +94,7 @@ export default function DashboardJobs({ jobs }: DashboardJobsProps) {
                 location={location}
                 referredBy={referredBy}
                 matchScore={matchScore}
+                onClick={() => {setSelectedJob(job);setOpen(true);}}
               />
             );
           })
@@ -99,6 +102,15 @@ export default function DashboardJobs({ jobs }: DashboardJobsProps) {
           <p className="p-5 text-sm text-gray-400">No jobs found</p>
         )}
       </div>
+      <JobDetailsModal
+  open={open}
+  onClose={() => setOpen(false)}
+  job={selectedJob}
+  allJobs={jobs}
+  onSelectJob={(job) => {
+    setSelectedJob(job);
+  }}
+/>
     </div>
   );
 }

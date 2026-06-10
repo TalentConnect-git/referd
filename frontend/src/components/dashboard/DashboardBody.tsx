@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 type UserType = "student" | "fresher" | "professional";
 
 export default function DashboardBody() {
+
   const [jobs, setJobs] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,17 +37,23 @@ export default function DashboardBody() {
         setLoading(true);
 
         if (userType === "student" || userType === "fresher") {
-          const [jobsResponse, offCampusRes, internshipRes, referralRes] =
+          const [offCampusRes, internshipRes, referralRes] =
             await Promise.all([
-              axiosInstance.get("/api/student-dashboard/job-postings"),
-              axiosInstance.get("/application/status/candidate/Off-campus"),
-              axiosInstance.get("/application/status/candidate/Internship"),
-              axiosInstance.get("/application/status/candidate/Referral"),
+              axiosInstance.get("/api/student-dashboard/off-campus"),
+              axiosInstance.get("/api/student-dashboard/internship-postings"),
+              axiosInstance.get("/api/student-dashboard/referral-jobs"),
             ]);
+
 
           if (!isMounted) return;
 
-          setJobs(jobsResponse.data?.data || []);
+          const allJobs = [
+      ...(offCampusRes.data?.data || []),
+      ...(internshipRes.data?.data || []),
+      ...(referralRes.data?.data || []),
+      ];
+      console.log(allJobs);
+      setJobs(allJobs);
 
           setApplications([
             ...(offCampusRes.data?.data || []),
@@ -56,14 +63,13 @@ export default function DashboardBody() {
         }
 
         if (userType === "professional") {
-          const [jobsResponse, referralRes] = await Promise.all([
+          const [referralRes] = await Promise.all([
             axiosInstance.get("/api/student-dashboard/referral-jobs"),
-            axiosInstance.get("/application/status/candidate/Referral"),
           ]);
 
           if (!isMounted) return;
 
-          setJobs(jobsResponse.data?.data || []);
+          setJobs(referralRes.data?.data || []);
 
           console.log("job data",jobs)
           setApplications(referralRes.data?.data || []);

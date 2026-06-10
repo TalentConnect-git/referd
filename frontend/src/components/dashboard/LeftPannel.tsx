@@ -59,7 +59,7 @@ const handleSave = async () => {
               </div>
 
               <div className="flex gap-3">
-                <button className="rounded-lg border border-[#334155] px-4 py-2 text-sm text-white bg-green-500 hover:bg-green-400 transition">
+                <button onClick={handleSave} className="rounded-lg border border-[#334155] px-4 py-2 text-sm text-white bg-green-500 hover:bg-green-400 transition">
                   Save
                 </button>
 
