@@ -4,6 +4,11 @@ import { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axiosInstance";
 import DashboardProfStats from "./DashboardProfStats";
 import DashboardStudStats from "./DashboardStudStats";
+import {
+  getProfessionalStats,
+  getCandidateStats,
+  getCareerInsights,
+} from "@/services/stats.services";
 
 interface DashboardStatsProps {
   userType: string;
@@ -24,50 +29,82 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
   const [interviewCalls, setInterviewCalls] = useState(0);
 
   const [loading, setLoading] = useState(true);
-
-
-//please call api inside useEffect whenever fetching data other repetative api call again and again 
+ 
   useEffect(() => {
     let isMounted = true;
 
-    const fetchDashboardStats = async () => {
-      try {
-        setLoading(true);
+   const fetchDashboardStats = async () => {
+  try {
+    setLoading(true);
 
-        if (userType === "professional") {
-          const profRes = await axiosInstance.get(
-            "/application/dashboard/candidate/stats"
-          );
+    if (userType === "professional") {
+      const profData = await getProfessionalStats();
 
-          if (!isMounted) return;
+      if (!isMounted) return;
 
-          setReferralsPosted(profRes.data?.totalReferralsPosted ?? 0);
-          setApplicationsReceived(profRes.data?.totalApplicationsReceived ?? 0);
-          setResponseRate(profRes.data?.responseRate ?? 0);
-          setSuccessRate(profRes.data?.referralSuccessRate ?? 0);
-        }
+      const metrics = profData?.data ?? profData;
 
-        if (userType === "student" || userType === "fresher") {
-          const [statsRes, insightsRes] = await Promise.all([
-            axiosInstance.get("/application/dashboard/candidate/stats"),
-            axiosInstance.get("/api/career-insights"),
-          ]);
+      setReferralsPosted(
+        metrics?.totalReferralsPosted ?? 0
+      );
 
-          if (!isMounted) return;
+      setApplicationsReceived(
+        metrics?.totalApplicationsReceived ?? 0
+      );
 
-          setApplicationsSent(statsRes.data?.totalApplications ?? 0);
-          setResumeScore(insightsRes.data?.resumeScore ?? 0);
-          setHiringScore(insightsRes.data?.hiringScore ?? 0);
-          setInterviewCalls(statsRes.data?.interviewCalls ?? 0);
-        }
-      } catch (error) {
-        console.error(`Error fetching ${userType} stats:`, error);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
+      setResponseRate(
+        metrics?.responseRate ?? 0
+      );
+
+      setSuccessRate(
+        metrics?.referralSuccessRate ?? 0
+      );
+    } 
+    
+    else if (
+      userType === "student" ||
+      userType === "fresher"
+    ) {
+      const [statsData, insightsData] =
+        await Promise.all([
+          getCandidateStats(),
+          getCareerInsights(),
+        ]);
+
+      if (!isMounted) return;
+
+      const stats = statsData?.data ?? {};
+      const insights = insightsData?.data ?? {};
+
+      setApplicationsSent(
+        stats?.totalApplications ?? 0
+      );
+
+      setInterviewCalls(
+        stats?.interviewCalls ??
+        stats?.referralApplications ??
+        0
+      );
+
+      setResumeScore(
+        insights?.resumeScore ?? 0
+      );
+
+      setHiringScore(
+        insights?.hiringScore ?? 0
+      );
+    }
+  } catch (error) {
+    console.error(
+      `Error fetching ${userType} stats:`,
+      error
+    );
+  } finally {
+    if (isMounted) {
+      setLoading(false);
+    }
+  }
+};
 
     if (userType) {
       fetchDashboardStats();
