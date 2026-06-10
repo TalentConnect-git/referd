@@ -1,5 +1,6 @@
 "use client";
-
+import { saveJob, applyJob } from "@/services/job.service";
+import React from "react";
 type JobRowProps = {
   id: string;
   logoLetter: string;
@@ -21,14 +22,35 @@ export default function JobRow({
   matchScore,
   onClick
 }: JobRowProps) {
-  const handleSave = () => {
-    console.log("Save job:", id);
-  };
+  const handleSave = async (e: React.MouseEvent) => {
 
-  const handleApply = () => {
-    console.log("Apply job:", id);
-  };
+    e.stopPropagation();
+    try {
+      await saveJob(id, "Referral", matchScore);
+      alert("Job saved successfully");
+    } catch (error) {
+      console.error("Error saving job:", error);
+      alert("Failed to save job");
 
+    }
+
+  };
+const handleApply = async (e: React.MouseEvent) => {
+  e.stopPropagation();
+
+  try {
+    await applyJob(
+      id,
+      matchScore,
+      company
+    );
+
+    alert("Application submitted successfully");
+  } catch (error) {
+    console.error("Error applying:", error);
+    alert("Failed to apply");
+  }
+};
   return (
     <div onClick={onClick} className="flex items-center justify-between border-b border-[#1e293b] px-5 py-4 last:border-b-0">
       <div className="flex min-w-0 items-center gap-4">

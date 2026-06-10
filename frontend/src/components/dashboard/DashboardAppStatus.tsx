@@ -20,9 +20,18 @@ export default function DashboardAppStatus({ applications }: DashboardAppStatusP
 
       <div>
         {
-         applications.length>0 ? (applications.map((application) => (
-
-            <AppStatusRow key={application._id} company={application.job?.companyPosted?.companyDetails?.companyName} role={application.job?.jobTitle} stage={application.currentStatus }/> ))): ( <p className="p-4 text-gray-400">No applications found</p>)
+         applications.length>0 ? ( applications.map((application) => (
+  <AppStatusRow
+    key={application._id}
+    company={application.displayCompanyName ?? "Company"}
+    role={
+      application.jobDetails?.jobTitle?.[0] ??
+      application.jobDetails?.jobRoles?.[0] ??
+      "Untitled Job"
+    }
+    stage={application.currentStatus}
+  />
+))): ( <p className="p-4 text-gray-400">No applications found</p>)
 }
       </div>
 

@@ -5,12 +5,16 @@ import DashboardJobs from "./DashboardJobs";
 import DashboardAppStatus from "./DashboardAppStatus";
 import axiosInstance from "@/lib/axiosInstance";
 import { useAuth } from "@/context/AuthContext";
+import { getCandidateApplications } from "@/services/application.service";
 
 type UserType = "student" | "fresher" | "professional";
 
 export default function DashboardBody() {
+  const [allJobs, setAllJobs] = useState<any[]>([]);
 
-  const [jobs, setJobs] = useState<any[]>([]);
+  const [referralJobs, setReferralJobs] = useState<any[]>([]);
+  const [internshipJobs, setInternshipJobs] = useState<any[]>([]);
+  const [offCampusJobs, setOffCampusJobs] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -43,35 +47,51 @@ export default function DashboardBody() {
               axiosInstance.get("/api/student-dashboard/internship-postings"),
               axiosInstance.get("/api/student-dashboard/referral-jobs"),
             ]);
-
-
+  
           if (!isMounted) return;
+    
+          const referrals = referralRes.data?.data || [];
+          const internships = internshipRes.data?.data?.data || [];
+          const offCampus = offCampusRes.data?.data || [];
+          console.log("Referral Jobs:"+ referrals);
+          console.log("Internship Jobs:"+ internships);
+          console.log("Off Campus Jobs:"+ offCampus);
 
-          const allJobs = [
-      ...(offCampusRes.data?.data || []),
-      ...(internshipRes.data?.data || []),
-      ...(referralRes.data?.data || []),
-      ];
-      console.log(allJobs);
-      setJobs(allJobs);
+          setReferralJobs(referrals);
+          setInternshipJobs(internships);
+          setOffCampusJobs(offCampus);
 
-          setApplications([
-            ...(offCampusRes.data?.data || []),
-            ...(internshipRes.data?.data || []),
-            ...(referralRes.data?.data || []),
-          ]);
-        }
+          const allJobs = [...referrals,...internships,...offCampus];
+          setAllJobs(allJobs);
+          const [offCampusApplications,internshipApplications,referralApplications,] = await Promise.all([
+                                                                  getCandidateApplications("Off-campus"),
+                                                                  getCandidateApplications("Internship"),
+                                                                  getCandidateApplications("Referral"),
+                                                                ]);
+
+        //  setApplications([
+        //    ...(offCampusApplications.data?.data || []),
+        //       ...(internshipApplications.data?.data || []),
+        //       ...(referralApplications.data?.data || []),
+        //       ]);}
+
+        setApplications([
+  ...(offCampusApplications.data || []),
+  ...(internshipApplications.data || []),
+  ...(referralApplications.data || []),
+]);}
 
         if (userType === "professional") {
-          const [referralRes] = await Promise.all([
+          const [jobsResponse, referralRes] = await Promise.all([
             axiosInstance.get("/api/student-dashboard/referral-jobs"),
+            axiosInstance.get("/application/status/candidate/Referral"),
           ]);
 
           if (!isMounted) return;
 
-          setJobs(referralRes.data?.data || []);
-
-          console.log("job data",jobs)
+          setReferralJobs(referralRes.data?.data || []);
+          const referrals = referralRes.data?.data || [];
+          setAllJobs(referrals);
           setApplications(referralRes.data?.data || []);
         }
       } catch (err) {
@@ -79,7 +99,7 @@ export default function DashboardBody() {
 
         if (!isMounted) return;
 
-        setJobs([]);
+        setAllJobs([]);
         setApplications([]);
       } finally {
         if (isMounted) {
@@ -105,14 +125,25 @@ export default function DashboardBody() {
   }
 
   return (
+
+
+  
     <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-      <div className="lg:col-span-2">
-        <DashboardJobs jobs={jobs} />
+      { (userType == "student"||userType == "fresher") && (
+        <div className="lg:col-span-2">
+        <DashboardJobs referralJobs={referralJobs} internshipJobs={internshipJobs} offCampusJobs={offCampusJobs} allJobs={allJobs}/>
+      </div>)}
+      { (userType == "professional") && (
+        <div className="lg:col-span-2">
+        <DashboardJobs referralJobs={referralJobs} internshipJobs={[]} offCampusJobs={[]} allJobs={allJobs}/>
+      </div>)}
+
+        <div>
+         <DashboardAppStatus applications={applications} />
       </div>
 
-      <div>
-        <DashboardAppStatus applications={applications} />
-      </div>
-    </div>
+      
+     </div>
   );
 }
+
