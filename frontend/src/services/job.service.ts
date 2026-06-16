@@ -1,11 +1,11 @@
-import axiosInstance from "@/lib/axios";
+import axiosInstance from "@/lib/axiosInstance";
 
 export const saveJob = async (
   jobId: string,
   jobType: string,
-  matchScore: number
+  matchScore: number = 0
 ) => {
-  const response = await axiosInstance.post(
+  return axiosInstance.post(
     "/application/saveopportunity",
     {
       jobId,
@@ -13,23 +13,51 @@ export const saveJob = async (
       matchScore,
     }
   );
-
-  return response.data;
 };
+
 
 export const applyJob = async (
-  referralId: string,
-  matchScore?: number,
-  referralCompany?: string
+  id: string,
+  jobType: string,
+  matchScore: number
 ) => {
-  const response = await axiosInstance.post(
-    "/application/candidate/referral",
-    {
-      referralId,
-      matchScore,
-      referralCompany,
-    }
-  );
 
-  return response.data;
+  switch (jobType) {
+
+    case "Referral":
+      return axiosInstance.post(
+        "/application/candidate/referral",
+        {
+          referralId: id,
+          matchScore,
+        }
+      );
+
+    case "Internship":
+
+      return axiosInstance.post(
+        "/application/candidate/internship",
+        {
+          internshipId: id,
+          matchScore,
+        }
+      );
+
+    case "Off-campus":
+      return axiosInstance.post(
+        "/application/candidate/offcampus",
+        {
+          jobId: id,
+          matchScore,
+        }
+
+      );
+
+    default:
+      throw new Error(`Invalid job type: ${jobType}`);
+  }
+
 };
+
+
+

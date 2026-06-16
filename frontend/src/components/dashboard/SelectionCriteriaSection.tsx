@@ -1,15 +1,6 @@
 "use client";
-
-interface SelectionCriteriaProps {
-  formData: any;
-  handleChange: (
-    e: React.ChangeEvent<
-      HTMLInputElement |
-      HTMLTextAreaElement |
-      HTMLSelectElement
-    >
-  ) => void;
-}
+import { SelectionCriteriaProps } from "@/types/dashboard";
+import CreatableSelect from "react-select/creatable";
 
 export default function SelectionCriteriaSection({
   formData,
@@ -19,17 +10,11 @@ export default function SelectionCriteriaSection({
 
   return (
     <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6">
-      <h2 className="text-xl font-semibold text-white">
-        Selection Criteria
-      </h2>
-
-      <p className="mt-1 text-sm text-gray-400">
-        Define candidate eligibility requirements.
-      </p>
+      
 
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
 
-        <div className="md:col-span-2">
+  <div className="md:col-span-2">
   <label className="mb-2 block text-sm font-medium uppercase tracking-wide text-white">
     Eligibility Criteria
   </label>
@@ -63,6 +48,7 @@ export default function SelectionCriteriaSection({
     <option value="MCA">MCA</option>
     <option value="M.Tech">M.Tech</option>
     <option value="MBA">MBA</option>
+    <option value="MBA">Other</option>
   </select>
 </div>
 
@@ -138,8 +124,9 @@ export default function SelectionCriteriaSection({
 </div>
 
 
-      {/* WORK AUTHORIZATION */}
-<div>
+{/* WORK AUTHORIZATION */}
+
+<div className="md:col-span-2">
   <label className="mb-2 block text-sm font-medium uppercase tracking-wide text-white">
     Work Authorization
   </label>
@@ -150,15 +137,11 @@ export default function SelectionCriteriaSection({
     onChange={handleChange}
     className="w-full rounded-xl border border-[#334155] bg-[#0f172a] p-3 text-white"
   >
-    <option value="">Select authorization type</option>
-    <option value="Indian Citizen">Indian Citizen</option>
-    <option value="Work Permit">Work Permit</option>
-    <option value="Visa Sponsored">Visa Sponsored</option>
+    ...
   </select>
 </div>
 
-{/* EMPTY COLUMN TO MATCH SCREENSHOT */}
-<div></div>
+<div className="hidden md:block"></div>
 
 {/* SKILLS */}
 <div className="md:col-span-2">
@@ -171,7 +154,7 @@ export default function SelectionCriteriaSection({
     name="skills"
     value={formData.skills}
     onChange={handleChange}
-    placeholder="Type a skill and press Enter..."
+    placeholder="React, Node.js, TypeScript.."
     className="w-full rounded-xl border border-[#334155] bg-[#0f172a] p-3 text-white"
   />
 </div>

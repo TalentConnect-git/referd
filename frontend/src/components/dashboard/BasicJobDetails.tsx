@@ -1,20 +1,11 @@
-
-
-
 "use client";
 
-interface BasicJobDetailsProps {
-  formData: any;
-  handleChange: (
-    e: React.ChangeEvent<
-      HTMLInputElement |
-      HTMLTextAreaElement |
-      HTMLSelectElement
-    >
-  ) => void;
-}
 import Select from "react-select";
 import { City } from "country-state-city";
+import { Calendar } from "lucide-react";
+import { BasicJobDetailsProps } from "@/types/dashboard";
+
+
 const cities =
   (City.getCitiesOfCountry("IN") || []).map((city) => ({
     value: city.name,
@@ -24,23 +15,22 @@ const cities =
 export default function BasicJobDetailsSection({
   formData,
   handleChange,
+  invalidFields
 }: BasicJobDetailsProps) {
     
     const currentYear = new Date().getFullYear();
     const batchYears = Array.from({ length: currentYear + 5 - 1980 + 1 },(_, i) => 1980 + i);
-  return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6">
-      <h2 className="text-xl font-semibold text-white">
-        Basic Job Details
-      </h2>
+    const batchYearOptions = batchYears.map((year) => ({value: year.toString(),label: year.toString(),}));
 
-      <p className="mt-1 text-sm text-gray-400">
-        Provide the core details about this Opportunity.
-      </p>
+
+
+  return (
+    <div className="rounded-3xl border border-[var(--border)] bg-[var(--card)] p-8 shadow-sm">
+ 
 
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
 
-        <input
+        {/* <input
           type="number"
           name="cgpa"
           min="0"
@@ -48,59 +38,187 @@ export default function BasicJobDetailsSection({
           onChange={handleChange}
           placeholder="Minimum CGPA"
           className="rounded-xl border border-[#334155] bg-[#0f172a] p-3 text-white"
-        />
+        /> */}
+        <div>
+  <label className="mb-2 block text-sm font-medium uppercase tracking-wide text-white">
+    Minimum CGPA
+  </label>
+
+  <input
+    type="number"
+    name="cgpa"
+    min="0"
+    value={formData.cgpa}
+    onChange={handleChange}
+    placeholder="e.g. 7.5"
+    className="w-full rounded-xl border border-[#334155] bg-[#0f172a] p-3 text-white"
+  />
+
+  <p className="mt-1 text-xs text-gray-400">
+    Leave blank if no CGPA requirement
+  </p>
+</div>
+
+      <div>
+      <label className="mb-2 block text-sm font-medium uppercase tracking-wide text-white">
+        Eligible Batch Years
+      </label>
 
 
-        <select
-        name="batchYear"
-        value={formData.batchYear}
-        onChange={handleChange}
-        className="rounded-xl border border-[#334155] bg-[#0f172a] p-3 text-white"
-        >
-            <option value="">Select Batch Year</option>
-        {batchYears.map((year) => (<option key={year} value={year}>
-        {year}
-        </option>
-        ))}
-        </select>
 
-        <select name="employmentType" value={formData.employmentType} onChange={handleChange} className={`rounded-xl border bg-[#0f172a] p-1 text-white 
+  <Select
+  options={batchYearOptions}
+  placeholder="Select Batch Year"
+  value={
+    batchYearOptions.find(
+      (option) => option.value === formData.batchYear
+    ) || null
+  }
+  onChange={(selected) =>
+    handleChange({
+      target: {
+        name: "batchYear",
+        value: selected?.value || "",
+      },
+    } as any)
+  }
+  styles={{
+    control: (provided, state) => ({
+      ...provided,
+      backgroundColor: "#0f172a",
+      borderColor: state.isFocused
+        ? "#22c55e"
+        : "#334155",
+      borderRadius: "12px",
+      minHeight: "52px",
+      boxShadow: "none",
+      color: "white",
+    }),
+
+    input: (provided) => ({
+      ...provided,
+      color: "white",
+    }),
+
+    singleValue: (provided) => ({
+      ...provided,
+      color: "white",
+    }),
+
+    placeholder: (provided) => ({
+      ...provided,
+      color: "#94a3b8",
+    }),
+
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: "#0f172a",
+      border: "1px solid #334155",
+      borderRadius: "12px",
+      zIndex: 9999,
+      maxHeight: "250px",
+      overflowY: "auto",
+    }),
+
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isFocused
+        ? "#22c55e"
+        : "#0f172a",
+      color: state.isFocused
+        ? "#000"
+        : "#fff",
+      cursor: "pointer",
+    }),
+
+    dropdownIndicator: (provided) => ({
+      ...provided,
+      color: "white",
+    }),
+
+    indicatorSeparator: () => ({
+      display: "none",
+    }),
+  }}
+/>
+
+      <p className="mt-1 text-xs text-gray-400">
+        4-digit years only
+      </p>
+    </div>
+
+
+
+
+  <div>
+  <label className="mb-2 block text-sm font-medium uppercase tracking-wide text-white">
+    Employment Type *
+  </label>
+
+  <select
+    name="employmentType"
+    value={formData.employmentType}
+    onChange={handleChange}
+    className={`w-full rounded-xl bg-[#0f172a] p-3 text-white ${
+      invalidFields.includes("employmentType")
+        ? "border border-red-500"
+        : "border border-[#334155]"
+    }`}
+  >
+    <option value="">Employment Type</option>
+    <option value="Full-time">Full-time</option>
+    <option value="Part-time">Part-time</option>
+    <option value="Contract">Contract</option>
+  </select>
+</div>
+
+
+  <div>
+  <label className="mb-2 block text-sm font-medium uppercase tracking-wide text-white">
+    Last Date To Apply *
+  </label>
+
+
+  <div
+  className={`relative rounded-xl ${
+    invalidFields.includes("endDate")
+      ? "border border-red-500"
+      : "border border-[#334155]"
   }`}
-
 >
-          <option value="">Employment Type</option>
-          <option value="Full-time">Full-time</option>
-          <option value="Part-time">Part-time</option>
-          <option value="Contract">Contract</option>
-        </select>
+  <Calendar
+    size={18}
+    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+  />
+
+  <input
+    type="date"
+    name="endDate"
+    value={formData.endDate}
+    onChange={handleChange}
+    style={{ colorScheme: "dark" }}
+    className="w-full rounded-xl bg-[#0f172a] py-3 pl-10 pr-3 text-white outline-none"
+  />
+</div>
+
+</div>
 
 
         <div>
-            <label className="mb-2 block text-sm font-medium uppercase tracking-wide text-white">
-            Last Date To Apply
-         </label>
-        <input
-          type="date"
-          name="endDate"
-          value={formData.endDate}
-          onChange={handleChange}
-          style={{ colorScheme: "dark" }}
-          className="rounded-xl border bg-[#0f172a] p-3 text-white "
-        />
-        </div>
-
-
-        <div>
-            <label className="mb-2 block text-sm font-medium uppercase tracking-wide">
-            Job Title 
-         </label>
+          <label className="mb-2 block text-sm font-medium uppercase tracking-wide text-white">
+          Job Title *
+          </label>
         <input
           type="text"
           name="jobTitle"
           placeholder="Senior Software Developer/IOS Developer etc.."
           value={formData.jobTitle}
           onChange={handleChange}
-          className="rounded-xl border bg-[#0f172a] p-3 text-white w-full"
+          className={`w-full rounded-xl bg-[#0f172a] p-3 text-white ${
+        invalidFields.includes("jobTitle")
+        ? "border border-red-500"
+        : "border border-[#334155]"
+      }`}
           required
         />
         </div>
@@ -108,14 +226,18 @@ export default function BasicJobDetailsSection({
 
        <div>
          <label className="mb-2 block text-sm font-medium uppercase tracking-wide text-white">
-            Work Mode 
-         </label>
+          Work Mode *
+        </label>
         <select
           name="workMode"
           value={formData.workMode}
           onChange={handleChange}
           required
-          className="rounded-xl border bg-[#0f172a] p-3 text-white w-full"
+          className={`w-full rounded-xl bg-[#0f172a] p-3 text-white ${
+  invalidFields.includes("workMode")
+    ? "border border-red-500"
+    : "border border-[#334155]"
+}`}
         >
           <option value="On-site">On-site</option>
           <option value="Remote">Remote</option>
@@ -123,10 +245,13 @@ export default function BasicJobDetailsSection({
         </select>
        </div>
 
-        <div className="md:col-span-2">
-  <label
-  className="mb-2 block text-sm font-medium uppercase tracking-wide" 
-></label>
+
+
+
+<div className="md:col-span-2">
+  <label className="mb-2 block text-sm font-medium uppercase tracking-wide text-white">
+  Location *
+</label>
 
   <Select
   options={cities}
@@ -151,37 +276,30 @@ export default function BasicJobDetailsSection({
 
     backgroundColor: "#0f172a",
 
-    borderColor: state.isFocused
-
-      ? "#22c55e"
-
-      : "#334155",
+    borderColor: invalidFields.includes("location")
+  ? "#ef4444"
+  : state.isFocused
+  ? "#22c55e"
+  : "#334155",
 
     borderRadius: "12px",
-
     minHeight: "52px",
-
     boxShadow: "none",
-
     color: "white",
 
   }),
-
     input: (provided) => ({
       ...provided,
       color: "white",
     }),
-
     singleValue: (provided) => ({
       ...provided,
       color: "white",
     }),
-
     placeholder: (provided) => ({
       ...provided,
       color: "#94a3b8",
     }),
-
     menu: (provided) => ({
       ...provided,
       backgroundColor: "#0f172a",
@@ -190,7 +308,6 @@ export default function BasicJobDetailsSection({
       overflow: "hidden",
       zIndex: 9999,
     }),
-
     option: (provided, state) => ({
       ...provided,
       backgroundColor: state.isFocused
@@ -201,7 +318,6 @@ export default function BasicJobDetailsSection({
         : "#fff",
       cursor: "pointer",
     }),
-
     dropdownIndicator: (provided) => ({
       ...provided,
       color: "white",
@@ -258,8 +374,12 @@ export default function BasicJobDetailsSection({
   </label>
 
   <div
-    className="flex overflow-hidden rounded-xl border"
-  >
+  className={`flex overflow-hidden rounded-xl ${
+    invalidFields.includes("totalCTC")
+      ? "border border-red-500"
+      : "border border-[#334155]"
+  }`}
+>
     <select className="w-32 border-r border-[#334155] bg-[#0f172a] px-3 text-white outline-none">
       <option value="INR">₹ INR</option>
       <option value="USD">$ USD</option>
@@ -310,7 +430,11 @@ export default function BasicJobDetailsSection({
     value={formData.numberOfOpenings}
     onChange={handleChange}
     placeholder="e.g. 5"
-    className="w-full rounded-xl border bg-[#0f172a] p-3 text-white " />
+    className={`w-full rounded-xl bg-[#0f172a] p-3 text-white ${
+  invalidFields.includes("numberOfOpenings")
+    ? "border border-red-500"
+    : "border border-[#334155]"
+}`} />
 </div>
 
 {/* DESCRIPTION */}
@@ -326,7 +450,11 @@ export default function BasicJobDetailsSection({
     value={formData.description}
     onChange={handleChange}
     placeholder="Describe job responsibilities and requirements..."
-    className="w-full rounded-xl border bg-[#0f172a] p-3 text-white "
+    className={`w-full rounded-xl bg-[#0f172a] p-3 text-white ${
+  invalidFields.includes("description")
+    ? "border border-red-500"
+    : "border border-[#334155]"
+}`}
   />
 
   <p className="mt-1 text-right text-xs text-gray-400">

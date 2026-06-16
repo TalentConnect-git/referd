@@ -3,14 +3,7 @@
 import LeftPannel from "./LeftPannel";
 import RightPannel from "./RightPannel";
 import { saveJob } from "@/services/job.service";
-
-interface JobDetailsModalProps {
-  open: boolean;
-  onClose: () => void;
-  job: any;
-  allJobs: any[];
-  onSelectJob:(job: any) => void;
-}
+import {JobDetailsModalProps} from '@/types/dashboard'
 
 export default function JobDetailsModal({
   open,
@@ -68,3 +61,6 @@ const handleSave = async () => {
       </div>
   );
 }
+
+
+

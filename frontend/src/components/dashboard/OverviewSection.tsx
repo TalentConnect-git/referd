@@ -1,8 +1,4 @@
-
-interface OverviewSectionProps {
-  job: any;
-}
-
+import { OverviewSectionProps } from "@/types/dashboard";
 import { applyJob } from "@/services/job.service";
 export default function OverviewSection({ job }: OverviewSectionProps) {
   const handleApply = async () => {

@@ -1,5 +1,5 @@
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { professionalNavItems } from "@/constants/navigation";
+import { studentNavItems } from "@/constants/navigation";
 import type { CandidateRole } from "@/components/DashboardLayout";
 
 export default function ProfessionalLayout({
@@ -10,7 +10,7 @@ export default function ProfessionalLayout({
   const role: CandidateRole = "student";
 
   return (
-    <DashboardLayout navItems={professionalNavItems} role={role}>
+    <DashboardLayout navItems={studentNavItems} role={role}>
       {children}
     </DashboardLayout>
   );

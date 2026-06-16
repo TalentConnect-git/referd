@@ -1,13 +1,6 @@
-interface DashboardProfStatsProps {
-  applicationsSent: number;
-  interviewCalls: number;
-  resumeScore: number;
-  hiringScore: number;
-}
+import { DashboardStudStatsProps } from "@/types/dashboard";
 
-
-
-export default function DashboardStudStats({applicationsSent, interviewCalls, resumeScore, hiringScore }: DashboardProfStatsProps) 
+export default function DashboardStudStats({applicationsSent, interviewCalls, resumeScore, hiringScore }: DashboardStudStatsProps) 
 {
     return (
    

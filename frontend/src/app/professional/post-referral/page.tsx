@@ -1,1 +1,9 @@
-export default function Page() { return <div className="p-8"><h1>Page</h1></div>; }
+import PostReferralForm from "@/components/dashboard/PostReferralForm";
+
+export default function PostReferralPage() {
+  return (
+    <div className="p-6">
+      <PostReferralForm />
+    </div>
+  );
+}

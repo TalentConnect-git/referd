@@ -1,110 +1,57 @@
-"use client";
-
+import axiosInstance from "@/lib/axiosInstance";
 import JobRow from "./JobRow";
-import JobDetailsModal from "./JobsDetailModel";
+import JobsDetailModel from "./JobsDetailModel";
 import { useState } from "react";
+import { CandidatePosted,Job,DashboardJobsProps } from "@/types/dashboard";
 
-type CandidatePosted = {
-  _id?: string;
-  name?: string;
-  email?: string;
-  currentCompany?: string;
-  userId?: string;
-};
-
-type Job = {
-  _id?: string;
-  id?: string;
-
-  jobTitle?: string | string[];
-  title?: string;
-  jobRoles?: string[];
-
-  companyName?: string;
-  currentCompany?: string;
-  company?: string;
-
-  location?: string | string[];
-  workLocation?: string[];
-
-  jobType?: string;
-  employmentType?: string[];
-  workMode?: string[];
-
-  matchScore?: number;
-  candidatePosted?: CandidatePosted;
-};
-
-interface DashboardJobsProps {
-  referralJobs: Job[];
-  internshipJobs: Job[];
-  offCampusJobs: Job[];
-  allJobs: Job[];
-}
 
 function getFirstValue(value?: string | string[]) {
   if (Array.isArray(value)) return value[0] || "";
   return value || "";
 }
 
-export default function DashboardJobs({
-  referralJobs,
-  internshipJobs,
-  offCampusJobs,
-  allJobs,
-}: DashboardJobsProps) {
+export default function DashboardJobs({ referralJobs,internshipJobs,offCampusJobs,allJobs }: DashboardJobsProps) 
+{
 
-  console.log("DASHBOARD JOBS Referral Jobs:", referralJobs);
-console.log("Internship Jobs:", internshipJobs);
-console.log("OffCampus Jobs:", offCampusJobs);
-console.log("All Jobs:", allJobs);
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [selectedJob, setSelectedJob] = useState(null);
   const [open, setOpen] = useState(false);
 
-  const renderJobs = (jobs: Job[]) =>
-    jobs.map((job, index) => {
-      const title =
-        getFirstValue(job.jobTitle) ||
-        job.jobRoles?.[0] ||
-        job.title ||
-        "Untitled Job";
+  
+  const getTitle = (job: any) =>
+  getFirstValue(job.jobTitle) ||
+  job.jobRoles?.[0] ||
+  job.title ||
+  "Untitled Job";
 
-      const company =
-        job.companyName ||
-        job.candidatePosted?.currentCompany ||
-        job.currentCompany ||
-        job.company ||
-        "Company";
 
-      const location =
-        getFirstValue(job.location) ||
-        getFirstValue(job.workLocation) ||
-        "Not specified";
 
-      const referredBy = job.candidatePosted?.name || "Alumni";
+  const getCompany = (job: Job) =>
+  job.candidatePosted?.currentCompany ||
+  job.companyName ||
+  job.currentCompany ||
+  job.company ||
+  "Company";
+  
+  const getLocation = (job: Job) =>
+  getFirstValue(job.location) ||
+  getFirstValue(job.workLocation) ||
+  "Not specified";
 
-      const matchScore = job.matchScore ?? 0;
+  
+  const handleJobClick = async (jobId:string) => {
+  try {
+    console.log("Fetching details for job ID:", jobId);
+    const res = await axiosInstance.get(
+      `/api/student-dashboard/job/${jobId}`
+    );
+    console.log("Job details:", res.data);
+    setSelectedJob(res.data.data);
+    setOpen(true);
 
-      const logoLetter = company.charAt(0).toUpperCase();
-
-      return (
-        <JobRow
-          key={job._id || job.id || index}
-          id={job._id || job.id || ""}
-          logoLetter={logoLetter}
-          title={title}
-          company={company}
-          location={location}
-          referredBy={referredBy}
-          matchScore={matchScore}
-          onClick={() => {
-            setSelectedJob(job);
-            setOpen(true);
-          }}
-        />
-      );
-    });
-
+  } catch(err){
+    console.log(err);
+  }
+};
   return (
     <div className="ml-5 min-h-[500px] rounded-2xl border border-[#1e293b] bg-[#0f172a]">
       <div className="flex items-center justify-between border-b border-[#1e293b] px-5 py-5">
@@ -123,62 +70,92 @@ console.log("All Jobs:", allJobs);
         </button>
       </div>
 
+
+
       <div>
-        {/* Referral Jobs */}
-        {referralJobs.length > 0 && (
-          <>
-            <div className="border-b border-[#1e293b] px-5 py-3">
-              <h3 className="text-lg font-semibold text-blue-400">
-                Referral Jobs ({referralJobs.length})
-              </h3>
-            </div>
-
-            {renderJobs(referralJobs)}
-          </>
-        )}
-
-        {/* Internship Jobs */}
-        {internshipJobs.length > 0 && (
-          <>
-            <div className="border-y border-[#1e293b] px-5 py-3">
-              <h3 className="text-lg font-semibold text-green-400">
-                Internship Jobs ({internshipJobs.length})
-              </h3>
-            </div>
-
-            {renderJobs(internshipJobs)}
-          </>
-        )}
-
-        {/* Off Campus Jobs */}
-        {offCampusJobs.length > 0 && (
-          <>
-            <div className="border-y border-[#1e293b] px-5 py-3">
-              <h3 className="text-lg font-semibold text-purple-400">
-                Off Campus Jobs ({offCampusJobs.length})
-              </h3>
-            </div>
-
-            {renderJobs(offCampusJobs)}
-          </>
-        )}
-
-        {allJobs.length === 0 && (
-          <p className="p-5 text-sm text-gray-400">
-            No jobs found
-          </p>
-        )}
+  {referralJobs.length > 0 && (
+    <>
+      <div className="px-5 py-3 border-b border-[#1e293b]">
+        <h3 className="text-blue-400 font-semibold text-lg">
+          Referral Jobs 
+        </h3>
       </div>
 
-      <JobDetailsModal
-        open={open}
-        onClose={() => setOpen(false)}
-        job={selectedJob}
-        allJobs={allJobs}
-        onSelectJob={(job) => {
-          setSelectedJob(job);
-        }}
-      />
+      {referralJobs.map((job, index) => (
+        <JobRow
+          key={job._id || index}
+          id={job._id || ""}
+          logoLetter={getCompany(job).charAt(0).toUpperCase()}
+          title={getTitle(job)}
+          company={getCompany(job)}
+          location={getLocation(job)}
+          referredBy={job.candidatePosted?.name || "Alumni"}
+          matchScore={job.matchScore ?? 0}
+          onClick={() => handleJobClick(job._id!)}
+          jobType= "Referral"
+        />
+      ))}
+    </>
+  )}
+
+  {internshipJobs.length > 0 && (
+    <>
+      <div className="px-5 py-3 border-y border-[#1e293b]">
+        <h3 className="text-blue-400 font-semibold text-lg">
+          Internship Jobs 
+        </h3>
+      </div>
+
+      {internshipJobs.map((job, index) => (
+        <JobRow
+          key={job._id || index}
+          id={job._id || ""}
+          logoLetter={getCompany(job).charAt(0).toUpperCase()}
+          title={getTitle(job)}
+          company={getCompany(job)}
+          location={getLocation(job)}
+          referredBy={job.candidatePosted?.name || "Alumni"}
+          matchScore={job.matchScore ?? 0}
+          onClick={() => handleJobClick(job._id!)}
+        jobType="Internship"
+        />
+      ))}
+    </>
+  )}
+
+  {offCampusJobs.length > 0 && (
+    <>
+      <div className="px-5 py-3 border-y border-[#1e293b]">
+        <h3 className="text-blue-400 font-semibold text-lg">
+          Off Campus Jobs 
+        </h3>
+      </div>
+
+      {offCampusJobs.map((job, index) => (
+        <JobRow
+          key={job._id || index}
+          id={job._id || ""}
+          logoLetter={getCompany(job).charAt(0).toUpperCase()}
+          title={getTitle(job)}
+          company={getCompany(job)}
+          location={getLocation(job)}
+          referredBy={job.candidatePosted?.name || "Alumni"}
+          matchScore={job.matchScore ?? 0}
+          onClick={() => handleJobClick(job._id!)}
+          jobType="Off-campus"
+        />
+      ))}
+    </>
+  )}
+
+    <JobsDetailModel open={open} onClose={() => setOpen(false)} job={selectedJob} allJobs={allJobs} onSelectJob={setSelectedJob}/>
+
+</div>
+
+            
     </div>
   );
 }
+
+
+

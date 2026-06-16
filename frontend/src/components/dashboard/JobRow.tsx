@@ -1,16 +1,9 @@
 "use client";
-import { saveJob, applyJob } from "@/services/job.service";
-import React from "react";
-type JobRowProps = {
-  id: string;
-  logoLetter: string;
-  title: string;
-  company: string;
-  location: string;
-  referredBy: string;
-  matchScore: number;
-  onClick: () => void;
-};
+
+import { saveJob,applyJob } from "@/services/job.service";
+import { JobRowProps } from "@/types/dashboard";
+import toast from "react-hot-toast/headless";
+
 
 export default function JobRow({
   id,
@@ -20,39 +13,62 @@ export default function JobRow({
   location,
   referredBy,
   matchScore,
-  onClick
+  onClick,
+jobType
+
 }: JobRowProps) {
-  const handleSave = async (e: React.MouseEvent) => {
 
-    e.stopPropagation();
-    try {
-      await saveJob(id, "Referral", matchScore);
-      alert("Job saved successfully");
-    } catch (error) {
-      console.error("Error saving job:", error);
-      alert("Failed to save job");
+ const handleSave = async (
+  e: React.MouseEvent
+) => {
+  e.stopPropagation();
 
-    }
+  try {
+    console.log({
+      id,
+      jobType,
+      matchScore,
+    });
 
-  };
-const handleApply = async (e: React.MouseEvent) => {
+    await saveJob(
+      id,
+      jobType,
+      matchScore
+    );
+
+    toast.success("Job saved successfully");
+  } catch (err) {
+    toast.error("Error saving job:");
+    console.log(err);
+  }
+};
+
+const handleApply = async (
+  e: React.MouseEvent
+) => {
   e.stopPropagation();
 
   try {
     await applyJob(
       id,
-      matchScore,
-      company
+      jobType,
+      matchScore
     );
 
-    alert("Application submitted successfully");
-  } catch (error) {
-    console.error("Error applying:", error);
-    alert("Failed to apply");
+    alert("Applied successfully");
+  } catch (err) {
+    toast.error("Error applying:");
+    console.log(err);
   }
 };
   return (
-    <div onClick={onClick} className="flex items-center justify-between border-b border-[#1e293b] px-5 py-4 last:border-b-0">
+    <div onClick={() => {
+
+    console.log("ROW CLICKED");
+
+    onClick?.();
+
+  }} className="flex cursor-pointer items-center justify-between border-b border-[#1e293b] px-5 py-4 last:border-b-0">
       <div className="flex min-w-0 items-center gap-4">
         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[#334155] bg-[#1e293b] text-sm font-bold text-white">
           {logoLetter || "J"}
@@ -85,13 +101,14 @@ const handleApply = async (e: React.MouseEvent) => {
           Save
         </button>
 
-        <button
-          onClick={handleApply}
-          className="rounded-lg bg-[#2eba47] px-4 py-2 text-sm font-semibold text-black transition hover:bg-[#27a83f]"
-        >
+        <button  onClick={handleApply}
+          className="rounded-lg bg-[#2eba47] px-4 py-2 text-sm font-semibold text-black transition hover:bg-[#27a83f]">
           Apply
         </button>
       </div>
     </div>
   );
 }
+
+
+

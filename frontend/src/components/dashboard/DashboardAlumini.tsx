@@ -1,100 +1,55 @@
 "use client";
-
 import { useEffect, useState } from "react";
-import axiosInstance from "@/lib/axiosInstance";
 import AlumniCard from "./AluminiCard";
+import Link from "next/link";
+import { fetchAlumniData } from "@/services/alumani.services";
+import { Alumni } from "@/types/dashboard";
+import { DashboardAluminiProps } from "@/types/dashboard";
 
-type CompanyOption = {
-  label: string;
-  value: string;
-};
-
-type Alumni = {
-  _id: string;
-  name?: string;
-  fullName?: string;
-  jobRoles?: string[];
-  currentCompany?: string;
-  company?: string;
-  college?: string;
-  collegeName?: string;
-  referralMetrics?: {
-    totalReferralsPosted?: number;
-  };
-};
-
-type AlumniResult = {
-  company: string;
-  alumni: Alumni[];
-};
-
-export default function DashboardAlumini() {
-  const [aluminiResults, setAluminiResults] = useState<AlumniResult[]>([]);
+export default function DashboardAlumni({userType}:DashboardAluminiProps) {
+  const [alumni, setAlumni] = useState<Alumni[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let isMounted = true;
-
-    async function fetchAlumini() {
+    const fetchAlumni = async () => {
       try {
-        setLoading(true);
-
-        const response = await axiosInstance.get("/dropdown/companiesName");
-        console.log("compnies data",response.data)
-        const companies: CompanyOption[] = response.data || [];
         
-        const results: AlumniResult[] = await Promise.all(
-          companies.map(async (company) => {
-            try {
-              console.log(company.value);
-              const res = await axiosInstance.get(
-                `/api/candidate/alumni/${company.value}/${""}`
-              );
+        // if(userType=="student" || userType=="fresher")
+        // {
+        //   const StudRes = await getCollegeAlumini();
+        //   console.log("College Alumni:", StudRes);
+        //   setAlumni(StudRes?.data || []);
+        // }
+        // else
+        // {
+        //   const ProfRes=await getCompanyAlumini();
+        //   console.log("Company Alumni:", ProfRes);
+        //   setAlumni(ProfRes?.data || []);
+        // }
 
-              return {
-                company: company.label,
-                alumni: res.data?.alumni || [],
-              };
-            } catch (error) {
-              console.error(`Error fetching alumni for ${company.label}:`, error);
-
-              return {
-                company: company.label,
-                alumni: [],
-              };
-            }
-          })
+      if (userType === "student" || userType === "fresher") {
+      const response = await fetchAlumniData(
+        "college",1
         );
-
-        if (!isMounted) return;
-
-        setAluminiResults(results);
-      } catch (err) {
-        console.error("Error fetching aluminis:", err);
-
-        if (!isMounted) return;
-
-        setAluminiResults([]);
+      setAlumni(response.data || []);
+      } else {
+        const response = await fetchAlumniData(
+        "company",1
+        );
+        const alumniList = Object.values(response.alumniByCompany || {}).flat();
+        setAlumni(alumniList);}
+  
+       
+      } catch (error) {
+        console.error("Error fetching alumini:", error);
+        setAlumni([]);
       } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
-    }
-
-    fetchAlumini();
-
-    return () => {
-      isMounted = false;
     };
-  }, []);
 
-  const allAlumni = aluminiResults.flatMap((companyData) =>
-    companyData.alumni.map((alumni) => ({
-      ...alumni,
-      fallbackCompany: companyData.company,
-    }))
-  );
+    fetchAlumni();
+  }, []);
 
   if (loading) {
     return (
@@ -104,15 +59,13 @@ export default function DashboardAlumini() {
             <div className="h-5 w-48 animate-pulse rounded bg-white/10" />
             <div className="mt-2 h-4 w-56 animate-pulse rounded bg-white/10" />
           </div>
-
-          <div className="h-5 w-20 animate-pulse rounded bg-white/10" />
         </div>
 
         <div className="grid grid-cols-1 gap-6 p-3 md:grid-cols-2 xl:grid-cols-3">
           {[1, 2, 3].map((item) => (
             <div
               key={item}
-              className="h-36 animate-pulse rounded-2xl border border-[#1e293b] bg-[#020617]"
+              className="h-40 animate-pulse rounded-2xl border border-[#1e293b] bg-[#020617]"
             />
           ))}
         </div>
@@ -133,28 +86,28 @@ export default function DashboardAlumini() {
           </p>
         </div>
 
-        <button className="text-md text-gray-400 hover:text-white">
-          View All →
-        </button>
+        <Link href={`${
+         userType === "student" || userType === "fresher"? "/student": "/professional"}/alumani-network`} className="text-sm text-gray-400 hover:text-white">
+  View All →
+</Link>
       </div>
 
       <div className="grid grid-cols-1 gap-6 p-3 md:grid-cols-2 xl:grid-cols-3">
-        {allAlumni.length === 0 ? (
-          <p className="col-span-full p-4 text-gray-400">No alumni found</p>
+        {alumni.length === 0 ? (
+          <p className="col-span-full p-4 text-gray-400">
+            No alumni found
+          </p>
         ) : (
-          allAlumni.map((alumni) => (
+          alumni.map((person) => (
             <AlumniCard
-              key={alumni._id}
-              name={alumni.fullName || alumni.name || "Alumni"}
-              role={alumni.jobRoles?.[0] || "Professional"}
-              company={
-                alumni.currentCompany ||
-                alumni.company ||
-                alumni.fallbackCompany ||
-                "Company"
+              key={person._id}
+              name={person.fullName || person.name || "Alumni"}
+              role={person.jobRoles?.[0] || "Professional"}
+              company={person.currentCompany || "Company"}
+              college={person.college || "College"}
+              openRoles={
+                person.referralMetrics?.totalReferralsPosted || 0
               }
-              college={alumni.college || alumni.collegeName || "College"}
-              openRoles={alumni.referralMetrics?.totalReferralsPosted || 0}
             />
           ))
         )}

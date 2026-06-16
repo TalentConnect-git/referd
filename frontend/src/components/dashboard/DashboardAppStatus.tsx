@@ -1,7 +1,5 @@
 import AppStatusRow from './AppStatusRow';
-interface DashboardAppStatusProps {
-  applications:any[];
-}
+import { DashboardAppStatusProps } from '@/types/dashboard';
 export default function DashboardAppStatus({ applications }: DashboardAppStatusProps) {
   return (
     <div className="rounded-3xl border border-[#1e293b] bg-[#0f172a] min-h-[500px] mr-5">
@@ -38,3 +36,6 @@ export default function DashboardAppStatus({ applications }: DashboardAppStatusP
     </div>
   );
 }
+
+
+

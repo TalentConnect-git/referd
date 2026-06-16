@@ -1,7 +1,4 @@
-interface RightPanelProps {
-  allJobs: any[];
-  onSelectJob: (job: any) => void;
-}
+import { RightPanelProps } from "@/types/dashboard";
 export default function RightPanel({ allJobs,onSelectJob }: RightPanelProps) 
 {
     return ( 

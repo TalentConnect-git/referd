@@ -1,7 +1,4 @@
-interface ProcessSectionProps {
-  job: any;
-}
-
+import { ProcessSectionProps } from "@/types/dashboard";
 export default function ProcessSection({ job }: ProcessSectionProps) {
     return (
 

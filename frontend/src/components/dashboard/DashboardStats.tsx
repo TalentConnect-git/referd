@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axiosInstance from "@/lib/axiosInstance";
 import DashboardProfStats from "./DashboardProfStats";
 import DashboardStudStats from "./DashboardStudStats";
 import {
@@ -10,17 +9,16 @@ import {
   getCareerInsights,
 } from "@/services/stats.services";
 
-interface DashboardStatsProps {
-  userType: string;
-}
+import { DashboardStatsProps } from "@/types/dashboard";
 
-export default function DashboardStats({ userType }: DashboardStatsProps) {
+export default function DashboardStats({
+  userType,
+}: DashboardStatsProps) {
   // Professional Stats
   const [referralsPosted, setReferralsPosted] = useState(0);
   const [applicationsReceived, setApplicationsReceived] = useState(0);
   const [responseRate, setResponseRate] = useState(0);
   const [successRate, setSuccessRate] = useState(0);
-  
 
   // Student/Fresher Stats
   const [applicationsSent, setApplicationsSent] = useState(0);
@@ -29,90 +27,80 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
   const [interviewCalls, setInterviewCalls] = useState(0);
 
   const [loading, setLoading] = useState(true);
- 
-  useEffect(() => {
-    let isMounted = true;
 
-   const fetchDashboardStats = async () => {
-  try {
-    setLoading(true);
+  const fetchDashboardStats = async () => {
+    try {
+      setLoading(true);
 
-    if (userType === "professional") {
-      const profData = await getProfessionalStats();
+      if (userType === "professional") {
+        const profData = await getProfessionalStats();
 
-      if (!isMounted) return;
+        console.log("Professional Stats:", profData);
 
-      const metrics = profData?.data ?? profData;
+        const metrics = profData?.data ?? profData;
 
-      setReferralsPosted(
-        metrics?.totalReferralsPosted ?? 0
-      );
+        setReferralsPosted(
+          metrics?.totalReferralsPosted ?? 0
+        );
 
-      setApplicationsReceived(
-        metrics?.totalApplicationsReceived ?? 0
-      );
+        setApplicationsReceived(
+          metrics?.totalApplicationsReceived ?? 0
+        );
 
-      setResponseRate(
-        metrics?.responseRate ?? 0
-      );
+        setResponseRate(
+          metrics?.responseRate ?? 0
+        );
 
-      setSuccessRate(
-        metrics?.referralSuccessRate ?? 0
-      );
-    } 
-    
-    else if (
-      userType === "student" ||
-      userType === "fresher"
-    ) {
-      const [statsData, insightsData] =
-        await Promise.all([
+        setSuccessRate(
+          metrics?.referralSuccessRate ?? 0
+        );
+      } else if (
+        userType === "student" ||
+        userType === "fresher"
+      ) {
+        const [statsData, insightsData] = await Promise.all([
           getCandidateStats(),
           getCareerInsights(),
         ]);
 
-      if (!isMounted) return;
+        console.log("Candidate Stats:", statsData);
+        console.log("Career Insights:", insightsData);
 
-      const stats = statsData?.data ?? {};
-      const insights = insightsData?.data ?? {};
+        const stats = statsData?.data ?? {};
+        const insights = insightsData?.data ?? {};
 
-      setApplicationsSent(
-        stats?.totalApplications ?? 0
+        setApplicationsSent(
+          stats?.totalApplications ?? 0
+        );
+
+        setInterviewCalls(
+          stats?.interviewCalls ??
+            stats?.referralApplications ??
+            0
+        );
+
+        setResumeScore(
+          insights?.resumeScore ?? 0
+        );
+
+        setHiringScore(
+          insights?.hiringScore ?? 0
+        );
+      }
+    } catch (error) {
+      console.error(
+        `Error fetching ${userType} stats:`,
+        error
       );
-
-      setInterviewCalls(
-        stats?.interviewCalls ??
-        stats?.referralApplications ??
-        0
-      );
-
-      setResumeScore(
-        insights?.resumeScore ?? 0
-      );
-
-      setHiringScore(
-        insights?.hiringScore ?? 0
-      );
-    }
-  } catch (error) {
-    console.error(
-      `Error fetching ${userType} stats:`,
-      error
-    );
-  } finally {
-    if (isMounted) {
+    } finally {
       setLoading(false);
     }
-  }
-};
+  };
 
+  useEffect(() => {
     if (userType) {
       fetchDashboardStats();
     }
-
-    return () => {
-      isMounted = false;
-    };
   }, [userType]);
 
   if (loading) {
@@ -139,7 +127,8 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
         />
       )}
 
-      {(userType === "student" || userType === "fresher") && (
+      {(userType === "student" ||
+        userType === "fresher") && (
         <DashboardStudStats
           applicationsSent={applicationsSent}
           interviewCalls={interviewCalls}

@@ -8,15 +8,12 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function DashboardContainer() {
   const { profile, role } = useAuth();
-
-
   const userName = profile?.fullName || profile?.name || "User";
-  console.log(userName);
   const userRole = role || profile?.profileType || "student";
 
   return (
     <>
-      <DashboardHeader userName={userName} />
+      <DashboardHeader userName={userName} userType={userRole} />
 
       <br />
 
@@ -28,7 +25,7 @@ export default function DashboardContainer() {
 
       <br />
 
-      <DashboardAlumini userType={userRole}/>
+      <DashboardAlumini userType={userRole} />
     </>
   );
 }

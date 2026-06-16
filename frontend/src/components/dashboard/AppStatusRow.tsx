@@ -1,8 +1,4 @@
-interface AppStatusRowProps {
-    company: string;
-    role: string;
-    stage: string;
-}
+import { AppStatusRowProps } from "@/types/dashboard";
 
 export default function AppStatusRow({company,role,stage}:AppStatusRowProps)
 {

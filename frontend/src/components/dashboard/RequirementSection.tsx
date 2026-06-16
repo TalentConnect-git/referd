@@ -1,9 +1,4 @@
-interface RequirementSectionProps {
-  job: any;
-}
-
-
-
+import { RequirementSectionProps } from "@/types/dashboard";
 export default function RequirementSection({ job }: RequirementSectionProps) {
   return (
     <>

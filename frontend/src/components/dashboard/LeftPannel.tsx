@@ -1,6 +1,4 @@
-interface LeftPanelProps {
-  job: any;
-}
+import { LeftPanelProps } from "@/types/dashboard";
 import { useState } from "react";
 import OverviewSection from "./OverviewSection";
 import RequirementSection from "./RequirementSection";
