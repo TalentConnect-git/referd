@@ -34,7 +34,7 @@ export interface Alumni {
   _id: string;
   name?: string;
   fullName?: string;
-  college?: string;
+  college?: string|null;
   currentCompany?: string;
   jobRoles?: string[];
   referralMetrics?: {

@@ -1,4 +1,3 @@
-import { ApplicationType } from "./StudentApplications";
 import { ApplicationStatsProps } from "@/types/applications";
 
 export default function ApplicationStats({

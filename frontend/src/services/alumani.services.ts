@@ -120,8 +120,18 @@ type CompanyApiResponse = {
   message: string;
   companiesChecked: string[];
   jobPostedOnly: boolean;
-  totalAlumni: number;
+  totalAlumni?: number;
+  data: AlumniProfile[];
   alumniByCompany: Record<string, AlumniProfile[]>;
+
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
 };
 
 export type ApiResponse = CollegeApiResponse | CompanyApiResponse | HiringApiResponse;

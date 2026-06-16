@@ -14,18 +14,6 @@ export default function DashboardAlumni({userType}:DashboardAluminiProps) {
     const fetchAlumni = async () => {
       try {
         
-        // if(userType=="student" || userType=="fresher")
-        // {
-        //   const StudRes = await getCollegeAlumini();
-        //   console.log("College Alumni:", StudRes);
-        //   setAlumni(StudRes?.data || []);
-        // }
-        // else
-        // {
-        //   const ProfRes=await getCompanyAlumini();
-        //   console.log("Company Alumni:", ProfRes);
-        //   setAlumni(ProfRes?.data || []);
-        // }
 
       if (userType === "student" || userType === "fresher") {
       const response = await fetchAlumniData(
@@ -36,11 +24,15 @@ export default function DashboardAlumni({userType}:DashboardAluminiProps) {
         const response = await fetchAlumniData(
         "company",1
         );
-        const alumniList = Object.values(response.alumniByCompany || {}).flat();
-        setAlumni(alumniList);}
+        // const alumniList = Object.values(response.alumniByCompany || {}).flat();
+        // setAlumni(alumniList);}
+        if ("alumniByCompany" in response) {
+        const alumniList = Object.values(response.alumniByCompany).flat();
+        setAlumni(alumniList);
+        }
   
        
-      } catch (error) {
+      } }catch (error) {
         console.error("Error fetching alumini:", error);
         setAlumni([]);
       } finally {
