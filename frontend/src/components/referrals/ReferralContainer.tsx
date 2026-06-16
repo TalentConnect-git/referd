@@ -25,82 +25,82 @@ export default function ReferralContainer() {
    const [resumeReferralJob, setResumeReferralJob] =useState<ReferralJob | null>(null);
 
 
-    const dummyReferrals: ReferralJob[] = [
-  {
-    _id: "6a281805e40a48a1d482cb8c",
-    jobTitle: ["Software Engineer"],
-    location: ["Bengaluru"],
-    approvalStatus: "Approved",
-    jobStatus: "Active",
-    inactive: false,
+//     const dummyReferrals: ReferralJob[] = [
+//   {
+//     _id: "6a281805e40a48a1d482cb8c",
+//     jobTitle: ["Software Engineer"],
+//     location: ["Bengaluru"],
+//     approvalStatus: "Approved",
+//     jobStatus: "Active",
+//     inactive: false,
 
-    description: "Backend development role",
+//     description: "Backend development role",
 
-    packageDetails: {
-      currency: "INR",
-      totalCTC: 18,
-    },
+//     packageDetails: {
+//       currency: "INR",
+//       totalCTC: 18,
+//     },
 
-    metrics: {
-      totalApplicationsReceived: 18,
-      totalReferredToCompany: 6,
-      totalInterviewScheduled: 12,
-      totalAcceptedByCompany: 3,
-      responseRate: 70,
-      referralSuccessRate: 25,
-    },
-  },
+//     metrics: {
+//       totalApplicationsReceived: 18,
+//       totalReferredToCompany: 6,
+//       totalInterviewScheduled: 12,
+//       totalAcceptedByCompany: 3,
+//       responseRate: 70,
+//       referralSuccessRate: 25,
+//     },
+//   },
 
-  {
-    _id: "2",
-    jobTitle: ["Product Manager"],
-    location: ["Remote"],
-    approvalStatus: "Pending",
-    jobStatus: "Pending",
-    inactive: false,
+//   {
+//     _id: "2",
+//     jobTitle: ["Product Manager"],
+//     location: ["Remote"],
+//     approvalStatus: "Pending",
+//     jobStatus: "Pending",
+//     inactive: false,
 
-    description: "PM role",
+//     description: "PM role",
 
-    packageDetails: {
-      currency: "INR",
-      totalCTC: 24,
-    },
+//     packageDetails: {
+//       currency: "INR",
+//       totalCTC: 24,
+//     },
 
-    metrics: {
-      totalApplicationsReceived: 14,
-      totalReferredToCompany: 4,
-      totalInterviewScheduled: 10,
-      totalAcceptedByCompany: 2,
-      responseRate: 60,
-      referralSuccessRate: 20,
-    },
-  },
+//     metrics: {
+//       totalApplicationsReceived: 14,
+//       totalReferredToCompany: 4,
+//       totalInterviewScheduled: 10,
+//       totalAcceptedByCompany: 2,
+//       responseRate: 60,
+//       referralSuccessRate: 20,
+//     },
+//   },
 
-  {
-    _id: "3",
-    jobTitle: ["Backend Engineer"],
-    location: ["Hyderabad"],
-    approvalStatus: "Approved",
-    jobStatus: "Closed",
-    inactive: true,
+//   {
+//     _id: "3",
+//     jobTitle: ["Backend Engineer"],
+//     location: ["Hyderabad"],
+//     approvalStatus: "Approved",
+//     jobStatus: "Closed",
+//     inactive: true,
 
-    description: "Java + Spring Boot",
+//     description: "Java + Spring Boot",
 
-    packageDetails: {
-      currency: "INR",
-      totalCTC: 15,
-    },
+//     packageDetails: {
+//       currency: "INR",
+//       totalCTC: 15,
+//     },
 
-    metrics: {
-      totalApplicationsReceived: 25,
-      totalReferredToCompany: 8,
-      totalInterviewScheduled: 5,
-      totalAcceptedByCompany: 1,
-      responseRate: 40,
-      referralSuccessRate: 10,
-    },
-  },
-];
+//     metrics: {
+//       totalApplicationsReceived: 25,
+//       totalReferredToCompany: 8,
+//       totalInterviewScheduled: 5,
+//       totalAcceptedByCompany: 1,
+//       responseRate: 40,
+//       referralSuccessRate: 10,
+//     },
+//   },
+// ];
 
   const fetchReferrals = async () => {
     try {
@@ -108,7 +108,7 @@ export default function ReferralContainer() {
 
       const response = await getMyReferrals(page, 10);
 
-    setReferrals(response.data || []);
+      setReferrals(response.data || []);
 
       setMeta({
         totalPages: response.meta?.totalPages || 1,
@@ -223,7 +223,7 @@ const handleResume = async (
 )}
 
     <div className="flex-1 flex flex-col gap-6 mt-5">
-      {dummyReferrals.map((referral) => (
+      {referrals.map((referral) => (
         <ReferralCard
           key={referral._id}
           referral={referral}
@@ -255,6 +255,9 @@ const handleResume = async (
   </div>
 );
 }
+
+
+
 
 
 
