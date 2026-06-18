@@ -3,7 +3,7 @@ import Link from "next/link";
 import { DashboardHeaderProps } from "@/types/dashboard";
 export default function DashboardHeader({ userName,userType }: DashboardHeaderProps) {
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6">
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 ml-4 mt-2">
   <div className="flex items-center justify-between">
 
     <div>
