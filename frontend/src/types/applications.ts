@@ -36,3 +36,46 @@ export interface ProfessionalApplicationTabsProps {
 export interface StageIndicatorProps {
   stage: string;
 }
+
+//Applications Details Part 
+export interface ApplicationDetailContainerProps {
+  application: any;
+}
+
+export interface ApplicationDetailHeaderProps {
+  applicant: any;
+}
+
+export interface ApplicationDetailAssessmentProps {
+  application: any;
+  applicant: any;
+}
+
+export interface ApplicationDetailEducationProps {
+  educations: any[];
+}
+
+export interface ApplicationDetailExperienceProps {
+  experiences: any[];
+}
+
+export interface ApplicationDetailSkillsProps {
+  skills: string[];
+  toolsAndPlatforms: string[];
+}
+
+export interface ApplicationDetailReferralRequestProps {
+  job: any;
+}
+
+export interface ApplicationDetailTimelineProps {
+  statusHistory: any[];
+}
+
+export interface ApplicationDetailActionsProps {
+  application: any;
+}
+
+export interface ApplicationDetailSocialLinksProps {
+  applicant: any;
+}

@@ -6,6 +6,7 @@ import { fetchAlumniData, type ApiResponse, type AlumniProfile } from "@/service
 import { AlumniCard } from "@/components/alumni/AlumniCard";
 import { AlumniPagination } from "@/components/alumni/AlumniPagination";
 
+
 type AlumniTab = "hiring" | "college" | "company";
 
 const tabs: { key: AlumniTab; label: string }[] = [
@@ -44,6 +45,7 @@ const getTotalCount = (data: ApiResponse, tab: AlumniTab): number => {
 
 // ---------- Page Component ----------
 export default function AlumniPage() {
+  
   const [activeTab, setActiveTab] = useState<AlumniTab>("hiring");
   const [alumni, setAlumni] = useState<AlumniProfile[]>([]);
   const [page, setPage] = useState<number>(1);
@@ -69,6 +71,7 @@ export default function AlumniPage() {
       const count = getTotalCount(data, activeTab);
 
       setAlumni(alumniList);
+      console.log(alumni);
       setTotalCount(count || alumniList.length);
 
       // Extract metadata for fallbacks
@@ -230,3 +233,8 @@ export default function AlumniPage() {
     </main>
   );
 }
+
+
+
+
+

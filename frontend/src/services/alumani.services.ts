@@ -158,3 +158,18 @@ export async function fetchAlumniData(
   const { data } = await axiosInstance.get<ApiResponse>(url);
   return data;
 }
+
+
+export const getAlumniDetails = async (
+  alumniId: string
+) => {
+  const { data } = await axiosInstance.get(
+    `/api/onboarding/get-details/${alumniId}`
+  );
+
+  return data;
+};
+
+
+
+

@@ -8,15 +8,6 @@ export const getCandidateApplications = async (jobType: string , page=1,limit=10
 
 }
 
-// export const getProfessionalApplications = async () => {
-
-//   const referralRes = await axiosInstance.get(
-//     "/application/status/candidate/Referral"
-//   );
-
-//   return referralRes.data?.data || [];
-
-// };
 
 export const getProfessionalApplications = async (
   page = 1,
@@ -35,3 +26,18 @@ export const getProfessionalReceivedApplications = async (
 
   return data;
 };
+
+export const getApplicationById = async (
+  applicationId: string
+) => {
+  const { data } = await axiosInstance.get(
+    `/application/details/${applicationId}`
+  );
+
+  return data;
+};
+
+
+
+
+

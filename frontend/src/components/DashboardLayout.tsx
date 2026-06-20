@@ -183,15 +183,15 @@ export function DashboardLayout({ children, navItems, role }: DashboardLayoutPro
       <div className="flex min-h-screen w-full bg-[var(--background)] text-white max-md:hidden">
         {/* ---------- Sidebar ---------- */}
         <aside className="flex w-60 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--background)]">
-          {/* Logo */}
-          <div className="flex items-center gap-2 px-5 py-5">
+          {/* Logo */} 
+           {/* <div className="flex items-center gap-2 px-5 py-5">
             <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--primary)]">
               <span className="h-2 w-2 rounded-full bg-black" />
             </div>
             <span className="text-[18px] font-semibold tracking-tight text-white">
               Referd<span className="text-[var(--primary)]">.</span>
             </span>
-          </div>
+          </div> */}
 
           {/* Search Bar */}
           <div className="px-3 pb-4">

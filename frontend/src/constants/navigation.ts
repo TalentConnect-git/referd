@@ -19,12 +19,13 @@ export const studentNavItems: DashboardNavItem[] = [
   
   { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
   { to: "/internships", label: "Internships", icon: "briefcase" },
-  { to: "/referral-jobs", label: "Referral Jobs", icon: "building" },
+  // { to: "/referral-jobs", label: "Referral Jobs", icon: "building" },
+  { to: "/jobs", label: "Jobs", icon: "building" },
   { to: "/applications", label: "Applications", icon: "file" },
   { to: "/saved-jobs", label: "Saved Jobs", icon: "bookmark" },
   { to: "/alumani-network", label: "Alumni Network", icon: "graduation" },
-  { to: "/messages", label: "Messages", icon: "message", badge: 2 },
-  { to: "/notifications", label: "Notifications", icon: "bell", badge: 4 },
+  // { to: "/messages", label: "Messages", icon: "message", badge: 2 },
+  // { to: "/notifications", label: "Notifications", icon: "bell", badge: 4 },
   { to: "/profile", label: "Profile", icon: "user" },
   { to: "/settings", label: "Settings", icon: "settings" },
 ];
@@ -32,14 +33,16 @@ export const studentNavItems: DashboardNavItem[] = [
 export const fresherNavItems: DashboardNavItem[] = [
   
   { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
-  { to: "/referral-jobs", label: "Referral Jobs", icon: "briefcase" },
+  // { to: "/referral-jobs", label: "Referral Jobs", icon: "briefcase" },
+  { to: "/internships", label: "Internships", icon: "briefcase" },
+  { to: "/jobs", label: "Jobs", icon: "building" },
   { to: "/applications", label: "Applications", icon: "file" },
   { to: "/saved-jobs", label: "Saved Jobs", icon: "bookmark" },
-  { to: "/interviews", label: "Interviews", icon: "calendar" },
+  // { to: "/interviews", label: "Interviews", icon: "calendar" },
   { to: "/alumani-network", label: "Alumni Network", icon: "network" },
-  { to: "/messages", label: "Messages", icon: "message", badge: 1 },
-  { to: "/notifications", label: "Notifications", icon: "bell", badge: 3 },
-  { to: "/activity", label: "Activity Feed", icon: "award" },
+  // { to: "/messages", label: "Messages", icon: "message", badge: 1 },
+  // { to: "/notifications", label: "Notifications", icon: "bell", badge: 3 },
+  // { to: "/activity", label: "Activity Feed", icon: "award" },
   { to: "/profile", label: "Profile", icon: "user" },
   { to: "/settings", label: "Settings", icon: "settings" },
 ];

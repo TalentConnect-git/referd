@@ -8,6 +8,8 @@ import {
   MessageSquare,
 } from "lucide-react";
 import type { AlumniProfile } from "@/services/alumani.services";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 type AlumniCardProps = {
   profile: AlumniProfile;
@@ -61,12 +63,17 @@ export function AlumniCard({
   onMessage,
   onRequestRefer,
 }: AlumniCardProps) {
+
+  console.log("profile ",profile);
+  const router = useRouter();
   const name = profile.name || "Unknown User";
   const initials = getInitials(name);
   const company = getCompany(profile, companyFallback);
   const role = getCurrentRole(profile);
   const isHiring = Boolean(profile.isHiring);
   const jobsCount = profile.referralJobs?.length || 0;
+  const { role: userType } = useAuth();
+  
 
   // College: use profile.colleges array first, then profile.college, then first education, then fallback
   const collegeDisplay =
@@ -77,8 +84,11 @@ export function AlumniCard({
     "College not available";
 
   return (
-    <article className="rounded-3xl border border-[#242d3a] bg-[#111821] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition hover:border-[#2fb344]/40">
-      <div className="flex items-start justify-between gap-4">
+    <article className="rounded-3xl border border-[#242d3a] bg-[#111821] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition hover:border-[#2fb344]/40" onClick={() =>
+  router.push(
+    `/${userType}/alumani-network/${profile.userId}`
+  )}>
+      <div className="flex items-start justify-between gap-4" >
         <div className="flex items-start gap-4">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#123321] text-base font-bold text-[#2fb344]">
             {initials}
@@ -135,7 +145,10 @@ export function AlumniCard({
       <div className="grid grid-cols-2 gap-3">
         <button
           type="button"
-          onClick={() => onMessage?.(profile)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onMessage?.(profile);
+          }}
           className="flex h-10 items-center justify-center gap-2 rounded-lg border border-[#263241] bg-transparent text-sm font-semibold text-white transition hover:bg-white/5"
         >
           <MessageSquare className="h-4 w-4" />
@@ -145,7 +158,10 @@ export function AlumniCard({
         <button
           type="button"
           disabled={!isHiring && jobsCount === 0}
-          onClick={() => onRequestRefer?.(profile)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onRequestRefer?.(profile);
+          }}
           className="h-10 rounded-lg bg-[#2fb344] text-sm font-semibold text-black transition hover:bg-[#35c94d] disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
         >
           Request refer
@@ -154,3 +170,8 @@ export function AlumniCard({
     </article>
   );
 }
+
+
+
+
+

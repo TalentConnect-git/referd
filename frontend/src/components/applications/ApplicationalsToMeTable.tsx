@@ -1,16 +1,13 @@
 "use client";
 
 import StageIndicator from "./StageIndicator";
-
-interface ApplicationalsToMeTableProps {
-  applications: any[];
-  page: number;
-  meta: any;
-}
+import { ApplicationalsToMeTableProps } from "@/types/applications";
+import { useRouter } from "next/navigation";
 
 export default function ProfessionalAppTable({
   applications,
 }: ApplicationalsToMeTableProps) {
+   const router = useRouter();
   return (
     <div className="rounded-3xl border border-slate-800 overflow-hidden min-h-[420px]">
       <table className="w-full">
@@ -30,20 +27,24 @@ export default function ProfessionalAppTable({
             applications.map((application: any) => (
               <tr
                 key={application._id}
-                className="border-t border-slate-800"
+                onClick={() =>
+                  router.push(
+                    `/professional/applications/to-me/${application._id}`
+                  )}
+                className="border-t border-slate-800 cursor-pointer"
               >
                 <td className="px-6 py-4">
-                  {application?.applicantName || "N/A"}
+                  {application?.applicant.name || "N/A"}
                 </td>
 
                 <td className="px-6 py-4">
-                  {application?.jobTitle || "N/A"}
+                  {application?.job?.jobTitle?.[0] || "N/A"}
                 </td>
 
                 <td className="px-6 py-4">
                   {
-                    application?.academicBackground
-                      ?.collegeName || "N/A"
+                    application?.applicant.educations?.[0].college
+                      || "N/A"
                   }
                 </td>
 

@@ -310,7 +310,6 @@ export default function PostReferralForm() {
             </button>
 
             <button onClick={handleSubmit}
-            
               className="rounded-xl bg-green-500 px-6 py-3 font-medium text-black"
             >
              {loading ? "Posting..." : "Post Referral"}
@@ -318,6 +317,8 @@ export default function PostReferralForm() {
           </div>
         </>
       )}
+
+
     </div>
   );
 }

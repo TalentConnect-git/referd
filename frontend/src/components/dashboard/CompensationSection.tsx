@@ -1,7 +1,4 @@
-interface CompensationSectionProps {
-  job: any;
-}
-
+import { CompensationSectionProps } from "@/types/dashboard";
 export default function CompensationSection({ job }: CompensationSectionProps) {
   return (
     <div className="rounded-xl border border-[#1e293b] bg-[#111827] p-6">

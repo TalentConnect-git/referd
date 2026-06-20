@@ -1,6 +1,4 @@
-interface StageIndicatorProps {
-  stage: string;
-}
+import { StageIndicatorProps } from "@/types/applications";
 
 export default function StageIndicator({
   stage,

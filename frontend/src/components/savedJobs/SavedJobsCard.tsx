@@ -69,3 +69,4 @@ export default function SavedJobCard({ savedJob,onUnsave }: SavedJobCardProps) {
     </div>
   );
 }
+
