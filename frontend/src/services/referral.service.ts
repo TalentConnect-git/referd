@@ -12,13 +12,13 @@ export const createReferralPosting = async (
   return response.data;
 };
 
-
+// your posted referrals 
 export const getMyReferrals = async (
   page = 1,
   limit = 10
 ) => {
   const { data } = await axiosInstance.get(
-    `/student-dashboard/posted-referral-job?showAll=true&page=${page}&limit=${limit}`
+    `/api/student-dashboard/posted-referral-job?showAll=true&page=${page}&limit=${limit}`
   );
   return data;
 
@@ -37,7 +37,7 @@ export const deleteReferral = async (
   jobId: string
 ) => {
   const { data } = await axiosInstance.delete(
-    `/delete-job/${jobId}`
+    `/api/delete-job/${jobId}`
   );
 
   return data;

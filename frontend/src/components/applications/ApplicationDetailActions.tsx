@@ -1,10 +1,30 @@
 "use client";
 
 import { ApplicationDetailActionsProps } from "@/types/applications";
+import { updateApplicationStatus } from "@/services/application.service";
+import toast from "react-hot-toast";
 
 export default function ApplicationDetailActions({
   application,
 }: ApplicationDetailActionsProps) {
+
+
+
+  const handleStatusUpdate = async (
+    status: "Referred To Company" | "Rejected" | "Accepted"
+  ) => {
+    try {
+      await updateApplicationStatus(application._id, status);
+      toast.success(`Application ${status} successfully`);
+
+    } catch (error) {
+      console.error("Failed to update application status:", error);
+      toast.error("Something went wrong");
+    }
+
+  };
+
+
   return (
     <div
       className="
@@ -20,7 +40,7 @@ export default function ApplicationDetailActions({
 
 
 <div className="flex items-center gap-8">
-  <button
+  <button onClick={() => handleStatusUpdate("Rejected")}
     className="
       text-red-400
       font-medium
@@ -33,7 +53,7 @@ export default function ApplicationDetailActions({
     Reject Candidate
   </button>
 
-  <button
+  <button onClick={() => handleStatusUpdate("Referred To Company")}
     className="
       text-green-400
       font-medium
@@ -45,6 +65,22 @@ export default function ApplicationDetailActions({
   >
     Refer Candidate
   </button>
+
+      <button
+
+          onClick={() => handleStatusUpdate("Accepted")}
+
+          className="
+            text-blue-400
+            font-medium
+            transition-all
+            hover:text-blue-300
+            hover:underline
+            cursor-pointer"
+        >
+          Approve Candidate
+        </button>
+
 </div>
 
       <div className="mt-6 text-sm text-slate-400">

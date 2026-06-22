@@ -19,7 +19,7 @@ export default function JobContainer({
   const role = profile?.profileType || "student";
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="ml-5">Loading...</div>;
   }
 
   return (

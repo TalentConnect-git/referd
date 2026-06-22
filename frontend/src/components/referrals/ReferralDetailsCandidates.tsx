@@ -5,51 +5,14 @@ export default function ReferralDetailsCandidates({referral}: ReferralDetailsCan
 {
     const [candidates, setCandidates] = useState<ReferralCandidate[]>([]);
     const [loading, setLoading] = useState(false);
-    const dummyCandidates: ReferralCandidate[] = [
-  {
-    _id: "1",
-
-    applicant: {
-      _id: "101",
-      name: "Rita",
-      email: "rita@gmail.com",
-      phone: "8734618734",
-      profileType: "student",
-    },
-
-    applicantType: "student",
-    adminApprovalStatus: "Approved",
-    currentStatus: "Application Sent",
-    matchScore: 86,
-    createdAt: "2026-06-13T06:00:23.133Z",
-  },
-  {
-    _id: "2",
-
-    applicant: {
-      _id: "102",
-      name: "Rahul",
-      email: "rahul@gmail.com",
-      phone: "8734618734",
-      profileType: "student",
-    },
-
-    applicantType: "student",
-    adminApprovalStatus: "Approved",
-    currentStatus: "Application Sent",
-    matchScore: 86,
-    createdAt: "2026-06-13T06:00:23.133Z",
-  }
-];
-
     useEffect(() => {fetchCandidates();}, [referral._id]);
     const fetchCandidates = async () => {
     try {
       setLoading(true);
       const response =
         await getReferralCandidates(referral._id);
-        //setCandidates(response.data || []);
-        setCandidates(dummyCandidates);
+        setCandidates(response.data || []);
+        // setCandidates(dummyCandidates);
 
     } catch (error) {
       console.error( "Error fetching candidates", error);

@@ -1,11 +1,30 @@
 import axiosInstance from "@/lib/axiosInstance";
 
 export const getProfessionalStats = async () => {
-  const res = await axiosInstance.get(
-    "/application/professional/metrics"
-  );
+  // const res = await axiosInstance.get(
+  //   "/application/professional/metrics"
+  // );
 
-  return res.data;
+  // return res.data;
+  try {
+
+    const res = await axiosInstance.get(
+
+      "/application/professional/metrics"
+
+    );
+
+    return res.data;
+
+  } catch (err: any) {
+
+    console.log("STATUS:", err?.response?.status);
+
+    console.log("DATA:", err?.response?.data);
+
+    throw err;
+
+  }
 };
 
 export const getCandidateStats = async () => {

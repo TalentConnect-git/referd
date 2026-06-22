@@ -14,11 +14,10 @@ import { DashboardStatsProps } from "@/types/dashboard";
 export default function DashboardStats({
   userType,
 }: DashboardStatsProps) {
-  // Professional Stats
-  const [referralsPosted, setReferralsPosted] = useState(0);
-  const [applicationsReceived, setApplicationsReceived] = useState(0);
-  const [responseRate, setResponseRate] = useState(0);
-  const [successRate, setSuccessRate] = useState(0);
+  const [totalJobsPosted, setTotalJobsPosted] = useState(0);
+  const [approvedJobs, setApprovedJobs] = useState(0);
+  const [rejectedJobs, setRejectedJobs] = useState(0);
+  const [totalApplicationsDone, setTotalApplicationsDone] = useState(0);
 
   // Student/Fresher Stats
   const [applicationsSent, setApplicationsSent] = useState(0);
@@ -33,28 +32,22 @@ export default function DashboardStats({
       setLoading(true);
 
       if (userType === "professional") {
-        const profData = await getProfessionalStats();
-
-        console.log("Professional Stats:", profData);
-
-        const metrics = profData?.data ?? profData;
-
-        setReferralsPosted(
-          metrics?.totalReferralsPosted ?? 0
-        );
-
-        setApplicationsReceived(
-          metrics?.totalApplicationsReceived ?? 0
-        );
-
-        setResponseRate(
-          metrics?.responseRate ?? 0
-        );
-
-        setSuccessRate(
-          metrics?.referralSuccessRate ?? 0
-        );
-      } else if (
+      const profData = await getProfessionalStats();
+      const metrics = profData?.data ?? profData;
+          setTotalJobsPosted(
+            metrics?.totalJobsPosted ?? 0
+          );
+          setApprovedJobs(
+            metrics?.approvedJobs ?? 0
+          );
+          setRejectedJobs(
+            metrics?.rejectedJobs ?? 0
+          );
+          setTotalApplicationsDone(
+            metrics?.totalApplicationsDone ?? 0
+          );
+        }
+       else if (
         userType === "student" ||
         userType === "fresher"
       ) {
@@ -119,11 +112,12 @@ export default function DashboardStats({
   return (
     <>
       {userType === "professional" && (
+
         <DashboardProfStats
-          referralsPosted={referralsPosted}
-          applicationsReceived={applicationsReceived}
-          responseRate={responseRate}
-          successRate={successRate}
+        totalJobsPosted={totalJobsPosted}
+        approvedJobs={approvedJobs}
+        rejectedJobs={rejectedJobs}
+        totalApplicationsDone={totalApplicationsDone}
         />
       )}
 

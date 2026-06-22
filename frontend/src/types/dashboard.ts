@@ -89,12 +89,15 @@ export interface DashboardJobsProps {
     allJobs: Job[];
 }
 
+
 export interface DashboardProfStatsProps {
-    referralsPosted: number;
-    applicationsReceived: number;
-    responseRate: number;
-    successRate: number;
+  totalJobsPosted: number;
+  approvedJobs: number;
+  rejectedJobs: number;
+  totalApplicationsDone: number;
 }
+
+
 export interface DashboardStatsProps {
   userType: string;
 }

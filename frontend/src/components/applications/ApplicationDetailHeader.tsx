@@ -25,24 +25,6 @@ export default function ApplicationDetailHeader({
     >
       <div className="flex items-start gap-5">
         {/* Avatar */}
-        {/* <div
-          className="
-            h-20
-            w-20
-            rounded-full
-            bg-green-600
-            flex
-            items-center
-            justify-center
-            text-2xl
-            font-bold
-            text-white
-            
-          "
-        >
-          {applicant?.name?.charAt(0)?.toUpperCase() ||
-            "A"}
-        </div> */}
 
                     {applicant?.profileImage ? (
                           <img

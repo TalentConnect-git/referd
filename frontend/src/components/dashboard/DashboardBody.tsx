@@ -5,7 +5,7 @@ import DashboardJobs from "./DashboardJobs";
 import DashboardAppStatus from "./DashboardAppStatus";
 import axiosInstance from "@/lib/axiosInstance";
 import { useAuth } from "@/context/AuthContext";
-import { getCandidateApplications } from "@/services/application.service";
+import { getCandidateApplications, getProfessionalApplications } from "@/services/application.service";
 import { UserType } from "@/types/dashboard";
 
 
@@ -54,70 +54,53 @@ export default function DashboardBody() {
           const internships = internshipRes.data?.data || [];
           const offCampus = offCampusRes.data?.data || [];
 
-
-//           //dummy data 
-// const referrals = [
-//   {
-//     _id: "6a2aff29131bb2b24dc87af5",
-//     jobTitle: ["Backend Developer"],
-//     companyName: "Google",
-//     location: ["Gurugram"],
-//     matchScore: 92,
-//   },
-// ];
-// const internships = [
-//   {
-//     _id: "2",
-//     jobTitle: ["Software Intern"],
-//     companyName: "Microsoft",
-//     location: ["Bangalore"],
-//     matchScore: 88,
-//   },
-// ];
-
-// const offCampus = [
-//   {
-//     _id: "3",
-//     jobTitle: ["Cloud Engineer"],
-//     companyName: "Amazon",
-//     location: ["Hyderabad"],
-//     matchScore: 85,
-//   },
-// ];
-
-
-
-          setReferralJobs(referrals);
-          setInternshipJobs(internships);
-          setOffCampusJobs(offCampus);
+          setReferralJobs(referrals.slice(0,2));
+          setInternshipJobs(internships.slice(0,2));
+          setOffCampusJobs(offCampus.slice(0,2));
 
           const allJobs = [...referrals,...internships,...offCampus];
           setAllJobs(allJobs);
-          const [offCampusApplications,internshipApplications,referralApplications,] = await Promise.all([
-                                                                  getCandidateApplications("Off-campus"),
-                                                                  getCandidateApplications("Internship"),
-                                                                  getCandidateApplications("Referral"),
-                                                                ]);
+          const 
+          [offCampusApplications,
+            internshipApplications,
+            referralApplications,] = await Promise.all([
+                                        getCandidateApplications("Off-campus"),
+                                        getCandidateApplications("Internship"),
+                                        getCandidateApplications("Referral"),
+                                        ]);
 
-                                                                  setApplications([
-                                                                    ...(offCampusApplications.data || []),
-                                                                    ...(internshipApplications.data || []),
-                                                                    ...(referralApplications.data || []),
-                                                                  ]);}
+            setApplications([...(offCampusApplications.data || []),
+                          ...(internshipApplications.data || []),
+                          ...(referralApplications.data || []),]);}
           
 
+        // if (userType === "professional") {
+        //   const [ referralRes] = await Promise.all([
+        //     axiosInstance.get("/api/student-dashboard/referral-jobs"),
+        //   ]);
+
+        //   if (!isMounted) return;
+
+        //   setReferralJobs(referralRes.data?.data || []);
+        //   const referrals = referralRes.data?.data || [];
+        //   setAllJobs(referrals);
+        //   setApplications(referralRes.data?.data || []);
+        // }
+
+
         if (userType === "professional") {
-          const [ referralRes] = await Promise.all([
-            axiosInstance.get("/api/student-dashboard/referral-jobs"),
-          ]);
+        const [referralRes, applicationsRes] = await Promise.all(
+          [axiosInstance.get("/api/student-dashboard/referral-jobs"),getProfessionalApplications(),]);
 
-          if (!isMounted) return;
+        if (!isMounted) return;
 
-          setReferralJobs(referralRes.data?.data || []);
-          const referrals = referralRes.data?.data || [];
-          setAllJobs(referrals);
-          setApplications(referralRes.data?.data || []);
-        }
+        const referrals = referralRes.data?.data || [];
+
+        setReferralJobs(referrals.slice(0,4));
+        setAllJobs(referrals);
+
+      setApplications(applicationsRes.data || []);
+      }
       } catch (err) {
         console.error("Error fetching dashboard body data:", err);
 
@@ -147,9 +130,9 @@ export default function DashboardBody() {
       </div>
     );
   }
-
+  const dashboardJobs = referralJobs.slice(0, 5);
   return (
-    <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3 items-stretch">
       { (userType == "student"||userType == "fresher") && (
         <div className="lg:col-span-2">
         <DashboardJobs referralJobs={referralJobs} internshipJobs={internshipJobs} offCampusJobs={offCampusJobs} allJobs={allJobs}/>

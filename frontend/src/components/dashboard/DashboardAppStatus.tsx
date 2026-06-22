@@ -2,7 +2,7 @@ import AppStatusRow from './AppStatusRow';
 import { DashboardAppStatusProps } from '@/types/dashboard';
 export default function DashboardAppStatus({ applications }: DashboardAppStatusProps) {
   return (
-    <div className="rounded-3xl border border-[#1e293b] bg-[#0f172a] min-h-[500px] mr-5">
+    <div className="rounded-3xl border border-[#1e293b] bg-[#0f172a] h-full mr-5">
 
       <div className="p-4 border-b border-[#1e293b]">
 
@@ -19,18 +19,17 @@ export default function DashboardAppStatus({ applications }: DashboardAppStatusP
       <div>
         {
          applications.length>0 ? ( applications.map((application) => (
-  <AppStatusRow
-    key={application._id}
-    company={application.displayCompanyName ?? "Company"}
-    role={
-      application.jobDetails?.jobTitle?.[0] ??
-      application.jobDetails?.jobRoles?.[0] ??
-      "Untitled Job"
-    }
-    stage={application.currentStatus}
-  />
-))): ( <p className="p-4 text-gray-400">No applications found</p>)
-}
+        <AppStatusRow key={application._id}
+        company={application.displayCompanyName ?? "Company"}
+        role={
+          application.jobDetails?.jobTitle?.[0] ??
+          application.jobDetails?.jobRoles?.[0] ??
+          "Untitled Job"
+        }
+        stage={application.currentStatus}
+        />
+      ))): ( <p className="p-4 text-gray-400">No applications found</p>)
+      }
       </div>
 
     </div>

@@ -2,7 +2,7 @@
 
 import { saveJob,applyJob } from "@/services/job.service";
 import { JobRowProps } from "@/types/dashboard";
-import toast from "react-hot-toast/headless";
+import toast from "react-hot-toast";
 
 
 export default function JobRow({
@@ -35,7 +35,6 @@ jobType
       jobType,
       matchScore
     );
-
     toast.success("Job saved successfully");
   } catch (err) {
     toast.error("Error saving job:");
@@ -55,7 +54,7 @@ const handleApply = async (
       matchScore
     );
 
-    alert("Applied successfully");
+    toast.success("Applied successfully");
   } catch (err) {
     toast.error("Error applying:");
     console.log(err);

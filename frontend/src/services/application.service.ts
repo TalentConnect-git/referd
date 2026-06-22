@@ -38,6 +38,20 @@ export const getApplicationById = async (
 };
 
 
+export const updateApplicationStatus = async (
+  applicationId: string,
+  status: "Referred To Company" | "Rejected" | "Accepted"
+) => {
+  const { data } = await axiosInstance.patch(
+    `/application/update-status/${applicationId}`,
+    {
+      status,
+    }
+  );
+  return data;
+
+};
+
 
 
 
