@@ -52,6 +52,16 @@ export const updateApplicationStatus = async (
 
 };
 
+export const getApplicationDetails = async (
+  applicationId: string
+) => {
+  const response = await axiosInstance.get(
+    `/application/details/${applicationId}`
+  );
+
+  return response.data;
+};
+
 
 
 

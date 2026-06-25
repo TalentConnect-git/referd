@@ -55,6 +55,11 @@ export const NotificationProvider = ({
 
   // get DB notifications
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if(!token)
+    {
+      return;
+    }
     const fetchNotifications = async () => {
       try {
 

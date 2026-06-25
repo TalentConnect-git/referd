@@ -1,5 +1,7 @@
 import StageIndicator from "./StageIndicator";
 import { ApplicationTableProps } from "@/types/applications";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function ApplicationTable({
   applicationType,
@@ -7,10 +9,8 @@ export default function ApplicationTable({
   page,
   meta,
 }: ApplicationTableProps) {
-  console.log("Gunik");
-  console.log(StageIndicator);
-  console.log("Chhabra");
-  return (
+  const router = useRouter();
+   return (
     <div className="rounded-3xl border border-slate-800 overflow-hidden min-h-[420px] flex flex-col ml-5">
       <table className="w-full ">
         <thead className="bg-[#111827]">
@@ -51,11 +51,20 @@ export default function ApplicationTable({
       <tr
         key={application._id}
         className="border-t border-slate-800"
+        onClick={() =>
+
+    router.push(`/student/applications/${application._id}`)
+
+  }
       >
 
         <td className="px-6 py-4">
           {application?.displayCompanyName || "Louis Company"}
         </td>
+
+        {/* <Link href={`/student/applications/${application._id}`} className="block hover:text-green-500">
+        {application?.displayCompanyName || "Louis Company"}
+        </Link> */}
 
         <td className="px-6 py-4">
           {application?.jobDetails?.jobTitle?.[0] || "N/A"}
