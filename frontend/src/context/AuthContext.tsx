@@ -154,6 +154,8 @@ export function AuthContextRole({ children }: { children: ReactNode }) {
     localStorage.setItem("token", jwtToken);
     localStorage.setItem("user", JSON.stringify(userData));
 
+    console.log(jwtToken);
+
     clearOnboardingStorage();
 
     setToken(jwtToken);

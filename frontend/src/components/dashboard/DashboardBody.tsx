@@ -8,7 +8,6 @@ import { useAuth } from "@/context/AuthContext";
 import { getCandidateApplications, getProfessionalApplications } from "@/services/application.service";
 import { UserType } from "@/types/dashboard";
 
-
 export default function DashboardBody() {
   const [allJobs, setAllJobs] = useState<any[]>([]);
 
@@ -18,14 +17,12 @@ export default function DashboardBody() {
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { profile} = useAuth();
+  const { profile } = useAuth();
 
-  const role=profile?.profileType;
+  const role = profile?.profileType;
 
   const userType = useMemo(() => {
-    return (role || profile?.profileType ) as
-      | UserType
-      | undefined;
+    return (role || profile?.profileType) as UserType | undefined;
   }, [role, profile?.profileType]);
 
   useEffect(() => {
@@ -41,15 +38,14 @@ export default function DashboardBody() {
         setLoading(true);
 
         if (userType === "student" || userType === "fresher") {
-          const [offCampusRes, internshipRes, referralRes] =
-            await Promise.all([
-              axiosInstance.get("/api/student-dashboard/off-campus"),
-              axiosInstance.get("/api/student-dashboard/internship-postings"),
-              axiosInstance.get("/api/student-dashboard/referral-jobs"),
-            ]);
-  
+          const [offCampusRes, internshipRes, referralRes] = await Promise.all([
+            axiosInstance.get("/api/student-dashboard/off-campus"),
+            axiosInstance.get("/api/student-dashboard/internship-postings"),
+            axiosInstance.get("/api/student-dashboard/referral-jobs"),
+          ]);
+
           if (!isMounted) return;
-    
+
           const referrals = referralRes.data?.data || [];
           const internships = internshipRes.data?.data || [];
           const offCampus = offCampusRes.data?.data || [];
@@ -58,7 +54,7 @@ export default function DashboardBody() {
           setInternshipJobs(internships.slice(0,2));
           setOffCampusJobs(offCampus.slice(0,2));
 
-          const allJobs = [...referrals,...internships,...offCampus];
+          const allJobs = [...referrals, ...internships, ...offCampus];
           setAllJobs(allJobs);
           const 
           [offCampusApplications,
@@ -135,24 +131,28 @@ export default function DashboardBody() {
     <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3 items-stretch">
       { (userType == "student"||userType == "fresher") && (
         <div className="lg:col-span-2">
-        <DashboardJobs referralJobs={referralJobs} internshipJobs={internshipJobs} offCampusJobs={offCampusJobs} allJobs={allJobs}/>
-      </div>)}
-      { (userType == "professional") && (
+          <DashboardJobs
+            referralJobs={referralJobs}
+            internshipJobs={internshipJobs}
+            offCampusJobs={offCampusJobs}
+            allJobs={allJobs}
+          />
+        </div>
+      )}
+      {userType == "professional" && (
         <div className="lg:col-span-2">
-        <DashboardJobs referralJobs={referralJobs} internshipJobs={[]} offCampusJobs={[]} allJobs={allJobs}/>
-      </div>)}
+          <DashboardJobs
+            referralJobs={referralJobs}
+            internshipJobs={[]}
+            offCampusJobs={[]}
+            allJobs={allJobs}
+          />
+        </div>
+      )}
 
       <div>
         <DashboardAppStatus applications={applications} />
       </div>
-        
-
-      
     </div>
   );
 }
-
-
-
-
-

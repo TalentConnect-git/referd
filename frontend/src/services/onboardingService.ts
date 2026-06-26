@@ -1,4 +1,4 @@
-import axiosInstance from "@/lib/axios";
+import axiosInstance from "@/lib/axiosInstance";
 
 export type ParsedResumeResponse = {
   name?: string;

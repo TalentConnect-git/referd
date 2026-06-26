@@ -1,31 +1,49 @@
+// components/referrals/ReferralHeader.tsx
 "use client";
 
-import { Plus } from "lucide-react";
+import { Plus, Send, Sparkles, Users } from "lucide-react";
 import Link from "next/link";
 
-export default function ReferralHeader() {
- 
+interface ReferralHeaderProps {
+  onAskForReferral: () => void;
+}
 
+export default function ReferralHeader({ onAskForReferral }: ReferralHeaderProps) {
   return (
-    <div className="flex items-center justify-between mb-8 ml-5 mt-5">
-      <div>
-        <h1 className="text-xl font-bold text-white ">
-          My Referrals
-        </h1>
+    <div className="glass-card rounded-[var(--radius-xl)] p-6 sm:p-8">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-xl primary-gradient flex items-center justify-center flex-shrink-0">
+            <Users className="w-6 h-6 text-black" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gradient">
+              Get Referred
+            </h1>
+            <p className="text-sm text-[var(--text-primary)] mt-1">
+              Connect with alumni who can refer you to top companies
+            </p>
+          </div>
+        </div>
 
-        <p className="text-sm text-slate-400 mt-1">
-          Manage and track all your posted referral opportunities
-        </p>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={onAskForReferral}
+            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[var(--primary)] text-black font-semibold hover:bg-[var(--primary-dark)] transition-all duration-300"
+          >
+            <Send className="w-4 h-4" />
+            Ask for Referral
+          </button>
+          
+          <Link
+            href="/professional/post-referral"
+            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-[var(--border-strong)] text-[var(--text-secondary)] font-semibold hover:bg-[var(--card-hover)] transition-all duration-300"
+          >
+            <Plus className="w-4 h-4" />
+            Post New Referral
+          </Link>
+        </div>
       </div>
-
-
-<Link
-  href="/professional/post-referral"
-  className="flex items-center mr-5 gap-1.5 bg-green-500 hover:bg-green-600 text-black text-sm font-medium px-3 py-1.5 rounded-lg transition-colors"
->
-  <Plus size={16} />
-  <span>Post New Referral</span>
-</Link>
     </div>
   );
 }

@@ -3,7 +3,7 @@ import type { DashboardNavItem } from "@/components/DashboardLayout";
 export const professionalNavItems: DashboardNavItem[] = [
 
   { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
-  { to: "/jobs", label: "Referral Jobs", icon: "briefcase" },
+  { to: "/referral-jobs", label: "Referral Jobs", icon: "briefcase" },
   { to: "/applications", label: "Applications", icon: "file" },
   { to: "/saved-jobs", label: "Saved Jobs", icon: "bookmark" },
   { to: "/referrals", label: "My Referrals", icon: "userCheck" },

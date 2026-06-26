@@ -28,8 +28,8 @@ import {
 import type { ReactNode } from "react";
 import { useMemo, useRef, useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { goToHome } from "@/helper/index";
 
-// ---------- Types ----------
 export type CandidateRole = "professional" | "student" | "fresher";
 
 export type DashboardIconKey =
@@ -61,7 +61,7 @@ export type DashboardNavItem = {
 type DashboardLayoutProps = {
   children: ReactNode;
   navItems: DashboardNavItem[];
-  role: CandidateRole; // fallback role
+  role: CandidateRole;
 };
 
 const iconMap: Record<DashboardIconKey, LucideIcon> = {
@@ -85,11 +85,14 @@ const iconMap: Record<DashboardIconKey, LucideIcon> = {
 };
 
 // ---------- Component ----------
-export function DashboardLayout({ children, navItems, role }: DashboardLayoutProps) {
+export function DashboardLayout({
+  children,
+  navItems,
+  role,
+}: DashboardLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Local UI states
   const [searchValue, setSearchValue] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -99,16 +102,24 @@ export function DashboardLayout({ children, navItems, role }: DashboardLayoutPro
   // Auth context
   const { profile, profileLoading, logout } = useAuth();
 
+  const handleClick = () => {
+    goToHome(router);
+  };
+
   // Close settings dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
+      if (
+        settingsRef.current &&
+        !settingsRef.current.contains(event.target as Node)
+      ) {
         setSettingsOpen(false);
       }
     }
     if (settingsOpen) {
       document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [settingsOpen]);
 
@@ -135,7 +146,8 @@ export function DashboardLayout({ children, navItems, role }: DashboardLayoutPro
   // Active state helper
   const isActive = (path: string) => {
     if (path === "/home" && pathname === `${basePath}/home`) return true;
-    if (path === "/dashboard" && pathname === `${basePath}/dashboard`) return true;
+    if (path === "/dashboard" && pathname === `${basePath}/dashboard`)
+      return true;
     const fullPath = `${basePath}${path}`;
     return pathname === fullPath || pathname.startsWith(`${fullPath}/`);
   };
@@ -144,7 +156,9 @@ export function DashboardLayout({ children, navItems, role }: DashboardLayoutPro
   const filteredNavItems = useMemo(() => {
     const keyword = searchValue.trim().toLowerCase();
     if (!keyword) return navItems;
-    return navItems.filter((item) => item.label.toLowerCase().includes(keyword));
+    return navItems.filter((item) =>
+      item.label.toLowerCase().includes(keyword),
+    );
   }, [searchValue, navItems]);
 
   // Initials for avatar
@@ -160,7 +174,7 @@ export function DashboardLayout({ children, navItems, role }: DashboardLayoutPro
 
   // Separate main nav from profile/settings
   const mainNavItems = filteredNavItems.filter(
-    (item) => item.label !== "Profile" && item.label !== "Settings"
+    (item) => item.label !== "Profile" && item.label !== "Settings",
   );
 
   // Handlers
@@ -183,8 +197,8 @@ export function DashboardLayout({ children, navItems, role }: DashboardLayoutPro
       <div className="flex min-h-screen w-full bg-[var(--background)] text-white max-md:hidden">
         {/* ---------- Sidebar ---------- */}
         <aside className="flex w-60 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--background)]">
-          {/* Logo */} 
-           {/* <div className="flex items-center gap-2 px-5 py-5">
+          {/* Logo */}
+          {/* <div className="flex items-center gap-2 px-5 py-5">
             <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--primary)]">
               <span className="h-2 w-2 rounded-full bg-black" />
             </div>
@@ -494,7 +508,8 @@ export function DashboardLayout({ children, navItems, role }: DashboardLayoutPro
           </div>
           <h1 className="text-[20px] font-semibold text-white">Mobile View</h1>
           <p className="mt-3 text-[13px] leading-6 text-[var(--text-primary)]">
-            Tap the button below to open the menu and navigate through the dashboard.
+            Tap the button below to open the menu and navigate through the
+            dashboard.
           </p>
           <button
             onClick={() => setIsMobileMenuOpen(true)}

@@ -1,7 +1,7 @@
 // services/alumni.service.ts
 
 // 👇 Replace this import path with your actual axios instance location
-import axiosInstance  from "@/lib/axios"; // or wherever your axios instance lives
+import axiosInstance  from "@/lib/axiosInstance"; // or wherever your axios instance lives
 
 
 // ---------- Types ----------
@@ -156,6 +156,7 @@ export async function fetchAlumniData(
 ): Promise<ApiResponse> {
   const url = getApiUrl(tab, page);
   const { data } = await axiosInstance.get<ApiResponse>(url);
+  console.log(data);
   return data;
 }
 

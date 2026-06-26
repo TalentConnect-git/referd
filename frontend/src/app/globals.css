@@ -88,3 +88,33 @@ button {
   background-clip: text;
   color: transparent;
 }
+
+
+/* Add to your global CSS */
+@keyframes shrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-shrink {
+  animation: shrink 6s linear forwards;
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
