@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { AlertCircle, Loader2, Sparkles, CheckCircle, XCircle, Info, X, Bell } from "lucide-react";
 import { AlumniProfile } from "@/types/referrals";
-import ReferralHeader from "@/components/referrals/ReferralHeader";
+import AskforReferrals from "@/components/referrals/AskforReferrals";
 import { AskReferralModal } from "@/components/AskReferralModal";
 import { Tabs, TabType } from "@/components/referrals/Tabs";
 import { AlumniSection } from "@/components/referrals/AlumniSection";
@@ -150,7 +150,7 @@ export default function ReferralsPage() {
   return (
     <div className="min-h-screen bg-[var(--background)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <ReferralHeader onAskForReferral={() => setIsAskReferralModalOpen(true)} />
+        <AskforReferrals onAskForReferral={() => setIsAskReferralModalOpen(true)} />
 
         {/* Enhanced Notification Toast */}
         {notification?.show && (
