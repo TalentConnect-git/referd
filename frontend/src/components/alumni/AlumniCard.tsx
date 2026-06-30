@@ -1,3 +1,5 @@
+// src/components/alumni/AlumniCard.tsx
+
 "use client";
 
 import {
@@ -6,6 +8,7 @@ import {
   BriefcaseBusiness,
   Users,
   MessageSquare,
+  Loader2,
 } from "lucide-react";
 import type { AlumniProfile } from "@/services/alumani.services";
 import { useRouter } from "next/navigation";
@@ -13,10 +16,11 @@ import { useAuth } from "@/context/AuthContext";
 
 type AlumniCardProps = {
   profile: AlumniProfile;
-  collegeFallback?: string;
-  companyFallback?: string; // new prop
-  onMessage?: (profile: AlumniProfile) => void;
-  onRequestRefer?: (profile: AlumniProfile) => void;
+  collegeFallback: string;
+  companyFallback: string;
+  onMessage: (profile: AlumniProfile) => void;
+  onRequestRefer: (profile: AlumniProfile) => void;
+  isMessageLoading?: boolean; // Loading state for message button
 };
 
 const getInitials = (name?: string) => {
@@ -28,7 +32,7 @@ const getInitials = (name?: string) => {
 
 const getCurrentRole = (profile: AlumniProfile) => {
   const currentExperience = profile.experiences?.find(
-    (item) => item.isCurrent || !item.endDate,
+    (item) => item.isCurrent || !item.endDate
   );
   return (
     currentExperience?.role ||
@@ -43,7 +47,7 @@ const getCurrentRole = (profile: AlumniProfile) => {
 
 const getCompany = (profile: AlumniProfile, fallback?: string) => {
   const currentExperience = profile.experiences?.find(
-    (item) => item.isCurrent || !item.endDate,
+    (item) => item.isCurrent || !item.endDate
   );
   return (
     profile.currentCompany ||
@@ -62,18 +66,18 @@ export function AlumniCard({
   companyFallback = "",
   onMessage,
   onRequestRefer,
+  isMessageLoading = false,
 }: AlumniCardProps) {
-
-  console.log("profile ",profile);
+  console.log("profile ", profile);
   const router = useRouter();
+  const { role: userType } = useAuth();
+
   const name = profile.name || "Unknown User";
   const initials = getInitials(name);
   const company = getCompany(profile, companyFallback);
   const role = getCurrentRole(profile);
   const isHiring = Boolean(profile.isHiring);
   const jobsCount = profile.referralJobs?.length || 0;
-  const { role: userType } = useAuth();
-  
 
   // College: use profile.colleges array first, then profile.college, then first education, then fallback
   const collegeDisplay =
@@ -83,12 +87,34 @@ export function AlumniCard({
     collegeFallback ||
     "College not available";
 
+  // Get the userId for navigation
+  const userId = profile.userId || profile._id;
+
+  // Handle card click navigation
+  const handleCardClick = () => {
+    if (userType && userId) {
+      router.push(`/${userType}/alumani-network/${userId}`);
+    }
+  };
+
+  // Handle message button click
+  const handleMessageClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onMessage?.(profile);
+  };
+
+  // Handle request refer button click
+  const handleRequestReferClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onRequestRefer?.(profile);
+  };
+
   return (
-    <article className="rounded-3xl border border-[#242d3a] bg-[#111821] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition hover:border-[#2fb344]/40" onClick={() =>
-  router.push(
-    `/${userType}/alumani-network/${profile.userId}`
-  )}>
-      <div className="flex items-start justify-between gap-4" >
+    <article
+      className="rounded-3xl border border-[#242d3a] bg-[#111821] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition hover:border-[#2fb344]/40 cursor-pointer"
+      onClick={handleCardClick}
+    >
+      <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-4">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#123321] text-base font-bold text-[#2fb344]">
             {initials}
@@ -145,23 +171,22 @@ export function AlumniCard({
       <div className="grid grid-cols-2 gap-3">
         <button
           type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onMessage?.(profile);
-          }}
-          className="flex h-10 items-center justify-center gap-2 rounded-lg border border-[#263241] bg-transparent text-sm font-semibold text-white transition hover:bg-white/5"
+          onClick={handleMessageClick}
+          disabled={isMessageLoading}
+          className="flex h-10 items-center justify-center gap-2 rounded-lg border border-[#263241] bg-transparent text-sm font-semibold text-white transition hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <MessageSquare className="h-4 w-4" />
-          Message
+          {isMessageLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <MessageSquare className="h-4 w-4" />
+          )}
+          {isMessageLoading ? "Loading..." : "Message"}
         </button>
 
         <button
           type="button"
           disabled={!isHiring && jobsCount === 0}
-          onClick={(e) => {
-            e.stopPropagation();
-            onRequestRefer?.(profile);
-          }}
+          onClick={handleRequestReferClick}
           className="h-10 rounded-lg bg-[#2fb344] text-sm font-semibold text-black transition hover:bg-[#35c94d] disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
         >
           Request refer
@@ -170,8 +195,3 @@ export function AlumniCard({
     </article>
   );
 }
-
-
-
-
-

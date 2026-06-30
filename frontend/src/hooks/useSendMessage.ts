@@ -1,54 +1,65 @@
-// "use client";
+// hooks/useSendMessage.ts
+import { useCallback, useRef } from "react";
+import axiosInstance from "@/lib/axiosInstance";
+import toast from "react-hot-toast";
+import { useChat } from "@/context/ChatContext";
+import { useSocketContext } from "@/context/SocketContext";
+import { Message } from "@/types/chat";
 
-// import { useState } from "react";
-// import toast from "react-hot-toast";
+interface UseSendMessageReturn {
+  sendMessages: (message: string) => Promise<Message | null>;
+}
 
-// import { useChat } from "@/context/ChatContext";
-// import { sendMessage } from "@/services/chat.service";
-// import { Message } from "@/types/chat";
+const useSendMessage = (): UseSendMessageReturn => {
+  const { setMessages, selectedConversation } = useChat();
+  const { socket } = useSocketContext();
+  const isSendingRef = useRef(false);
 
-// export default function useSendMessage() {
-//   const [loading, setLoading] = useState(false);
+  const sendMessages = useCallback(async (message: string): Promise<Message | null> => {
+    if (!selectedConversation?._id) {
+      toast.error("No conversation selected");
+      return null;
+    }
 
-//   const { selectedConversation, setMessages } = useChat();
+    if (!message.trim()) {
+      toast.error("Message cannot be empty");
+      return null;
+    }
 
-//   const send = async (message: string) => {
-//     if (!selectedConversation?._id) {
-//       toast.error("No conversation selected");
-//       return;
-//     }
+    if (isSendingRef.current) return null;
+    isSendingRef.current = true;
 
-//     if (!message.trim()) {
-//       toast.error("Message cannot be empty");
-//       return;
-//     }
+    try {
+      const res = await axiosInstance.post(
+        `/api/messages/send/${selectedConversation._id}`,
+        { message }
+      );
 
-//     setLoading(true);
+      if (res.data && res.data._id) {
+        const newMessage: Message = { ...res.data };
 
-//     try {
-//       const data: Message = await sendMessage(
-//         selectedConversation._id,
-//         message
-//       );
+        setMessages((prev) => {
+          const exists = prev.some((m) => m._id === newMessage._id);
+          return exists ? prev : [...prev, newMessage];
+        });
 
-//       setMessages((prev) => [
-//         ...prev,
-//         {
-//           ...data,
-//           sender: "you",
-//         },
-//       ]);
-//     } catch (error: any) {
-//       toast.error(
-//         error?.response?.data?.error || "Failed to send message"
-//       );
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
+        if (socket) {
+          socket.emit("newMessage", newMessage);
+        }
 
-//   return {
-//     loading,
-//     send,
-//   };
-// }
+        return newMessage;
+      }
+      return null;
+    } catch (error: any) {
+      console.error("Error sending message:", error);
+      toast.error(error.response?.data?.error || "Failed to send message");
+      return null;
+    } finally {
+      isSendingRef.current = false;
+    }
+  }, [selectedConversation, setMessages, socket]);
+
+  return { sendMessages };
+};
+
+export default useSendMessage;

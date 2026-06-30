@@ -1,57 +1,55 @@
-// "use client";
+// hooks/useGetSocketMessage.ts
+"use client";
 
-// import { useState } from "react";
-// import { useChat } from "@/context/ChatContext";
-// import { sendMessage } from "@/services/chat.service";
-// import { Message } from "@/types/chat";
-// import toast from "react-hot-toast";
+import { useEffect, useRef } from "react";
+import { useSocketContext } from "@/context/SocketContext";
+import { useChat } from "@/context/ChatContext";
+import { Message } from "@/types/chat";
+import { useAuth } from "@/context/AuthContext";
+import { messageService } from "@/services/message.service";
 
-// const useSendMessage = () => {
-//   const [loading, setLoading] = useState(false);
+export const useGetSocketMessage = () => {
+  const { socket } = useSocketContext();
+  const { messages, setMessages, selectedConversation } = useChat();
+  const { user } = useAuth();
+  const messageIdsRef = useRef<Set<string>>(new Set());
 
-//   const {selectedConversation,setMessages} = useChat();
+  // Keep message IDs up to date for duplicate prevention
+  useEffect(() => {
+    messageIdsRef.current = new Set(messages.map((msg) => msg._id));
+  }, [messages]);
 
-//   const send = async (message: string) => {
-//     if (!selectedConversation?._id) {
-//       toast.error("No conversation selected");
-//       return;
-//     }
+  useEffect(() => {
+    if (!socket) return;
 
-//     if (!message.trim()) {
-//       toast.error("Message cannot be empty");
-//       return;
-//     }
+    const handleNewMessage = (newMessage: Message) => {
+      // Prevent duplicates
+      if (messageIdsRef.current.has(newMessage._id)) return;
 
-//     setLoading(true);
+      // Only add if it belongs to the currently open conversation
+      if (selectedConversation && newMessage.conversationId === selectedConversation._id) {
+        setMessages((prev) => [...prev, newMessage]);
+        messageIdsRef.current.add(newMessage._id);
 
-//     try {
-//       const data: Message = await sendMessage(
-//         selectedConversation._id,
-//         message
-//       );
+        // If the message is from someone else, mark it as read and emit read event
+        const senderId =
+          typeof newMessage.sender === "string" ? newMessage.sender : newMessage.sender?._id;
+        if (senderId !== user?._id) {
+          messageService.markMessageAsReadLocally(newMessage._id);
+          socket.emit("messageRead", {
+            conversationId: selectedConversation._id,
+            userId: user?._id,
+          });
+        }
+      }
+    };
 
-//       setMessages((prev) => [
-//         ...prev,
-//         {
-//           ...data,
-//           sender: "you",
-//         },
-//       ]);
-//     } catch (error: any) {
-//       console.error(error);
+    socket.on("newMessage", handleNewMessage);
 
-//       toast.error(
-//         error?.response?.data?.error || "Failed to send message"
-//       );
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
+    return () => {
+      socket.off("newMessage", handleNewMessage);
+    };
+  }, [socket, selectedConversation, setMessages, user]);
+};
 
-//   return {
-//     loading,
-//     send,
-//   };
-// };
-
-// export default useSendMessage;
+export default useGetSocketMessage;

@@ -1,3 +1,4 @@
+// components/DashboardLayout.tsx
 "use client";
 
 import Link from "next/link";
@@ -28,6 +29,7 @@ import {
 import type { ReactNode } from "react";
 import { useMemo, useRef, useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useGetAllUsers } from "@/hooks/useGetAllUsers";
 import { goToHome } from "@/helper/index";
 
 export type CandidateRole = "professional" | "student" | "fresher";
@@ -102,6 +104,9 @@ export function DashboardLayout({
   // Auth context
   const { profile, profileLoading, logout } = useAuth();
 
+  // Get unread message counts
+  const { totalUnread } = useGetAllUsers();
+
   const handleClick = () => {
     goToHome(router);
   };
@@ -157,9 +162,22 @@ export function DashboardLayout({
     const keyword = searchValue.trim().toLowerCase();
     if (!keyword) return navItems;
     return navItems.filter((item) =>
-      item.label.toLowerCase().includes(keyword),
+      item.label.toLowerCase().includes(keyword)
     );
   }, [searchValue, navItems]);
+
+  // Update nav items with unread count
+  const updatedNavItems = useMemo(() => {
+    return filteredNavItems.map((item) => {
+      if (item.icon === "message") {
+        return {
+          ...item,
+          badge: totalUnread > 0 ? totalUnread : undefined,
+        };
+      }
+      return item;
+    });
+  }, [filteredNavItems, totalUnread]);
 
   // Initials for avatar
   const initials = useMemo(() => {
@@ -173,8 +191,8 @@ export function DashboardLayout({
   }, [displayName]);
 
   // Separate main nav from profile/settings
-  const mainNavItems = filteredNavItems.filter(
-    (item) => item.label !== "Profile" && item.label !== "Settings",
+  const mainNavItems = updatedNavItems.filter(
+    (item) => item.label !== "Profile" && item.label !== "Settings"
   );
 
   // Handlers
@@ -186,7 +204,6 @@ export function DashboardLayout({
 
   const handleDeactivate = () => {
     setSettingsOpen(false);
-    // Placeholder: call API to deactivate account
     console.log("Deactivate account requested");
   };
 
@@ -197,18 +214,8 @@ export function DashboardLayout({
       <div className="flex min-h-screen w-full bg-[var(--background)] text-white max-md:hidden">
         {/* ---------- Sidebar ---------- */}
         <aside className="flex w-60 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--background)]">
-          {/* Logo */}
-          {/* <div className="flex items-center gap-2 px-5 py-5">
-            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--primary)]">
-              <span className="h-2 w-2 rounded-full bg-black" />
-            </div>
-            <span className="text-[18px] font-semibold tracking-tight text-white">
-              Referd<span className="text-[var(--primary)]">.</span>
-            </span>
-          </div> */}
-
           {/* Search Bar */}
-          <div className="px-3 pb-4">
+          <div className="px-3 pt-4 pb-4">
             <div className="flex items-center gap-2 rounded-xl border border-white/15 bg-[var(--card)] px-3 py-2 text-sm transition focus-within:border-white/40 focus-within:ring-1 focus-within:ring-white/20">
               <Search className="h-4 w-4 text-[var(--text-primary)]" />
               <input
@@ -253,7 +260,7 @@ export function DashboardLayout({
                   >
                     <Icon className="h-4 w-4 shrink-0" />
                     <span className="flex-1 truncate">{item.label}</span>
-                    {item.badge && (
+                    {item.badge && item.badge > 0 && (
                       <span
                         className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-semibold ${
                           active
@@ -434,7 +441,7 @@ export function DashboardLayout({
                 >
                   <Icon className="h-5 w-5" />
                   <span className="flex-1">{item.label}</span>
-                  {item.badge && (
+                  {item.badge && item.badge > 0 && (
                     <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-black/20 px-1.5 text-[10px] font-semibold">
                       {item.badge}
                     </span>

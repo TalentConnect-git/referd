@@ -1,15 +1,15 @@
 // components/referrals/AlumniSection.tsx
 "use client";
 
-import { 
-  Briefcase, 
-  GraduationCap, 
-  UserPlus, 
-  Clock, 
+import {
+  Briefcase,
+  GraduationCap,
+  UserPlus,
+  Clock,
   Mail,
   ArrowRight,
   Users,
-  Building2
+  Building2,
 } from "lucide-react";
 import { AlumniProfile } from "@/types/referrals";
 
@@ -45,15 +45,20 @@ export function AlumniSection({
           <h2 className="text-xl font-bold text-[var(--text-secondary)] flex items-center gap-2">
             <Building2 className="w-5 h-5 text-[var(--primary)]" />
             {companyName}
-            <span className="text-[var(--text-primary)] font-normal">Alumni</span>
+            <span className="text-[var(--text-primary)] font-normal">
+              Alumni
+            </span>
           </h2>
           <p className="text-sm text-[var(--text-primary)] mt-1">
-            {alumni.length} {alumni.length === 1 ? "alumni" : "alumni"} found who can refer you
+            {alumni.length} {alumni.length === 1 ? "alumni" : "alumni"} found
+            who can refer you
           </p>
         </div>
         <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--primary-soft)] border border-[var(--primary)]/20">
           <Users className="w-4 h-4 text-[var(--primary)]" />
-          <span className="text-sm font-semibold text-[var(--primary)]">{alumni.length} Found</span>
+          <span className="text-sm font-semibold text-[var(--primary)]">
+            {alumni.length} Found
+          </span>
         </div>
       </div>
 
@@ -81,7 +86,7 @@ export function AlumniSection({
                   </div>
                 )}
               </div>
-              
+
               <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-[var(--text-secondary)] text-lg truncate">
                   {person.name}
@@ -105,7 +110,7 @@ export function AlumniSection({
               {person.totalYearsOfExperience && (
                 <div className="flex items-center gap-2 text-xs text-[var(--text-primary)]">
                   <Clock className="w-3.5 h-3.5 text-[var(--text-muted)]" />
-                  <span>{person.totalYearsOfExperience} year experience</span>
+                  <span>{person.totalYearsOfExperience} experience</span>
                 </div>
               )}
               {person.college && (

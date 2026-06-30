@@ -3,7 +3,7 @@
 import { AuthContextRole } from "@/context/AuthContext";
 import { SocketProvider } from "@/context/SocketContext";
 import { NotificationProvider } from "@/context/NotificationContext";
-// import { ChatProvider } from "@/context/ChatContext";
+import { ChatProvider } from "@/context/ChatContext";
 
 export default function Providers({
   children,
@@ -14,9 +14,9 @@ export default function Providers({
   <AuthContextRole>
   <SocketProvider>
     <NotificationProvider>
-      {/* <ChatProvider> */}
+      <ChatProvider>
             {children}
-          {/* </ChatProvider> */}
+          </ChatProvider>
     </NotificationProvider>
   </SocketProvider>
 </AuthContextRole>

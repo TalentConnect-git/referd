@@ -9,6 +9,8 @@ import {
 } from "@/services/alumani.services";
 import { AlumniCard } from "@/components/alumni/AlumniCard";
 import { AlumniPagination } from "@/components/alumni/AlumniPagination";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 type AlumniTab = "hiring" | "college" | "company";
 
@@ -83,6 +85,7 @@ export default function AlumniPage() {
   const [alumni, setAlumni] = useState<AlumniProfile[]>([]);
   const [page, setPage] = useState<number>(1);
   const [totalCount, setTotalCount] = useState<number>(0);
+   const [messageLoading, setMessageLoading] = useState<string | null>(null);
 
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
@@ -90,6 +93,8 @@ export default function AlumniPage() {
   // Response metadata only for header display
   const [collegesList, setCollegesList] = useState<string[]>([]);
   const [companiesChecked, setCompaniesChecked] = useState<string[]>([]);
+
+  const router=useRouter();
 
   const totalPages = Math.max(1, Math.ceil(totalCount / LIMIT));
 
@@ -150,9 +155,32 @@ export default function AlumniPage() {
     setError("");
   };
 
-  const handleMessage = (profile: AlumniProfile) => {
-    console.log("Message", profile);
-  };
+  const handleMessage = async (profile: AlumniProfile) => {
+  try {
+    const userId = profile.userId || profile._id;
+
+    if (!userId || typeof userId !== "string") {
+      console.error("❌ Invalid user ID:", { userId, profile });
+      toast.error("Unable to start chat: User ID not found");
+      return;
+    }
+
+    console.log("🟡 Opening chat with user ID:", userId);
+    setMessageLoading(userId);
+
+    
+    router.push(
+      `/fresher/message/${userId}?userName=${encodeURIComponent(
+        profile.name || "User"
+      )}`
+    );
+  } catch (error) {
+    console.error("❌ Error opening chat:", error);
+    toast.error("Failed to open chat. Please try again.");
+  } finally {
+    setMessageLoading(null);
+  }
+};
 
   const handleRequestRefer = (profile: AlumniProfile) => {
     console.log("Request refer", profile);

@@ -1,7 +1,9 @@
+// app/alumni/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
   fetchAlumniData,
   type ApiResponse,
@@ -9,6 +11,9 @@ import {
 } from "@/services/alumani.services";
 import { AlumniCard } from "@/components/alumni/AlumniCard";
 import { AlumniPagination } from "@/components/alumni/AlumniPagination";
+import {useCreateConversation} from "@/hooks/useCreateConversation";
+import toast from "react-hot-toast";
+
 
 type AlumniTab = "hiring" | "college" | "company";
 
@@ -86,10 +91,15 @@ export default function AlumniPage() {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const [messageLoading, setMessageLoading] = useState<string | null>(null);
 
   // Response metadata only for header display
   const [collegesList, setCollegesList] = useState<string[]>([]);
   const [companiesChecked, setCompaniesChecked] = useState<string[]>([]);
+
+  const router = useRouter();
+  const { createConversation, loading: conversationLoading } =
+    useCreateConversation();
 
   const totalPages = Math.max(1, Math.ceil(totalCount / LIMIT));
 
@@ -150,10 +160,36 @@ export default function AlumniPage() {
     setError("");
   };
 
-  const handleMessage = (profile: AlumniProfile) => {
-    console.log("Message", profile);
-  };
 
+  
+
+const handleMessage = async (profile: AlumniProfile) => {
+  try {
+    const userId = profile.userId || profile._id;
+
+    if (!userId || typeof userId !== "string") {
+      console.error("❌ Invalid user ID:", { userId, profile });
+      toast.error("Unable to start chat: User ID not found");
+      return;
+    }
+
+    console.log("🟡 Opening chat with user ID:", userId);
+    setMessageLoading(userId);
+
+    
+    router.push(
+      `/professional/message/${userId}?userName=${encodeURIComponent(
+        profile.name || "User"
+      )}`
+    );
+  } catch (error) {
+    console.error("❌ Error opening chat:", error);
+    toast.error("Failed to open chat. Please try again.");
+  } finally {
+    setMessageLoading(null);
+  }
+};
+  
   const handleRequestRefer = (profile: AlumniProfile) => {
     console.log("Request refer", profile);
   };
@@ -248,6 +284,7 @@ export default function AlumniPage() {
               {alumni.map((profile) => {
                 const collegeFallback = getProfileCollege(profile);
                 const companyFallback = getProfileCompany(profile);
+                const isMessageLoading = messageLoading === profile._id;
 
                 return (
                   <AlumniCard
@@ -257,6 +294,7 @@ export default function AlumniPage() {
                     companyFallback={companyFallback}
                     onMessage={handleMessage}
                     onRequestRefer={handleRequestRefer}
+                    isMessageLoading={isMessageLoading}
                   />
                 );
               })}

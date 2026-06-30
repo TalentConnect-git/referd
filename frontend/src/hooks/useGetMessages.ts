@@ -1,52 +1,37 @@
-// "use client";
+// hooks/useGetMessages.ts
+import { useEffect, useState, useCallback } from "react";
+import { useChat } from "@/context/ChatContext";
+import { messageService } from "@/services/message.service";
+import { Message } from "@/types/chat";
 
-// import { useEffect, useState } from "react";
-// import { useChat } from "@/context/ChatContext";
-// import { getMessages } from "@/services/chat.service";
-// import { Message } from "@/types/chat";
+export const useGetMessages = () => {
+  const { selectedConversation, setMessages } = useChat();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-// const useGetMessages = () => {
-//   const [loading, setLoading] = useState(false);
+  const fetchMessages = useCallback(async () => {
+    if (!selectedConversation?._id) {
+      setMessages([]);
+      setError(null);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await messageService.getMessages(selectedConversation._id);
+      setMessages(data as Message[]);
+    } catch (err: any) {
+      console.error("Error fetching messages:", err);
+      setError(err?.message || "Failed to load messages");
+      setMessages([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedConversation, setMessages]);
 
-//   const {selectedConversation,messages,setMessages} = useChat();
+  useEffect(() => {
+    fetchMessages();
+  }, [fetchMessages]);
 
-//   useEffect(() => {
-//     const fetchMessages = async () => {
-//       if (!selectedConversation?._id) {
-//         setMessages([]);
-//         return;
-//       }
-
-//       setLoading(true);
-
-//       try {
-//         const data = await getMessages(selectedConversation._id);
-//         const formattedMessages: Message[] = (
-//           Array.isArray(data) ? data : []
-//         ).map((msg: Message) => ({
-//           ...msg,
-//           sender:
-//             String(msg.senderId) === String(selectedConversation._id)
-//               ? "them"
-//               : "you",
-//         }));
-
-//         setMessages(formattedMessages);
-//       } catch (error) {
-//         console.error("Error fetching messages:", error);
-//         setMessages([]);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchMessages();
-//   }, [selectedConversation, setMessages]);
-
-//   return {
-//     loading,
-//     messages,
-//   };
-// };
-
-// export default useGetMessages;
+  return { loading, error, refreshMessages: fetchMessages };
+};

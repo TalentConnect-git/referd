@@ -4,9 +4,7 @@
 import { useEffect, useState } from "react";
 import { AlertCircle, Loader2, Sparkles, CheckCircle, XCircle, Info, X, Bell } from "lucide-react";
 import { AlumniProfile } from "@/types/referrals";
-import AskforReferrals from "@/components/referrals/AskforReferrals";
 import { AskReferralModal } from "@/components/AskReferralModal";
-import { Tabs, TabType } from "@/components/referrals/Tabs";
 import { AlumniSection } from "@/components/referrals/AlumniSection";
 import { AlumniProfileModal } from "@/components/referrals/AlumniProfileModal";
 import { EmptyState } from "@/components/referrals/EmptyState";
@@ -37,7 +35,6 @@ export default function ReferralsPage() {
   const [careerPageUrl, setCareerPageUrl] = useState<string>("");
 
   const [token, setToken] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<TabType>("alumni-results");
   const [isAskReferralModalOpen, setIsAskReferralModalOpen] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [loadingAlumni, setLoadingAlumni] = useState(false);
@@ -77,7 +74,6 @@ export default function ReferralsPage() {
       setAlumniCompanyName("");
     } else {
       setAlumni(alumniData);
-      setActiveTab("alumni-results");
     }
   };
 
@@ -88,7 +84,7 @@ export default function ReferralsPage() {
       const requestUrl = url || careerPageUrl;
       
       const response = await axiosInstance.post(
-        "http://localhost:5000/api/company-jobs/career-page-referral/send",
+        "/api/company-jobs/career-page-referral/send",
         {
           careerPageUrl: requestUrl,
           receiverUserIds: [alumniUserId],
@@ -147,12 +143,18 @@ export default function ReferralsPage() {
 
   const hasAlumni = alumni.length > 0;
 
+  
+
   return (
     <div className="min-h-screen bg-[var(--background)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <AskforReferrals onAskForReferral={() => setIsAskReferralModalOpen(true)} />
+        {/* Top action bar - simplified */}
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-white">Referrals</h1>
+          
+        </div>
 
-        {/* Enhanced Notification Toast */}
+        {/* Notification Toast (same as before) */}
         {notification?.show && (
           <div className="fixed top-4 right-4 z-[200] max-w-md animate-slide-in">
             <div 
@@ -166,7 +168,6 @@ export default function ReferralsPage() {
                 }
               `}
             >
-              {/* Progress bar */}
               <div className="absolute top-0 left-0 h-1 animate-shrink rounded-full"
                 style={{
                   width: '100%',
@@ -178,10 +179,8 @@ export default function ReferralsPage() {
                   animation: 'shrink 6s linear forwards'
                 }}
               />
-
               <div className="p-5">
                 <div className="flex items-start gap-4">
-                  {/* Icon */}
                   <div className={`
                     w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0
                     ${notification.type === 'success'
@@ -199,7 +198,6 @@ export default function ReferralsPage() {
                       <XCircle className="w-5 h-5 text-red-400" />
                     )}
                   </div>
-
                   <div className="flex-1 min-w-0">
                     <h3 className={`text-sm font-bold ${
                       notification.type === 'success'
@@ -213,7 +211,6 @@ export default function ReferralsPage() {
                     <p className="text-sm text-[var(--text-primary)] mt-1 leading-relaxed">
                       {notification.message}
                     </p>
-                    
                     {notification.details && notification.details.length > 0 && (
                       <div className="mt-3 pt-3 border-t border-[var(--border)]">
                         <div className="space-y-2">
@@ -229,7 +226,6 @@ export default function ReferralsPage() {
                       </div>
                     )}
                   </div>
-
                   <button
                     onClick={() => setNotification(null)}
                     className="p-1 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--card-hover)] transition-all flex-shrink-0"
@@ -293,40 +289,24 @@ export default function ReferralsPage() {
           </div>
         )}
 
-        {/* Content */}
+        {/* Alumni Results */}
         {!loadingAlumni && !searchError && (
-          <div className="mt-8">
-            <Tabs activeTab={activeTab} onTabChange={setActiveTab} />
-
-            <div className="mt-6">
-              {activeTab === "alumni-results" && (
-                <>
-                  {hasAlumni ? (
-                    <AlumniSection
-                      alumni={alumni}
-                      companyName={alumniCompanyName}
-                      onViewProfile={setSelectedAlumni}
-                      onAskReferral={handleAlumniReferralRequest}
-                      careerPageUrl={careerPageUrl}
-                    />
-                  ) : (
-                    <EmptyState
-                      activeTab="alumni-results"
-                      onTryAgain={() => setIsAskReferralModalOpen(true)}
-                      onTryCompany={() => setIsAskReferralModalOpen(true)}
-                    />
-                  )}
-                </>
-              )}
-
-              {activeTab === "all-jobs" && (
-                <EmptyState
-                  activeTab="all-jobs"
-                  onTryAgain={() => setIsAskReferralModalOpen(true)}
-                  onTryCompany={() => setIsAskReferralModalOpen(true)}
-                />
-              )}
-            </div>
+          <div className="mt-6">
+            {hasAlumni ? (
+              <AlumniSection
+                alumni={alumni}
+                companyName={alumniCompanyName}
+                onViewProfile={setSelectedAlumni}
+                onAskReferral={handleAlumniReferralRequest}
+                careerPageUrl={careerPageUrl}
+              />
+            ) : (
+              <EmptyState
+                
+                onTryAgain={() => setIsAskReferralModalOpen(true)}
+                onTryCompany={() => setIsAskReferralModalOpen(true)}
+              />
+            )}
           </div>
         )}
       </div>

@@ -8,7 +8,8 @@ import {
   Loader2,
   Search,
   AlertCircle,
-  Briefcase,
+  Building2,
+  ExternalLink,
 } from "lucide-react";
 import axiosInstance from "@/lib/axiosInstance";
 import { AlumniProfile } from "@/types/referrals";
@@ -38,13 +39,10 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
 
   const normalizeInputUrl = (url: string) => {
     const trimmed = url.trim();
-
     if (!trimmed) return "";
-
     if (!/^https?:\/\//i.test(trimmed)) {
       return `https://${trimmed}`;
     }
-
     return trimmed;
   };
 
@@ -74,14 +72,8 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
 
       const response = await axiosInstance.post(
         "/api/company-jobs/career-page-referral",
-        {
-          careerPageUrl: normalizedUrl,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { careerPageUrl: normalizedUrl },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (response.data.success) {
@@ -111,51 +103,50 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="w-full max-w-lg">
-        <div className="glass-card rounded-[var(--radius-xl)] overflow-hidden">
-          <div className="p-6 border-b border-[var(--border)]">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+      <div className="w-full max-w-xl">
+        <div className="glass-card rounded-[var(--radius-xl)] overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
+          {/* Header */}
+          <div className="p-6 border-b border-[var(--border)] bg-[var(--background-soft)]/50">
             <div className="flex items-start justify-between">
-              <div>
+              <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-xl primary-gradient flex items-center justify-center">
-                    <Briefcase className="w-5 h-5 text-black" />
+                  <div className="w-10 h-10 rounded-xl primary-gradient flex items-center justify-center shadow-lg">
+                    <Building2 className="w-5 h-5 text-black" />
                   </div>
-
                   <h2 className="text-xl font-bold text-[var(--text-secondary)]">
-                    Find Alumni for Job
+                    Find Alumni for Referrals
                   </h2>
                 </div>
-
-                <p className="text-sm text-[var(--text-primary)]">
-                  Paste any direct job posting URL. Backend will validate it and
-                  extract the company name.
+                <p className="text-sm text-[var(--text-primary)] max-w-md">
+                  Paste the URL of a job posting to discover alumni working at that company. 
+                  They can refer you and boost your chances of landing an interview.
                 </p>
               </div>
-
               <button
                 type="button"
                 onClick={onClose}
                 disabled={loading}
-                className="rounded-xl p-2 text-[var(--text-primary)] hover:text-[var(--text-secondary)] hover:bg-[var(--card-hover)] transition-all disabled:opacity-50"
+                className="rounded-xl p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--card-hover)] transition-all disabled:opacity-50"
               >
                 <X size={20} />
               </button>
             </div>
           </div>
 
-          <div className="p-6 space-y-5">
+          {/* Body */}
+          <div className="p-6 space-y-6">
+            {/* Input */}
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+              <label htmlFor="job-url" className="block text-sm font-semibold text-[var(--text-secondary)] mb-2">
                 Job Posting URL <span className="text-red-400">*</span>
               </label>
-
               <div className="relative">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">
                   <LinkIcon size={18} />
                 </div>
-
                 <input
+                  id="job-url"
                   type="url"
                   value={careerPageUrl}
                   onChange={(e) => {
@@ -163,29 +154,53 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
                     setError("");
                   }}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter" && !loading) {
-                      searchByUrl();
-                    }
+                    if (e.key === "Enter" && !loading) searchByUrl();
                   }}
-                  placeholder="https://www.linkedin.com/jobs/view/12345"
-                  className="w-full rounded-xl bg-[var(--background-soft)] border border-[var(--border)] pl-12 pr-4 py-3.5 text-sm text-white placeholder:text-[var(--text-muted)] outline-none transition-all focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]"
+                  placeholder="https://www.linkedin.com/jobs/view/1234567890"
+                  className="w-full rounded-xl bg-[var(--background-soft)] border border-[var(--border)] pl-12 pr-4 py-3.5 text-sm text-white placeholder:text-[var(--text-muted)] outline-none transition-all focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20"
+                  autoFocus
                 />
               </div>
 
-              <div className="mt-2 space-y-1">
-                <p className="text-xs text-[var(--text-muted)]">
-                  Examples: LinkedIn, Naukri, Unstop, Indeed, Wellfound,
-                  Greenhouse, Lever, Workday, Ashby, etc.
-                </p>
-                <p className="text-xs text-[var(--text-muted)]">
-                  Company homepages like www.zomato.com will be rejected by the
-                  backend.
-                </p>
+              {/* Examples & tips */}
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[var(--text-muted)]">
+                <span className="font-medium text-[var(--text-primary)]">Supported:</span>
+                <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]">
+                  LinkedIn
+                </span>
+                <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]">
+                  Naukri
+                </span>
+                <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]">
+                  Unstop
+                </span>
+                <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]">
+                  Indeed
+                </span>
+                <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]">
+                  Wellfound
+                </span>
+                <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]">
+                  Greenhouse
+                </span>
+                <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]">
+                  Lever
+                </span>
+                <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]">
+                  Workday
+                </span>
+                <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]">
+                  Ashby
+                </span>
+                <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]">
+                  
+                </span>
               </div>
             </div>
 
+            {/* Error */}
             {error && (
-              <div className="rounded-xl bg-red-500/10 border border-red-500/30 p-4">
+              <div className="rounded-xl bg-red-500/10 border border-red-500/30 p-4 animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="flex items-start gap-3">
                   <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
                   <p className="text-sm text-red-300 whitespace-pre-line">
@@ -195,7 +210,8 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
               </div>
             )}
 
-            <div className="flex gap-3">
+            {/* Actions */}
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 type="button"
                 onClick={onClose}
@@ -204,12 +220,11 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
               >
                 Cancel
               </button>
-
               <button
                 type="button"
                 onClick={searchByUrl}
                 disabled={loading}
-                className="flex-1 rounded-xl bg-[var(--primary)] px-4 py-3.5 text-sm font-semibold text-black hover:bg-[var(--primary-dark)] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 rounded-xl bg-[var(--primary)] px-4 py-3.5 text-sm font-semibold text-black hover:bg-[var(--primary-dark)] transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
               >
                 {loading ? (
                   <>
@@ -220,9 +235,17 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
                   <>
                     <Search size={18} />
                     Find Alumni
+                    <ExternalLink size={14} className="opacity-70" />
                   </>
                 )}
               </button>
+            </div>
+
+            {/* Footer note */}
+            <div className="pt-2 border-t border-[var(--border)]">
+              <p className="text-xs text-[var(--text-muted)] text-center">
+                💡 We’ll match the URL to the company and show you alumni who can refer you.
+              </p>
             </div>
           </div>
         </div>

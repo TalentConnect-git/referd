@@ -15,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={inter.className} suppressHydrationWarning>
         <GoogleOAuthProvider clientId={process.env.Next_GOOGLE_CLIENT_ID || ""} >
           <Providers>{children}</Providers>
         </GoogleOAuthProvider>

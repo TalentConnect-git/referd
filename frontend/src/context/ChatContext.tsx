@@ -1,68 +1,56 @@
-// "use client";
+// context/ChatContext.tsx
+"use client";
 
-// import {createContext,useContext,useState,
-// ReactNode,
-// } from "react";
+import { createContext, useContext, useState, ReactNode, useCallback } from "react";
+import { Conversation, Message } from "@/types/chat";
 
-// import { Conversation, Message } from "@/types/chat";
+interface ChatContextType {
+  selectedConversation: Conversation | null;
+  setSelectedConversation: (conversation: Conversation | null) => void;
+  messages: Message[];
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+  showFloatingChat: boolean;
+  setShowFloatingChat: (show: boolean) => void;
+}
 
-// interface ChatContextType {
-//   selectedConversation: Conversation | null;
-//   setSelectedConversation: React.Dispatch<
-//     React.SetStateAction<Conversation | null>
-//   >;
+const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
-//   showFloatingChat: boolean;
-//   setShowFloatingChat: React.Dispatch<
-//     React.SetStateAction<boolean>
-//   >;
+export const useChat = () => {
+  const context = useContext(ChatContext);
+  if (!context) throw new Error("useChat must be used within ChatProvider");
+  return context;
+};
 
-//   messages: Message[];
-//   setMessages: React.Dispatch<
-//     React.SetStateAction<Message[]>
-//   >;
-// }
+export const ChatProvider = ({ children }: { children: ReactNode }) => {
+  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [showFloatingChat, setShowFloatingChat] = useState(false);
 
-// const ChatContext = createContext<ChatContextType | undefined>(undefined);
+  // Memoize setters to prevent unnecessary re-renders if passed as props
+  const handleSetSelectedConversation = useCallback((conv: Conversation | null) => {
+    setSelectedConversation(conv);
+  }, []);
 
-// export const ChatProvider = ({
-//   children,
-// }: {
-//   children: ReactNode;
-// }) => {
-//   const [selectedConversation, setSelectedConversation] =
-//     useState<Conversation | null>(null);
+  const handleSetMessages = useCallback((msgs: Message[] | ((prev: Message[]) => Message[])) => {
+    setMessages(msgs);
+  }, []);
 
-//   const [showFloatingChat, setShowFloatingChat] =
-//     useState(false);
+  const handleSetShowFloatingChat = useCallback((show: boolean) => {
+    setShowFloatingChat(show);
+  }, []);
 
-//   const [messages, setMessages] =
-//     useState<Message[]>([]);
+  const value = {
+    selectedConversation,
+    setSelectedConversation: handleSetSelectedConversation,
+    messages,
+    setMessages: handleSetMessages,
+    showFloatingChat,
+    setShowFloatingChat: handleSetShowFloatingChat,
+  };
 
-//   return (
-//     <ChatContext.Provider
-//       value={{
-//         selectedConversation,
-//         setSelectedConversation,
-//         showFloatingChat,
-//         setShowFloatingChat,
-//         messages,
-//         setMessages,
-//       }}
-//     >
-//       {children}
-//     </ChatContext.Provider>
-//   );
-// };
-
-// export const useChat = () => {
-//   const context = useContext(ChatContext);
-
-//   if (!context) {
-//     throw new Error(
-//       "useChat must be used within a ChatProvider"
-//     );
-//   }
-
-//   return context;
-// };
+  return (
+    <ChatContext.Provider value={value}>
+      {children}
+    </ChatContext.Provider>
+  );
+};
