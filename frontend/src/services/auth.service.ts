@@ -126,7 +126,7 @@ export const loginUser = async (
 ): Promise<LoginResponse> => {
   try {
     const { data } = await axiosInstance.post("/api/auth/login", payload);
-
+      
     return data;
   } catch (error) {
     throw new Error(getErrorMessage(error, "Invalid credentials"));

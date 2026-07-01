@@ -1,59 +1,95 @@
-// components/chat/MessageBubble.tsx
 "use client";
 
-import { memo, useEffect, useState } from "react";
+import { memo, useMemo } from "react";
 import { CheckCheck } from "lucide-react";
 import { Message } from "@/types/chat";
 import { useAuth } from "@/context/AuthContext";
+import { messageService } from "@/services/message.service";
 
 interface MessageBubbleProps {
   message: Message;
   formatMessageTime: (date: string) => string;
 }
 
-export const MessageBubble = memo(({ message, formatMessageTime }: MessageBubbleProps) => {
-  const { user } = useAuth();
-  // Determine if this message is from the current user
-  const isMyMessage = message.senderId === user?._id;
-  const [isRead, setIsRead] = useState(message.read);
-
-  useEffect(() => {
-    setIsRead(message.read);
-  }, [message.read]);
-
-  const formatTime = (date: string) => {
-    if (!date) return "";
-    return new Date(date).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-  };
-
+const getSenderId = (message: any) => {
   return (
-    <div className={`flex ${isMyMessage ? "justify-end" : "justify-start"} mb-1 animate-slide-in-up`}>
-      <div className={`flex flex-col max-w-[75%] ${isMyMessage ? "items-end" : "items-start"}`}>
+    message?.senderId ||
+    message?.sender?._id ||
+    (typeof message?.sender === "string" ? message.sender : "") ||
+    ""
+  );
+};
+
+const getMessageText = (message: any) => {
+  return message?.message || message?.text || message?.content || "";
+};
+
+export const MessageBubble = memo(
+  ({ message, formatMessageTime }: MessageBubbleProps) => {
+    const { user } = useAuth();
+
+    const isMyMessage = useMemo(() => {
+      const senderId = getSenderId(message);
+      return Boolean(senderId && user?._id && senderId === user._id);
+    }, [message, user?._id]);
+
+    const isRead =
+      Boolean(message.read) || messageService.isMessageRead(message._id);
+
+    return (
+      <div
+        className={`mb-1 flex ${
+          isMyMessage ? "justify-end" : "justify-start"
+        } animate-slide-in-up`}
+      >
         <div
-          className={`px-4 py-2.5 rounded-2xl ${isMyMessage ? "rounded-tr-sm" : "rounded-tl-sm"}`}
-          style={{
-            background: isMyMessage ? "var(--primary)" : "var(--card)",
-            color: isMyMessage ? "#fff" : "var(--text-secondary)",
-            border: isMyMessage ? "none" : "1px solid var(--border)",
-            boxShadow: isMyMessage ? "0 2px 8px rgba(34,197,94,0.2)" : "none",
-          }}
+          className={`flex max-w-[75%] flex-col ${
+            isMyMessage ? "items-end" : "items-start"
+          }`}
         >
-          <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">{message.message}</p>
-        </div>
-        <div className={`flex items-center gap-1 mt-1 ${isMyMessage ? "justify-end" : "justify-start"}`}>
-          <span className="text-[10px]" style={{ color: "var(--text-muted)" }}>
-            {formatTime(message.createdAt)}
-          </span>
-          {isMyMessage && (
-            <CheckCheck
-              className="w-3 h-3"
-              style={{ color: isRead ? "#34b7f1" : "var(--text-muted)" }}
-            />
-          )}
+          <div
+            className={`rounded-2xl px-4 py-2.5 ${
+              isMyMessage ? "rounded-tr-sm" : "rounded-tl-sm"
+            }`}
+            style={{
+              background: isMyMessage ? "var(--primary)" : "var(--card)",
+              color: isMyMessage ? "#fff" : "var(--text-secondary)",
+              border: isMyMessage ? "none" : "1px solid var(--border)",
+              boxShadow: isMyMessage
+                ? "0 2px 8px rgba(34,197,94,0.2)"
+                : "none",
+            }}
+          >
+            <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+              {getMessageText(message)}
+            </p>
+          </div>
+
+          <div
+            className={`mt-1 flex items-center gap-1 ${
+              isMyMessage ? "justify-end" : "justify-start"
+            }`}
+          >
+            <span
+              className="text-[10px]"
+              style={{ color: "var(--text-muted)" }}
+            >
+              {formatMessageTime(message.createdAt)}
+            </span>
+
+            {isMyMessage && (
+              <CheckCheck
+                className="h-3 w-3"
+                style={{
+                  color: isRead ? "#34b7f1" : "var(--text-muted)",
+                }}
+              />
+            )}
+          </div>
         </div>
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
 MessageBubble.displayName = "MessageBubble";
