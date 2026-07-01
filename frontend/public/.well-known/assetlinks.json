@@ -1,0 +1,38 @@
+[
+    {
+        "relation": [
+            "delegate_permission/common.handle_all_urls"
+        ],
+        "target": {
+            "namespace": "android_app",
+            "package_name": "com.app.rawrecruit.debug",
+            "sha256_cert_fingerprints": [
+                "B1:2E:AF:91:FE:F7:F9:85:FB:24:12:D7:55:EB:8C:89:33:FF:26:EC:30:57:81:90:2A:02:65:7F:3A:C6:3F:B8"
+            ]
+        }
+    },
+    {
+        "relation": [
+            "delegate_permission/common.handle_all_urls"
+        ],
+        "target": {
+            "namespace": "android_app",
+            "package_name": "com.app.rawrecruit.stage",
+            "sha256_cert_fingerprints": [
+                "4A:98:CA:63:36:EA:99:08:69:58:F2:D9:81:F1:FD:A9:C5:B3:FF:F7:17:04:24:9A:A3:98:EA:16:C7:D0:A2:62"
+            ]
+        }
+    },
+    {
+        "relation": [
+            "delegate_permission/common.handle_all_urls"
+        ],
+        "target": {
+            "namespace": "android_app",
+            "package_name": "com.app.rawrecruit",
+            "sha256_cert_fingerprints": [
+                "1D:00:B3:78:0C:D4:72:16:F3:DC:E0:57:BB:6C:46:1F:29:D1:CE:3B:6F:AC:47:51:58:2D:53:A5:E1:C8:1D:4B"
+            ]
+        }
+    }
+]
