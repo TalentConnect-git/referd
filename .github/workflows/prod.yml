@@ -1,0 +1,50 @@
+name: Deploy to VPS (Production)
+
+on:
+  push:
+    branches:
+      - prod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm install
+
+      - name: Frontend build validation
+        working-directory: frontend
+        run: npm run build
+
+      
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          timeout: 60s
+          command_timeout: 30m
+          script: |
+            set -e
+            cd /root/referd/referd
+            git fetch origin
+            git stash
+            git checkout prod
+            git pull origin prod
+
+            cd frontend
+            npm install
+            npm run build
+
+            pm2 reload referd-web || pm2 start npm --name referd-web -- start
