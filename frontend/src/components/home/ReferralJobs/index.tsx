@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link";
 import ReferralCard from "@/components/ui/ReferralCard";
-import axiosInstance from "@/lib/axios";
+import axiosInstance from "@/lib/axiosInstance";
 import { useEffect, useState } from "react";
 
 
