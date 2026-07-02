@@ -1,4 +1,4 @@
-import axiosInstance from "@/lib/axios";
+import axiosInstance from "@/lib/axiosInstance";
 
 export const getCandidateProfile = async (candidateId: string) => {
   const response = await axiosInstance.get(
