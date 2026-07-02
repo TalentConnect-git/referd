@@ -1,6 +1,7 @@
 "use client"
-import { Bell,CalendarDays } from "lucide-react";
+import { Bell,CalendarDays,MessageCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useGetAllUsers } from "@/hooks/useGetAllUsers";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import NotificationsDropdown from "../notifications/NotificationsDropDown";
@@ -14,6 +15,8 @@ export default function Navbar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
+
+  const { totalUnread } = useGetAllUsers();
 
 
 
@@ -202,7 +205,63 @@ export default function Navbar() {
             
             <NotificationsDropdown />
         </div>)}
+
         </div>
+
+
+         <div className="relative">
+
+          <Link
+            href={`/${userType}/message`}
+            className="
+              relative
+              flex
+              h-9
+              w-9
+              items-center
+              justify-center
+              rounded-full
+              border
+              border-[var(--border)]
+              transition
+              hover:border-[var(--primary)]
+            ">
+
+            <MessageCircle size={20} />
+
+            {totalUnread > 0 && (
+
+              <span
+                className="
+                  absolute
+                  -top-1
+                  -right-1
+                  flex
+                  h-5
+                  min-w-[20px]
+                  items-center
+                  justify-center
+                  rounded-full
+                  bg-red-500
+                  px-1
+                  text-[10px]
+                  font-bold
+                  text-white
+                  shadow-lg
+                  shadow-red-500/30
+                  animate-pulse-dot
+                "
+              >
+                {totalUnread > 99 ? "99+" : totalUnread}
+              </span>
+            )}
+
+          </Link>
+
+        </div>
+
+
+
             <div className="width-[200px]"></div>
             <Link href={`/${userType}/profile`}
                     className="
