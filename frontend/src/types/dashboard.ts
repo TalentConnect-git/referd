@@ -4,12 +4,36 @@ export interface AlumniCardProps {
   company: string;
   college: string;
   openRoles: number;
+  userId:string;
+  onClick?: () => void;
 }
 export interface AppStatusRowProps {
     company: string;
     role: string;
     stage: string;
 }
+
+export type PostedByUser = {
+  _id: string;
+  name?: string | null;
+  email?: string;
+  profileImage?: string | null;
+
+  isNewUser?: boolean;
+  onboardingCompleted?: boolean;
+  onboardingStep?: number;
+
+  userType?: "student" | "fresher" | "professional" | "company" | "college" | "admin";
+
+  authProvider?: string;
+  status?: string;
+  activeCompanyId?: string | null;
+  jobVisibilityThreshold?: number;
+
+  lastActivity?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
 
 export interface BasicJobDetailsProps {
   formData: any;
@@ -32,6 +56,7 @@ export interface DashboardAluminiProps{
 }
 export interface Alumni {
   _id: string;
+  userId:string;
   name?: string;
   fullName?: string;
   college?: string|null;
@@ -53,19 +78,20 @@ export interface DashboardHeaderProps  {
 };
 
 export type CandidatePosted = {
-  _id?: string;
+  _id: string;
   name?: string;
   email?: string;
   currentCompany?: string;
-  userId?: string;
+  userId: string;
 };
 
 export type Job = {
-  _id?: string;
-  id?: string;
+  _id: string;
 
   jobTitle?: string | string[];
+  jobRoles?: string[];
   title?: string;
+
 
   companyName?: string;
   currentCompany?: string;
@@ -74,12 +100,38 @@ export type Job = {
   location?: string | string[];
   workLocation?: string[];
 
-  jobType?: string;
+  postedByUser: PostedByUser;
+
+  description:string;
+  selectionProcess:string[];
+  jobType: string;
   employmentType?: string[];
   workMode?: string[];
+  yearsOfExperience?: string;
+
+  endDate:string;
+
+  rounds:string[];
+
+  degree?: string[];
+  studentStreams?: string[];
+  cgpa?: number;
+  eligibilityCriteria?: string;
+
+  numberOfOpenings?: number;
+  skills?: string[];
+
+  internshipDuration?: string;
+
+  packageDetails?: {
+    currency?: string;
+    totalCTC?: number;
+    fixedPay?: number;
+    joiningBonus?: number;
+  };
 
   matchScore?: number;
-  candidatePosted?: CandidatePosted;
+  candidatePosted: CandidatePosted;
 };
 
 export interface DashboardJobsProps {
@@ -118,28 +170,32 @@ export interface JobRowProps  {
   referredBy: string;
   matchScore: number;
   onClick?: () => void;
+  workMode?:string[];
   jobType:string;
 };
 export interface JobDetailsModalProps {
   open: boolean;
   onClose: () => void;
-  job: any;
+  job: Job;
   allJobs: any[];
-  onSelectJob:(job: any) => void;
+  onSelectJob:(job: Job) => void;
+}
+export interface PostedByReferrerProps{
+  candidateId:string;
 }
 
 export interface LeftPanelProps {
-  job: any;
+  job: Job;
 }
 export interface OverviewSectionProps {
-  job: any;
+  job: Job;
 }
 export interface ProcessSectionProps {
-  job: any;
+  job: Job;
 }
 
 export interface RequirementSectionProps {
-  job: any;
+  job: Job;
 }
 
 export interface RightPanelProps {
@@ -155,4 +211,25 @@ export interface SelectionCriteriaProps {
       HTMLSelectElement
     >
   ) => void;
+}
+
+export interface AlumniWhoCanHelpProps {
+  job: Job;
+}
+
+export interface alumniWhoCanHelp {
+  _id: string;
+  userId: string;
+  name: string;
+  currentCompany: string;
+  totalYearsOfExperience: string;
+  isHiring: boolean;
+  experiences: {
+    role?: string;
+    isCurrent?: boolean;
+  }[];
+  referralJobs: any[];
+  referralMetrics?: {
+    totalReferralsPosted?: number;
+  };
 }

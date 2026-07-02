@@ -88,16 +88,15 @@ export default function InternshipDetailPage({
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="mb-5 text-2xl font-bold text-green-500">
+            <h1 className="mb-5 text-2xl font-bold text-slate-400">
               {internship.jobTitle?.[0] ||
-                internship.title ||
                 "Untitled Internship"}
             </h1>
 
             <p className="mt-2 text-zinc-400">
-              {internship.receiverProfile
-                ?.currentCompany_display ||
-                internship.companyName ||
+              {internship.companyPosted.companyDetails.companyName ||
+                // ?.currentCompany_display ||
+                // internship.companyName ||
                 "Unknown Company"}
             </p>
 
@@ -133,7 +132,7 @@ export default function InternshipDetailPage({
 
         {/* Description */}
         <section>
-          <h2 className="mb-3 mt-5 text-xl font-semibold text-green-500">
+          <h2 className="mb-3 mt-5 text-xl font-semibold text-slate-400">
             Description
           </h2>
 
@@ -148,7 +147,7 @@ export default function InternshipDetailPage({
 
         {/* Internship Details */}
         <section>
-          <h2 className="mb-4 mt-5 text-xl font-semibold text-green-500">
+          <h2 className="mb-4 mt-5 text-xl font-semibold text-slate-400">
             Internship Details
           </h2>
 
@@ -190,8 +189,7 @@ export default function InternshipDetailPage({
                 Posted By
               </p>
               <p>
-                {internship.receiverProfile?.name ||
-                  internship.candidatePosted?.name ||
+                {internship.companyPosted.employerDetails.name||
                   "Anonymous"}
               </p>
             </div>
@@ -245,3 +243,13 @@ export default function InternshipDetailPage({
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+

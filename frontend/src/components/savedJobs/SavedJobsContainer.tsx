@@ -54,7 +54,7 @@ const handleUnsave = async (jobId: string) => {
         <p>No saved jobs found.</p>
       ) : (
         jobs.map((savedJob: any) => (
-         <SavedJobsCard savedJob={savedJob} onUnsave={handleUnsave} />
+         <SavedJobsCard key={savedJob._id} savedJob={savedJob} onUnsave={handleUnsave} />
         ))
       )}
     </div>

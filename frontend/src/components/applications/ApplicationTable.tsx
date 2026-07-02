@@ -1,7 +1,7 @@
 import StageIndicator from "./StageIndicator";
 import { ApplicationTableProps } from "@/types/applications";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 export default function ApplicationTable({
   applicationType,
@@ -9,6 +9,8 @@ export default function ApplicationTable({
   page,
   meta,
 }: ApplicationTableProps) {
+  const { user } = useAuth();
+  const userType = user?.userType;
   const router = useRouter();
    return (
     <div className="rounded-3xl border border-slate-800 overflow-hidden min-h-[420px] flex flex-col ml-5">
@@ -53,7 +55,7 @@ export default function ApplicationTable({
         className="border-t border-slate-800"
         onClick={() =>
 
-    router.push(`/student/applications/${application._id}`)
+    router.push(`/${userType}/applications/${application._id}`)
 
   }
       >

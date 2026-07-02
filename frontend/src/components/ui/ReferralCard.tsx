@@ -9,7 +9,7 @@ type ReferralCardProps = {
   postedByInitials: string;
   postedByName: string;
   college: string;
-  salary: string;
+  salary:string;
 };
 
 export default function ReferralCard({
@@ -23,6 +23,7 @@ export default function ReferralCard({
   college,
   salary,
 }: ReferralCardProps) {
+  
   return (
     <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)]/70 p-5">
       <div className="flex items-start justify-between">
@@ -59,10 +60,10 @@ export default function ReferralCard({
 
           <p className="text-[13px] text-white">
             {postedByName}
-            <span className="text-[var(--text-primary)]">
+            {/* <span className="text-[var(--text-primary)]">
               {" "}
               · {college}
-            </span>
+            </span> */}
           </p>
         </div>
       </div>

@@ -25,9 +25,14 @@ export default function InternshipPage() {
       const response = await axiosInstance.get(
         `/api/student-dashboard/internship-postings?page=${pageNumber}&limit=10`
       );
+      // setInternships(response.data?.data || []);
+      // console.log("ALL INT ",internships.length);
 
-      setInternships(response.data?.data || []);
+      const data = response.data?.data || [];
       
+      setInternships(data);
+      
+
       setMeta(response.data?.meta || null);
     } catch (error) {
       console.error("Failed to fetch internships", error);
@@ -38,8 +43,21 @@ export default function InternshipPage() {
       setLoading(false);
     }
   }
+  if (loading) {
 
-  return (
+  return <div>Loading...</div>;
+
+}
+  if(internships.length==0)
+  {
+    return(
+      <div className="text-yellow-400">
+        <h1>No Interships found</h1>
+      </div>
+    )
+  }
+  
+    return (
     <div className="flex min-h-[calc(100vh-120px)] flex-col">
 
 <div className="mb-6 px-5">
@@ -52,12 +70,12 @@ export default function InternshipPage() {
   </p>
 </div>
 
-      <div className="flex-1">
+      {internships.length>0 && <div className="flex-1">
         <InternshipContainer
           internships={internships}
           loading={loading}
         />
-      </div>
+      </div>}
 
       {meta && internships.length > 0 && (
         <div className="mt-auto flex items-center justify-center gap-4">
@@ -84,4 +102,20 @@ export default function InternshipPage() {
       )}
     </div>
   );
+  
+
+  
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,11 +1,97 @@
 import { ProcessSectionProps } from "@/types/dashboard";
 export default function ProcessSection({ job }: ProcessSectionProps) {
-    return (
+    
+  const SIZE = 110;       // Overall circle size
+  const THICKNESS = 10;   // Ring thickness
+
+  const INNER_SIZE = SIZE - THICKNESS * 2;
+  return (
 
     <div className="space-y-6">
+   <div className="rounded-xl border border-[#1e293b] bg-[#111827] p-6">
+  <h3 className="mb-6 text-xl font-semibold text-white">
+    Match & Referral Insights
+  </h3>
+
+  <div className="flex items-center justify-between">
+    {/* Left Side */}
+    <div className="space-y-5">
+      <div className="flex items-center gap-2">
+        <span className="text-lg">📦</span>
+        <span className="text-gray-400">
+          Openings:
+        </span>
+        <span className="font-semibold text-white">
+          {job.numberOfOpenings ?? "N/A"}
+        </span>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <span className="text-lg">✔️</span>
+        <span className="text-gray-400">
+          Selection Rounds:
+        </span>
+        <span className="font-semibold text-white">
+          {job.rounds?.length || 0}
+        </span>
+      </div>
+    </div>
+
+    {/* Match Score Circle */}
+    <div
+      style={{
+        width: 100,
+        height: 100,
+        borderRadius: "50%",
+        background: `conic-gradient(
+          #22c55e ${(job.matchScore ?? 0) * 3.6}deg,
+          #2b3446 ${(job.matchScore ?? 0) * 3.6}deg
+        )`,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <div
+        style={{
+          width: 82,
+          height: 82,
+          borderRadius: "50%",
+          background: "#111827",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <div
+          style={{
+            fontSize: 22,
+            fontWeight: 700,
+            color: "#fff",
+          }}
+        >
+          {job.matchScore ?? 0}%
+        </div>
+
+        <div
+          style={{
+            fontSize: 9,
+            color: "#22c55e",
+            marginTop: 2,
+          }}
+        >
+          Match Score
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
       {/* Selection Process */}
-      <div className="rounded-xl border border-[#1e293b] bg-[#111827] p-6">
+      {/* <div className="rounded-xl border border-[#1e293b] bg-[#111827] p-6">
         <h3 className="mb-5 text-xl font-semibold text-white">
           Selection Process
         </h3>
@@ -38,11 +124,35 @@ export default function ProcessSection({ job }: ProcessSectionProps) {
           </p>
         )}
 
-      </div>
+      </div> */}
+
+
+      <div className="rounded-xl border border-[#1e293b] bg-[#111827] p-6">
+  <h3 className="mb-5 text-xl font-semibold text-white">
+    Selection Process
+  </h3>
+
+  {job.selectionProcess?.length ? (
+    <div className="rounded-lg border border-[#334155] bg-[#161f2f] p-5">
+      {job.selectionProcess.map((step: string, index: number) => (
+        <p
+          key={index}
+          className="text-gray-300"
+        >
+          {step}
+        </p>
+      ))}
+    </div>
+  ) : (
+    <p className="text-gray-400">
+      No selection process specified
+    </p>
+  )}
+</div>
 
       {/* Important Dates */}
 
-      <div className="rounded-xl border border-[#1e293b] bg-[#111827] p-6">
+      {/* <div className="rounded-xl border border-[#1e293b] bg-[#111827] p-6">
 
         <h3 className="mb-5 text-xl font-semibold text-white">
           Important Dates
@@ -88,12 +198,37 @@ export default function ProcessSection({ job }: ProcessSectionProps) {
           </div>
 
         </div>
+      </div> */}
 
-      </div>
+
+
+      {/* Important Dates */}
+
+<div className="rounded-xl border border-[#1e293b] bg-[#111827] p-6">
+  <h3 className="mb-5 text-xl font-semibold text-white">
+    Important Dates
+  </h3>
+
+  <div className="rounded-lg border border-[#334155] bg-[#161f2f] p-5">
+    <p className="text-sm font-medium text-blue-400">
+      Application Deadline
+    </p>
+
+    <p className="mt-3 text-lg font-semibold text-white">
+      {job.endDate
+        ? new Date(job.endDate).toLocaleDateString("en-IN", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })
+        : "N/A"}
+    </p>
+  </div>
+</div>
 
       {/* Contact Person */}
 
-      <div className="rounded-xl border border-[#1e293b] bg-[#111827] p-6">
+      {/* <div className="rounded-xl border border-[#1e293b] bg-[#111827] p-6">
 
         <h3 className="mb-5 text-xl font-semibold text-white">
           Contact Person
@@ -111,7 +246,12 @@ export default function ProcessSection({ job }: ProcessSectionProps) {
 
         </div>
 
-      </div>
+      </div> */}
+
+
+
+
+      
 
     </div>
 

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import AlumniCard from "./AluminiCard";
 import Link from "next/link";
 import { fetchAlumniData } from "@/services/alumani.services";
@@ -9,6 +10,7 @@ import { DashboardAluminiProps } from "@/types/dashboard";
 export default function DashboardAlumni({userType}:DashboardAluminiProps) {
   const [alumni, setAlumni] = useState<Alumni[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchAlumni = async () => {
@@ -80,8 +82,8 @@ export default function DashboardAlumni({userType}:DashboardAluminiProps) {
 
         <Link href={`${
          userType === "student" || userType === "fresher"? "/student": "/professional"}/alumani-network`} className="text-sm text-gray-400 hover:text-white">
-  View All →
-</Link>
+          View All →
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 gap-6 p-3 md:grid-cols-2 xl:grid-cols-3">
@@ -97,9 +99,11 @@ export default function DashboardAlumni({userType}:DashboardAluminiProps) {
               role={person.jobRoles?.[0] || "Professional"}
               company={person.currentCompany || "Company"}
               college={person.college || "College"}
+              userId={person.userId}
               openRoles={
                 person.referralMetrics?.totalReferralsPosted || 0
               }
+              onClick={() =>router.push(`/${userType}/alumani-network/${person.userId}`)}
             />
           ))
         )}

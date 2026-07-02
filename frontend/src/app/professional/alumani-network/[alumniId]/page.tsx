@@ -9,7 +9,6 @@ export default function AlumniDetailPage() {
   const params = useParams();
   
   const alumniId = params.alumniId as string;
-  console.log("GUNIK ",alumniId);
   const [alumni, setAlumni] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -50,7 +49,7 @@ export default function AlumniDetailPage() {
 
   return (
     <div className="p-6">
-    <AlumniDetailContainer alumni={alumni}/>
+    <AlumniDetailContainer profile={alumni}/>
   </div>
   );
 }

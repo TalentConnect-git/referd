@@ -37,7 +37,6 @@ export default function ApplicationDetailsPage() {
   return <div>Loading...</div>;
 }
   return (
-    // <ApplicationTimeline  currentStatus={application.currentStatus}/>
   <div className="max-w-5xl mx-auto px-6 py-8">
 
     {/* Back Button */}
@@ -101,3 +100,9 @@ export default function ApplicationDetailsPage() {
 
   );
 }
+
+
+
+
+
+

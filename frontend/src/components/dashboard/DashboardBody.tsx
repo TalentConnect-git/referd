@@ -7,13 +7,14 @@ import axiosInstance from "@/lib/axiosInstance";
 import { useAuth } from "@/context/AuthContext";
 import { getCandidateApplications, getProfessionalApplications } from "@/services/application.service";
 import { UserType } from "@/types/dashboard";
+import {Job} from "@/types/dashboard";
 
 export default function DashboardBody() {
   const [allJobs, setAllJobs] = useState<any[]>([]);
 
-  const [referralJobs, setReferralJobs] = useState<any[]>([]);
-  const [internshipJobs, setInternshipJobs] = useState<any[]>([]);
-  const [offCampusJobs, setOffCampusJobs] = useState<any[]>([]);
+  const [referralJobs, setReferralJobs] = useState<Job[]>([]);
+  const [internshipJobs, setInternshipJobs] = useState<Job[]>([]);
+  const [offCampusJobs, setOffCampusJobs] = useState<Job[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 

@@ -10,9 +10,9 @@ export const professionalNavItems: DashboardNavItem[] = [
   { to: "/alumani-network", label: "Alumni Network", icon: "users" },
   { to: "/message", label: "Messages", icon: "message", badge: 3 },
   // { to: "/notifications", label: "Notifications", icon: "bell", badge: 5 },
-  { to: "/activity", label: "Activity Feed", icon: "activity" },
+  // { to: "/activity", label: "Activity Feed", icon: "activity" },
   { to: "/profile", label: "Profile", icon: "user" },
-  { to: "/settings", label: "Settings", icon: "settings" },
+  // { to: "/settings", label: "Settings", icon: "settings" },
 ];
 
 export const studentNavItems: DashboardNavItem[] = [
@@ -27,7 +27,7 @@ export const studentNavItems: DashboardNavItem[] = [
   { to: "/message", label: "Messages", icon: "message", badge: 2 },
   // { to: "/notifications", label: "Notifications", icon: "bell", badge: 4 },
   { to: "/profile", label: "Profile", icon: "user" },
-  { to: "/settings", label: "Settings", icon: "settings" },
+  // { to: "/settings", label: "Settings", icon: "settings" },
 ];
 
 export const fresherNavItems: DashboardNavItem[] = [
@@ -44,7 +44,7 @@ export const fresherNavItems: DashboardNavItem[] = [
   // { to: "/notifications", label: "Notifications", icon: "bell", badge: 3 },
   // { to: "/activity", label: "Activity Feed", icon: "award" },
   { to: "/profile", label: "Profile", icon: "user" },
-  { to: "/settings", label: "Settings", icon: "settings" },
+  // { to: "/settings", label: "Settings", icon: "settings" },
 ];
 
 // Helper function to get nav items by role

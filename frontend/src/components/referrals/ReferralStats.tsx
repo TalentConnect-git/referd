@@ -4,11 +4,15 @@ export default function ReferralStats({
 }: ReferralStatsProps) {
   const stats = [
     {
-      label: "Applications",
+      label: "Candidates",
       value: metrics.totalApplicationsReceived,
     },
     {
-      label: "Referrals Sent",
+      label: "Response %",
+      value: `${metrics.responseRate}%`,
+    },
+    {
+      label: "Referred",
       value: metrics.totalReferredToCompany,
     },
     {
@@ -22,7 +26,7 @@ export default function ReferralStats({
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 my-5">
+    <div className="flex flex-wrap lg:flex-nowrap gap-4 my-5">
       {stats.map((stat) => (
         <div
           key={stat.label}

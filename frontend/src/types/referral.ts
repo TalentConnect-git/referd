@@ -13,6 +13,16 @@ export interface ReferralJob {
   jobTitle: string[];
   location: string[];
 
+  certifications:string[];
+  selectionProcess:string[];
+  workAuthorization:string[];
+  rounds:string[];
+  studentStreams:string[];
+  minEducation:string;
+  yearsOfExperience:string;
+  skills:string[];
+  eligibilityCriteria:string;
+
   approvalStatus: string;
   jobStatus: string;
   inactive: boolean;
@@ -22,6 +32,8 @@ export interface ReferralJob {
   packageDetails: {
     currency: string;
     totalCTC: number;
+    fixedPay:number;
+    joiningBonus:number;
   };
 
   metrics: ReferralMetrics;
@@ -30,6 +42,8 @@ export interface ReferralJob {
   cgpa?: number;
   numberOfOpenings?: number;
   batchYear?: string[];
+
+  jobType: string;
 }
 
 export interface ReferralPaginationProps {

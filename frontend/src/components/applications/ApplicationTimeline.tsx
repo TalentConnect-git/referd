@@ -38,10 +38,10 @@ export default function ApplicationTimeline({
               {completed ? (
                 <CheckCircle
                   size={20}
-                  className="text-green-500 fill-green-500"
+                  className="text-green-500 fill-green-500 mr-5"
                 />
               ) : (
-                <div className="w-5 h-5 rounded-full border-2 border-gray-500" />
+                <div className="w-5 h-5 rounded-full border-2 border-gray-500 mr-5" />
               )}
 
               {index !== stages.length - 1 && (

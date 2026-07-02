@@ -13,6 +13,7 @@ export default function JobRow({
   location,
   referredBy,
   matchScore,
+  workMode,
   onClick,
 jobType
 
@@ -87,7 +88,7 @@ const handleApply = async (
           </div>
 
           <p className="mt-1 truncate text-sm text-[#bfdbfe]">
-            {company} · {location} · ref by {referredBy}
+            {company} · {location} · {workMode?.[0] ?? "-"}
           </p>
         </div>
       </div>

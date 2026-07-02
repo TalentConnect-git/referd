@@ -1,64 +1,24 @@
-import { AlumniDetailContainerProps } from "@/types/alumni";
-
+import { AlumniDetailProfileProps } from "@/types/alumni";
 import AlumniDetailAbout from "./AlumniDetailAbout";
-import AlumniDetailContact from "./AlumniDetailContact";
-import AlumniDetailEducation from "./AlumniDetailEducation";
-import AlumniDetailExperience from "./AlumniDetailExperience";
 import AlumniDetailHeader from "./AlumniDetailHeader";
-import AlumniDetailReferralJobs from "./AlumniDetailReferralJobs";
-import AlumniDetailSkills from "./AlumniDetailSkills";
+import AlumniDetailMetrics from "./AlumniDetailMetrics";
+import AlumniDetailProfessionalLinks from "./AlumniDetailProfessionalLinks";
+import AlumniDetailOpenPositions from "./AlumniDetailOpenPositions";
 
 export default function AlumniDetailContainer({
-  alumni,
-}: AlumniDetailContainerProps) {
+  profile
+}: AlumniDetailProfileProps) {
+
+  console.log("Alumni received ",profile);
   return (
     <div className="space-y-6">
 
-      <AlumniDetailHeader
-        name={alumni.name}
-        currentCompany={alumni.currentCompany_display}
-        currentRole={
-          alumni.experiences?.[0]?.role || "Professional"
-        }
-        college={
-          alumni.educations?.[0]?.college || "N/A"
-        }
-        locations={alumni.locations || []}
-        profileImage={alumni.profileImage}
-      />
 
-      <AlumniDetailAbout
-        about={alumni.about}
-      />
-
-      <AlumniDetailExperience
-        experiences={alumni.experiences || []}
-      />
-
-      <AlumniDetailEducation
-        educations={alumni.educations || []}
-      />
-
-      <AlumniDetailSkills
-        skills={alumni.skills || []}
-        toolsAndPlatforms={
-          alumni.toolsAndPlatforms || []
-        }
-      />
-
-      <AlumniDetailReferralJobs
-        referralJobs={alumni.referralJobs || []}
-      />
-
-      <AlumniDetailContact
-        email={alumni.email}
-        phone={alumni.phone}
-        linkedin={alumni.linkedin}
-        github={alumni.github}
-        portfolio={alumni.portfolio}
-        resume={alumni.resume}
-      />
-
+      <AlumniDetailHeader profile={profile} />
+      <AlumniDetailMetrics profile={profile} />
+      <AlumniDetailAbout profile={profile} />
+      <AlumniDetailProfessionalLinks profile={profile} />
+      <AlumniDetailOpenPositions userProfile={profile} />
     </div>
   );
 }

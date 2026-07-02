@@ -60,6 +60,8 @@ export default function JobDetailsRoutePage() {
   return( 
   <>
   <JobDetailPage job={job} />
+ 
+
   </>
 );
 }

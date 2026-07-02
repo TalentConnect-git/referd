@@ -33,7 +33,7 @@ export default function ReferralCardHeader({
     {referral.inactive ? "Closed" : "Active"}
   </span>
 
-  <span
+  {/* <span
     className={`rounded-full px-2.5 py-0.5 text-xs border ${
       referral.approvalStatus === "Approved"
         ? "border-green-600 text-green-400 bg-green-900/20"
@@ -41,7 +41,7 @@ export default function ReferralCardHeader({
     }`}
   >
     {referral.approvalStatus}
-  </span>
+  </span> */}
 </div>
     </div>
   );

@@ -34,7 +34,9 @@ const handleSave = async () => {
               <div className="flex items-center gap-4">
 
                 <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-[#1e293b] text-xl font-bold text-white">
-                  {job.companyPosted?.companyDetails?.companyName?.charAt(0) ||
+                  {/* {job.companyPosted?.companyDetails?.companyName?.charAt(0) ||
+                    "J"} */}
+                    {job.candidatePosted?.currentCompany?.charAt(0) ||
                     "J"}
                 </div>
 
@@ -46,8 +48,10 @@ const handleSave = async () => {
                   </h2>
 
                   <p className="text-sm text-gray-400">
-                    {job.companyPosted?.companyDetails?.companyName ||
-                      "Company"}
+                    {/* {job.companyPosted?.companyDetails?.companyName ||
+                      "Company"} */}
+                      {job.candidatePosted?.currentCompany?.charAt(0) ||
+                    "J"}
                   </p>
 
                   <p className="text-sm text-gray-500">
@@ -81,15 +85,15 @@ const handleSave = async () => {
               className={`rounded-lg px-5 py-2 text-sm font-semibold transition-all ${selectedTab === "compensation"? "bg-green-500 text-black": "border border-[#334155] text-gray-300"}`}>Compensation</button>
 
               
-              <button onClick={() => setSelectedTab("process")}
-              className={`rounded-lg px-5 py-2 text-sm font-semibold transition-all ${selectedTab === "process"? "bg-green-500 text-black": "border border-[#334155] text-gray-300"}`}>Process</button>
+              <button onClick={() => setSelectedTab("Match & Referral Insights")}
+              className={`rounded-lg px-5 py-2 text-sm font-semibold transition-all ${selectedTab === "Match & Referral Insights"? "bg-green-500 text-black": "border border-[#334155] text-gray-300"}`}>Match & Referral Insights</button>
             </div>
 
 
             {selectedTab === "overview" && <OverviewSection job={job}/>}
             {selectedTab === "requirements" && <RequirementSection job={job}/>}
             {selectedTab === "compensation" && <CompensationSection job={job} />}
-            {selectedTab==="process" && <ProcessSection job={job} />}
+            {selectedTab==="Match & Referral Insights" && <ProcessSection job={job} />}
             
         </div>
   );
