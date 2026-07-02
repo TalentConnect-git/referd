@@ -13,20 +13,22 @@ export default function InternshipDetails() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (params?.id) {
-      fetchInternship(params.id as string);
+    if (params?.jobid) {
+      fetchInternship(params.jobid as string);
     }
-  }, [params?.id]);
-
+  }, [params?.jobid]);
+  console.log("HERE I AM IN PAGE.TSX");
+  console.log("ID IS ",params.jobid);
   async function fetchInternship(id: string) {
     try {
       setLoading(true);
 
       const response = await axiosInstance.get(
-        `/api/student-dashboard/job-details/${id}`
+        `/api/student-dashboard/getInternshipDetail/${id}`
       );
 
-      setInternship(response.data?.data || null);
+
+      setInternship(response.data || null);
     } catch (error) {
       console.error(
         "Failed to fetch internship details",
@@ -36,7 +38,7 @@ export default function InternshipDetails() {
       setLoading(false);
     }
   }
-
+  
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -51,3 +53,8 @@ export default function InternshipDetails() {
     />
   );
 }
+
+
+
+
+

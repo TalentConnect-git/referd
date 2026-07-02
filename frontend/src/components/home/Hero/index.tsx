@@ -27,10 +27,10 @@ export default function Hero() {
 
       <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center px-5 pt-24 text-center">
         {/* Beta badge */}
-        <div className="mb-12 inline-flex items-center gap-3 rounded-full border border-[var(--border)] bg-[var(--card)]/60 px-4 py-2 text-[12px] text-[#c7d4e5] backdrop-blur-xl">
+        {/* <div className="mb-12 inline-flex items-center gap-3 rounded-full border border-[var(--border)] bg-[var(--card)]/60 px-4 py-2 text-[12px] text-[#c7d4e5] backdrop-blur-xl">
           <span className="h-2 w-2 rounded-full bg-[var(--primary)]" />
           <span>Now in private beta · India</span>
-        </div>
+        </div> */}
 
         {/* Heading */}
         <h1 className="max-w-5xl text-[35px] font-bold leading-[1.08] tracking-[-0.04em] text-white md:text-[45px]">

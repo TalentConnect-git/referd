@@ -18,9 +18,10 @@ export default function ReferralDetailsHeader({
             {referral.jobStatus}
         </span>
 
-        <span className={`px-3 py-1 rounded-full text-sm ${referral.approvalStatus === "Approved"? "bg-green-500/20 text-green-400": "bg-yellow-500/20 text-yellow-400"}`} >
+
+        {/* <span className={`px-3 py-1 rounded-full text-sm ${referral.approvalStatus === "Approved"? "bg-green-500/20 text-green-400": "bg-yellow-500/20 text-yellow-400"}`} >
             {referral.approvalStatus}
-        </span>
+        </span> */}
       </div>
     </div>
   );

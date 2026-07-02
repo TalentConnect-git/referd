@@ -1,18 +1,3 @@
-export interface AlumniDetailHeaderProps {
-  name: string;
-  currentCompany: string;
-  currentRole: string;
-  college: string;
-  locations: string[];
-  profileImage?: string;
-}
-
-
-export interface AlumniDetailAboutProps {
-  about: string;
-}
-
-
 export interface Experience {
   _id: string;
   company: string;
@@ -24,11 +9,13 @@ export interface Experience {
   isCurrent: boolean;
 }
 
-export interface AlumniDetailExperienceProps {
-  experiences: Experience[];
+export interface AlumniDetailProfileProps {
+  profile: Alumni;
 }
 
-
+export interface AlumniDetailOpenPositionsProps {
+  userProfile:Alumni;
+}
 export interface Education {
   _id: string;
   college: string;
@@ -40,25 +27,6 @@ export interface Education {
   isCurrent: boolean;
 }
 
-export interface AlumniDetailEducationProps {
-  educations: Education[];
-}
-
-
-export interface AlumniDetailSkillsProps {
-  skills: string[];
-  toolsAndPlatforms: string[];
-}
-
-export interface AlumniDetailContactProps {
-  email: string;
-  phone: string;
-  linkedin?: string;
-  github?: string;
-  portfolio?: string;
-  resume?: string;
-}
-
 export interface ReferralJob {
   _id: string;
   companyName: string;
@@ -67,20 +35,16 @@ export interface ReferralJob {
   careerPageUrl: string;
   description: string;
   createdAt: string;
+  jobType:string;
 }
-
-export interface AlumniDetailReferralJobsProps {
-  referralJobs: ReferralJob[];
-}
-
-export interface AlumniDetailContainerProps {
-  alumni: Alumni;
-}
-
 
 export interface Alumni {
   name: string;
   about: string;
+
+  userId:string;
+  totalYearsOfExperience:string;
+  currentCompany:string;
 
   email: string;
   phone: string;
@@ -89,6 +53,7 @@ export interface Alumni {
   github: string;
   portfolio: string;
   resume: string;
+  isHiring:string;
 
   profileImage: string;
 
@@ -106,3 +71,8 @@ export interface Alumni {
 
   referralJobs: ReferralJob[];
 }
+
+
+
+
+

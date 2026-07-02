@@ -11,6 +11,7 @@ export default function InternshipContainer({
   const { profile } = useAuth();
 
   const role = profile?.profileType || "student";
+  console.log("RECEIVED INTERNSHIPS ",internships);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -45,9 +46,13 @@ export default function InternshipContainer({
             internship.employmentType?.[0] ||
             "Internship"
           }
-          route={`/${role}/jobs/internship/${internship._id}`}
+          route={`/${role}/internships/${internship._id}`}
         />
       ))}
     </div>
   );
 }
+
+
+
+

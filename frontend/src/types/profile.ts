@@ -16,6 +16,7 @@ export type Education = {
   endDate?: string;
   educationType?: string;
   isCurrent?: boolean;
+  college_display?:string;
 };
 
 export type Experience = {
@@ -71,6 +72,8 @@ export type ProfileData = {
   phone?: string;
   about?: string;
 
+  visaStatus?:string;
+
   gender?: string;
   dob?: string;
   ethnicity?: string;
@@ -82,8 +85,17 @@ export type ProfileData = {
   profileImage?: string;
   resume?: string;
 
+  responseRate?: number;
+
   educations?: Education[];
   education?: Education[];
+
+
+  currentSalaryAmount?: string;
+  currentSalaryCurrency?: string;
+
+  expectedSalaryAmount?: string;
+  expectedSalaryCurrency?: string;
 
   experiences?: Experience[];
   experience?: Experience[];
@@ -92,15 +104,15 @@ export type ProfileData = {
   leadership?: Leadership[];
   achievements?: Achievement[];
 
-  skills?: string[] | string;
-  toolsAndPlatforms?: string[] | string;
-  languagesKnown?: string[] | string;
-  domainKnowledge?: string[] | string;
-  jobRoles?: string[] | string;
-  locations?: string[] | string;
-  employmentType?: string[] | string;
-  lookingFor?: string[] | string;
-  industry?: string[] | string;
+  skills?: string[];
+  toolsAndPlatforms?: string[];
+  languagesKnown?: string[];
+  domainKnowledge?: string[];
+  jobRoles?: string[];
+  locations?: string[];
+  employmentType?: string[];
+  lookingFor?: string[];
+  industry?: string[];
 
   currentCompany?: string;
   companyEmail?: string;
@@ -147,6 +159,7 @@ export type EditForm = {
   lookingFor: string[];
   industry: string[];
 
+  
   currentCompany: string;
   companyEmail: string;
   totalYearsOfExperience: string;
@@ -161,3 +174,37 @@ export type MasterData = {
   industries: Option[];
   jobRoles: Option[];
 };
+
+export interface ProfileContainerProps {
+  profile: ProfileData;
+}
+
+export interface PersonalInfoProps {
+  profile: ProfileData;
+}
+
+export interface EducationCardProps {
+  profile: ProfileData;
+}
+
+export interface ExperienceCardProps {
+  profile: ProfileData;
+}
+
+export interface NoticePeriodCardProps {
+  profile: ProfileData;
+}
+
+export interface JobPreferencesCardProps {
+  profile: ProfileData;
+}
+
+export interface AboutCardProps {
+  profile: ProfileData;
+}
+
+export interface SkillsCardProps {
+
+  profile: ProfileData;
+
+}

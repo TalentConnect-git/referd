@@ -31,7 +31,7 @@ export default function ReferralContainer() {
       setLoading(true);
 
       const response = await getMyReferrals(page, 10);
-
+      
       setReferrals(response.data || []);
 
       setMeta({

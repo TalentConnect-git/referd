@@ -58,7 +58,7 @@ type ReferralMetrics = {
 
 export type AlumniProfile = {
   _id: string;
-  userId?: string;
+  userId: string;
   name?: string;
   email?: string;
   phone?: string;
@@ -172,5 +172,13 @@ export const getAlumniDetails = async (
 };
 
 
+export const getAlumniWhoCanHelp = async (
+  jobId: string
+) => {
+  const response = await axiosInstance.get(
+    `/api/candidate/alumni/RawRecruit/${jobId}`
+  );
+  return response.data;
+};
 
 

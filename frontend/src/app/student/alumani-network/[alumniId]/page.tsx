@@ -50,7 +50,7 @@ export default function AlumniDetailPage() {
 
   return (
     <div className="p-6">
-    <AlumniDetailContainer alumni={alumni}/>
+    <AlumniDetailContainer profile={alumni}/>
   </div>
   );
 }

@@ -15,14 +15,14 @@ function getFirstValue(value?: string | string[]) {
 export default function DashboardJobs({ referralJobs,internshipJobs,offCampusJobs,allJobs }: DashboardJobsProps) 
 {
 
-  const [selectedJob, setSelectedJob] = useState(null);
+  const [selectedJob, setSelectedJob] = useState<Job>();
   const [open, setOpen] = useState(false);
   const { profile } = useAuth();
   const userType = profile?.profileType;
   const [isHovered, setIsHovered] = useState(false);
 
   
-  const getTitle = (job: any) =>
+  const getTitle = (job: Job) =>
   getFirstValue(job.jobTitle) ||
   job.jobRoles?.[0] ||
   job.title ||
@@ -110,6 +110,7 @@ export default function DashboardJobs({ referralJobs,internshipJobs,offCampusJob
           matchScore={job.matchScore ?? 0}
           onClick={() => handleJobClick(job._id!)}
           jobType= "Referral"
+          workMode={job.workMode}
         />
       ))}
     </>
@@ -133,6 +134,7 @@ export default function DashboardJobs({ referralJobs,internshipJobs,offCampusJob
           location={getLocation(job)}
           referredBy={job.candidatePosted?.name || "Alumni"}
           matchScore={job.matchScore ?? 0}
+          workMode={job.workMode}
           onClick={() => handleJobClick(job._id!)}
         jobType="Internship"
         />
@@ -158,6 +160,7 @@ export default function DashboardJobs({ referralJobs,internshipJobs,offCampusJob
           location={getLocation(job)}
           referredBy={job.candidatePosted?.name || "Alumni"}
           matchScore={job.matchScore ?? 0}
+          workMode={job.workMode}
           onClick={() => handleJobClick(job._id!)}
           jobType="Off-campus"
         />
@@ -165,7 +168,15 @@ export default function DashboardJobs({ referralJobs,internshipJobs,offCampusJob
     </>
   )}
 
-    <JobsDetailModel open={open} onClose={() => setOpen(false)} job={selectedJob} allJobs={allJobs} onSelectJob={setSelectedJob}/>
+
+    {selectedJob && (<JobsDetailModel
+                  open={open}
+                  onClose={() => setOpen(false)}
+                  job={selectedJob}
+                  allJobs={allJobs}
+                  onSelectJob={setSelectedJob}/>
+                )}
+    {/* < JobsDetailModel open={open} onClose={() => setOpen(false)} job={selectedJob} allJobs={allJobs} onSelectJob={setSelectedJob}/> */}
 
 </div>
 
@@ -173,6 +184,10 @@ export default function DashboardJobs({ referralJobs,internshipJobs,offCampusJob
     </div>
   );
 }
+
+
+
+
 
 
 

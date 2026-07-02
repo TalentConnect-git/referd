@@ -1,16 +1,17 @@
 import { OverviewSectionProps } from "@/types/dashboard";
 import { applyJob } from "@/services/job.service";
+import PostedByReferrer from "./PostedByReferrer";
+import AlumniWhoCanHelp from "./AlumniWhoCanHelp";
 export default function OverviewSection({ job }: OverviewSectionProps) {
   const handleApply = async () => {
   try {
     console.log(job);
-console.log(
+  console.log(
   job._id,
   job.jobType,
   job.matchScore
 );
     await applyJob(
-
       job._id,
       job.jobType,
       job.matchScore || 0
@@ -32,16 +33,16 @@ console.log(
               <div className="grid grid-cols-2 gap-8">
 
                 <div>
-                  <p className="text-sm text-green-500">
+                  <p className="text-sm text-blue-400">
                     Job Role
                   </p>
                   <p className="mt-1 text-white">
-                    {job.jobRoles?.[0] || "N/A"}
+                    {job.jobTitle || "N/A"}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-sm text-green-500">
+                  <p className="text-sm text-blue-400">
                     Employment Type
                   </p>
                   <p className="mt-1 text-white">
@@ -50,7 +51,7 @@ console.log(
                 </div>
 
                 <div>
-                  <p className="text-sm text-green-500">
+                  <p className="text-sm text-blue-400">
                     Work Location
                   </p>
                   <p className="mt-1 text-white">
@@ -59,7 +60,7 @@ console.log(
                 </div>
 
                 <div>
-                  <p className="text-sm text-green-500">
+                  <p className="text-sm text-blue-400">
                     Work Mode
                   </p>
                   <p className="mt-1 text-white">
@@ -68,8 +69,8 @@ console.log(
                 </div>
 
                 <div>
-                  <p className="text-sm text-green-500">
-                    Duration / Experience
+                  <p className="text-sm text-blue-400">
+                    Experience Required
                   </p>
                   <p className="mt-1 text-white">
                     {job.internshipDuration ||
@@ -79,7 +80,7 @@ console.log(
                 </div>
 
                 <div>
-                  <p className="text-sm text-green-500">
+                  <p className="text-sm text-blue-400">
                     CGPA Required
                   </p>
                   <p className="mt-1 text-white">
@@ -89,7 +90,7 @@ console.log(
 
 
                 <div>
-                  <p className="text-sm text-green-500">
+                  <p className="text-sm text-blue-400">
                     Package
                   </p>
                   <p className="mt-1 text-white">
@@ -115,6 +116,16 @@ console.log(
 
             </div>
 
+
+            {job.candidatePosted && <div className="mt-5 mb-5 rounded-xl border border-[#1e293b] bg-[#111827] p-6">
+               <PostedByReferrer candidateId={job.candidatePosted.userId} />
+              
+            </div>}
+
+            <div className="mt-5 rounded-xl border border-[#1e293b] bg-[#111827] p-6">
+              <AlumniWhoCanHelp job={job} />
+            </div>
+
             {/* Apply Button */}
             <div className="mt-8 flex justify-center">
 
@@ -127,3 +138,8 @@ console.log(
         </>
     )
 }
+
+
+
+
+

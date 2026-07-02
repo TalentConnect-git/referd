@@ -1,0 +1,7 @@
+import axiosInstance from "@/lib/axiosInstance";
+
+export const getInterviews = async () => {
+  const response = await axiosInstance.get("/interviews");
+  return response.data;
+};
+

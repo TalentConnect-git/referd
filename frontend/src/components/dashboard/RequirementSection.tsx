@@ -11,7 +11,7 @@ export default function RequirementSection({ job }: RequirementSectionProps) {
       <div className="grid grid-cols-2 gap-6">
 
         <div>
-          <p className="text-sm text-green-400">
+          <p className="text-sm text-blue-400">
             Eligible Degrees
           </p>
 
@@ -21,7 +21,7 @@ export default function RequirementSection({ job }: RequirementSectionProps) {
         </div>
 
         <div>
-          <p className="text-sm text-green-500">
+          <p className="text-sm text-blue-400">
             Experience Level
           </p>
 
@@ -31,7 +31,7 @@ export default function RequirementSection({ job }: RequirementSectionProps) {
         </div>
 
         <div>
-          <p className="text-sm text-green-500">
+          <p className="text-sm text-blue-400">
             Eligible Streams
           </p>
 
@@ -41,19 +41,29 @@ export default function RequirementSection({ job }: RequirementSectionProps) {
         </div>
 
         <div>
-          <p className="text-sm text-green-500">
+          <p className="text-sm text-blue-400">
             CGPA Requirement
           </p>
 
           <p className="text-white">
-            {job.cgpa || "N/A"} CGPA
+            {job.cgpa || "N/A"} 
           </p>
+        </div>
+
+        <div>
+          <p className="text-sm text-blue-400">
+            Skills Required
+          </p>
+
+            <p className="text-white">
+              {job.skills?.length ? job.skills.join(", ") : "N/A"}
+            </p>
         </div>
 
       </div>
 
       <div className="mt-6">
-        <p className="text-sm text-green-500">
+        <p className="text-sm text-blue-400">
           Additional Criteria
         </p>
 

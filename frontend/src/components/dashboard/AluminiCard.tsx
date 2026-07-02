@@ -5,6 +5,8 @@ export default function AlumniCard({
   company,
   college,
   openRoles,
+  userId,
+  onClick,
 }: AlumniCardProps) {
   const initials = name
     .split(" ")
@@ -14,7 +16,7 @@ export default function AlumniCard({
 
   return (
     <div className="rounded-xl border border-[#334155] bg-[#162033] p-6">
-      <div className="flex gap-4">
+      <div className="flex gap-4" onClick={onClick}>
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-900 text-lg font-bold text-green-400">
           {initials}
         </div>

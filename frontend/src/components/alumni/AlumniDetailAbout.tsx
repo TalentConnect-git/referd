@@ -1,17 +1,27 @@
-import { AlumniDetailAboutProps } from "@/types/alumni";
+import { AlumniDetailProfileProps } from "@/types/alumni";
 
 export default function AlumniDetailAbout({
-  about,
-}: AlumniDetailAboutProps) {
+  profile,
+}: AlumniDetailProfileProps) {
+  const about =
+    profile.about ||
+    "";
+
   return (
-    <div className="rounded-3xl border border-slate-800 bg-[#111827] p-6">
-      <h2 className="mb-4 text-xl font-semibold text-blue-400">
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6">
+      <h2 className="mb-5 text-xl font-semibold text-white">
         About
       </h2>
 
-      <p className="leading-7 text-slate-300">
-        {about || "No description available."}
-      </p>
+      {about ? (
+        <p className="leading-7 text-gray-300">
+          {about}
+        </p>
+      ) : (
+        <p className="italic text-gray-500">
+          No information available.
+        </p>
+      )}
     </div>
   );
 }

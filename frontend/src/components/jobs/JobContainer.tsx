@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import JobCard from "./JobCard";
+import LeftPanel from "../dashboard/LeftPannel";
 
 interface JobContainerProps {
   jobs: any[];
