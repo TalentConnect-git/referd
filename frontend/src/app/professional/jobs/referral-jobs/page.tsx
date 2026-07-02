@@ -64,7 +64,7 @@ export default function ProfessionalReferralJobsPage() {
           onClick={handleAskForReferral}
           className="flex items-center gap-2 rounded-lg bg-[var(--primary)] px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-[var(--primary-dark)] active:scale-95"
         >
-          <Plus className="h-4 w-4" />
+          
           Ask for Referral
         </button>
       </div>

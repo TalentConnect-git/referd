@@ -29,7 +29,7 @@ import {
 import type { ReactNode } from "react";
 import { useMemo, useRef, useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useGetAllUsers } from "@/hooks/useGetAllUsers";
+import { useMessageUnreadCount } from "@/hooks/useMessageUnreadCount";
 import { goToHome } from "@/helper/index";
 
 export type CandidateRole = "professional" | "student" | "fresher";
@@ -105,7 +105,8 @@ export function DashboardLayout({
   const { profile, profileLoading, logout } = useAuth();
 
   // Get unread message counts
-  const { totalUnread } = useGetAllUsers();
+  // Realtime unread message count for navbar/sidebar message badge
+const { messageUnreadCount } = useMessageUnreadCount();
 
   const handleClick = () => {
     goToHome(router);
@@ -168,16 +169,17 @@ export function DashboardLayout({
 
   // Update nav items with unread count
   const updatedNavItems = useMemo(() => {
-    return filteredNavItems.map((item) => {
-      if (item.icon === "message") {
-        return {
-          ...item,
-          badge: totalUnread > 0 ? totalUnread : undefined,
-        };
-      }
-      return item;
-    });
-  }, [filteredNavItems, totalUnread]);
+  return filteredNavItems.map((item) => {
+    if (item.icon === "message") {
+      return {
+        ...item,
+        badge: messageUnreadCount > 0 ? messageUnreadCount : undefined,
+      };
+    }
+
+    return item;
+  });
+}, [filteredNavItems, messageUnreadCount]);
 
   // Initials for avatar
   const initials = useMemo(() => {

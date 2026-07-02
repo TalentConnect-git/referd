@@ -1,4 +1,3 @@
-// components/chat/ConversationItem.tsx
 "use client";
 
 import { memo, useCallback } from "react";
@@ -14,64 +13,88 @@ interface ConversationItemProps {
   lastMessageTime?: string;
 }
 
-export const ConversationItem = memo(({
-  conversation,
-  isSelected,
-  unreadCount,
-  isOnline = false,
-  onSelect,
-  lastMessageTime,
-}: ConversationItemProps) => {
-  const handleClick = useCallback(() => {
-    onSelect(conversation);
-  }, [conversation, onSelect]);
+export const ConversationItem = memo(
+  ({
+    conversation,
+    isSelected,
+    unreadCount,
+    isOnline = false,
+    onSelect,
+    lastMessageTime,
+  }: ConversationItemProps) => {
+    const handleClick = useCallback(() => {
+      if (!conversation?._id) return;
+      onSelect(conversation);
+    }, [conversation, onSelect]);
 
-  const getInitials = (name: string) => name.charAt(0).toUpperCase();
+    const displayName = conversation.name || "User";
+    const initial = displayName.charAt(0).toUpperCase();
+    const lastMessage = conversation.lastMessage || "Start a conversation...";
 
-  return (
-    <div
-      onClick={handleClick}
-      className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-all hover:bg-[var(--card-hover)] ${
-        isSelected ? "bg-[var(--card-hover)]" : ""
-      }`}
-    >
-      <div className="relative flex-shrink-0">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#22c55e] to-[#16a34a] flex items-center justify-center text-white font-semibold text-lg shadow-lg">
-          {getInitials(conversation.name)}
-        </div>
-        {isOnline && (
-          <div className="absolute -bottom-0.5 -right-0.5">
-            <div className="w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-[var(--card)] animate-pulse-dot" />
+    return (
+      <button
+        type="button"
+        onClick={handleClick}
+        className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-all hover:bg-[var(--card-hover)] ${
+          isSelected ? "bg-[var(--card-hover)]" : ""
+        }`}
+      >
+        <div className="relative flex-shrink-0">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#22c55e] to-[#16a34a] text-lg font-semibold text-white shadow-lg">
+            {initial}
           </div>
-        )}
-        {unreadCount > 0 && (
-          <div className="absolute -top-1 -right-1 min-w-[20px] h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold px-1.5 shadow-lg shadow-red-500/30">
-            {unreadCount > 99 ? "99+" : unreadCount}
-          </div>
-        )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between">
-          <h3 className={`text-sm font-medium truncate ${unreadCount > 0 ? "text-white font-semibold" : "text-white"}`}>
-            {conversation.name}
-          </h3>
-          {lastMessageTime && (
-            <span className="text-[10px] text-[var(--text-muted)] flex-shrink-0 ml-2">
-              {lastMessageTime}
-            </span>
+
+          {isOnline && (
+            <div className="absolute -bottom-0.5 -right-0.5">
+              <div className="h-3.5 w-3.5 animate-pulse rounded-full border-2 border-[var(--card)] bg-green-500" />
+            </div>
+          )}
+
+          {unreadCount > 0 && (
+            <div className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white shadow-lg shadow-red-500/30">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </div>
           )}
         </div>
-        <p className={`text-sm truncate ${unreadCount > 0 ? "text-white font-medium" : "text-[var(--text-muted)]"}`}>
-          {conversation.lastMessage || "Start a conversation..."}
-        </p>
-      </div>
-      <ChevronRight
-        className={`w-4 h-4 flex-shrink-0 transition-all ${
-          isSelected ? "text-[var(--primary)]" : "text-[var(--text-muted)]"
-        }`}
-      />
-    </div>
-  );
-});
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between">
+            <h3
+              className={`truncate text-sm ${
+                unreadCount > 0
+                  ? "font-bold text-white"
+                  : "font-medium text-white"
+              }`}
+            >
+              {displayName}
+            </h3>
+
+            {lastMessageTime && (
+              <span className="ml-2 flex-shrink-0 text-[10px] text-[var(--text-muted)]">
+                {lastMessageTime}
+              </span>
+            )}
+          </div>
+
+          <p
+            className={`truncate text-sm ${
+              unreadCount > 0
+                ? "font-semibold text-white"
+                : "text-[var(--text-muted)]"
+            }`}
+          >
+            {lastMessage}
+          </p>
+        </div>
+
+        <ChevronRight
+          className={`h-4 w-4 flex-shrink-0 transition-all ${
+            isSelected ? "text-[var(--primary)]" : "text-[var(--text-muted)]"
+          }`}
+        />
+      </button>
+    );
+  }
+);
 
 ConversationItem.displayName = "ConversationItem";

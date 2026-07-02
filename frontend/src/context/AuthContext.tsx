@@ -7,6 +7,7 @@ import {
   useEffect,
   useMemo,
   useState,
+  useCallback,
 } from "react";
 import axios from "axios";
 
@@ -27,9 +28,9 @@ type AuthContextType = {
   login: (user: AuthUser, token: string) => void;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
-  profile: ProfileData | null;         // full profile from /api/onboarding/me
-  profileLoading: boolean;            // loading state for the profile
-  refreshProfile: () => Promise<void>; // re‑fetch profile on demand
+  profile: ProfileData | null;
+  profileLoading: boolean;
+  refreshProfile: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -62,10 +63,6 @@ const clearAuthStorage = () => {
   sessionStorage.clear();
 };
 
-// ---------- Profile fetcher ----------
-const getProfileData = (data: any): ProfileData =>
-  data?.data || data?.profile || data?.user || data || {};
-
 // ---------- Provider ----------
 export function AuthContextRole({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -75,19 +72,19 @@ export function AuthContextRole({ children }: { children: ReactNode }) {
   const [profileLoading, setProfileLoading] = useState(false);
 
   // ---------- Reset ----------
-  const resetAuthState = () => {
+  const resetAuthState = useCallback(() => {
     clearAuthStorage();
     setUser(null);
     setToken(null);
     setProfile(null);
-  };
+  }, []);
 
-  const redirectToLogin = () => {
+  const redirectToLogin = useCallback(() => {
     window.location.href = "/login";
-  };
+  }, []);
 
   // ---------- Fetch full profile ----------
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     const currentToken = token || localStorage.getItem("token");
     if (!currentToken) return;
 
@@ -102,17 +99,18 @@ export function AuthContextRole({ children }: { children: ReactNode }) {
         headers: { Authorization: `Bearer ${currentToken}` },
       });
 
-      setProfile(getProfileData(response.data));
+      const profileData = response.data?.data || response.data?.profile || response.data?.user || response.data || {};
+      setProfile(profileData);
     } catch (error) {
       console.error("Failed to fetch profile:", error);
-      // keep last profile if any, don't null it on failure
+      // Keep last profile if any, don't null it on failure
     } finally {
       setProfileLoading(false);
     }
-  };
+  }, [token]); // ✅ depends on token, but also reads localStorage as fallback
 
   // ---------- Refresh user (and then profile) ----------
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     try {
       const savedToken = localStorage.getItem("token");
       if (!savedToken) {
@@ -134,7 +132,7 @@ export function AuthContextRole({ children }: { children: ReactNode }) {
       setUser(data.user);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      // Now load the full profile
+      // Fetch profile after setting user
       await fetchProfile();
     } catch (error) {
       console.error(error);
@@ -143,30 +141,27 @@ export function AuthContextRole({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    refreshUser();
-  }, []);
+  }, [resetAuthState, redirectToLogin, fetchProfile]);
 
   // ---------- Login ----------
-  const login = (userData: AuthUser, jwtToken: string) => {
-    localStorage.setItem("token", jwtToken);
-    localStorage.setItem("user", JSON.stringify(userData));
+  const login = useCallback(
+    (userData: AuthUser, jwtToken: string) => {
+      localStorage.setItem("token", jwtToken);
+      localStorage.setItem("user", JSON.stringify(userData));
 
-    console.log(jwtToken);
+      clearOnboardingStorage();
 
-    clearOnboardingStorage();
+      setToken(jwtToken);
+      setUser(userData);
 
-    setToken(jwtToken);
-    setUser(userData);
-
-    // Immediately fetch profile after login
-    fetchProfile();
-  };
+      // Immediately fetch profile after login
+      fetchProfile();
+    },
+    [fetchProfile]
+  );
 
   // ---------- Logout ----------
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await logoutUser();
     } catch {
@@ -175,7 +170,12 @@ export function AuthContextRole({ children }: { children: ReactNode }) {
       resetAuthState();
       redirectToLogin();
     }
-  };
+  }, [resetAuthState, redirectToLogin]);
+
+  // ---------- Initial load ----------
+  useEffect(() => {
+    refreshUser();
+  }, [refreshUser]);
 
   // ---------- Context value ----------
   const value = useMemo(
@@ -190,9 +190,9 @@ export function AuthContextRole({ children }: { children: ReactNode }) {
       refreshUser,
       profile,
       profileLoading,
-      refreshProfile: fetchProfile,
+      refreshProfile: fetchProfile, // same as fetchProfile
     }),
-    [user, token, loading, profile, profileLoading],
+    [user, token, loading, profile, profileLoading, login, logout, refreshUser, fetchProfile]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -3,7 +3,7 @@
 
 import { Bell, MessageCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { useGetAllUsers } from "@/hooks/useGetAllUsers";
+import { useMessageUnreadCount } from "@/hooks/useMessageUnreadCount";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import NotificationsDropdown from "../notifications/NotificationsDropDown";
@@ -14,7 +14,7 @@ export default function Navbar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Get total unread count - this will update in real-time
-  const { totalUnread } = useGetAllUsers();
+  const { messageUnreadCount } = useMessageUnreadCount();
 
   const displayName =
     profile?.fullName ||
@@ -102,7 +102,7 @@ export default function Navbar() {
             "
           >
             <MessageCircle size={20} />
-            {totalUnread > 0 && (
+            {messageUnreadCount > 0 && (
               <span
                 className="
                   absolute
@@ -124,7 +124,7 @@ export default function Navbar() {
                   shadow-red-500/30
                 "
               >
-                {totalUnread > 99 ? '99+' : totalUnread}
+                {messageUnreadCount > 99 ? '99+' : messageUnreadCount}
               </span>
             )}
           </Link>
