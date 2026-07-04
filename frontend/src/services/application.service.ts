@@ -63,5 +63,15 @@ export const getApplicationDetails = async (
 };
 
 
+export const getReferredByMe = async (
+  page: number = 1,
+  limit: number = 10
+) => {
+  const response = await axiosInstance.get(
+    `/application/referrals/referred-by-me?page=${page}&limit=${limit}`
+  );
+
+  return response.data;
+};
 
 

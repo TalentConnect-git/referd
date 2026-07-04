@@ -20,9 +20,18 @@ interface TimelineProps {
 export default function ApplicationTimeline({
   currentStatus,
 }: TimelineProps) {
-  const activeIndex = stages.findIndex(
-    (stage) => stage === currentStatus
-  );
+  // const activeIndex = stages.findIndex(
+  //   (stage) => stage === currentStatus
+  // );
+
+  const normalizedStatus =
+  currentStatus === "Accepted"
+    ? "Referred To Company"
+    : currentStatus;
+
+const activeIndex = stages.findIndex(
+  (stage) => stage === normalizedStatus
+);
 
   return (
     <div className="space-y-0 ml-5">
@@ -38,7 +47,7 @@ export default function ApplicationTimeline({
               {completed ? (
                 <CheckCircle
                   size={20}
-                  className="text-green-500 fill-green-500 mr-5"
+                  className="text-green-500 mr-5"
                 />
               ) : (
                 <div className="w-5 h-5 rounded-full border-2 border-gray-500 mr-5" />

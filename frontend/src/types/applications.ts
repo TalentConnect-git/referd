@@ -25,7 +25,8 @@ export interface ApplicationTableProps {
 }
 export type ProfessionalApplicationType =
   | "Applications To Me"
-  | "Applications By Me";
+  | "Applications By Me"
+  | "Referred By Me"
 
 export interface ProfessionalApplicationTabsProps {
   activeTab: ProfessionalApplicationType;

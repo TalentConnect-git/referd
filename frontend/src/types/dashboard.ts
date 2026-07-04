@@ -4,6 +4,7 @@ export interface AlumniCardProps {
   company: string;
   college: string;
   openRoles: number;
+  profileImage?:string | null;
   userId:string;
   onClick?: () => void;
 }
@@ -61,6 +62,7 @@ export interface Alumni {
   fullName?: string;
   college?: string|null;
   currentCompany?: string;
+  profileImage?:string | null;
   jobRoles?: string[];
   referralMetrics?: {
   totalReferralsPosted?: number;
@@ -233,3 +235,9 @@ export interface alumniWhoCanHelp {
     totalReferralsPosted?: number;
   };
 }
+
+
+
+
+
+

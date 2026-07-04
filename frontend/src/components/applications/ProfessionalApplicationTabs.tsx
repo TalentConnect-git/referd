@@ -8,6 +8,7 @@ export default function ProfessionalApplicationTabs({
   const tabs: ProfessionalApplicationType[] = [
     "Applications To Me",
     "Applications By Me",
+    "Referred By Me"
   ];
 
   return (

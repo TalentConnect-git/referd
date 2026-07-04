@@ -36,11 +36,6 @@ export default function PostedByReferrer({candidateId}:PostedByReferrerProps)
   }, [candidateId]);
 
 
-    if (!profile) 
-    {
-        return null;
-    }
-
     if (loading) {
     return (
       <p className="text-gray-400">
@@ -48,6 +43,11 @@ export default function PostedByReferrer({candidateId}:PostedByReferrerProps)
       </p>
     );
   }
+
+  if (!profile) 
+    {
+        return null;
+    }
 
 
       return (

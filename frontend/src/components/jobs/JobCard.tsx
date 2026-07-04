@@ -13,8 +13,14 @@ export default function JobCard({
 }: JobCardProps) {
 
   const router = useRouter();
+  console.log("Items Received ");
+  console.log(title);
+  console.log("company ",company);
+  console.log(location);
+  console.log(matchScore);
+  
   return (
-
+    
     <div onClick={() => router.push(route)}
       className="
         cursor-pointer
@@ -36,21 +42,24 @@ export default function JobCard({
               h-12
               w-12
               rounded-2xl
-              bg-slate-500
               border
               border-gray-500
-              text-gray-500
+              text-gray-300
               flex
               items-center
               justify-center
               text-xl
-              font-bold">
+              font-bold"> 
             {company.charAt(0).toUpperCase()}
-          </div>
+         </div> 
+
+
+          {/* <div className="h-12 w-12 rounded-2xl border border-slate-400 flex items-center justify-corner text-xl text-slate-400">{company.charAt(0).toUpperCase()}</div> */}
 
           <div>
             <h3 className="text-xl font-semibold">
               {title}
+              
             </h3>
 
             <p className="mt-1 text-zinc-400 text-sm">

@@ -42,3 +42,6 @@ export interface LoginResponse {
 export interface MeResponse {
   user: AuthUser | null
 }
+
+
+

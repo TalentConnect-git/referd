@@ -7,12 +7,14 @@ import Link from "next/link";
 import GoogleOAuthButton from "./GoogleOAuthButton";
 import LinkedinLoginButton from "./LinkedinLoginButton";
 
-import { loginUser } from "@/services/auth.service";
+import { loginUser, UserType } from "@/services/auth.service";
 import { useAuth } from "@/context/AuthContext";
 
 type UserRole = "student" | "fresher" | "professional";
 
 export default function LoginForm() {
+  const roles: UserType[] = ["student", "fresher", "professional"];
+  const [role, setRole] = useState<UserType>("student");
   const router = useRouter();
   const { login } = useAuth();
 
@@ -72,6 +74,40 @@ export default function LoginForm() {
         </p>
       </div>
 
+       <div className="mt-6 grid grid-cols-3 gap-3">
+        {roles.map((item) => (
+          <button
+            key={item}
+            type="button"
+            onClick={() => setRole(item)}
+            className={`h-10 rounded-lg border font-mono text-[10px] font-semibold uppercase tracking-[0.16em] transition disabled:cursor-not-allowed disabled:opacity-60 ${
+              role === item
+                ? "border-[var(--primary)] bg-[var(--primary-soft)] text-white"
+                : "border-[var(--border)] bg-transparent text-[var(--text-primary)] hover:border-white/25 hover:text-white"
+            }`}
+          >
+            {item}
+          </button>
+        ))}
+      </div>
+
+       <div className="mt-6 grid grid-cols-3 gap-3">
+        {roles.map((item) => (
+          <button
+            key={item}
+            type="button"
+            onClick={() => setRole(item)}
+            className={`h-10 rounded-lg border font-mono text-[10px] font-semibold uppercase tracking-[0.16em] transition disabled:cursor-not-allowed disabled:opacity-60 ${
+              role === item
+                ? "border-[var(--primary)] bg-[var(--primary-soft)] text-white"
+                : "border-[var(--border)] bg-transparent text-[var(--text-primary)] hover:border-white/25 hover:text-white"
+            }`}
+          >
+            {item}
+          </button>
+        ))}
+      </div>
+
       {/* User Type Selector - Row based selection */}
       <div className="mt-4 mb-6">
         <label className="mb-2 block text-sm text-[var(--text-primary)]">
@@ -99,6 +135,9 @@ export default function LoginForm() {
 
       {/* OAuth Buttons */}
       <div className="mt-8 space-y-3">
+        <LinkedinLoginButton onClick={() => {window.location.href =
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/linkedin?userType=${role}`;
+        }} />
         {/* <LinkedinLoginButton userType={selectedRole} /> */}
         <GoogleOAuthButton userType={selectedRole} />
       </div>
