@@ -9,8 +9,6 @@ import { NotificationProvider } from "@/context/NotificationContext";
 import { ChatProvider } from "@/context/ChatContext";
 
 export default function Providers({ children }: { children: ReactNode }) {
- 
-
   const appProviders = (
     <AuthContextRole>
       <SocketProvider>
@@ -21,10 +19,8 @@ export default function Providers({ children }: { children: ReactNode }) {
     </AuthContextRole>
   );
 
-  
-
   return (
-    <GoogleOAuthProvider clientId={process.env.Next_GOOGLE_CLIENT_ID}>
+    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
       {appProviders}
     </GoogleOAuthProvider>
   );
