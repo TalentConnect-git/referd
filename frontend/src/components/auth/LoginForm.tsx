@@ -91,7 +91,7 @@ export default function LoginForm() {
         ))}
       </div>
 
-       <div className="mt-6 grid grid-cols-3 gap-3">
+       {/* <div className="mt-6 grid grid-cols-3 gap-3">
         {roles.map((item) => (
           <button
             key={item}
@@ -106,15 +106,15 @@ export default function LoginForm() {
             {item}
           </button>
         ))}
-      </div>
+      </div> */}
 
       {/* User Type Selector - Row based selection */}
-      <div className="mt-4 mb-6">
-        <label className="mb-2 block text-sm text-[var(--text-primary)]">
+      {/* <div className="mt-4 mb-6"> */}
+        {/* <label className="mb-2 block text-sm text-[var(--text-primary)]">
           I am a
-        </label>
+        </label> */}
 
-        <div className="mt-6 grid grid-cols-3 gap-3">
+        {/* <div className="mt-6 grid grid-cols-3 gap-3">
           {roleOptions.map((option) => (
             <button
               key={option.value}
@@ -130,8 +130,8 @@ export default function LoginForm() {
               {option.label}
             </button>
           ))}
-        </div>
-      </div>
+        </div> */}
+      {/* </div> */}
 
       {/* OAuth Buttons */}
       <div className="mt-8 space-y-3">
