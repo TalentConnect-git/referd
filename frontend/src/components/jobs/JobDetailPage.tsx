@@ -253,9 +253,12 @@ import RequirementSection from "../dashboard/RequirementSection";
 import CompensationSection from "../dashboard/CompensationSection";
 import ProcessSection from "../dashboard/ProcessSection";
 import { saveJob } from "@/services/job.service";
+import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function JobDetailPage({ job }: LeftPanelProps) {
 const [selectedTab, setSelectedTab] = useState("overview");
+const router=useRouter();
 const handleSave = async () => {
   try {
     console.log(job);
@@ -275,6 +278,23 @@ const handleSave = async () => {
   return (
     
     <div className="w-full overflow-y-auto p-6">
+
+
+      {/* Back Button */}
+      <button
+        onClick={() => router.back()}
+        className="
+          mb-6
+          flex
+          items-center
+          gap-2
+          text-zinc-400
+          transition-colors
+        "
+      >
+        <ArrowLeft size={18} />
+        Back
+      </button>
 
             {/* Header */}
             <div className="mb-6 flex items-center justify-between rounded-xl border border-[#1e293b] bg-[#111827] p-5">

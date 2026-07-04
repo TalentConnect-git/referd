@@ -72,7 +72,7 @@ export default function InternshipDetailPage({
         "
       >
         <ArrowLeft size={18} />
-        Back to Internships
+        Back
       </button>
 
       {/* Main Card */}

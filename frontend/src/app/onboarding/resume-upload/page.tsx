@@ -9,11 +9,7 @@ export default function ResumeUploadPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[var(--background)]">
-      
       <ResumeUpload/>
-
-      
-      
     </main>
   );
 }

@@ -98,6 +98,7 @@ export default function DashboardAlumni({userType}:DashboardAluminiProps) {
               name={person.fullName || person.name || "Alumni"}
               role={person.jobRoles?.[0] || "Professional"}
               company={person.currentCompany || "Company"}
+              profileImage={person.profileImage}
               college={person.college || "College"}
               userId={person.userId}
               openRoles={
@@ -114,3 +115,7 @@ export default function DashboardAlumni({userType}:DashboardAluminiProps) {
     </div>
   );
 }
+
+
+
+

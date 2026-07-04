@@ -17,6 +17,8 @@ export default function JobContainer({
 
   const { profile } = useAuth();
   const role = profile?.profileType || "student";
+  console.log("job received ",jobs[0]);
+  // console.log("company name ",jobs[0].companyName?.charAt(0));
 
   if (loading) {
     return <div className="ml-5">Loading...</div>;
@@ -30,7 +32,8 @@ export default function JobContainer({
           title={job.jobTitle?.[0] || "Untitled Job"}
           company={
             job.receiverProfile?.currentCompany_display ||
-            job.companyName ||
+            job.candidatePosted?.currentCompany ||
+            
             "Unknown Company"
           }
           location={

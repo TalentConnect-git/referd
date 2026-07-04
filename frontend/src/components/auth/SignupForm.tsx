@@ -29,6 +29,18 @@ export default function SignupForm() {
     return "/onboarding/resume-upload";
   };
 
+  const handleLinkedInSignup = () => {
+    console.log("LinkedIn signup clicked for role:", role);
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  if (!backendUrl) {
+    console.error("Backend URL is not defined in environment variables");
+    return;
+  }
+
+  window.location.href = `${backendUrl}/api/auth/linkedin?userType=${role}`;
+};
+
   const handleSignup = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setOtpError("");
@@ -111,7 +123,7 @@ export default function SignupForm() {
       </div>
 
       <div className="mt-6 space-y-3">
-        <LinkedinLoginButton />
+        <LinkedinLoginButton onClick={handleLinkedInSignup} />
         <GoogleOAuthButton userType={role} />
       </div>
 

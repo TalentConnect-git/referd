@@ -132,8 +132,15 @@ export function AuthContextRole({ children }: { children: ReactNode }) {
       setUser(data.user);
       localStorage.setItem("user", JSON.stringify(data.user));
 
+
+
+      if (data.user.onboardingCompleted) {
+        await fetchProfile();}
+
+
       // Fetch profile after setting user
-      await fetchProfile();
+      // await fetchProfile();
+
     } catch (error) {
       console.error(error);
       resetAuthState();
@@ -206,3 +213,6 @@ export function useAuth() {
   }
   return ctx;
 }
+
+
+

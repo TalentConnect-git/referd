@@ -37,7 +37,6 @@ export default function InternshipCard({
               h-12
               w-12
               rounded-2xl
-              bg-slate-500
               border
               border-gray-500
               text-gray-500
@@ -49,6 +48,7 @@ export default function InternshipCard({
             "
           >
             {company.charAt(0).toUpperCase()}
+            
           </div>
 
           <div>

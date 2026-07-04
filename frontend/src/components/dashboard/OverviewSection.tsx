@@ -119,7 +119,6 @@ export default function OverviewSection({ job }: OverviewSectionProps) {
 
             {job.candidatePosted && <div className="mt-5 mb-5 rounded-xl border border-[#1e293b] bg-[#111827] p-6">
                <PostedByReferrer candidateId={job.candidatePosted.userId} />
-              
             </div>}
 
             <div className="mt-5 rounded-xl border border-[#1e293b] bg-[#111827] p-6">

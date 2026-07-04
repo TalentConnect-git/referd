@@ -3,7 +3,7 @@ import { ApplicationTableProps } from "@/types/applications";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
-export default function ApplicationTable({
+export default function sApplicationTable({
   applicationType,
   applications,
   page,
@@ -45,8 +45,7 @@ export default function ApplicationTable({
         </div>
       </td>
     </tr>
-
-  ) : (
+    ) : (
 
     applications.map((application: any) => (
 
