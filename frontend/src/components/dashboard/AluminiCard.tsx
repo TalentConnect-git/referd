@@ -16,8 +16,7 @@ export default function AlumniCard({
     .join("")
     .toUpperCase();
 
-    console.log("Vasvi");
-    console.log("Image url got is ",profileImage);
+    
 
   return (
     <div className="rounded-xl border border-[#334155] bg-[#162033] p-6">
