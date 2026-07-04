@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
+import PostedByReferrer from "@/components/dashboard/PostedByReferrer";
 import { ArrowLeft } from "lucide-react";
 import { getApplicationDetails } from "@/services/application.service";
 import ApplicationTimeline from "@/components/applications/ApplicationTimeline";
@@ -24,7 +24,11 @@ export default function ApplicationDetailsPage() {
             applicationid as string
           );
 
-        setApplication(res.data);
+        // setApplication(res.data);
+        let data=res.data;
+        setApplication(data);
+
+       
       } catch (err) {
         console.error(err);
       }
@@ -74,6 +78,17 @@ export default function ApplicationDetailsPage() {
             {application?.job?.candidatePosted?.name ||
               "N/A"}
           </p>
+          {/* {
+          application.candidatePosted && <div className="mt-5 mb-5 rounded-xl border border-[#1e293b] bg-[#111827] p-6">
+            <PostedByReferrer candidateId={application.candidatePosted.userId} />
+            </div>
+        } */}
+         {/* <PostedByReferrer candidateId={application.candidatePosted.userId} /> */}
+       
+
+
+
+
         </div>
 
         <div className="px-4 py-2 rounded-full bg-green-500/10 text-green-400 font-medium">
@@ -81,6 +96,7 @@ export default function ApplicationDetailsPage() {
         </div>
 
       </div>
+
     </div>
 
     {/* Timeline Section */}

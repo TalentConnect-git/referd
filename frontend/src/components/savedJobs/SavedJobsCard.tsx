@@ -1,6 +1,6 @@
 import { SavedJobCardProps } from "@/types/savedjobs";
 
-export default function SavedJobCard({ savedJob,onUnsave }: SavedJobCardProps) {
+export default function SavedJobCard({ savedJob,onUnsave,onClick }: SavedJobCardProps) {
   const job = savedJob.job;
 
   const company =
@@ -9,7 +9,7 @@ export default function SavedJobCard({ savedJob,onUnsave }: SavedJobCardProps) {
     "Unknown Company";
 
   return (
-    <div className="rounded-3xl border border-[#1e293b] bg-[#0f172a] p-6 hover:border-green-500/40 transition-all mb-5">
+    <div onClick={onClick} className="rounded-3xl border border-[#1e293b] bg-[#0f172a] p-6 hover:border-green-500/40 transition-all mb-5">
       
       <div className="flex items-start justify-between">
         <div>

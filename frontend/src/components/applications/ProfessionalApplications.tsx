@@ -5,7 +5,7 @@ import ProfessionalApplicationTabs from "./ProfessionalApplicationTabs";
 import ApplicationTable from "./ApplicationTable";
 import ApplicationStats from "./ApplicationStats";
 import ApplicationsToMeTable from './ApplicationalsToMeTable'
-import {getProfessionalApplications,getProfessionalReceivedApplications,} from "@/services/application.service";
+import {getProfessionalApplications,getProfessionalReceivedApplications, getReferredByMe} from "@/services/application.service";
 import { ProfessionalApplicationType } from "@/types/applications";
 
 export default function ProfessionalApplications() {
@@ -27,19 +27,29 @@ export default function ProfessionalApplications() {
       try {
         let response;
 
+        // if (activeTab === "Applications To Me") {
+        //   response =
+        //     await getProfessionalReceivedApplications(
+        //       page,
+        //       limit
+        //     );
+        // } else {
+        //   response =
+        //     await getProfessionalApplications(
+        //       page,
+        //       limit
+        //     );
+        // }
+
+
         if (activeTab === "Applications To Me") {
-          response =
-            await getProfessionalReceivedApplications(
-              page,
-              limit
-            );
+          response = await getProfessionalReceivedApplications(page,limit);
+        } else if (activeTab === "Applications By Me") {
+          response = await getProfessionalApplications(page,limit);
         } else {
-          response =
-            await getProfessionalApplications(
-              page,
-              limit
-            );
+          response = await getReferredByMe(page,limit);
         }
+
 
         setApplications(response.data || []);
         setMeta(response.meta || null);
@@ -64,7 +74,7 @@ export default function ProfessionalApplications() {
       </div>
 
 
-      {activeTab === "Applications To Me" ? (
+      {/* {activeTab === "Applications To Me" ? (
     <ApplicationsToMeTable
     applications={applications}
     page={page}
@@ -77,13 +87,36 @@ export default function ProfessionalApplications() {
     page={page}
     meta={meta}
   />
-)}
+)} */}
 
-      <ApplicationStats
-        applicationType={"Referral"}
-        applications={applications}
-      />
-    </div>
+
+          {activeTab === "Applications To Me" && (
+            <ApplicationsToMeTable
+            applications={applications}
+            page={page}
+            meta={meta}/>)}
+
+            {activeTab === "Applications By Me" && (
+            <ApplicationTable
+            applicationType="Referral"
+            applications={applications}
+            page={page}
+            meta={meta}
+            />)}
+
+          {activeTab === "Referred By Me" && (
+          <ApplicationTable
+            applicationType="Referral"
+            applications={applications}
+            page={page}
+            meta={meta}/>
+            )}
+
+          <ApplicationStats
+          applicationType={"Referral"}
+          applications={applications}
+          />
+      </div>
   );
 }
 

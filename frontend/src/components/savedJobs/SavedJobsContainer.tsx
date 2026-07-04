@@ -5,10 +5,36 @@ import { getSavedJobs } from "@/services/savedJobs.services";
 import SavedJobsCard from "./SavedJobsCard";
 import { unsaveJob } from "@/services/savedJobs.services";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 export default function SavedJobsContainer() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const { role } = useAuth();
+
+  const handleClick = (jobType:string,jobId:string) => {
+      let route = "";
+    switch (jobType) {
+
+      case "Referral":
+        route = `/${role}/jobs/referral-jobs/${jobId}`;
+        break;
+
+      case "Off-campus":
+        route = `/${role}/jobs/offcampus/${jobId}`;
+        break;
+
+      case "Internship":
+        route = `/${role}/internships/${jobId}`;
+        break;
+      default:
+        return;
+  }
+  router.push(route);
+
+};
 
   useEffect(() => {
   const fetchJobs = async () => {
@@ -54,7 +80,7 @@ const handleUnsave = async (jobId: string) => {
         <p>No saved jobs found.</p>
       ) : (
         jobs.map((savedJob: any) => (
-         <SavedJobsCard key={savedJob._id} savedJob={savedJob} onUnsave={handleUnsave} />
+         <SavedJobsCard onClick={()=>handleClick(savedJob.job.jobType,savedJob.job._id)} key={savedJob._id} savedJob={savedJob} onUnsave={handleUnsave} />
         ))
       )}
     </div>
