@@ -286,7 +286,7 @@ export default function AlumniPage() {
                     collegeFallback={collegeFallback}
                     companyFallback={companyFallback}
                     onMessage={handleMessage}
-                    onRequestRefer={handleRequestRefer}
+                    
                   />
                 );
               })}
