@@ -57,10 +57,10 @@ export default function LoginForm() {
   };
 
   // Role options configuration
-  const roleOptions: { value: UserRole; label: string;}[] = [
-    { value: "student", label: "Student"},
-    { value: "fresher", label: "Fresher"},
-    { value: "professional", label: "Professional"},
+  const roleOptions: { value: UserRole; label: string }[] = [
+    { value: "student", label: "Student" },
+    { value: "fresher", label: "Fresher" },
+    { value: "professional", label: "Professional" },
   ];
 
   return (
@@ -74,7 +74,7 @@ export default function LoginForm() {
         </p>
       </div>
 
-       <div className="mt-6 grid grid-cols-3 gap-3">
+      <div className="mt-6 grid grid-cols-3 gap-3">
         {roles.map((item) => (
           <button
             key={item}
@@ -91,7 +91,7 @@ export default function LoginForm() {
         ))}
       </div>
 
-       {/* <div className="mt-6 grid grid-cols-3 gap-3">
+      {/* <div className="mt-6 grid grid-cols-3 gap-3">
         {roles.map((item) => (
           <button
             key={item}
@@ -110,11 +110,11 @@ export default function LoginForm() {
 
       {/* User Type Selector - Row based selection */}
       {/* <div className="mt-4 mb-6"> */}
-        {/* <label className="mb-2 block text-sm text-[var(--text-primary)]">
+      {/* <label className="mb-2 block text-sm text-[var(--text-primary)]">
           I am a
         </label> */}
 
-        {/* <div className="mt-6 grid grid-cols-3 gap-3">
+      {/* <div className="mt-6 grid grid-cols-3 gap-3">
           {roleOptions.map((option) => (
             <button
               key={option.value}
@@ -135,10 +135,11 @@ export default function LoginForm() {
 
       {/* OAuth Buttons */}
       <div className="mt-8 space-y-3">
-        <LinkedinLoginButton onClick={() => {window.location.href =
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/linkedin?userType=${role}`;
-        }} />
-        {/* <LinkedinLoginButton userType={selectedRole} /> */}
+        <LinkedinLoginButton
+          onClick={() => {
+            window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/linkedin?userType=${role}`;
+          }}
+        />
         <GoogleOAuthButton userType={selectedRole} />
       </div>
 
