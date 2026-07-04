@@ -272,3 +272,51 @@ export function getResumeServeUrl(userId?: string | null) {
   if (!userId) return "";
   return `${API_URL}/api/upload/serve/${userId}`;
 }
+
+type GoogleOAuthLoginPayload = {
+  code: string;
+  userType: "student" | "fresher" | "professional";
+  isApp?: boolean;
+  googleToken?: string;
+};
+
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+
+export const googleOAuthLogin = async ({
+  code,
+  userType,
+  isApp = true,
+  googleToken = "",
+}: GoogleOAuthLoginPayload) => {
+  const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify({
+      code,
+      userType,
+      isApp,
+      googleToken,
+    }),
+  });
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    const error: any = new Error(
+      data?.message || "Google authentication failed."
+    );
+
+    error.response = {
+      data,
+      status: response.status,
+    };
+
+    throw error;
+  }
+
+  return data;
+};

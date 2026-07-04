@@ -182,9 +182,7 @@ export default function AlumniPage() {
   }
 };
 
-  const handleRequestRefer = (profile: AlumniProfile) => {
-    console.log("Request refer", profile);
-  };
+  
 
   const collegeDisplayName = collegesList.join(", ");
   const companiesDisplay = companiesChecked.join(", ");
@@ -284,7 +282,7 @@ export default function AlumniPage() {
                     collegeFallback={collegeFallback}
                     companyFallback={companyFallback}
                     onMessage={handleMessage}
-                    onRequestRefer={handleRequestRefer}
+                    
                   />
                 );
               })}

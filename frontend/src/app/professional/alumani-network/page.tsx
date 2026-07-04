@@ -190,9 +190,7 @@ const handleMessage = async (profile: AlumniProfile) => {
   }
 };
   
-  const handleRequestRefer = (profile: AlumniProfile) => {
-    console.log("Request refer", profile);
-  };
+  
 
   const collegeDisplayName = collegesList.join(", ");
   const companiesDisplay = companiesChecked.join(", ");
@@ -293,7 +291,7 @@ const handleMessage = async (profile: AlumniProfile) => {
                     collegeFallback={collegeFallback}
                     companyFallback={companyFallback}
                     onMessage={handleMessage}
-                    onRequestRefer={handleRequestRefer}
+                    
                     isMessageLoading={isMessageLoading}
                   />
                 );

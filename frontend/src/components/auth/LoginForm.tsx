@@ -4,12 +4,11 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-// import GoogleLoginButton from "./GoogleLoginButton";
+import GoogleOAuthButton from "./GoogleOAuthButton";
 import LinkedinLoginButton from "./LinkedinLoginButton";
 
 import { loginUser } from "@/services/auth.service";
 import { useAuth } from "@/context/AuthContext";
-import OAuth from "./oauth";
 
 type UserRole = "student" | "fresher" | "professional";
 
@@ -17,11 +16,14 @@ export default function LoginForm() {
   const router = useRouter();
   const { login } = useAuth();
 
+  // Email/password state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // User type selection – used for OAuth signups
+  const [selectedRole, setSelectedRole] = useState<UserRole>("student");
 
   const getDashboardRoute = (role: UserRole) => {
     switch (role) {
@@ -35,20 +37,15 @@ export default function LoginForm() {
     }
   };
 
+  // Email/password login
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
     try {
       setIsLoading(true);
-
-      const data = await loginUser({
-        email,
-        password,
-      });
-
+      const data = await loginUser({ email, password });
       login(data.user, data.token);
-
       router.replace(getDashboardRoute(data.user.userType));
     } catch (err: any) {
       setError(err?.response?.data?.message || "Invalid credentials");
@@ -57,21 +54,53 @@ export default function LoginForm() {
     }
   };
 
+  // Role options configuration
+  const roleOptions: { value: UserRole; label: string;}[] = [
+    { value: "student", label: "Student"},
+    { value: "fresher", label: "Fresher"},
+    { value: "professional", label: "Professional"},
+  ];
+
   return (
     <div className="w-full border border-[var(--border)] bg-[var(--background)] px-7 py-8 text-white backdrop-blur-sm lg:w-[58%] lg:rounded-r-3xl lg:border-l-0 lg:px-10">
       <div className="space-y-1.5">
         <h2 className="text-[28px] font-bold tracking-[-0.02em] text-white lg:text-[32px]">
           Welcome back
         </h2>
-
         <p className="text-[14px] text-[var(--text-primary)]">
           Login to continue your journey with Referd
         </p>
       </div>
 
+      {/* User Type Selector - Row based selection */}
+      <div className="mt-4 mb-6">
+        <label className="mb-2 block text-sm text-[var(--text-primary)]">
+          I am a
+        </label>
+
+        <div className="mt-6 grid grid-cols-3 gap-3">
+          {roleOptions.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => setSelectedRole(option.value)}
+              className={`h-10 rounded-lg border font-mono text-[10px] font-semibold uppercase tracking-[0.16em] transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                selectedRole === option.value
+                  ? "border-[var(--primary)] bg-[var(--primary-soft)] text-white"
+                  : "border-[var(--border)] bg-transparent text-[var(--text-primary)] hover:border-white/25 hover:text-white"
+              }`}
+            >
+             
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* OAuth Buttons */}
       <div className="mt-8 space-y-3">
-        <LinkedinLoginButton onClick={() => {}} />
-        <OAuth />
+        {/* <LinkedinLoginButton userType={selectedRole} /> */}
+        <GoogleOAuthButton userType={selectedRole} />
       </div>
 
       <div className="my-7 flex items-center gap-3">
@@ -93,7 +122,6 @@ export default function LoginForm() {
           <label className="text-[12px] font-medium text-[var(--text-primary)]">
             Email
           </label>
-
           <input
             type="email"
             placeholder="Enter your email"
@@ -109,7 +137,6 @@ export default function LoginForm() {
             <label className="text-[12px] font-medium text-[var(--text-primary)]">
               Password
             </label>
-
             <Link
               href="/reset-password"
               className="text-[12px] text-[var(--text-muted)] transition-all duration-200 hover:text-[var(--primary)] hover:underline"
@@ -117,7 +144,6 @@ export default function LoginForm() {
               Forgot password?
             </Link>
           </div>
-
           <input
             type="password"
             placeholder="Enter your password"
@@ -140,7 +166,6 @@ export default function LoginForm() {
           >
             Login
           </span>
-
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center">
               <svg
@@ -157,7 +182,6 @@ export default function LoginForm() {
                   stroke="currentColor"
                   strokeWidth="4"
                 />
-
                 <path
                   className="opacity-75"
                   fill="currentColor"
