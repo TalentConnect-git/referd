@@ -19,8 +19,8 @@ type AlumniCardProps = {
   collegeFallback: string;
   companyFallback: string;
   onMessage: (profile: AlumniProfile) => void;
-  onRequestRefer: (profile: AlumniProfile) => void;
-  isMessageLoading?: boolean; // Loading state for message button
+ 
+  isMessageLoading?: boolean; 
 };
 
 const getInitials = (name?: string) => {
@@ -65,7 +65,7 @@ export function AlumniCard({
   collegeFallback = "",
   companyFallback = "",
   onMessage,
-  onRequestRefer,
+  
   isMessageLoading = false,
 }: AlumniCardProps) {
   console.log("profile ", profile);
@@ -103,11 +103,8 @@ export function AlumniCard({
     onMessage?.(profile);
   };
 
-  // Handle request refer button click
-  const handleRequestReferClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onRequestRefer?.(profile);
-  };
+ 
+  
 
   return (
     <article
@@ -185,11 +182,11 @@ export function AlumniCard({
 
         <button
           type="button"
-          disabled={!isHiring && jobsCount === 0}
-          onClick={handleRequestReferClick}
+          
+          onClick={handleCardClick}
           className="h-10 rounded-lg bg-[#2fb344] text-sm font-semibold text-black transition hover:bg-[#35c94d] disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
         >
-          Request refer
+          View Profile
         </button>
       </div>
     </article>

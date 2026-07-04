@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Search, Send, PlusCircle, Loader2, RefreshCw, LinkIcon } from "lucide-react";
+import { X, Search, Send, PlusCircle, Loader2, RefreshCw, LinkIcon,UserPlus } from "lucide-react";
 import { useState } from "react";
 import axios from "axios";
 
@@ -160,14 +160,16 @@ export default function ReferralHeaderCard({
               Post Referral
             </button>
 
+
             <button
-              type="button"
-              onClick={openAskModal}
-              className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-black transition hover:bg-[var(--primary-dark)]"
-            >
-              <Send size={16} />
-              Ask For Referral
-            </button>
+             onClick={openAskModal}
+            className="inline-flex items-center gap-2 rounded-lg border border-white/30 bg-transparent px-4 py-2.5 font-medium text-white transition-all duration-200 hover:border-white hover:bg-white/10"
+          >
+            <UserPlus className="h-5 w-5" />
+            <span>Ask for Referral</span>
+          </button>
+
+           
           </div>
         </div>
       </div>

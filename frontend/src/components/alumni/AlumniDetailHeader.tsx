@@ -83,6 +83,11 @@ export default function AlumniDetailHeader({profile}: AlumniDetailProfileProps) 
       <div className="mt-8 flex gap-4">
 
         <button
+         onClick={() =>
+            router.push(
+              `/${userType}/message/${profile.userId}?userName=${profile.name}`
+            )
+          }
           className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-green-500 py-3 font-semibold text-white transition hover:bg-[#16a34a]"
         >
           <MessageSquare size={18} className="text-white" />

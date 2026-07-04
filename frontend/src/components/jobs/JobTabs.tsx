@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext"; // Update the path if needed
+import {UserPlus} from "lucide-react"
 
 export default function JobTabs() {
   const pathname = usePathname();
@@ -43,12 +44,16 @@ export default function JobTabs() {
       </div>
 
       {/* Right Button */}
+
       <button
-        onClick={handleAskForReferral}
-        className="mb-2 flex items-center gap-2 rounded-lg bg-[var(--primary)] px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-[var(--primary-dark)] active:scale-95"
-      >
-        Ask for Referral
-      </button>
+            onClick={handleAskForReferral}
+            className="inline-flex items-center gap-2 rounded-lg border border-white/30 bg-transparent px-4 py-2.5 font-medium text-white transition-all duration-200 hover:border-white hover:bg-white/10"
+          >
+            <UserPlus className="h-5 w-5" />
+            <span>Ask for Referral</span>
+          </button>
+       
+      
     </div>
   );
 }

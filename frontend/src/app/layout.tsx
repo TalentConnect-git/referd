@@ -1,12 +1,18 @@
-import Footer from "@/components/layout/Footer";
-import "./globals.css";
+import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+
+import Footer from "@/components/layout/Footer";
 import Providers from "./providers";
-import { GoogleOAuthProvider } from "@react-oauth/google";
+import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
 });
+
+export const metadata: Metadata = {
+  title: "Referd",
+  description: "Referd platform",
+};
 
 export default function RootLayout({
   children,
@@ -16,9 +22,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className} suppressHydrationWarning>
-        <GoogleOAuthProvider clientId={process.env.Next_GOOGLE_CLIENT_ID || ""} >
-          <Providers>{children}</Providers>
-        </GoogleOAuthProvider>
+        <Providers>
+          {children}
+          <Footer />
+        </Providers>
       </body>
     </html>
   );

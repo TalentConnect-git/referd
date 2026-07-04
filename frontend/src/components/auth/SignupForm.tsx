@@ -4,13 +4,9 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import {
-  sendSignupOtp,
-  signupUser,
-  UserType,
-} from "@/services/auth.service";
+import { sendSignupOtp, signupUser, UserType } from "@/services/auth.service";
 
-import GoogleLoginButton from "./GoogleLoginButton";
+import GoogleOAuthButton from "./GoogleOAuthButton";
 import LinkedinLoginButton from "./LinkedinLoginButton";
 
 const roles: UserType[] = ["student", "fresher", "professional"];
@@ -115,8 +111,8 @@ export default function SignupForm() {
       </div>
 
       <div className="mt-6 space-y-3">
-        <LinkedinLoginButton onClick={() => router.push(getNextRoute())} />
-        <GoogleLoginButton onClick={() => router.push(getNextRoute())} />
+        <LinkedinLoginButton />
+        <GoogleOAuthButton userType={role} />
       </div>
 
       <div className="my-6 flex items-center gap-3">
@@ -181,9 +177,7 @@ export default function SignupForm() {
               className="h-10 w-full rounded-lg border border-white/10 bg-[var(--background)] px-4 text-center font-mono text-[14px] tracking-[0.35em] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15 disabled:opacity-60"
             />
 
-            {otpError && (
-              <p className="text-[12px] text-red-400">{otpError}</p>
-            )}
+            {otpError && <p className="text-[12px] text-red-400">{otpError}</p>}
 
             <button
               type="button"
@@ -210,8 +204,8 @@ export default function SignupForm() {
               ? "Verifying..."
               : "Sending OTP..."
             : showOtpField
-            ? "Verify OTP"
-            : "Enter Portal"}
+              ? "Verify OTP"
+              : "Enter Portal"}
         </button>
       </form>
 
