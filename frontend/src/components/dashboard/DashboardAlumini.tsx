@@ -31,6 +31,7 @@ export default function DashboardAlumni({userType}:DashboardAluminiProps) {
         if ("alumniByCompany" in response) {
         const alumniList = Object.values(response.alumniByCompany).flat();
         setAlumni(alumniList);
+        
         }
   
        
@@ -44,6 +45,9 @@ export default function DashboardAlumni({userType}:DashboardAluminiProps) {
 
     fetchAlumni();
   }, []);
+
+
+  console.log("Alumni list is ",alumni);
 
   if (loading) {
     return (
@@ -67,6 +71,7 @@ export default function DashboardAlumni({userType}:DashboardAluminiProps) {
     );
   }
 
+  console.log("DashboardAlumni");
   return (
     <div className="mt-6 mx-5 rounded-3xl border border-[#1e293b] bg-[#0f172a]">
       <div className="flex items-center justify-between border-b border-[#1e293b] p-4">

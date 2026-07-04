@@ -3,25 +3,29 @@ import { applyJob } from "@/services/job.service";
 import PostedByReferrer from "./PostedByReferrer";
 import AlumniWhoCanHelp from "./AlumniWhoCanHelp";
 export default function OverviewSection({ job }: OverviewSectionProps) {
-  const handleApply = async () => {
-  try {
-    console.log(job);
-  console.log(
-  job._id,
-  job.jobType,
-  job.matchScore
-);
-    await applyJob(
-      job._id,
-      job.jobType,
-      job.matchScore || 0
-    );
-    alert("Applied successfully");
-  } catch (err) {
-    console.error("Error applying:", err);
-  }
+console.log("Received Job ",job);
 
-};
+
+  
+//   const handleApply = async () => {
+//   try {
+//     console.log(job);
+//   console.log(
+//   job._id,
+//   job.jobType,
+//   job.matchScore
+// );
+//     await applyJob(
+//       job._id,
+//       job.jobType,
+//       job.matchScore || 0
+//     );
+//     alert("Applied successfully");
+//   } catch (err) {
+//     console.error("Error applying:", err);
+//   }
+
+// };
     return(
         <>
         <div className="rounded-xl border border-[#1e293b] bg-[#111827] p-6">
@@ -79,14 +83,14 @@ export default function OverviewSection({ job }: OverviewSectionProps) {
                   </p>
                 </div>
 
-                <div>
+               {job.jobType != "Referral" &&  <div>
                   <p className="text-sm text-blue-400">
                     CGPA Required
                   </p>
                   <p className="mt-1 text-white">
                     {job.cgpa || "N/A"}
                   </p>
-                </div>
+                </div>}
 
 
                 <div>
@@ -126,13 +130,13 @@ export default function OverviewSection({ job }: OverviewSectionProps) {
             </div>
 
             {/* Apply Button */}
-            <div className="mt-8 flex justify-center">
+            {/* <div className="mt-8 flex justify-center">
 
               <button  onClick={handleApply} className="rounded-lg bg-green-500 px-10 py-3 font-semibold text-black hover:bg-green-400">
                 Apply Now
               </button>
 
-            </div>
+            </div> */}
 
         </>
     )

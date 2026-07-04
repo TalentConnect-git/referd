@@ -252,7 +252,7 @@ import OverviewSection from "../dashboard/OverviewSection";
 import RequirementSection from "../dashboard/RequirementSection";
 import CompensationSection from "../dashboard/CompensationSection";
 import ProcessSection from "../dashboard/ProcessSection";
-import { saveJob } from "@/services/job.service";
+import { applyJob, saveJob } from "@/services/job.service";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -274,7 +274,25 @@ const handleSave = async () => {
     console.error("Error saving job:", err);
   }
 };
+const handleApply = async () => {
+  try {
+    console.log(job);
+  console.log(
+  job._id,
+  job.jobType,
+  job.matchScore
+);
+    await applyJob(
+      job._id,
+      job.jobType,
+      job.matchScore || 0
+    );
+    alert("Applied successfully");
+  } catch (err) {
+    console.error("Error applying:", err);
+  }
 
+};
   return (
     
     <div className="w-full overflow-y-auto p-6">
@@ -362,6 +380,15 @@ const handleSave = async () => {
             {selectedTab === "requirements" && <RequirementSection job={job}/>}
             {selectedTab === "compensation" && <CompensationSection job={job} />}
             {selectedTab==="Match & Referral Insights" && <ProcessSection job={job} />}
+
+
+            <div className="mt-8 flex justify-center">
+
+              <button  onClick={handleApply} className="rounded-lg bg-green-500 px-10 py-3 font-semibold text-black hover:bg-green-400">
+                Apply Now
+              </button>
+
+            </div>
             
         </div>
   );

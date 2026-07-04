@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { getApplicationDetails } from "@/services/application.service";
 import ApplicationTimeline from "@/components/applications/ApplicationTimeline";
+import PostedByReferrer from "@/components/dashboard/PostedByReferrer";
 
 export default function ApplicationDetailsPage() {
 
@@ -82,6 +83,10 @@ export default function ApplicationDetailsPage() {
 
       </div>
     </div>
+
+    {application.job.receiverProfile && <div className="mt-5 mb-5 rounded-xl border border-[#1e293b] bg-[#111827] p-6">
+                             <PostedByReferrer candidateId={application.job.receiverProfile.userId} />
+                </div>}
 
     {/* Timeline Section */}
     <div className="rounded-3xl border border-slate-800 bg-[#0f172a] p-6">

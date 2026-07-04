@@ -78,6 +78,11 @@ export default function ApplicationDetailsPage() {
             {application?.job?.candidatePosted?.name ||
               "N/A"}
           </p>
+
+
+          {application.job.receiverProfile && <div className="mt-5 mb-5 rounded-xl border border-[#1e293b] bg-[#111827] p-6">
+                                   <PostedByReferrer candidateId={application.job.receiverProfile.userId} />
+                      </div>}
           {/* {
           application.candidatePosted && <div className="mt-5 mb-5 rounded-xl border border-[#1e293b] bg-[#111827] p-6">
             <PostedByReferrer candidateId={application.candidatePosted.userId} />

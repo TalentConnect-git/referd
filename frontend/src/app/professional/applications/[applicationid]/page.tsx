@@ -27,8 +27,6 @@ export default function ApplicationDetailsPage() {
           let data = res.data;
           setApplication(data);
          
-        
-        console.log("APPLICATION IS ",application);
       } catch (err) {
         console.error(err);
       }
