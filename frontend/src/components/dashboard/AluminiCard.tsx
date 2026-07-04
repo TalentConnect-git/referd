@@ -16,6 +16,8 @@ export default function AlumniCard({
     .join("")
     .toUpperCase();
 
+    
+
   return (
     <div className="rounded-xl border border-[#334155] bg-[#162033] p-6">
       <div className="flex gap-4" onClick={onClick}>
@@ -41,7 +43,7 @@ export default function AlumniCard({
           </p>
 
           <p className="mt-2 text-sm text-gray-400">
-            {college} • {openRoles} open roles
+            {college} • <span className={openRoles > 0 ? "text-green-500" : "text-gray-500"}>{openRoles} open roles</span> 
           </p>
         </div>
       </div>

@@ -21,7 +21,7 @@ const footerLinks = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-[var(--border)] bg-[var(--background)] px-6 py-16 sm:px-8 lg:px-10">
+    <footer className="border-t border-[var(--border)] bg-[var(--background)] px-6 py-16 sm:px-8 lg:px-10 mt-5">
       <div className="mx-auto flex max-w-7xl flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <Link href="/" className="flex items-center gap-3">

@@ -23,7 +23,7 @@ export default function AlumniWhoCanHelp({job}:AlumniWhoCanHelpProps) {
         job._id
       );
 
-      console.log("Alumni Who Can Help:", response);
+      // console.log("Alumni Who Can Help:", response);
 
       setAlumni(response.data || []);
     } catch (err) {
@@ -106,7 +106,7 @@ export default function AlumniWhoCanHelp({job}:AlumniWhoCanHelpProps) {
             </span>
 
             <button
-              className="rounded-full bg-green-500 px-5 py-2 text-sm font-semibold text-[#00d84a] hover:bg-[#147343]"
+              className="rounded-full bg-green-500 px-5 py-2 text-sm font-semibold text-white hover:bg-[#147343]"
             >
               Message
             </button>
