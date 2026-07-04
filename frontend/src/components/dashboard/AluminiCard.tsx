@@ -1,5 +1,8 @@
-import {AlumniCardProps} from '@/types/dashboard'
+import { AlumniCardProps } from "@/types/dashboard";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import {useAuth} from "@/context/AuthContext"
+
 export default function AlumniCard({
   name,
   role,
@@ -16,27 +19,24 @@ export default function AlumniCard({
     .join("")
     .toUpperCase();
 
-    
+    const {role:userType}=useAuth();
+
+  const router = useRouter();
 
   return (
     <div className="rounded-xl border border-[#334155] bg-[#162033] p-6">
       <div className="flex gap-4" onClick={onClick}>
-
-      <div className="relative h-12 w-12 overflow-hidden rounded-full border border-[#334155]">
-        <Image
-        src={profileImage || "/images/default-user.png"}
-        alt={name}
-        fill
-        className="object-cover"
-        />
-
-</div>
-
+        <div className="relative h-12 w-12 overflow-hidden rounded-full border border-[#334155]">
+          <Image
+            src={profileImage || "/images/default-user.png"}
+            alt={name}
+            fill
+            className="object-cover"
+          />
+        </div>
 
         <div>
-          <h3 className="text-md font-semibold text-white">
-            {name}
-          </h3>
+          <h3 className="text-md font-semibold text-white">{name}</h3>
 
           <p className="text-sm text-gray-400">
             {role} • {company}
@@ -49,7 +49,12 @@ export default function AlumniCard({
       </div>
 
       <div className="mt-6 flex gap-4">
-        <button className="flex-1 rounded-lg border border-[#334155] bg-[#0f172a] py-2 text-sm font-medium text-white hover:bg-green-500 text-white">
+        <button
+          onClick={() =>
+            router.push(`/${userType}/message/${userId}?userName=${name}`)
+          }
+          className="flex-1 rounded-lg border border-[#334155] bg-[#0f172a] py-2 text-sm font-medium text-white hover:bg-green-500 text-white"
+        >
           Message
         </button>
 

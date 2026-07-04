@@ -320,3 +320,34 @@ export const googleOAuthLogin = async ({
 
   return data;
 };
+
+
+export async function updateOnboardingFilesApi(formData: FormData) {
+  const token =
+    typeof window !== "undefined"
+      ? localStorage.getItem("token") ||
+        localStorage.getItem("accessToken") ||
+        localStorage.getItem("authToken")
+      : null;
+
+  const API_BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || "";
+
+  const response = await fetch(`${API_BASE_URL}/api/onboarding/update`, {
+    method: "PUT",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      // Do NOT manually set Content-Type for FormData
+    },
+    body: formData,
+    credentials: "include",
+  });
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(data?.message || "Failed to update onboarding files");
+  }
+
+  return data;
+}

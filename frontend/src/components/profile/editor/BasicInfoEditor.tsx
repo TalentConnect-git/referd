@@ -7,7 +7,7 @@ import { TextInput } from "../shared/TextInput";
 import { SelectInput } from "../shared/SelectInput";
 
 import type { EditForm, Option } from "@/types/profile";
-import { uploadResumeApi } from "@/services/auth.service";
+import { updateOnboardingFilesApi } from "@/services/auth.service";
 
 type BasicInfoEditorProps = {
   form: EditForm;
@@ -39,19 +39,100 @@ const maritalStatusOptions: Option[] = [
   "Prefer not to say",
 ].map((value) => ({ value, label: value }));
 
+type UploadMessage = {
+  type: "success" | "error";
+  text: string;
+};
+
+function extractUploadedFileUrl(response: any, fieldName: "resume" | "profileImage") {
+  return (
+    response?.data?.[fieldName] ||
+    response?.data?.onboarding?.[fieldName] ||
+    response?.data?.user?.[fieldName] ||
+    response?.onboarding?.[fieldName] ||
+    response?.user?.[fieldName] ||
+    response?.[fieldName] ||
+    response?.url ||
+    response?.fileUrl ||
+    ""
+  );
+}
+
 export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
   const [isUploadingResume, setIsUploadingResume] = useState(false);
-  const [resumeMessage, setResumeMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
+  const [isUploadingProfileImage, setIsUploadingProfileImage] = useState(false);
 
-  function handleProfileImageChange(event: ChangeEvent<HTMLInputElement>) {
+  const [resumeMessage, setResumeMessage] = useState<UploadMessage | null>(null);
+  const [profileImageMessage, setProfileImageMessage] =
+    useState<UploadMessage | null>(null);
+
+  const fileInputClass =
+    "text-sm text-white file:mr-4 file:cursor-pointer file:rounded-lg file:border-0 file:bg-[var(--primary)] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:brightness-110 disabled:cursor-not-allowed disabled:opacity-50";
+
+  async function uploadSingleFile(
+    fieldName: "resume" | "profileImage",
+    file: File
+  ) {
+    const formData = new FormData();
+    formData.append(fieldName, file);
+
+    const response = await updateOnboardingFilesApi(formData);
+    return extractUploadedFileUrl(response, fieldName);
+  }
+
+  async function handleProfileImageChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
 
     const previewUrl = URL.createObjectURL(file);
-    updateField("profileImage", previewUrl as EditForm["profileImage"]);
+
+    try {
+      setIsUploadingProfileImage(true);
+      setProfileImageMessage(null);
+
+      if (!file.type.startsWith("image/")) {
+        setProfileImageMessage({
+          type: "error",
+          text: "Only image files are allowed.",
+        });
+        URL.revokeObjectURL(previewUrl);
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        setProfileImageMessage({
+          type: "error",
+          text: "Image size must be less than 5MB.",
+        });
+        URL.revokeObjectURL(previewUrl);
+        return;
+      }
+
+      // Show instant preview
+      updateField("profileImage", previewUrl as EditForm["profileImage"]);
+
+      const uploadedUrl = await uploadSingleFile("profileImage", file);
+
+      if (uploadedUrl) {
+        updateField("profileImage", uploadedUrl as EditForm["profileImage"]);
+        URL.revokeObjectURL(previewUrl);
+      }
+
+      setProfileImageMessage({
+        type: "success",
+        text: "Profile image uploaded successfully.",
+      });
+    } catch (error) {
+      console.error("Profile image upload failed:", error);
+
+      setProfileImageMessage({
+        type: "error",
+        text: "Profile image upload failed. Please try again later.",
+      });
+    } finally {
+      setIsUploadingProfileImage(false);
+      event.target.value = "";
+    }
   }
 
   async function handleResumeChange(event: ChangeEvent<HTMLInputElement>) {
@@ -63,37 +144,44 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
       setResumeMessage(null);
 
       if (file.type !== "application/pdf") {
-        setResumeMessage({ type: "error", text: "Only PDF files are allowed." });
+        setResumeMessage({
+          type: "error",
+          text: "Only PDF files are allowed.",
+        });
         return;
       }
 
       if (file.size > 5 * 1024 * 1024) {
-        setResumeMessage({ type: "error", text: "File size must be less than 5MB." });
+        setResumeMessage({
+          type: "error",
+          text: "File size must be less than 5MB.",
+        });
         return;
       }
 
-      const data = await uploadResumeApi(file);
+      const uploadedUrl = await uploadSingleFile("resume", file);
 
-      const resumeUrl =
-        (data as any)?.resume ||
-        (data as any)?.resumeUrl ||
-        (data as any)?.url ||
-        (data as any)?.fileUrl ||
-        file.name;
+      updateField(
+        "resume",
+        (uploadedUrl || file.name) as EditForm["resume"]
+      );
 
-      updateField("resume", resumeUrl as EditForm["resume"]);
-      setResumeMessage({ type: "success", text: "Resume uploaded successfully." });
+      setResumeMessage({
+        type: "success",
+        text: "Resume uploaded successfully.",
+      });
     } catch (error) {
       console.error("Resume upload failed:", error);
-      setResumeMessage({ type: "error", text: "Upload failed. Please try again later." });
+
+      setResumeMessage({
+        type: "error",
+        text: "Resume upload failed. Please try again later.",
+      });
     } finally {
       setIsUploadingResume(false);
       event.target.value = "";
     }
   }
-
-  const fileInputClass =
-    "text-sm text-white file:mr-4 file:cursor-pointer file:rounded-lg file:border-0 file:bg-[var(--primary)] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:brightness-110 disabled:cursor-not-allowed disabled:opacity-50";
 
   return (
     <div>
@@ -213,8 +301,46 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
             type="file"
             accept="image/*"
             onChange={handleProfileImageChange}
+            disabled={isUploadingProfileImage}
             className={fileInputClass}
           />
+
+          {isUploadingProfileImage && (
+            <p className="mt-2 flex items-center gap-2 text-xs text-[var(--primary)]">
+              <svg
+                className="h-3.5 w-3.5 animate-spin"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                />
+              </svg>
+              Uploading profile image…
+            </p>
+          )}
+
+          {profileImageMessage && !isUploadingProfileImage && (
+            <p
+              className={`mt-2 text-xs ${
+                profileImageMessage.type === "success"
+                  ? "text-emerald-400"
+                  : "text-red-400"
+              }`}
+            >
+              {profileImageMessage.text}
+            </p>
+          )}
         </div>
 
         {/* Resume */}
@@ -225,7 +351,7 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
 
           <input
             type="file"
-            accept=".pdf"
+            accept=".pdf,application/pdf"
             onChange={handleResumeChange}
             disabled={isUploadingResume}
             className={fileInputClass}
@@ -268,7 +394,7 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
             </p>
           )}
 
-          {form.resume && !isUploadingResume && !resumeMessage && (
+          {form.resume && !isUploadingResume && (
             <p className="mt-2 break-all text-xs text-[var(--text-muted)]">
               Current: {form.resume}
             </p>

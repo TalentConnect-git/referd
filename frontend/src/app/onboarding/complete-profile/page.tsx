@@ -139,10 +139,7 @@ export default function ConfirmationPage() {
       "educationInfo",
       {},
     );
-    const careerPreferences = safeJsonParse<AnyObject>(
-      "careerPreferences",
-      {},
-    );
+    const careerPreferences = safeJsonParse<AnyObject>("careerPreferences", {});
     const skillsAchievements = safeJsonParse<AnyObject>(
       "skillsAchievements",
       {},
@@ -156,8 +153,8 @@ export default function ConfirmationPage() {
       hasUsefulEducationData,
     );
 
-    console.log("info",basicInfo)
-     
+    console.log("info", basicInfo);
+
     const finalData: AnyObject = {
       ...parsedResume,
       ...basicInfo,
@@ -203,8 +200,9 @@ export default function ConfirmationPage() {
 
       const formData = buildOnboardingFormData();
 
-      const response = await submitOnboardingProfile(formData);
+      formData.append("emailVerified", "true");
 
+      const response = await submitOnboardingProfile(formData);
       const createdAccountType =
         response?.profileType || response?.user?.userType || accountType;
 
@@ -216,7 +214,7 @@ export default function ConfirmationPage() {
 
       await refreshUser();
 
-     router.replace(`/${createdAccountType}/dashboard`);
+      router.replace(`/${createdAccountType}/dashboard`);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Something went wrong";
