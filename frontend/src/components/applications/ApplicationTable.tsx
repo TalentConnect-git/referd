@@ -2,8 +2,10 @@ import StageIndicator from "./StageIndicator";
 import { ApplicationTableProps } from "@/types/applications";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import Image from "next/image";
+import { RefreshCw } from "lucide-react";
 
-export default function sApplicationTable({
+export default function ApplicationTable({
   applicationType,
   applications,
   page,
@@ -17,11 +19,12 @@ export default function sApplicationTable({
       <table className="w-full ">
         <thead className="bg-[#111827]">
           <tr className="text-left text-gray-400">
-            <th className="px-6 py-4">Company</th>
+            <th className="px-6 py-4">Applicants</th>
             <th className="px-6 py-4">Role</th>
             <th className="px-6 py-4">Stage</th>
             <th className="px-6 py-4">Applied</th>
             <th className="px-6 py-4">Match Score</th>
+            <th className="px-6 py-4"> </th>
           </tr>
         </thead>
 
@@ -59,16 +62,31 @@ export default function sApplicationTable({
   }
       >
 
-        <td className="px-6 py-4">
-          {application?.displayCompanyName || "Louis Company"}
-        </td>
+        {/* incase later you want to display image  */}
+
+              <td className="px-6 py-4">
+            <div className="flex items-center gap-3">
+                <Image src={application?.applicant?.profileImage || "/images/default-user.png"}
+                alt={application?.applicant?.name || "Applicant"}
+                width={40}
+                height={40}
+                className="h-10 w-10 rounded-full object-cover"
+                />
+                <span>{application?.applicant?.name || application.displayCompanyName|| "N/A"}</span>
+              </div>
+              </td>
+        
+
+        {/* <td className="px-6 py-4">
+          {application?.applicant?.name || "Louis Company"}
+        </td> */}
 
         {/* <Link href={`/student/applications/${application._id}`} className="block hover:text-green-500">
         {application?.displayCompanyName || "Louis Company"}
         </Link> */}
 
         <td className="px-6 py-4">
-          {application?.jobDetails?.jobTitle?.[0] || "N/A"}
+          {application?.applicant?.jobRoles?.[0] || "N/A"}
         </td>
 
         <td className="px-6 py-4">
@@ -86,8 +104,17 @@ export default function sApplicationTable({
 
         </td>
         <td className="px-6 py-4">
-          {application?.matchScore}
+            {application?.matchScore} %
         </td>
+
+          <td>
+          {application.isAskForReferral && <button className="ml-5 inline-flex items-center gap-2 rounded-lg  border-slate-700 bg-[#0F1115] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#171A20]">
+          <RefreshCw className="h-4 w-4" />Update</button>}
+         </td>
+          
+
+
+
       </tr>
 
     ))

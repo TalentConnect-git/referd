@@ -11,7 +11,7 @@ import { ProfessionalApplicationType } from "@/types/applications";
 export default function ProfessionalApplications() {
   const [activeTab, setActiveTab] =
     useState<ProfessionalApplicationType>(
-      "Applications To Me"
+      "Requests Received"
     );
 
   const [applications, setApplications] =
@@ -42,7 +42,7 @@ export default function ProfessionalApplications() {
         // }
 
 
-        if (activeTab === "Applications To Me") {
+        if (activeTab === "Requests Received") {
           response = await getProfessionalReceivedApplications(page,limit);
         } else if (activeTab === "Applications By Me") {
           response = await getProfessionalApplications(page,limit);
@@ -52,6 +52,8 @@ export default function ProfessionalApplications() {
 
 
         setApplications(response.data || []);
+
+        console.log("Response is ",response);
         setMeta(response.meta || null);
       } catch (error) {
         console.error(
@@ -90,7 +92,7 @@ export default function ProfessionalApplications() {
 )} */}
 
 
-          {activeTab === "Applications To Me" && (
+          {activeTab === "Requests Received" && (
             <ApplicationsToMeTable
             applications={applications}
             page={page}

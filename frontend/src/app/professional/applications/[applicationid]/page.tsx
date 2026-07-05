@@ -1,8 +1,9 @@
 "use client";
 
-import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import PostedByReferrer from "@/components/dashboard/PostedByReferrer";
 import { ArrowLeft } from "lucide-react";
 import { getApplicationDetails } from "@/services/application.service";
@@ -11,6 +12,30 @@ import ApplicationTimeline from "@/components/applications/ApplicationTimeline";
 export default function ApplicationDetailsPage() {
 
   const { applicationid } = useParams();
+  const { profile } = useAuth();
+  const userType = profile?.profileType;
+
+
+const handleJobClick = () => {
+  if (!application?.job?._id || !userType) return;
+  let route = "";
+  switch (application.job.jobType) {
+    case "Referral":
+      route = `/${userType}/jobs/referral-jobs/${application.job._id}`;
+      break;
+    case "Internship":
+      route = `/${userType}/internships/${application.job._id}`;
+      break;
+    case "Off-campus":
+      route = `/${userType}/jobs/offcampus/${application.job._id}`;
+      break;
+  }
+
+  router.push(route);
+
+};
+
+
   console.log("Params ",useParams());
   const router = useRouter();
 
@@ -25,7 +50,9 @@ export default function ApplicationDetailsPage() {
           );
 
           let data = res.data;
+          console.log("The application is ",data);
           setApplication(data);
+
          
       } catch (err) {
         console.error(err);
@@ -57,7 +84,7 @@ export default function ApplicationDetailsPage() {
       <div className="flex items-start justify-between">
 
         <div>
-          <h1 className="text-2xl font-bold text-white">
+          <h1 onClick={handleJobClick} className="cursor-pointer text-2xl font-bold text-white">
             {application?.job?.jobTitle?.[0] || "Application"}
           </h1>
 

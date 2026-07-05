@@ -6,6 +6,7 @@ export interface JobCardProps {
   postedBy: string;
   secondaryInfo?: string;
   route: string;
+  workMode:string;
 };
 
 export interface JobContainerProps {

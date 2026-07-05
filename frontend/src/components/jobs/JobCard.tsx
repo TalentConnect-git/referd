@@ -9,19 +9,18 @@ export default function JobCard({
   matchScore,
   postedBy,
   secondaryInfo,
-  route
+  route,
+  workMode
 }: JobCardProps) {
 
   const router = useRouter();
   console.log("Items Received ");
-  console.log(title);
-  console.log("company ",company);
-  console.log(location);
   console.log(matchScore);
+  console.log(workMode);
   
   return (
     
-    <div onClick={() => router.push(route)}
+    <div onClick={() => router.push(`${route}?matchScore=${matchScore ?? 0}`)}
       className="
         cursor-pointer
         rounded-3xl
@@ -102,6 +101,9 @@ export default function JobCard({
         <div>
           <p className="text-zinc-400">
             Posted by {postedBy}
+          </p>
+          <p className="text-sm text-zinc-400">
+            {workMode}
           </p>
           {secondaryInfo && (
             <p className="mt-1 text-sm text-green-500">

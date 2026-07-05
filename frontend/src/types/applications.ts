@@ -24,7 +24,7 @@ export interface ApplicationTableProps {
   meta: any;
 }
 export type ProfessionalApplicationType =
-  | "Applications To Me"
+  | "Requests Received"
   | "Applications By Me"
   | "Referred By Me"
 

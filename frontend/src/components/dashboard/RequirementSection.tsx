@@ -12,11 +12,11 @@ export default function RequirementSection({ job }: RequirementSectionProps) {
 
         <div>
           <p className="text-sm text-blue-400">
-            Eligible Degrees
+            Minimum Education
           </p>
 
           <p className="text-white">
-            {job.degree?.join(", ") || "N/A"}
+            {job.minEducation || "N/A"}
           </p>
         </div>
 
@@ -40,15 +40,15 @@ export default function RequirementSection({ job }: RequirementSectionProps) {
           </p>
         </div>
 
-        <div>
+        {job.jobType !="Referral" && <div>
           <p className="text-sm text-blue-400">
             CGPA Requirement
           </p>
 
           <p className="text-white">
-            {job.cgpa || "N/A"} 
+            {job.cgpa || "-"} 
           </p>
-        </div>
+        </div>}
 
         <div>
           <p className="text-sm text-blue-400">

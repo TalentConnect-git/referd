@@ -47,14 +47,14 @@ export default function DashboardJobs({ referralJobs,internshipJobs,offCampusJob
   "Not specified";
 
   
-  const handleJobClick = async (jobId:string) => {
+  const handleJobClick = async (job:Job) => {
   try {
-    console.log("Fetching details for job ID:", jobId);
+    console.log("Fetching details for job ID:", job._id);
     const res = await axiosInstance.get(
-      `/api/student-dashboard/job/${jobId}`
+      `/api/student-dashboard/job/${job._id}`
     );
     console.log("Job details:", res.data);
-    setSelectedJob(res.data.data);
+    setSelectedJob({...res.data.data,matchScore:job.matchScore});
     setOpen(true);
 
   } catch(err){
@@ -108,7 +108,7 @@ export default function DashboardJobs({ referralJobs,internshipJobs,offCampusJob
           location={getLocation(job)}
           referredBy={job.candidatePosted?.name || "Alumni"}
           matchScore={job.matchScore ?? 0}
-          onClick={() => handleJobClick(job._id!)}
+          onClick={() => handleJobClick(job)}
           jobType= "Referral"
           workMode={job.workMode}
         />
@@ -135,7 +135,7 @@ export default function DashboardJobs({ referralJobs,internshipJobs,offCampusJob
           referredBy={job.candidatePosted?.name || "Alumni"}
           matchScore={job.matchScore ?? 0}
           workMode={job.workMode}
-          onClick={() => handleJobClick(job._id!)}
+          onClick={() => handleJobClick(job)}
         jobType="Internship"
         />
       ))}
@@ -161,7 +161,7 @@ export default function DashboardJobs({ referralJobs,internshipJobs,offCampusJob
           referredBy={job.candidatePosted?.name || "Alumni"}
           matchScore={job.matchScore ?? 0}
           workMode={job.workMode}
-          onClick={() => handleJobClick(job._id!)}
+          onClick={() => handleJobClick(job)}
           jobType="Off-campus"
         />
       ))}

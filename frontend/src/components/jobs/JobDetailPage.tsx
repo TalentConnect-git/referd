@@ -261,7 +261,7 @@ const [selectedTab, setSelectedTab] = useState("overview");
 const router=useRouter();
 const handleSave = async () => {
   try {
-    console.log(job);
+    console.log("###",job);
 
     await saveJob(
       job._id,
@@ -276,7 +276,6 @@ const handleSave = async () => {
 };
 const handleApply = async () => {
   try {
-    console.log(job);
   console.log(
   job._id,
   job.jobType,
@@ -336,8 +335,8 @@ const handleApply = async () => {
                   <p className="text-sm text-gray-400">
                     {/* {job.companyPosted?.companyDetails?.companyName ||
                       "Company"} */}
-                      {job.candidatePosted?.currentCompany?.charAt(0) ||
-                    "J"}
+                      {job.candidatePosted?.currentCompany ||
+                    "COMPANY"}
                   </p>
 
                   <p className="text-sm text-gray-500">

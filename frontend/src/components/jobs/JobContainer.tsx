@@ -17,7 +17,8 @@ export default function JobContainer({
 
   const { profile } = useAuth();
   const role = profile?.profileType || "student";
-  console.log("job received ",jobs[0]);
+  console.log("job received ******** ",jobs[0]);
+  // console.log("############## ",jobs[0].broadcastType);
   // console.log("company name ",jobs[0].companyName?.charAt(0));
 
   if (loading) {
@@ -25,7 +26,7 @@ export default function JobContainer({
   }
 
   return (
-    <div className="space-y-4 ml-5 mr-5">
+    <div className="space-y-4 ml-5 mr-5 mb-5">
       {jobs.map((job) => (
         <JobCard
           key={job._id}
@@ -52,6 +53,7 @@ export default function JobContainer({
               ? "Referral Opportunity"
               : job.employmentType?.[0]
           }
+          workMode={job.workMode?.[0]}
           route={`/${role}/jobs/${
             type === "referral"
             ? "referral-jobs"
