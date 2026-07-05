@@ -93,6 +93,7 @@ export type Job = {
   jobTitle?: string | string[];
   jobRoles?: string[];
   title?: string;
+  minEducation:string;
 
 
   companyName?: string;

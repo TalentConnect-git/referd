@@ -1,10 +1,37 @@
 import { ProcessSectionProps } from "@/types/dashboard";
+import { useEffect,useMemo, useState } from "react";
 export default function ProcessSection({ job }: ProcessSectionProps) {
     
-  const SIZE = 110;       // Overall circle size
-  const THICKNESS = 10;   // Ring thickness
 
-  const INNER_SIZE = SIZE - THICKNESS * 2;
+const radius = 42;
+const circumference = 2 * Math.PI * radius;
+
+const [progress, setProgress] = useState(0);
+
+useEffect(() => {
+  // Start hidden
+  setProgress(0);
+
+  // Let the initial render happen
+  const timeout = setTimeout(() => {
+    setProgress(job.matchScore ?? 0);
+  }, 100);
+
+  return () => clearTimeout(timeout);
+}, [job.matchScore]);
+
+const offset = useMemo(
+  () =>
+    circumference -
+    (progress / 100) * circumference,
+  [progress, circumference]
+);
+
+  // this is match & referral insights component 
+
+
+
+  console.log("****************** ",job);
   return (
 
     <div className="space-y-6">
@@ -32,59 +59,61 @@ export default function ProcessSection({ job }: ProcessSectionProps) {
           Selection Rounds:
         </span>
         <span className="font-semibold text-white">
-          {job.rounds?.length || 0}
+          {job.rounds?.[0] || 0}
         </span>
       </div>
     </div>
 
     {/* Match Score Circle */}
-    <div
-      style={{
-        width: 100,
-        height: 100,
-        borderRadius: "50%",
-        background: `conic-gradient(
-          #22c55e ${(job.matchScore ?? 0) * 3.6}deg,
-          #2b3446 ${(job.matchScore ?? 0) * 3.6}deg
-        )`,
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <div
-        style={{
-          width: 82,
-          height: 82,
-          borderRadius: "50%",
-          background: "#111827",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <div
-          style={{
-            fontSize: 22,
-            fontWeight: 700,
-            color: "#fff",
-          }}
-        >
-          {job.matchScore ?? 0}%
-        </div>
 
-        <div
-          style={{
-            fontSize: 9,
-            color: "#22c55e",
-            marginTop: 2,
-          }}
-        >
-          Match Score
-        </div>
-      </div>
+
+  <div className="relative flex h-[100px] w-[100px] items-center justify-center">
+  <svg
+    width="100"
+    height="100"
+    className="-rotate-90 absolute"
+  >
+    {/* Background */}
+    <circle
+      cx="50"
+      cy="50"
+      r={42}
+      stroke="#2b3446"
+      strokeWidth="8"
+      fill="none"
+    />
+
+    {/* Animated Progress */}
+    <circle
+      cx="50"
+      cy="50"
+      r={42}
+      stroke="#22c55e"
+      strokeWidth="8"
+      fill="none"
+      strokeLinecap="round"
+      strokeDasharray={circumference}
+      strokeDashoffset={offset}
+      style={{
+        transition: "stroke-dashoffset 1.2s ease-out",
+      }}
+    />
+  </svg>
+
+  <div className="z-10 flex flex-col items-center">
+    <div className="text-[22px] font-bold text-white">
+      {job.matchScore ?? 0}%
     </div>
+
+    <div className="text-[9px] text-green-500">
+      Match Score
+    </div>
+  </div>
+</div>
+
+
+
+
   </div>
 </div>
 

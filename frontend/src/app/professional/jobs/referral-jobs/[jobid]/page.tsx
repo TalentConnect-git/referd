@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import JobsTabs from "@/components/jobs/JobTabs";
 
 import { getJobById } from "@/services/job.service";
 import JobDetailPage from "@/components/jobs/JobDetailPage";
 
 export default function JobDetailsRoutePage() {
+  const searchParams = useSearchParams();
+  const matchScore = Number(searchParams.get("matchScore")) || 0;
   const params = useParams();
   console.log("Params ",params);
 
@@ -21,7 +23,7 @@ export default function JobDetailsRoutePage() {
     if (jobId) {
       fetchJob();
     }
-  }, [jobId]);
+  }, [jobId,matchScore]);
 
   async function fetchJob() {
     try {
@@ -29,7 +31,7 @@ export default function JobDetailsRoutePage() {
         console.log("Fetching job:", jobId);
         const response = await getJobById(jobId);
         console.log("API Response:", response);
-      setJob(response.data?.data || null);
+      setJob({...response.data?.data, matchScore:matchScore});
     } catch (error) {
       console.error("Failed to fetch job details:", error);
       setJob(null);

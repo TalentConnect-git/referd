@@ -6,7 +6,7 @@ export default function ProfessionalApplicationTabs({
   onChange,
 }: ProfessionalApplicationTabsProps) {
   const tabs: ProfessionalApplicationType[] = [
-    "Applications To Me",
+    "Requests Received",
     "Applications By Me",
     "Referred By Me"
   ];

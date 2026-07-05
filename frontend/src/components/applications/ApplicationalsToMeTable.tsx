@@ -3,7 +3,11 @@
 import StageIndicator from "./StageIndicator";
 import { ApplicationalsToMeTableProps } from "@/types/applications";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
+
+
+// this is request received component earlier named as application to me 
 export default function ProfessionalAppTable({
   applications,
 }: ApplicationalsToMeTableProps) {
@@ -16,7 +20,7 @@ export default function ProfessionalAppTable({
             <th className="px-6 py-4">Applicant</th>
             <th className="px-6 py-4">Role</th>
             <th className="px-6 py-4">College</th>
-            <th className="px-6 py-4">Stage</th>
+            {/* <th className="px-6 py-4">Stage</th> */}
             <th className="px-6 py-4">Applied</th>
             <th className="px-6 py-4">Match Score</th>
           </tr>
@@ -33,9 +37,24 @@ export default function ProfessionalAppTable({
                   )}
                 className="border-t border-slate-800 cursor-pointer"
               >
-                <td className="px-6 py-4">
+                {/* <td className="px-6 py-4">
                   {application?.applicant.name || "N/A"}
-                </td>
+                </td> */}
+
+
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                    <Image src={application?.applicant?.profileImage || "/images/default-user.png"}
+                    alt={application?.applicant?.name || "Applicant"}
+                    width={40}
+                    height={40}
+                    className="h-10 w-10 rounded-full object-cover"
+                    />
+
+                    <span>{application?.applicant?.name || "N/A"}</span>
+                  </div>
+                  </td>
+
 
                 <td className="px-6 py-4">
                   {application?.job?.jobTitle?.[0] || "N/A"}
@@ -48,11 +67,11 @@ export default function ProfessionalAppTable({
                   }
                 </td>
 
-                <td className="px-6 py-4">
+                {/* <td className="px-6 py-4">
                   <StageIndicator
                     stage={application?.currentStatus}
                   />
-                </td>
+                </td> */}
 
                 <td className="px-6 py-4">
                   {new Date(

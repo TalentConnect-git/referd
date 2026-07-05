@@ -19,10 +19,10 @@ export default function CompensationSection({ job }: CompensationSectionProps) {
           <p>₹ {job.packageDetails?.fixedPay || 0}</p>
         </div>
 
-        <div className="rounded-xl bg-purple-500/10 p-4">
+        {/* <div className="rounded-xl bg-purple-500/10 p-4">
           <p>Joining Bonus</p>
           <p>₹ {job.packageDetails?.joiningBonus || 0}</p>
-        </div>
+        </div> */}
 
       </div>
 

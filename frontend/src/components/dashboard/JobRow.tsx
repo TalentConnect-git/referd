@@ -19,6 +19,8 @@ jobType
 
 }: JobRowProps) {
 
+  console.log("Match Score ",matchScore);
+
  const handleSave = async (
   e: React.MouseEvent
 ) => {
