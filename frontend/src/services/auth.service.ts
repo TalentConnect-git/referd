@@ -33,6 +33,8 @@ export type AuthUser = {
   basicDetails?: BasicDetails;
   authProvider?: string;
   status?: string;
+  profileImage?: string | null;
+  onboardingStep?: number;
 };
 
 export type LoginPayload = {
@@ -77,6 +79,45 @@ export type ValidateResetTokenResponse = ApiResponse<{
   email?: string;
 }>;
 
+export type GoogleOAuthLoginPayload = {
+  code: string;
+  userType: UserType;
+  isApp?: boolean;
+  googleToken?: string;
+};
+
+export type ParsedResumeResponse = {
+  name?: string;
+  email?: string;
+  phone?: string;
+  skills?: string[];
+  linkedin_url?: string;
+  github_url?: string;
+  portfolio_url?: string;
+  education?: {
+    institution?: string;
+    degree?: string;
+    field_of_study?: string;
+    year?: string;
+  }[];
+  work_experience?: {
+    organization?: string;
+    title?: string;
+    start_date?: string;
+    end_date?: string;
+    description?: string | string[];
+  }[];
+  total_experience_years?: number;
+};
+
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "http://localhost:8081";
+
+const TOKEN_KEY = "token";
+const USER_KEY = "user";
+
 const getErrorMessage = (error: unknown, fallback: string): string => {
   if (typeof error === "object" && error !== null && "response" in error) {
     const axiosError = error as {
@@ -90,7 +131,36 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
     return axiosError.response?.data?.message || fallback;
   }
 
+  if (error instanceof Error) {
+    return error.message;
+  }
+
   return fallback;
+};
+
+export const saveAuthToStorage = (data: any) => {
+  const token =
+    data?.token ||
+    data?.accessToken ||
+    data?.data?.token ||
+    data?.data?.accessToken;
+
+  const user = data?.user || data?.data?.user;
+
+  if (typeof window !== "undefined") {
+    if (token) {
+      localStorage.setItem(TOKEN_KEY, token);
+    }
+
+    if (user) {
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
+    }
+  }
+
+  return {
+    token,
+    user,
+  };
 };
 
 export const sendSignupOtp = async (
@@ -113,6 +183,8 @@ export const signupUser = async (
   try {
     const { data } = await axiosInstance.post("/api/auth/signup", payload);
 
+    saveAuthToStorage(data);
+
     return data;
   } catch (error) {
     throw new Error(
@@ -126,10 +198,60 @@ export const loginUser = async (
 ): Promise<LoginResponse> => {
   try {
     const { data } = await axiosInstance.post("/api/auth/login", payload);
-      
+
+    saveAuthToStorage(data);
+
     return data;
   } catch (error) {
     throw new Error(getErrorMessage(error, "Invalid credentials"));
+  }
+};
+
+export const googleOAuthLogin = async ({
+  code,
+  userType,
+  isApp = false,
+  googleToken = "",
+}: GoogleOAuthLoginPayload) => {
+  try {
+    const { data } = await axiosInstance.post("/api/auth/google", {
+      code,
+      userType,
+
+      /**
+       * Important:
+       * Web login sends authorization code.
+       * Your backend uses code flow only when isApp is false.
+       */
+      isApp,
+
+      /**
+       * Web flow does not use googleToken.
+       */
+      googleToken,
+    });
+
+    saveAuthToStorage(data);
+
+    return data;
+  } catch (error) {
+    throw new Error(
+      getErrorMessage(error, "Google authentication failed."),
+    );
+  }
+};
+
+export const refreshToken = async () => {
+  try {
+    const { data } = await axiosInstance.post("/api/auth/refresh");
+
+    saveAuthToStorage(data);
+
+    return data;
+  } catch (error) {
+    throw new Error(
+      getErrorMessage(error, "Session expired. Please login again."),
+    );
   }
 };
 
@@ -208,59 +330,27 @@ export const getCurrentUser = async (): Promise<MeResponse> => {
   }
 };
 
-export type ParsedResumeResponse = {
-  name?: string;
-  email?: string;
-  phone?: string;
-  skills?: string[];
-  linkedin_url?: string;
-  github_url?: string;
-  portfolio_url?: string;
-  education?: {
-    institution?: string;
-    degree?: string;
-    field_of_study?: string;
-    year?: string;
-  }[];
-  work_experience?: {
-    organization?: string;
-    title?: string;
-    start_date?: string;
-    end_date?: string;
-    description?: string | string[];
-  }[];
-  total_experience_years?: number;
-};
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-
 export async function uploadResumeApi(
-  file: File
+  file: File,
 ): Promise<ParsedResumeResponse> {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  try {
+    const formData = new FormData();
+    formData.append("resume", file);
 
-  const formData = new FormData();
-  formData.append("resume", file);
+    const { data } = await axiosInstance.post(
+      "/api/upload/resume",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
 
-  const response = await fetch(`${API_URL}/api/upload/resume`, {
-    method: "POST",
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: formData,
-    credentials: "include",
-  });
-
-  const data = await response.json();
-
-  
-
-  if (!response.ok) {
-    throw new Error(data?.message || "Failed to upload resume");
+    return data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "Failed to upload resume"));
   }
-
-  return data;
 }
 
 export function getResumePdfViewUrl(userId?: string | null) {
@@ -273,81 +363,22 @@ export function getResumeServeUrl(userId?: string | null) {
   return `${API_URL}/api/upload/serve/${userId}`;
 }
 
-type GoogleOAuthLoginPayload = {
-  code: string;
-  userType: "student" | "fresher" | "professional";
-  isApp?: boolean;
-  googleToken?: string;
-};
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
-
-export const googleOAuthLogin = async ({
-  code,
-  userType,
-  isApp = true,
-  googleToken = "",
-}: GoogleOAuthLoginPayload) => {
-  const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-    body: JSON.stringify({
-      code,
-      userType,
-      isApp,
-      googleToken,
-    }),
-  });
-
-  const data = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    const error: any = new Error(
-      data?.message || "Google authentication failed."
+export async function updateOnboardingFilesApi(formData: FormData) {
+  try {
+    const { data } = await axiosInstance.put(
+      "/api/onboarding/update",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
     );
 
-    error.response = {
-      data,
-      status: response.status,
-    };
-
-    throw error;
+    return data;
+  } catch (error) {
+    throw new Error(
+      getErrorMessage(error, "Failed to update onboarding files"),
+    );
   }
-
-  return data;
-};
-
-
-export async function updateOnboardingFilesApi(formData: FormData) {
-  const token =
-    typeof window !== "undefined"
-      ? localStorage.getItem("token") ||
-        localStorage.getItem("accessToken") ||
-        localStorage.getItem("authToken")
-      : null;
-
-  const API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || "";
-
-  const response = await fetch(`${API_BASE_URL}/api/onboarding/update`, {
-    method: "PUT",
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      // Do NOT manually set Content-Type for FormData
-    },
-    body: formData,
-    credentials: "include",
-  });
-
-  const data = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    throw new Error(data?.message || "Failed to update onboarding files");
-  }
-
-  return data;
 }

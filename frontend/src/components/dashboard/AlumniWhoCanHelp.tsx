@@ -106,6 +106,7 @@ export default function AlumniWhoCanHelp({job}:AlumniWhoCanHelpProps) {
             </span>
 
             <button
+             onClick={()=>(router.push(`/${userType}/message/${person.userId}?userName=${person.name}`))}
               className="rounded-full bg-green-500 px-5 py-2 text-sm font-semibold text-white hover:bg-[#147343]"
             >
               Message
