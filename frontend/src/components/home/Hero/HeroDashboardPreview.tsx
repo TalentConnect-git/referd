@@ -81,9 +81,7 @@ export default function HeroDashboardPreview() {
                   Referral jobs for you
                 </h3>
 
-                <p className="font-mono text-[11px] text-[var(--text-primary)]">
-                  3 new
-                </p>
+               
               </div>
 
               {[

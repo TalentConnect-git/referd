@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   Activity,
   Award,
@@ -18,7 +19,6 @@ import {
   MessageSquare,
   Monitor,
   Network,
-  Search,
   Settings,
   User,
   UserCheck,
@@ -95,7 +95,6 @@ export function DashboardLayout({
   const pathname = usePathname();
   const router = useRouter();
 
-  const [searchValue, setSearchValue] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -149,6 +148,9 @@ const { messageUnreadCount } = useMessageUnreadCount();
 
   const basePath = `/${userType}`;
 
+  // Get profile image from profile.profileImage
+  const profileImageUrl = profile?.profileImage || null;
+
   // Active state helper
   const isActive = (path: string) => {
     if (path === "/home" && pathname === `${basePath}/home`) return true;
@@ -158,18 +160,9 @@ const { messageUnreadCount } = useMessageUnreadCount();
     return pathname === fullPath || pathname.startsWith(`${fullPath}/`);
   };
 
-  // Filter nav items by search
-  const filteredNavItems = useMemo(() => {
-    const keyword = searchValue.trim().toLowerCase();
-    if (!keyword) return navItems;
-    return navItems.filter((item) =>
-      item.label.toLowerCase().includes(keyword)
-    );
-  }, [searchValue, navItems]);
-
   // Update nav items with unread count
   const updatedNavItems = useMemo(() => {
-  return filteredNavItems.map((item) => {
+  return navItems.map((item) => {
     if (item.icon === "message") {
       return {
         ...item,
@@ -179,7 +172,7 @@ const { messageUnreadCount } = useMessageUnreadCount();
 
     return item;
   });
-}, [filteredNavItems, messageUnreadCount]);
+}, [navItems, messageUnreadCount]);
 
   // Initials for avatar
   const initials = useMemo(() => {
@@ -216,34 +209,8 @@ const { messageUnreadCount } = useMessageUnreadCount();
       <div className="flex min-h-screen w-full bg-[var(--background)] text-white max-md:hidden">
         {/* ---------- Sidebar ---------- */}
         <aside className="flex w-60 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--background)]">
-          {/* Search Bar */}
-          <div className="px-3 pt-4 pb-4">
-            <div className="flex items-center gap-2 rounded-xl border border-white/15 bg-[var(--card)] px-3 py-2 text-sm transition focus-within:border-white/40 focus-within:ring-1 focus-within:ring-white/20">
-              <Search className="h-4 w-4 text-[var(--text-primary)]" />
-              <input
-                type="text"
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                placeholder="Search menu..."
-                className="min-w-0 flex-1 bg-transparent text-[12px] text-white outline-none placeholder:text-[var(--text-primary)]"
-              />
-              {searchValue ? (
-                <button
-                  onClick={() => setSearchValue("")}
-                  className="flex h-5 w-5 items-center justify-center rounded text-[var(--text-primary)] hover:bg-white/10 hover:text-white"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              ) : (
-                <kbd className="hidden rounded-md bg-[var(--background)] px-1.5 py-0.5 text-[9px] text-[var(--text-primary)] sm:inline-block">
-                  ⌘K
-                </kbd>
-              )}
-            </div>
-          </div>
-
           {/* Main Navigation */}
-          <nav className="flex-1 space-y-1 overflow-y-auto px-3">
+          <nav className="flex-1 space-y-1 overflow-y-auto px-3 pt-4">
             {mainNavItems.length > 0 ? (
               mainNavItems.map((item) => {
                 const Icon = iconMap[item.icon];
@@ -332,10 +299,20 @@ const { messageUnreadCount } = useMessageUnreadCount();
               </div>
             </div>
 
-            {/* User Info Card */}
+            {/* User Info Card - with profile image */}
             <div className="mt-3 flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--card)] p-2.5 transition-all hover:border-[var(--primary)]/50">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--primary-dark)] text-[11px] font-bold text-black shadow-sm">
-                {initials || "U"}
+              <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full overflow-hidden bg-gradient-to-br from-[var(--primary)] to-[var(--primary-dark)] text-[11px] font-bold text-black shadow-sm">
+                {profileImageUrl ? (
+                  <Image
+                    src={profileImageUrl}
+                    alt={displayName}
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                ) : (
+                  initials || "U"
+                )}
               </div>
               <div className="min-w-0 flex-1 text-xs">
                 <div className="truncate text-[12px] font-medium text-white">
@@ -401,30 +378,8 @@ const { messageUnreadCount } = useMessageUnreadCount();
             </button>
           </div>
 
-          {/* Mobile Search */}
-          <div className="p-4">
-            <div className="flex items-center gap-2 rounded-xl border border-white/15 bg-[var(--card)] px-3 py-2">
-              <Search className="h-4 w-4 text-[var(--text-primary)]" />
-              <input
-                type="text"
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                placeholder="Search menu..."
-                className="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-[var(--text-primary)]"
-              />
-              {searchValue && (
-                <button
-                  onClick={() => setSearchValue("")}
-                  className="text-[var(--text-primary)]"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-          </div>
-
           {/* Mobile Navigation */}
-          <nav className="flex-1 overflow-y-auto px-2">
+          <nav className="flex-1 overflow-y-auto px-2 py-4">
             {mainNavItems.map((item) => {
               const Icon = iconMap[item.icon];
               const itemPath = `${basePath}${item.to}`;
@@ -491,10 +446,20 @@ const { messageUnreadCount } = useMessageUnreadCount();
               )}
             </div>
 
-            {/* Mobile User Info */}
+            {/* Mobile User Info - with profile image */}
             <div className="mt-3 flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--primary)] text-sm font-bold text-black">
-                {initials}
+              <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full overflow-hidden bg-[var(--primary)] text-sm font-bold text-black">
+                {profileImageUrl ? (
+                  <Image
+                    src={profileImageUrl}
+                    alt={displayName}
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                ) : (
+                  initials
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-medium text-white">

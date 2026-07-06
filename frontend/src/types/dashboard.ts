@@ -60,7 +60,7 @@ export interface Alumni {
   userId:string;
   name?: string;
   fullName?: string;
-  college?: string|null;
+  colleges?: string[]|null;
   currentCompany?: string;
   profileImage?:string | null;
   jobRoles?: string[];

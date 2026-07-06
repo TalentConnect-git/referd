@@ -9,16 +9,17 @@ import {
   useState,
   useCallback,
 } from "react";
-import axios from "axios";
+
+import axiosInstance from "@/lib/axiosInstance";
 
 import {
   AuthUser,
   getCurrentUser,
   logoutUser,
 } from "@/services/auth.service";
+
 import type { ProfileData } from "@/types/profile";
 
-// ---------- Context type ----------
 type AuthContextType = {
   user: AuthUser | null;
   token: string | null;
@@ -35,10 +36,9 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// ---------- Storage helpers ----------
-const STORAGE_KEYS = [
-  "token",
-  "user",
+const AUTH_KEYS = ["token", "user"];
+
+const ONBOARDING_KEYS = [
   "parsedResume",
   "basicInfo",
   "educationInfo",
@@ -48,22 +48,36 @@ const STORAGE_KEYS = [
 ];
 
 const clearOnboardingStorage = () => {
-  [
-    "parsedResume",
-    "basicInfo",
-    "educationInfo",
-    "careerPreferences",
-    "skillsAchievements",
-    "selectedRole",
-  ].forEach((key) => localStorage.removeItem(key));
+  if (typeof window === "undefined") return;
+
+  ONBOARDING_KEYS.forEach((key) => localStorage.removeItem(key));
 };
 
 const clearAuthStorage = () => {
-  STORAGE_KEYS.forEach((key) => localStorage.removeItem(key));
+  if (typeof window === "undefined") return;
+
+  [...AUTH_KEYS, ...ONBOARDING_KEYS].forEach((key) =>
+    localStorage.removeItem(key),
+  );
+
   sessionStorage.clear();
 };
 
-// ---------- Provider ----------
+const getStoredUser = (): AuthUser | null => {
+  if (typeof window === "undefined") return null;
+
+  const rawUser = localStorage.getItem("user");
+
+  if (!rawUser) return null;
+
+  try {
+    return JSON.parse(rawUser);
+  } catch {
+    localStorage.removeItem("user");
+    return null;
+  }
+};
+
 export function AuthContextRole({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -71,7 +85,6 @@ export function AuthContextRole({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
 
-  // ---------- Reset ----------
   const resetAuthState = useCallback(() => {
     clearAuthStorage();
     setUser(null);
@@ -80,39 +93,54 @@ export function AuthContextRole({ children }: { children: ReactNode }) {
   }, []);
 
   const redirectToLogin = useCallback(() => {
-    window.location.href = "/login";
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
   }, []);
 
-  // ---------- Fetch full profile ----------
   const fetchProfile = useCallback(async () => {
-    const currentToken = token || localStorage.getItem("token");
+    const currentToken =
+      token ||
+      (typeof window !== "undefined"
+        ? localStorage.getItem("token")
+        : null);
+
     if (!currentToken) return;
 
     try {
       setProfileLoading(true);
 
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL;
-      if (!backendUrl) throw new Error("API URL missing");
+      /**
+       * Important:
+       * Use axiosInstance, not raw axios.
+       * Then expired token will auto-refresh here also.
+       */
+      const response = await axiosInstance.get("/api/onboarding/me");
 
-      const response = await axios.get(`${backendUrl}/api/onboarding/me`, {
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${currentToken}` },
-      });
+      const profileData =
+        response.data?.data ||
+        response.data?.profile ||
+        response.data?.user ||
+        response.data ||
+        {};
 
-      const profileData = response.data?.data || response.data?.profile || response.data?.user || response.data || {};
       setProfile(profileData);
     } catch (error) {
       console.error("Failed to fetch profile:", error);
-      // Keep last profile if any, don't null it on failure
     } finally {
       setProfileLoading(false);
     }
-  }, [token]); // ✅ depends on token, but also reads localStorage as fallback
+  }, [token]);
 
-  // ---------- Refresh user (and then profile) ----------
   const refreshUser = useCallback(async () => {
     try {
-      const savedToken = localStorage.getItem("token");
+      const savedToken =
+        typeof window !== "undefined"
+          ? localStorage.getItem("token")
+          : null;
+
+      const savedUser = getStoredUser();
+
       if (!savedToken) {
         resetAuthState();
         setLoading(false);
@@ -120,6 +148,16 @@ export function AuthContextRole({ children }: { children: ReactNode }) {
       }
 
       setToken(savedToken);
+
+      if (savedUser) {
+        setUser(savedUser);
+      }
+
+      /**
+       * getCurrentUser uses axiosInstance.
+       * If access token expired:
+       * axiosInstance -> /api/auth/refresh -> retry /api/auth/me
+       */
       const data = await getCurrentUser();
 
       if (!data?.user) {
@@ -132,17 +170,11 @@ export function AuthContextRole({ children }: { children: ReactNode }) {
       setUser(data.user);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-
-
       if (data.user.onboardingCompleted) {
-        await fetchProfile();}
-
-
-      // Fetch profile after setting user
-      // await fetchProfile();
-
+        await fetchProfile();
+      }
     } catch (error) {
-      console.error(error);
+      console.error("refreshUser error:", error);
       resetAuthState();
       redirectToLogin();
     } finally {
@@ -150,7 +182,6 @@ export function AuthContextRole({ children }: { children: ReactNode }) {
     }
   }, [resetAuthState, redirectToLogin, fetchProfile]);
 
-  // ---------- Login ----------
   const login = useCallback(
     (userData: AuthUser, jwtToken: string) => {
       localStorage.setItem("token", jwtToken);
@@ -161,13 +192,13 @@ export function AuthContextRole({ children }: { children: ReactNode }) {
       setToken(jwtToken);
       setUser(userData);
 
-      // Immediately fetch profile after login
-      fetchProfile();
+      if (userData.onboardingCompleted) {
+        fetchProfile();
+      }
     },
-    [fetchProfile]
+    [fetchProfile],
   );
 
-  // ---------- Logout ----------
   const logout = useCallback(async () => {
     try {
       await logoutUser();
@@ -179,40 +210,76 @@ export function AuthContextRole({ children }: { children: ReactNode }) {
     }
   }, [resetAuthState, redirectToLogin]);
 
-  // ---------- Initial load ----------
   useEffect(() => {
     refreshUser();
   }, [refreshUser]);
 
-  // ---------- Context value ----------
+  /**
+   * When axiosInstance refreshes token,
+   * update context token also.
+   */
+  useEffect(() => {
+    const handleTokenRefresh = (event: Event) => {
+      const customEvent = event as CustomEvent<{ token: string }>;
+
+      if (customEvent.detail?.token) {
+        setToken(customEvent.detail.token);
+      }
+    };
+
+    const handleLogout = () => {
+      setUser(null);
+      setToken(null);
+      setProfile(null);
+    };
+
+    window.addEventListener("auth-token-refreshed", handleTokenRefresh);
+    window.addEventListener("auth-logout", handleLogout);
+
+    return () => {
+      window.removeEventListener("auth-token-refreshed", handleTokenRefresh);
+      window.removeEventListener("auth-logout", handleLogout);
+    };
+  }, []);
+
   const value = useMemo(
     () => ({
       user,
       token,
       loading,
-      isAuthenticated: !!user && !!token,
+      isAuthenticated: Boolean(user && token),
       role: user?.userType,
       login,
       logout,
       refreshUser,
       profile,
       profileLoading,
-      refreshProfile: fetchProfile, // same as fetchProfile
+      refreshProfile: fetchProfile,
     }),
-    [user, token, loading, profile, profileLoading, login, logout, refreshUser, fetchProfile]
+    [
+      user,
+      token,
+      loading,
+      profile,
+      profileLoading,
+      login,
+      logout,
+      refreshUser,
+      fetchProfile,
+    ],
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  );
 }
 
-// ---------- Hook ----------
 export function useAuth() {
   const ctx = useContext(AuthContext);
+
   if (!ctx) {
     throw new Error("useAuth must be used inside AuthContextRole");
   }
+
   return ctx;
 }
-
-
-

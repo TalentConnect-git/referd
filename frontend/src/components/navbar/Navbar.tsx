@@ -1,9 +1,10 @@
 "use client"
-import { Bell,CalendarDays,MessageCircle } from "lucide-react";
+import { Bell, CalendarDays, MessageCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useGetAllUsers } from "@/hooks/useGetAllUsers";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import NotificationsDropdown from "../notifications/NotificationsDropDown";
 import InterviewCall from "./InterviewCall";
 
@@ -11,188 +12,150 @@ export default function Navbar() {
 
   const { profile, user } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showCalendar,setShowCalendar]=useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [showCalendar, setShowCalendar] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
 
   const { totalUnread } = useGetAllUsers();
 
-
-
   const displayName =
-  profile?.fullName ||
-  profile?.name ||
-  user?.name ||
-  "User";
+    profile?.fullName ||
+    profile?.name ||
+    user?.name ||
+    "User";
 
   const initials = displayName
-  .split(" ")
-  .filter(Boolean)
-  .slice(0, 2)
-  .map((word) => word[0])
-  .join("")
-  .toUpperCase();
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase();
 
   const userType =
-  profile?.profileType ||
-  user?.userType ||
-  "student";
+    profile?.profileType ||
+    user?.userType ||
+    "student";
 
-//   useEffect(() => {
-//   function handleClickOutside(event: MouseEvent) {
-//     if (
-//       dropdownRef.current &&
-//       !dropdownRef.current.contains(event.target as Node)
-//     ) {
-//       setShowNotifications(false);
-//     }
-//   }
+  // Use profile.profileImage directly
+  const profileImageUrl = profile?.profileImage || null;
 
-//   document.addEventListener("mousedown", handleClickOutside);
-
-//   return () => {
-//     document.removeEventListener(
-//       "mousedown",
-//       handleClickOutside
-//     );
-//   };
-// }, []);
   useEffect(() => {
-  function handleClickOutside(event: MouseEvent) {
-    if (
-      notificationRef.current &&
-      !notificationRef.current.contains(event.target as Node)
-    ) {
-      setShowNotifications(false);
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target as Node)
+      ) {
+        setShowNotifications(false);
+      }
+
+      if (
+        calendarRef.current &&
+        !calendarRef.current.contains(event.target as Node)
+      ) {
+        setShowCalendar(false);
+      }
     }
 
-    if (
-      calendarRef.current &&
-      !calendarRef.current.contains(event.target as Node)
-    ) {
-      setShowCalendar(false);
-    }
-  }
+    document.addEventListener("mousedown", handleClickOutside);
 
-  document.addEventListener("mousedown", handleClickOutside);
-
-  return () => {
-    document.removeEventListener("mousedown", handleClickOutside);
-  };
-}, []);
-
-
-    
-
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <header
       className="
-        mb-6
+        mb-0
         flex
-        h-20
+        h-12
         items-center
         justify-between
-        border-b
-        border-[var(--border)]
         bg-[var(--background)]
-        px-10
+        px-6
       "
     >
       {/* Logo */}
-      <div className="flex items-center gap-3">
-        <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-[var(--primary)]">
-            <span className="h-2 w-2 rounded-full bg-black" />
+      <div className="flex items-center gap-2">
+        <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-[var(--primary)]">
+          <span className="h-1.5 w-1.5 rounded-full bg-black" />
         </div>
 
-        <span className="text-xl font-bold tracking-tight text-white">
+        <span className="text-lg font-bold tracking-tight text-white">
           Referd
           <span className="text-[var(--primary)]">.</span>
         </span>
       </div>
 
+      {/* Right side icons */}
+      <div className="flex items-center gap-3">
 
-      {/* Notification Bell */}
-      <div className="flex items-center gap-5">
-
+        {/* Calendar */}
         <div className="relative" ref={calendarRef}>
-        <button
-        onClick={()=>setShowCalendar(prev=>!prev)}
-        className="flex
-                    h-9
-                    w-9
-                    items-center
-                    justify-center
-                    rounded-full
-                    border
-                    border-[var(--border)]
-                    hover:border-[var(--primary)]
-                    ">
-        <CalendarDays size={20}/>
-        </button>
-        {
-          showCalendar &&
-          <div
-          style={{
-          position: "absolute",
-          top: "calc(100% + 12px)",
-          right: 0,
-          width: "420px",
-          maxHeight: "500px",
-          overflowY: "auto",
-          backgroundColor: "var(--background)",
-          border: "1px solid var(--border)",
-          borderRadius: "12px",
-          boxShadow: "0 20px 25px rgba(0,0,0,0.4)",
-          zIndex: 9999,
-        }}>
-          <InterviewCall />
-          </div>
+          <button
+            onClick={() => setShowCalendar(prev => !prev)}
+            className="
+              flex
+              h-8
+              w-8
+              items-center
+              justify-center
+              rounded-full
+              bg-[var(--card-bg)]
+              hover:bg-[var(--primary-hover)]
+              transition-colors
+            "
+          >
+            <CalendarDays size={15} className="text-[var(--text-secondary)]" />
+          </button>
+          {showCalendar && (
+            <div
+              style={{
+                position: "absolute",
+                top: "calc(100% + 10px)",
+                right: 0,
+                width: "380px",
+                maxHeight: "450px",
+                overflowY: "auto",
+                backgroundColor: "var(--background)",
+                border: "1px solid var(--border)",
+                borderRadius: "10px",
+                boxShadow: "0 20px 25px rgba(0,0,0,0.4)",
+                zIndex: 9999,
+              }}
+            >
+              <InterviewCall />
+            </div>
+          )}
+        </div>
 
-          // <div className="
-          //         absolute
-          //         right-0
-          //         top-[calc(100%+12px)]
-          //         w-96
-          //         max-h-[500px]
-          //         overflow-y-auto
-          //         rounded-lg
-          //         border
-          //         border-[var(--border)]
-          //         bg-[var(--background)]
-          //         shadow-2xl
-          //         z-50">
-          //         <InterviewCall/>
-          //   </div>
-          }
+        {/* Notifications */}
+        <div className="relative" ref={notificationRef}>
+          <button
+            onClick={() => setShowNotifications(prev => !prev)}
+            className="
+              flex
+              h-8
+              w-8
+              items-center
+              justify-center
+              rounded-full
+              bg-[var(--card-bg)]
+              hover:bg-[var(--primary-hover)]
+              transition-colors
+            "
+          >
+            <Bell size={15} className="text-[var(--text-secondary)]" />
+          </button>
 
-          </div>
-
-        <div className="relative" ref={notificationRef} >
-            <button
-        onClick={() => setShowNotifications(prev => !prev)}
-          className="
-            flex
-            h-9
-            w-9
-            items-center
-            justify-center
-            rounded-full
-            border
-            border-[var(--border)]
-            transition
-            hover:border-[var(--primary)]"
-        >
-          <Bell size={20} />
-        </button>
-
-
-        {showNotifications && (
-            <div style={{width:"300px",maxHeight:"300px"}} className="
+          {showNotifications && (
+            <div
+              style={{ width: "280px", maxHeight: "300px" }}
+              className="
                 absolute
                 right-0
-                top-[calc(100%+12px)]
+                top-[calc(100%+10px)]
                 z-50
                 max-h-[600px]
                 overflow-y-auto
@@ -201,50 +164,47 @@ export default function Navbar() {
                 border-[var(--border)]
                 bg-[var(--background)]
                 shadow-2xl
-                ">
-            
-            <NotificationsDropdown />
-        </div>)}
-
+              "
+            >
+              <NotificationsDropdown />
+            </div>
+          )}
         </div>
 
-
-         <div className="relative">
-
+        {/* Messages */}
+        <div className="relative">
           <Link
             href={`/${userType}/message`}
             className="
               relative
               flex
-              h-9
-              w-9
+              h-8
+              w-8
               items-center
               justify-center
               rounded-full
-              border
-              border-[var(--border)]
-              transition
-              hover:border-[var(--primary)]
-            ">
-
-            <MessageCircle size={20} />
+              bg-[var(--card-bg)]
+              hover:bg-[var(--primary-hover)]
+              transition-colors
+            "
+          >
+            <MessageCircle size={15} className="text-[var(--text-secondary)]" />
 
             {totalUnread > 0 && (
-
               <span
                 className="
                   absolute
                   -top-1
                   -right-1
                   flex
-                  h-5
-                  min-w-[20px]
+                  h-4
+                  min-w-[16px]
                   items-center
                   justify-center
                   rounded-full
                   bg-red-500
                   px-1
-                  text-[10px]
+                  text-[9px]
                   font-bold
                   text-white
                   shadow-lg
@@ -255,37 +215,45 @@ export default function Navbar() {
                 {totalUnread > 99 ? "99+" : totalUnread}
               </span>
             )}
-
           </Link>
-
         </div>
 
+        {/* Profile - using profile.profileImage */}
+        <Link
+          href={`/${userType}/profile`}
+          className="
+            relative
+            flex
+            h-8
+            w-8
+            items-center
+            justify-center
+            rounded-full
+            overflow-hidden
+            bg-[var(--primary)]
+            text-white
+            font-semibold
+            text-xs
+            transition
+            hover:opacity-90
+            flex-shrink-0
+          "
+        >
+          {profileImageUrl ? (
+            <Image
+              src={profileImageUrl}
+              alt={displayName}
+              width={20}
+              height={20}
+              className="h-full w-full object-cover"
+              priority
+            />
+          ) : (
+            <span>{initials}</span>
+          )}
+        </Link>
 
-
-            <div className="width-[200px]"></div>
-            <Link href={`/${userType}/profile`}
-                    className="
-                        flex
-                        h-10
-                        w-10
-                        items-center
-                        justify-center
-                        rounded-full
-                        border
-                        border-green-500
-                        text-white-500
-                        font-semibold
-                        transition
-                        hover:opacity-90"
-                        >
-                    {initials}
-                </Link>
-
-        
       </div>
     </header>
   );
 }
-
-
-
