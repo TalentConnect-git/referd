@@ -10,7 +10,7 @@ export const getProfessionalStats = async () => {
 
     const res = await axiosInstance.get(
 
-      "/application/professional/metrics"
+      "/application/professional/referral-metrics"
 
     );
 

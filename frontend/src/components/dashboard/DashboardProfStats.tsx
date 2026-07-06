@@ -1,83 +1,157 @@
-// import { DashboardProfStatsProps } from "@/types/dashboard";
+import {
+  Users,
+  Briefcase,
+  TrendingUp,
+  Award,
+  Clock,
+  UserCheck,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 
-// export default function DashboardProfStats({referralsPosted, applicationsReceived, responseRate, successRate }: DashboardProfStatsProps) 
-// {
-//     return (
-   
-//   <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4 px-3 ml-2">
-//      <div className="rounded-xl border border-gray-800 bg-[#0f172a] p-4">
-//         <h3 className="text-sm text-gray-400 uppercase">Referrals Posted</h3>
-//         <p className="mt-4 text-2xl font-bold text-white">{referralsPosted}</p>
-//       </div>
-
-//       <div className="rounded-xl border border-gray-800 bg-[#0f172a] p-4">
-//         <h3 className="text-sm text-gray-400 uppercase">Applications Received</h3>
-//         <p className="mt-4 text-2xl font-bold text-white">{applicationsReceived}</p>
-//       </div>
-
-//       <div className="rounded-xl border border-gray-800 bg-[#0f172a] p-4">
-//         <h3 className="text-sm text-gray-400 uppercase">Response Rate </h3>
-//         <p className="mt-4 text-2xl font-bold text-white">{responseRate}</p>
-//       </div>
-
-//       <div className="rounded-xl border border-gray-800 bg-[#0f172a] p-4">
-//         <h3 className="text-sm text-gray-400 uppercase">Success Rate </h3>
-//         <p className="mt-4 text-2xl font-bold text-white">{successRate}%</p>
-//         </div>
-
-//     </div>
-
-//   );
-// }
-
-
-
-
-import { DashboardProfStatsProps } from "@/types/dashboard";
+interface DashboardProfStatsProps {
+  totalReferralsPosted: number;
+  totalApplicationsReceived: number;
+  responseRate: number;
+  referralSuccessRate: number;
+  candidatesWaiting: number;
+  alumniCount: number;
+  userType: string;
+}
 
 export default function DashboardProfStats({
-  totalJobsPosted,
-  approvedJobs,
-  rejectedJobs,
-  totalApplicationsDone,
+  totalReferralsPosted,
+  totalApplicationsReceived,
+  responseRate,
+  referralSuccessRate,
+  candidatesWaiting,
+  alumniCount,
+  userType,
 }: DashboardProfStatsProps) {
+  const router = useRouter();
+
+  const stats = [
+    {
+      id: 1,
+      title: "Total Referrals Posted",
+      value: totalReferralsPosted,
+      icon: Briefcase,
+      color: "text-blue-400",
+      bgColor: "bg-blue-500/10",
+      redirect: `/${userType}/referrals`,
+      clickable: true,
+    },
+    {
+      id: 2,
+      title: "Applications Received",
+      value: totalApplicationsReceived,
+      icon: Users,
+      color: "text-green-400",
+      bgColor: "bg-green-500/10",
+      redirect: `/${userType}/applications`,
+      clickable: true,
+    },
+    {
+      id: 3,
+      title: "Response Rate",
+      value: `${responseRate.toFixed(1)}%`,
+      icon: TrendingUp,
+      color: "text-purple-400",
+      bgColor: "bg-purple-500/10",
+      redirect: null,
+      clickable: false,
+    },
+    {
+      id: 4,
+      title: "Referral Success Rate",
+      value: `${referralSuccessRate.toFixed(1)}%`,
+      icon: Award,
+      color: "text-yellow-400",
+      bgColor: "bg-yellow-500/10",
+      redirect: null,
+      clickable: false,
+    },
+    {
+      id: 5,
+      title: "Candidates Waiting",
+      value: candidatesWaiting,
+      icon: Clock,
+      color: "text-orange-400",
+      bgColor: "bg-orange-500/10",
+      subtitle: "Awaiting response",
+      redirect: `/${userType}/applications`,
+      clickable: true,
+    },
+    {
+      id: 6,
+      title: "Alumni Network",
+      value: alumniCount,
+      icon: UserCheck,
+      color: "text-pink-400",
+      bgColor: "bg-pink-500/10",
+      subtitle: `${alumniCount} Connected alumni`,
+      redirect: `/${userType}/alumani-network`,
+      clickable: true,
+    },
+  ];
+
+  const handleCardClick = (redirect: string | null) => {
+    if (redirect) {
+      router.push(redirect);
+    }
+  };
+
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4 px-3 ml-2">
-      <div className="rounded-xl border border-gray-800 bg-[#0f172a] p-4">
-        <h3 className="text-sm text-gray-400 uppercase">
-          Jobs Posted
-        </h3>
-        <p className="mt-4 text-2xl font-bold text-white">
-          {totalJobsPosted}
-        </p>
-      </div>
-
-      <div className="rounded-xl border border-gray-800 bg-[#0f172a] p-4">
-        <h3 className="text-sm text-gray-400 uppercase">
-          Approved Jobs
-        </h3>
-        <p className="mt-4 text-2xl font-bold text-white">
-          {approvedJobs}
-        </p>
-      </div>
-
-      <div className="rounded-xl border border-gray-800 bg-[#0f172a] p-4">
-        <h3 className="text-sm text-gray-400 uppercase">
-          Rejected Jobs
-        </h3>
-        <p className="mt-4 text-2xl font-bold text-white">
-          {rejectedJobs}
-        </p>
-      </div>
-
-      <div className="rounded-xl border border-gray-800 bg-[#0f172a] p-4">
-        <h3 className="text-sm text-gray-400 uppercase">
-          Applications Done
-        </h3>
-        <p className="mt-4 text-2xl font-bold text-white">
-          {totalApplicationsDone}
-        </p>
-      </div>
+    <div className="flex ml-4 mr-4 flex-wrap gap-4">
+      {stats.map((stat) => (
+        <div
+          key={stat.id}
+          onClick={() => handleCardClick(stat.redirect)}
+          className={`flex-1 min-w-[140px] rounded-2xl border border-[#1e293b] bg-[#0f172a] p-4 transition-all duration-200 ${
+            stat.clickable
+              ? "cursor-pointer hover:border-[#ec4899] hover:bg-[#1a1035] hover:shadow-lg hover:shadow-pink-500/10"
+              : "hover:border-[#2a3441]"
+          }`}
+        >
+          <div className="flex items-start justify-between">
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-gray-400 break-words whitespace-normal leading-tight">
+                {stat.title}
+              </p>
+              <p className="mt-1 text-xl font-bold text-white">{stat.value}</p>
+              {stat.subtitle && (
+                <p className="mt-0.5 text-[10px] text-gray-500 break-words whitespace-normal">
+                  {stat.subtitle}
+                </p>
+              )}
+            </div>
+            <div
+              className={`flex-shrink-0 rounded-xl ${stat.bgColor} p-2 ml-2 transition-colors ${
+                stat.clickable ? "group-hover:bg-pink-500/20" : ""
+              }`}
+            >
+              <stat.icon className={`h-4 w-4 ${stat.color}`} />
+            </div>
+          </div>
+          {stat.clickable && (
+            <div className="mt-2 flex items-center text-[10px] text-pink-400 opacity-0 transition-opacity hover:opacity-100">
+              <span>Click to view</span>
+              <svg
+                className="w-3 h-3 ml-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }
