@@ -23,7 +23,7 @@ const IncomingRequests = () => {
     try {
       setLoading(true);
       const response = await axiosInstance.get(
-        `/application/all-referrals?page=${page}&limit=10`,
+        `/application/all-referrals`,
       );
 
       if (response.data && response.data.success) {
