@@ -10,7 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function DashboardContainer() {
   const { profile, role } = useAuth();
-  const userName = profile?.fullName || profile?.name || "User";
+  const userName = profile?.name || "User";
   const userRole = role || profile?.profileType || "student";
 
   return (

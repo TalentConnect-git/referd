@@ -30,12 +30,12 @@ export default function DashboardStudStats({
   const stats = [
     {
       id: 1,
-      title: "Applications Sent",
+      title: "Applications",
       value: applicationsSent,
       icon: FileText,
       color: "text-blue-400",
       bgColor: "bg-blue-500/10",
-      subtitle: `You have applied to ${applicationsSent} jobs`,
+     
       redirect: `/${userType}/applications`,
       clickable: true,
     },
@@ -52,7 +52,7 @@ export default function DashboardStudStats({
     {
       id: 3,
       title: "Resume Score",
-      value: `${resumeScore}/100`,
+      value: `${resumeScore}%`,
       icon: TrendingUp,
       color: "text-purple-400",
       bgColor: "bg-purple-500/10",
@@ -62,7 +62,7 @@ export default function DashboardStudStats({
     {
       id: 4,
       title: "Hiring Score",
-      value: `${hiringScore}/100`,
+      value: `${hiringScore}%`,
       icon: BarChart,
       color: "text-yellow-400",
       bgColor: "bg-yellow-500/10",
@@ -82,13 +82,14 @@ export default function DashboardStudStats({
     },
     {
       id: 6,
-      title: "Applications Length",
+      title: "Applications ",
       value: applicationsSent,
       icon: Briefcase,
       color: "text-orange-400",
       bgColor: "bg-orange-500/10",
-      subtitle: `Total applications: ${applicationsSent}`,
+      subtitle: `You have applied to ${applicationsSent} jobs`,
       redirect: `/${userType}/applications`,
+    
       clickable: true,
     },
   ];

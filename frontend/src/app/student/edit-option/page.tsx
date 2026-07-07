@@ -33,7 +33,6 @@ import { LeadershipEditor } from "@/components/profile/editor/LeadershipEditor";
 import { AchievementEditor } from "@/components/profile/editor/AchievementEditor";
 
 // ---------- Types ----------
-// If your types file is in "@/components/profile/types", change this import path.
 import type {
   Option,
   ProfileData,
@@ -44,6 +43,7 @@ import type {
   Leadership,
   Achievement,
   MasterData,
+  ShiftPreferences,
 } from "@/types/profile";
 
 // ---------- Constants ----------
@@ -101,11 +101,9 @@ const emptyAchievement: Achievement = {
 // ---------- Helpers ----------
 function getBackendUrl(): string {
   const url = process.env.NEXT_PUBLIC_API_URL;
-
   if (!url) {
     throw new Error("NEXT_PUBLIC_API_URL is missing");
   }
-
   return url;
 }
 
@@ -125,7 +123,6 @@ function getResponseData(data: unknown): ProfileData {
     profile?: ProfileData;
     user?: ProfileData;
   };
-
   return response?.data || response?.profile || response?.user || (data as ProfileData) || {};
 }
 
@@ -138,11 +135,9 @@ function getErrorMessage(error: unknown, fallback: string): string {
       fallback
     );
   }
-
   if (error instanceof Error) {
     return error.message;
   }
-
   return fallback;
 }
 
@@ -150,20 +145,17 @@ function toArray(value?: string[] | string): string[] {
   if (Array.isArray(value)) {
     return value.filter(Boolean).map(String);
   }
-
   if (typeof value === "string") {
     return value
       .split(",")
       .map((item: string) => item.trim())
       .filter(Boolean);
   }
-
   return [];
 }
 
 function normalizeOptions(items: unknown): Option[] {
   if (!Array.isArray(items)) return [];
-
   return items
     .map((item: any): Option => {
       const value =
@@ -174,7 +166,6 @@ function normalizeOptions(items: unknown): Option[] {
         item?.label ||
         item?.title ||
         "";
-
       const label =
         item?.name ||
         item?.label ||
@@ -184,7 +175,6 @@ function normalizeOptions(items: unknown): Option[] {
         item?.collegeName ||
         value ||
         "";
-
       return {
         value: String(value),
         label: String(label),
@@ -200,40 +190,30 @@ function profileToForm(profile: ProfileData): EditForm {
     email: profile.email || "",
     phone: profile.phone || "",
     about: profile.about || "",
-
     gender: profile.gender || "",
     dob: profile.dob ? String(profile.dob).slice(0, 10) : "",
     ethnicity: profile.ethnicity || "",
     maritalStatus: profile.maritalStatus || "",
-
     linkedin: profile.linkedin || "",
     github: profile.github || "",
     portfolio: profile.portfolio || "",
     profileImage: profile.profileImage || "",
     resume: profile.resume || "",
-
-    educations:
-      profile.educations?.length || profile.education?.length
-        ? profile.educations || profile.education || []
-        : [{ ...emptyEducation }],
-
-    experiences:
-      profile.experiences?.length || profile.experience?.length
-        ? profile.experiences || profile.experience || []
-        : [{ ...emptyExperience }],
-
+    educations: profile.educations?.length || profile.education?.length
+      ? profile.educations || profile.education || []
+      : [{ ...emptyEducation }],
+    experiences: profile.experiences?.length || profile.experience?.length
+      ? profile.experiences || profile.experience || []
+      : [{ ...emptyExperience }],
     internationalExperience: profile.internationalExperience?.length
       ? profile.internationalExperience
       : [{ ...emptyInternationalExperience }],
-
     leadership: profile.leadership?.length
       ? profile.leadership
       : [{ ...emptyLeadership }],
-
     achievements: profile.achievements?.length
       ? profile.achievements
       : [{ ...emptyAchievement }],
-
     skills: toArray(profile.skills),
     toolsAndPlatforms: toArray(profile.toolsAndPlatforms),
     languagesKnown: toArray(profile.languagesKnown),
@@ -243,12 +223,24 @@ function profileToForm(profile: ProfileData): EditForm {
     employmentType: toArray(profile.employmentType),
     lookingFor: toArray(profile.lookingFor),
     industry: toArray(profile.industry),
-
     currentCompany: profile.currentCompany || "",
+    currentCompany_display: profile.currentCompany_display || "",
     companyEmail: profile.companyEmail || "",
     totalYearsOfExperience: profile.totalYearsOfExperience || "",
     noticePeriod: profile.noticePeriod || "",
+    noticePeriodStartDate: profile.noticePeriodStartDate || "",
+    servingNoticePeriod: profile.servingNoticePeriod || false,
     openToShift: profile.openToShift || "",
+    shiftPreferences: profile.shiftPreferences || {
+      Day: false,
+      Night: false,
+      Rotational: false,
+      Any: false,
+    },
+    currentSalaryCurrency: profile.currentSalaryCurrency || "₹",
+    currentSalaryAmount: profile.currentSalaryAmount || "",
+    expectedSalaryCurrency: profile.expectedSalaryCurrency || "₹",
+    expectedSalaryAmount: profile.expectedSalaryAmount || "",
   };
 }
 
@@ -259,28 +251,22 @@ function buildPayload(form: EditForm) {
     email: form.email,
     phone: form.phone,
     about: form.about,
-
     gender: form.gender,
     dob: form.dob,
     ethnicity: form.ethnicity,
     maritalStatus: form.maritalStatus,
-
     linkedin: form.linkedin,
     github: form.github,
     portfolio: form.portfolio,
     profileImage: form.profileImage,
     resume: form.resume,
-
     educations: form.educations,
     education: form.educations,
-
     experiences: form.experiences,
     experience: form.experiences,
-
     internationalExperience: form.internationalExperience,
     leadership: form.leadership,
     achievements: form.achievements,
-
     skills: form.skills,
     toolsAndPlatforms: form.toolsAndPlatforms,
     languagesKnown: form.languagesKnown,
@@ -290,12 +276,19 @@ function buildPayload(form: EditForm) {
     employmentType: form.employmentType,
     lookingFor: form.lookingFor,
     industry: form.industry,
-
     currentCompany: form.currentCompany,
+    currentCompany_display: form.currentCompany_display,
     companyEmail: form.companyEmail,
     totalYearsOfExperience: form.totalYearsOfExperience,
     noticePeriod: form.noticePeriod,
-    openToShift: form.openToShift,
+    noticePeriodStartDate: form.noticePeriodStartDate || "",
+    servingNoticePeriod: form.servingNoticePeriod || false,
+    openToShift: form.openToShift || "",
+    shiftPreferences: form.shiftPreferences,
+    currentSalaryCurrency: form.currentSalaryCurrency || "₹",
+    currentSalaryAmount: form.currentSalaryAmount || "",
+    expectedSalaryCurrency: form.expectedSalaryCurrency || "₹",
+    expectedSalaryAmount: form.expectedSalaryAmount || "",
   };
 }
 
@@ -321,11 +314,9 @@ export default function EditProfilePage() {
 
   const userType = useMemo<"student" | "fresher" | "professional">(() => {
     const type = profile?.profileType;
-
     if (type === "professional" || type === "fresher" || type === "student") {
       return type;
     }
-
     return "student";
   }, [profile]);
 
@@ -387,7 +378,6 @@ export default function EditProfilePage() {
                   [],
               )
             : [],
-
         degrees:
           degreesRes.status === "fulfilled"
             ? normalizeOptions(
@@ -397,9 +387,7 @@ export default function EditProfilePage() {
                   [],
               )
             : [],
-
         streamsByDegree: {},
-
         industries:
           industriesRes.status === "fulfilled"
             ? normalizeOptions(
@@ -409,7 +397,6 @@ export default function EditProfilePage() {
                   [],
               )
             : [],
-
         jobRoles:
           jobRolesRes.status === "fulfilled"
             ? normalizeOptions(
@@ -469,7 +456,6 @@ export default function EditProfilePage() {
   function updateField<K extends keyof EditForm>(field: K, value: EditForm[K]) {
     setForm((prev: EditForm | null) => {
       if (!prev) return prev;
-
       return {
         ...prev,
         [field]: value,
@@ -484,26 +470,20 @@ export default function EditProfilePage() {
   ) {
     setForm((prev: EditForm | null) => {
       if (!prev) return prev;
-
       const next = [...prev.educations];
-
       next[index] = {
         ...next[index],
         [key]: value,
       };
-
       if (key === "degree") {
         next[index].specialization = "";
       }
-
       if (key === "educationType" && value === "school") {
         next[index].semester = "";
       }
-
       if (key === "isCurrent" && value === true) {
         next[index].endDate = "";
       }
-
       return {
         ...prev,
         educations: next,
@@ -514,7 +494,6 @@ export default function EditProfilePage() {
   function addEducation() {
     setForm((prev: EditForm | null) => {
       if (!prev) return prev;
-
       return {
         ...prev,
         educations: [...prev.educations, { ...emptyEducation }],
@@ -525,11 +504,9 @@ export default function EditProfilePage() {
   function removeEducation(index: number) {
     setForm((prev: EditForm | null) => {
       if (!prev) return prev;
-
       const next = prev.educations.filter(
         (_item: Education, itemIndex: number) => itemIndex !== index,
       );
-
       return {
         ...prev,
         educations: next.length ? next : [{ ...emptyEducation }],
@@ -544,23 +521,18 @@ export default function EditProfilePage() {
   ) {
     setForm((prev: EditForm | null) => {
       if (!prev) return prev;
-
       const next = [...prev.experiences];
-
       next[index] = {
         ...next[index],
         [key]: value,
       };
-
       if (key === "isCurrent" && value === true) {
         next[index].endDate = "";
       }
-
       if (key === "isCurrent" && value === false) {
         next[index].noticePeriod = "";
         next[index].officialCompanyEmail = "";
       }
-
       return {
         ...prev,
         experiences: next,
@@ -571,7 +543,6 @@ export default function EditProfilePage() {
   function addExperience() {
     setForm((prev: EditForm | null) => {
       if (!prev) return prev;
-
       return {
         ...prev,
         experiences: [...prev.experiences, { ...emptyExperience }],
@@ -582,11 +553,9 @@ export default function EditProfilePage() {
   function removeExperience(index: number) {
     setForm((prev: EditForm | null) => {
       if (!prev) return prev;
-
       const next = prev.experiences.filter(
         (_item: Experience, itemIndex: number) => itemIndex !== index,
       );
-
       return {
         ...prev,
         experiences: next.length ? next : [{ ...emptyExperience }],
@@ -601,14 +570,11 @@ export default function EditProfilePage() {
   ) {
     setForm((prev: EditForm | null) => {
       if (!prev) return prev;
-
       const next = [...prev.internationalExperience];
-
       next[index] = {
         ...next[index],
         [key]: value,
       };
-
       return {
         ...prev,
         internationalExperience: next,
@@ -619,7 +585,6 @@ export default function EditProfilePage() {
   function addInternational() {
     setForm((prev: EditForm | null) => {
       if (!prev) return prev;
-
       return {
         ...prev,
         internationalExperience: [
@@ -633,11 +598,9 @@ export default function EditProfilePage() {
   function removeInternational(index: number) {
     setForm((prev: EditForm | null) => {
       if (!prev) return prev;
-
       const next = prev.internationalExperience.filter(
         (_item: InternationalExperience, itemIndex: number) => itemIndex !== index,
       );
-
       return {
         ...prev,
         internationalExperience: next.length
@@ -654,14 +617,11 @@ export default function EditProfilePage() {
   ) {
     setForm((prev: EditForm | null) => {
       if (!prev) return prev;
-
       const next = [...prev.leadership];
-
       next[index] = {
         ...next[index],
         [key]: value,
       };
-
       return {
         ...prev,
         leadership: next,
@@ -672,7 +632,6 @@ export default function EditProfilePage() {
   function addLeadership() {
     setForm((prev: EditForm | null) => {
       if (!prev) return prev;
-
       return {
         ...prev,
         leadership: [...prev.leadership, { ...emptyLeadership }],
@@ -683,11 +642,9 @@ export default function EditProfilePage() {
   function removeLeadership(index: number) {
     setForm((prev: EditForm | null) => {
       if (!prev) return prev;
-
       const next = prev.leadership.filter(
         (_item: Leadership, itemIndex: number) => itemIndex !== index,
       );
-
       return {
         ...prev,
         leadership: next.length ? next : [{ ...emptyLeadership }],
@@ -702,14 +659,11 @@ export default function EditProfilePage() {
   ) {
     setForm((prev: EditForm | null) => {
       if (!prev) return prev;
-
       const next = [...prev.achievements];
-
       next[index] = {
         ...next[index],
         [key]: value,
       };
-
       return {
         ...prev,
         achievements: next,
@@ -720,7 +674,6 @@ export default function EditProfilePage() {
   function addAchievement() {
     setForm((prev: EditForm | null) => {
       if (!prev) return prev;
-
       return {
         ...prev,
         achievements: [...prev.achievements, { ...emptyAchievement }],
@@ -731,11 +684,9 @@ export default function EditProfilePage() {
   function removeAchievement(index: number) {
     setForm((prev: EditForm | null) => {
       if (!prev) return prev;
-
       const next = prev.achievements.filter(
         (_item: Achievement, itemIndex: number) => itemIndex !== index,
       );
-
       return {
         ...prev,
         achievements: next.length ? next : [{ ...emptyAchievement }],
@@ -745,7 +696,6 @@ export default function EditProfilePage() {
 
   function cancelChanges() {
     if (!profile) return;
-
     setForm(profileToForm(profile));
     setSuccess("");
     setError("");
@@ -761,6 +711,8 @@ export default function EditProfilePage() {
 
       const backendUrl = getBackendUrl();
       const payload = buildPayload(form);
+
+      console.log("Saving payload:", payload);
 
       const response = await axios.put(
         `${backendUrl}/api/onboarding/update`,
@@ -788,6 +740,7 @@ export default function EditProfilePage() {
       setForm(profileToForm(nextProfile));
       setSuccess(`${sectionName} saved successfully`);
     } catch (error: unknown) {
+      console.error("Save error:", error);
       setError(getErrorMessage(error, "Failed to save"));
     } finally {
       setSavingSection("");
@@ -1036,12 +989,17 @@ export default function EditProfilePage() {
             subtitle="Company, experience and notice period"
           >
             <CareerDetailsEditor
-              currentCompany={form.currentCompany}
-              companyEmail={form.companyEmail}
-              totalYearsOfExperience={form.totalYearsOfExperience}
-              noticePeriod={form.noticePeriod}
-              openToShift={form.openToShift}
-              onUpdate={(field: string, value: string) => {
+              currentCompany={form.currentCompany || ""}
+              currentCompany_display={form.currentCompany_display || ""}
+              companyEmail={form.companyEmail || ""}
+              totalYearsOfExperience={form.totalYearsOfExperience || ""}
+              noticePeriod={form.noticePeriod || ""}
+              servingNoticePeriod={form.servingNoticePeriod || false}
+              noticePeriodStartDate={form.noticePeriodStartDate || ""}
+              currentSalaryCurrency={form.currentSalaryCurrency || "₹"}
+              currentSalaryAmount={form.currentSalaryAmount || ""}
+              experiences={form.experiences || []}
+              onUpdate={(field: string, value: string | boolean) => {
                 updateField(field as keyof EditForm, value as never);
               }}
             />
@@ -1067,8 +1025,15 @@ export default function EditProfilePage() {
               lookingFor={form.lookingFor}
               employmentType={form.employmentType}
               locations={form.locations}
-              onUpdate={(field: string, items: string[]) => {
-                updateField(field as keyof EditForm, items as never);
+              openToShift={form.openToShift}
+              shiftPreferences={form.shiftPreferences}
+              currentSalaryCurrency={form.currentSalaryCurrency}
+              currentSalaryAmount={form.currentSalaryAmount}
+              expectedSalaryCurrency={form.expectedSalaryCurrency}
+              expectedSalaryAmount={form.expectedSalaryAmount}
+              onUpdate={(field: string, value: any) => {
+                console.log(`Updating ${field}:`, value);
+                updateField(field as keyof EditForm, value as never);
               }}
               roleOptions={masterData.jobRoles}
               industryOptions={masterData.industries}

@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, Loader2, X } from "lucide-react";
+import { ExternalLink, Loader2, X, Download } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 interface ResumeModalProps {
@@ -13,6 +13,33 @@ export default function ResumeModal({ resumeUrl, onClose }: ResumeModalProps) {
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
+
+  const handleDownload = async (): Promise<void> => {
+    try {
+      const response = await fetch(resumeUrl);
+      const blob = await response.blob();
+      
+      // Create a download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      
+      // Extract filename from URL or use default
+      const filename = resumeUrl.split("/").pop() || "resume.pdf";
+      link.download = filename.endsWith(".pdf") ? filename : `${filename}.pdf`;
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up the URL object
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download failed:", error);
+      // Fallback: open in new tab if download fails
+      window.open(resumeUrl, "_blank");
+    }
+  };
 
   useEffect(() => {
     if (!resumeUrl || !canvasRef.current) return;
@@ -72,7 +99,7 @@ export default function ResumeModal({ resumeUrl, onClose }: ResumeModalProps) {
         console.error("PDF render failed:", err);
 
         if (!isCancelled) {
-          setError("PDF preview failed. Please open the resume in a new tab.");
+          setError("PDF preview failed. Please download the resume.");
           setLoading(false);
         }
       }
@@ -101,15 +128,14 @@ export default function ResumeModal({ resumeUrl, onClose }: ResumeModalProps) {
           </div>
 
           <div className="flex items-center gap-3">
-            <a
-              href={resumeUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              onClick={handleDownload}
               className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
             >
-              <ExternalLink className="h-4 w-4" />
-              Open
-            </a>
+              <Download className="h-4 w-4" />
+              Download
+            </button>
 
             <button
               type="button"
@@ -139,15 +165,14 @@ export default function ResumeModal({ resumeUrl, onClose }: ResumeModalProps) {
                   {error}
                 </p>
 
-                <a
-                  href={resumeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
+                  onClick={handleDownload}
                   className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
                 >
-                  <ExternalLink className="h-4 w-4" />
-                  Open Resume
-                </a>
+                  <Download className="h-4 w-4" />
+                  Download Resume
+                </button>
               </div>
             </div>
           ) : (

@@ -43,6 +43,7 @@ import type {
   Leadership,
   Achievement,
   MasterData,
+  ShiftPreferences,
 } from "@/types/profile";
 
 // ---------- Constants ----------
@@ -100,7 +101,9 @@ const emptyAchievement: Achievement = {
 // ---------- Helpers ----------
 function getBackendUrl(): string {
   const url = process.env.NEXT_PUBLIC_API_URL;
-  if (!url) throw new Error("NEXT_PUBLIC_API_URL is missing");
+  if (!url) {
+    throw new Error("NEXT_PUBLIC_API_URL is missing");
+  }
   return url;
 }
 
@@ -132,17 +135,22 @@ function getErrorMessage(error: unknown, fallback: string): string {
       fallback
     );
   }
-  if (error instanceof Error) return error.message;
+  if (error instanceof Error) {
+    return error.message;
+  }
   return fallback;
 }
 
 function toArray(value?: string[] | string): string[] {
-  if (Array.isArray(value)) return value.filter(Boolean).map(String);
-  if (typeof value === "string")
+  if (Array.isArray(value)) {
+    return value.filter(Boolean).map(String);
+  }
+  if (typeof value === "string") {
     return value
       .split(",")
-      .map((item) => item.trim())
+      .map((item: string) => item.trim())
       .filter(Boolean);
+  }
   return [];
 }
 
@@ -167,9 +175,12 @@ function normalizeOptions(items: unknown): Option[] {
         item?.collegeName ||
         value ||
         "";
-      return { value: String(value), label: String(label) };
+      return {
+        value: String(value),
+        label: String(label),
+      };
     })
-    .filter((item) => item.value.length > 0 && item.label.length > 0);
+    .filter((item: Option) => item.value.length > 0 && item.label.length > 0);
 }
 
 function profileToForm(profile: ProfileData): EditForm {
@@ -188,14 +199,12 @@ function profileToForm(profile: ProfileData): EditForm {
     portfolio: profile.portfolio || "",
     profileImage: profile.profileImage || "",
     resume: profile.resume || "",
-    educations:
-      profile.educations?.length || profile.education?.length
-        ? profile.educations || profile.education || []
-        : [{ ...emptyEducation }],
-    experiences:
-      profile.experiences?.length || profile.experience?.length
-        ? profile.experiences || profile.experience || []
-        : [{ ...emptyExperience }],
+    educations: profile.educations?.length || profile.education?.length
+      ? profile.educations || profile.education || []
+      : [{ ...emptyEducation }],
+    experiences: profile.experiences?.length || profile.experience?.length
+      ? profile.experiences || profile.experience || []
+      : [{ ...emptyExperience }],
     internationalExperience: profile.internationalExperience?.length
       ? profile.internationalExperience
       : [{ ...emptyInternationalExperience }],
@@ -215,10 +224,23 @@ function profileToForm(profile: ProfileData): EditForm {
     lookingFor: toArray(profile.lookingFor),
     industry: toArray(profile.industry),
     currentCompany: profile.currentCompany || "",
+    currentCompany_display: profile.currentCompany_display || "",
     companyEmail: profile.companyEmail || "",
     totalYearsOfExperience: profile.totalYearsOfExperience || "",
     noticePeriod: profile.noticePeriod || "",
+    noticePeriodStartDate: profile.noticePeriodStartDate || "",
+    servingNoticePeriod: profile.servingNoticePeriod || false,
     openToShift: profile.openToShift || "",
+    shiftPreferences: profile.shiftPreferences || {
+      Day: false,
+      Night: false,
+      Rotational: false,
+      Any: false,
+    },
+    currentSalaryCurrency: profile.currentSalaryCurrency || "₹",
+    currentSalaryAmount: profile.currentSalaryAmount || "",
+    expectedSalaryCurrency: profile.expectedSalaryCurrency || "₹",
+    expectedSalaryAmount: profile.expectedSalaryAmount || "",
   };
 }
 
@@ -255,10 +277,18 @@ function buildPayload(form: EditForm) {
     lookingFor: form.lookingFor,
     industry: form.industry,
     currentCompany: form.currentCompany,
+    currentCompany_display: form.currentCompany_display,
     companyEmail: form.companyEmail,
     totalYearsOfExperience: form.totalYearsOfExperience,
     noticePeriod: form.noticePeriod,
-    openToShift: form.openToShift,
+    noticePeriodStartDate: form.noticePeriodStartDate || "",
+    servingNoticePeriod: form.servingNoticePeriod || false,
+    openToShift: form.openToShift || "",
+    shiftPreferences: form.shiftPreferences,
+    currentSalaryCurrency: form.currentSalaryCurrency || "₹",
+    currentSalaryAmount: form.currentSalaryAmount || "",
+    expectedSalaryCurrency: form.expectedSalaryCurrency || "₹",
+    expectedSalaryAmount: form.expectedSalaryAmount || "",
   };
 }
 
@@ -284,15 +314,14 @@ export default function EditProfilePage() {
 
   const userType = useMemo<"student" | "fresher" | "professional">(() => {
     const type = profile?.profileType;
-    if (type === "professional" || type === "fresher" || type === "student")
+    if (type === "professional" || type === "fresher" || type === "student") {
       return type;
+    }
     return "student";
   }, [profile]);
 
   const displayName = useMemo<string>(() => {
-    return (
-      form?.fullName || form?.name || profile?.fullName || profile?.name || "User"
-    );
+    return form?.fullName || form?.name || profile?.fullName || profile?.name || "User";
   }, [form, profile]);
 
   useEffect(() => {
@@ -330,9 +359,12 @@ export default function EditProfilePage() {
           }),
         ]);
 
-      if (profileRes.status !== "fulfilled") throw profileRes.reason;
+      if (profileRes.status !== "fulfilled") {
+        throw profileRes.reason;
+      }
 
       const profileData = getResponseData(profileRes.value.data);
+
       setProfile(profileData);
       setForm(profileToForm(profileData));
 
@@ -343,7 +375,7 @@ export default function EditProfilePage() {
                 collegesRes.value.data?.data ||
                   collegesRes.value.data?.colleges ||
                   collegesRes.value.data ||
-                  []
+                  [],
               )
             : [],
         degrees:
@@ -352,7 +384,7 @@ export default function EditProfilePage() {
                 degreesRes.value.data?.data ||
                   degreesRes.value.data?.items ||
                   degreesRes.value.data ||
-                  []
+                  [],
               )
             : [],
         streamsByDegree: {},
@@ -362,7 +394,7 @@ export default function EditProfilePage() {
                 industriesRes.value.data?.data ||
                   industriesRes.value.data?.items ||
                   industriesRes.value.data ||
-                  []
+                  [],
               )
             : [],
         jobRoles:
@@ -371,7 +403,7 @@ export default function EditProfilePage() {
                 jobRolesRes.value.data?.data ||
                   jobRolesRes.value.data?.items ||
                   jobRolesRes.value.data ||
-                  []
+                  [],
               )
             : [],
       });
@@ -385,25 +417,31 @@ export default function EditProfilePage() {
   async function loadStreamsForDegree(degreeLabel: string) {
     try {
       if (!degreeLabel) return;
+
       const selectedDegree = masterData.degrees.find(
-        (degree) =>
-          degree.label === degreeLabel || degree.value === degreeLabel
+        (degree: Option) =>
+          degree.label === degreeLabel || degree.value === degreeLabel,
       );
+
       if (!selectedDegree?.value) return;
+
       if (masterData.streamsByDegree[selectedDegree.value]) return;
 
       const backendUrl = getBackendUrl();
+
       const response = await axios.get(
         `${backendUrl}/api/master-data?type=STREAM&parent=${selectedDegree.value}`,
         {
           withCredentials: true,
           headers: authHeaders(),
-        }
+        },
       );
+
       const options = normalizeOptions(
-        response.data?.data || response.data?.items || response.data || []
+        response.data?.data || response.data?.items || response.data || [],
       );
-      setMasterData((prev) => ({
+
+      setMasterData((prev: MasterData) => ({
         ...prev,
         streamsByDegree: {
           ...prev.streamsByDegree,
@@ -411,32 +449,50 @@ export default function EditProfilePage() {
         },
       }));
     } catch {
-      // Silently fail – keep custom input available
+      // Keep specialization custom input usable even if stream API fails.
     }
   }
 
   function updateField<K extends keyof EditForm>(field: K, value: EditForm[K]) {
-    setForm((prev) => (prev ? { ...prev, [field]: value } : prev));
+    setForm((prev: EditForm | null) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        [field]: value,
+      };
+    });
   }
 
   function updateEducation<K extends keyof Education>(
     index: number,
     key: K,
-    value: Education[K]
+    value: Education[K],
   ) {
-    setForm((prev) => {
+    setForm((prev: EditForm | null) => {
       if (!prev) return prev;
       const next = [...prev.educations];
-      next[index] = { ...next[index], [key]: value };
-      if (key === "degree") next[index].specialization = "";
-      if (key === "educationType" && value === "school") next[index].semester = "";
-      if (key === "isCurrent" && value === true) next[index].endDate = "";
-      return { ...prev, educations: next };
+      next[index] = {
+        ...next[index],
+        [key]: value,
+      };
+      if (key === "degree") {
+        next[index].specialization = "";
+      }
+      if (key === "educationType" && value === "school") {
+        next[index].semester = "";
+      }
+      if (key === "isCurrent" && value === true) {
+        next[index].endDate = "";
+      }
+      return {
+        ...prev,
+        educations: next,
+      };
     });
   }
 
   function addEducation() {
-    setForm((prev) => {
+    setForm((prev: EditForm | null) => {
       if (!prev) return prev;
       return {
         ...prev,
@@ -446,9 +502,11 @@ export default function EditProfilePage() {
   }
 
   function removeEducation(index: number) {
-    setForm((prev) => {
+    setForm((prev: EditForm | null) => {
       if (!prev) return prev;
-      const next = prev.educations.filter((_, i) => i !== index);
+      const next = prev.educations.filter(
+        (_item: Education, itemIndex: number) => itemIndex !== index,
+      );
       return {
         ...prev,
         educations: next.length ? next : [{ ...emptyEducation }],
@@ -459,12 +517,15 @@ export default function EditProfilePage() {
   function updateExperience<K extends keyof Experience>(
     index: number,
     key: K,
-    value: Experience[K]
+    value: Experience[K],
   ) {
-    setForm((prev) => {
+    setForm((prev: EditForm | null) => {
       if (!prev) return prev;
       const next = [...prev.experiences];
-      next[index] = { ...next[index], [key]: value };
+      next[index] = {
+        ...next[index],
+        [key]: value,
+      };
       if (key === "isCurrent" && value === true) {
         next[index].endDate = "";
       }
@@ -472,12 +533,15 @@ export default function EditProfilePage() {
         next[index].noticePeriod = "";
         next[index].officialCompanyEmail = "";
       }
-      return { ...prev, experiences: next };
+      return {
+        ...prev,
+        experiences: next,
+      };
     });
   }
 
   function addExperience() {
-    setForm((prev) => {
+    setForm((prev: EditForm | null) => {
       if (!prev) return prev;
       return {
         ...prev,
@@ -487,9 +551,11 @@ export default function EditProfilePage() {
   }
 
   function removeExperience(index: number) {
-    setForm((prev) => {
+    setForm((prev: EditForm | null) => {
       if (!prev) return prev;
-      const next = prev.experiences.filter((_, i) => i !== index);
+      const next = prev.experiences.filter(
+        (_item: Experience, itemIndex: number) => itemIndex !== index,
+      );
       return {
         ...prev,
         experiences: next.length ? next : [{ ...emptyExperience }],
@@ -500,18 +566,24 @@ export default function EditProfilePage() {
   function updateInternational<K extends keyof InternationalExperience>(
     index: number,
     key: K,
-    value: InternationalExperience[K]
+    value: InternationalExperience[K],
   ) {
-    setForm((prev) => {
+    setForm((prev: EditForm | null) => {
       if (!prev) return prev;
       const next = [...prev.internationalExperience];
-      next[index] = { ...next[index], [key]: value };
-      return { ...prev, internationalExperience: next };
+      next[index] = {
+        ...next[index],
+        [key]: value,
+      };
+      return {
+        ...prev,
+        internationalExperience: next,
+      };
     });
   }
 
   function addInternational() {
-    setForm((prev) => {
+    setForm((prev: EditForm | null) => {
       if (!prev) return prev;
       return {
         ...prev,
@@ -524,9 +596,11 @@ export default function EditProfilePage() {
   }
 
   function removeInternational(index: number) {
-    setForm((prev) => {
+    setForm((prev: EditForm | null) => {
       if (!prev) return prev;
-      const next = prev.internationalExperience.filter((_, i) => i !== index);
+      const next = prev.internationalExperience.filter(
+        (_item: InternationalExperience, itemIndex: number) => itemIndex !== index,
+      );
       return {
         ...prev,
         internationalExperience: next.length
@@ -539,18 +613,24 @@ export default function EditProfilePage() {
   function updateLeadership<K extends keyof Leadership>(
     index: number,
     key: K,
-    value: Leadership[K]
+    value: Leadership[K],
   ) {
-    setForm((prev) => {
+    setForm((prev: EditForm | null) => {
       if (!prev) return prev;
       const next = [...prev.leadership];
-      next[index] = { ...next[index], [key]: value };
-      return { ...prev, leadership: next };
+      next[index] = {
+        ...next[index],
+        [key]: value,
+      };
+      return {
+        ...prev,
+        leadership: next,
+      };
     });
   }
 
   function addLeadership() {
-    setForm((prev) => {
+    setForm((prev: EditForm | null) => {
       if (!prev) return prev;
       return {
         ...prev,
@@ -560,9 +640,11 @@ export default function EditProfilePage() {
   }
 
   function removeLeadership(index: number) {
-    setForm((prev) => {
+    setForm((prev: EditForm | null) => {
       if (!prev) return prev;
-      const next = prev.leadership.filter((_, i) => i !== index);
+      const next = prev.leadership.filter(
+        (_item: Leadership, itemIndex: number) => itemIndex !== index,
+      );
       return {
         ...prev,
         leadership: next.length ? next : [{ ...emptyLeadership }],
@@ -573,18 +655,24 @@ export default function EditProfilePage() {
   function updateAchievement<K extends keyof Achievement>(
     index: number,
     key: K,
-    value: Achievement[K]
+    value: Achievement[K],
   ) {
-    setForm((prev) => {
+    setForm((prev: EditForm | null) => {
       if (!prev) return prev;
       const next = [...prev.achievements];
-      next[index] = { ...next[index], [key]: value };
-      return { ...prev, achievements: next };
+      next[index] = {
+        ...next[index],
+        [key]: value,
+      };
+      return {
+        ...prev,
+        achievements: next,
+      };
     });
   }
 
   function addAchievement() {
-    setForm((prev) => {
+    setForm((prev: EditForm | null) => {
       if (!prev) return prev;
       return {
         ...prev,
@@ -594,9 +682,11 @@ export default function EditProfilePage() {
   }
 
   function removeAchievement(index: number) {
-    setForm((prev) => {
+    setForm((prev: EditForm | null) => {
       if (!prev) return prev;
-      const next = prev.achievements.filter((_, i) => i !== index);
+      const next = prev.achievements.filter(
+        (_item: Achievement, itemIndex: number) => itemIndex !== index,
+      );
       return {
         ...prev,
         achievements: next.length ? next : [{ ...emptyAchievement }],
@@ -613,6 +703,7 @@ export default function EditProfilePage() {
 
   async function saveSection(sectionName: string) {
     if (!form) return;
+
     try {
       setSavingSection(sectionName);
       setError("");
@@ -620,6 +711,8 @@ export default function EditProfilePage() {
 
       const backendUrl = getBackendUrl();
       const payload = buildPayload(form);
+
+      console.log("Saving payload:", payload);
 
       const response = await axios.put(
         `${backendUrl}/api/onboarding/update`,
@@ -630,19 +723,24 @@ export default function EditProfilePage() {
             ...authHeaders(),
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       const updatedProfile = getResponseData(response.data);
+
       const nextProfile =
         Object.keys(updatedProfile).length > 0
           ? updatedProfile
-          : { ...profile, ...payload };
+          : {
+              ...profile,
+              ...payload,
+            };
 
       setProfile(nextProfile);
       setForm(profileToForm(nextProfile));
       setSuccess(`${sectionName} saved successfully`);
     } catch (error: unknown) {
+      console.error("Save error:", error);
       setError(getErrorMessage(error, "Failed to save"));
     } finally {
       setSavingSection("");
@@ -652,10 +750,8 @@ export default function EditProfilePage() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[var(--background)] text-white">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-6 w-6 animate-spin text-[var(--primary)]" />
-          <span className="text-sm text-[var(--text-muted)]">Loading profile…</span>
-        </div>
+        <Loader2 className="mr-2 h-5 w-5 animate-spin text-[var(--primary)]" />
+        Loading profile...
       </div>
     );
   }
@@ -663,9 +759,7 @@ export default function EditProfilePage() {
   if (error && !form) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[var(--background)] px-6 text-center text-red-400">
-        <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-6">
-          <p className="text-sm font-medium">{error}</p>
-        </div>
+        {error}
       </div>
     );
   }
@@ -683,6 +777,7 @@ export default function EditProfilePage() {
           >
             <ArrowLeft className="h-4 w-4" />
           </button>
+
           <div>
             <h1 className="text-[16px] font-semibold">Edit Profile</h1>
             <p className="mt-1 text-[12px] text-[var(--text-muted)]">
@@ -690,6 +785,7 @@ export default function EditProfilePage() {
             </p>
           </div>
         </div>
+
         <button
           type="button"
           onClick={cancelChanges}
@@ -716,61 +812,70 @@ export default function EditProfilePage() {
           <div className="space-y-2">
             <NavOption
               active={openSection === "basic"}
-              icon={<User className="h-4 w-4 text-[var(--primary)]" />}
+              icon={<User />}
               title="Basic Information"
               onClick={() => setOpenSection("basic")}
             />
+
             <NavOption
               active={openSection === "education"}
-              icon={<GraduationCap className="h-4 w-4 text-[var(--primary)]" />}
+              icon={<GraduationCap />}
               title="Education"
               onClick={() => setOpenSection("education")}
             />
+
             <NavOption
               active={openSection === "experience"}
-              icon={<Briefcase className="h-4 w-4 text-[var(--primary)]" />}
+              icon={<Briefcase />}
               title="Experience"
               onClick={() => setOpenSection("experience")}
             />
+
             <NavOption
               active={openSection === "skills"}
-              icon={<Award className="h-4 w-4 text-[var(--primary)]" />}
+              icon={<Award />}
               title="Skills"
               onClick={() => setOpenSection("skills")}
             />
+
             <NavOption
               active={openSection === "career"}
-              icon={<Settings className="h-4 w-4 text-[var(--primary)]" />}
+              icon={<Settings />}
               title="Career Details"
               onClick={() => setOpenSection("career")}
             />
+
             <NavOption
               active={openSection === "preferences"}
-              icon={<Settings className="h-4 w-4 text-[var(--primary)]" />}
+              icon={<Settings />}
               title="Job Preferences"
               onClick={() => setOpenSection("preferences")}
             />
+
             <NavOption
               active={openSection === "tools"}
-              icon={<Award className="h-4 w-4 text-[var(--primary)]" />}
+              icon={<Award />}
               title="Tools & Languages"
               onClick={() => setOpenSection("tools")}
             />
+
             <NavOption
               active={openSection === "international"}
-              icon={<Globe className="h-4 w-4 text-[var(--primary)]" />}
+              icon={<Globe />}
               title="International Experience"
               onClick={() => setOpenSection("international")}
             />
+
             <NavOption
               active={openSection === "leadership"}
-              icon={<Trophy className="h-4 w-4 text-[var(--primary)]" />}
+              icon={<Trophy />}
               title="Leadership"
               onClick={() => setOpenSection("leadership")}
             />
+
             <NavOption
               active={openSection === "achievements"}
-              icon={<Trophy className="h-4 w-4 text-[var(--primary)]" />}
+              icon={<Trophy />}
               title="Achievements"
               onClick={() => setOpenSection("achievements")}
             />
@@ -794,11 +899,12 @@ export default function EditProfilePage() {
             id="basic"
             openSection={openSection}
             setOpenSection={setOpenSection}
-            icon={<User className="h-5 w-5 text-[var(--primary)]" />}
+            icon={<User />}
             title="Basic Information"
             subtitle="Name, contact, about and social links"
           >
             <BasicInfoEditor form={form} updateField={updateField} />
+
             <SectionActions
               loading={savingSection === "Basic Information"}
               onCancel={cancelChanges}
@@ -810,7 +916,7 @@ export default function EditProfilePage() {
             id="education"
             openSection={openSection}
             setOpenSection={setOpenSection}
-            icon={<GraduationCap className="h-5 w-5 text-[var(--primary)]" />}
+            icon={<GraduationCap />}
             title="Education"
             subtitle="College, degree, stream, semester and CGPA"
           >
@@ -823,6 +929,7 @@ export default function EditProfilePage() {
               onRemove={removeEducation}
               onLoadStreams={loadStreamsForDegree}
             />
+
             <SectionActions
               loading={savingSection === "Education"}
               onCancel={cancelChanges}
@@ -834,7 +941,7 @@ export default function EditProfilePage() {
             id="experience"
             openSection={openSection}
             setOpenSection={setOpenSection}
-            icon={<Briefcase className="h-5 w-5 text-[var(--primary)]" />}
+            icon={<Briefcase />}
             title="Experience"
             subtitle="Company, role, dates and description"
           >
@@ -845,6 +952,7 @@ export default function EditProfilePage() {
               onAdd={addExperience}
               onRemove={removeExperience}
             />
+
             <SectionActions
               loading={savingSection === "Experience"}
               onCancel={cancelChanges}
@@ -856,7 +964,7 @@ export default function EditProfilePage() {
             id="skills"
             openSection={openSection}
             setOpenSection={setOpenSection}
-            icon={<Award className="h-5 w-5 text-[var(--primary)]" />}
+            icon={<Award />}
             title="Skills"
             subtitle="Add or remove technical skills"
           >
@@ -864,6 +972,7 @@ export default function EditProfilePage() {
               skills={form.skills}
               onChange={(skills: string[]) => updateField("skills", skills)}
             />
+
             <SectionActions
               loading={savingSection === "Skills"}
               onCancel={cancelChanges}
@@ -875,20 +984,26 @@ export default function EditProfilePage() {
             id="career"
             openSection={openSection}
             setOpenSection={setOpenSection}
-            icon={<Settings className="h-5 w-5 text-[var(--primary)]" />}
+            icon={<Settings />}
             title="Career Details"
             subtitle="Company, experience and notice period"
           >
             <CareerDetailsEditor
-              currentCompany={form.currentCompany}
-              companyEmail={form.companyEmail}
-              totalYearsOfExperience={form.totalYearsOfExperience}
-              noticePeriod={form.noticePeriod}
-              openToShift={form.openToShift}
-              onUpdate={(field, value) =>
-                updateField(field as keyof EditForm, value as never)
-              }
+              currentCompany={form.currentCompany || ""}
+              currentCompany_display={form.currentCompany_display || ""}
+              companyEmail={form.companyEmail || ""}
+              totalYearsOfExperience={form.totalYearsOfExperience || ""}
+              noticePeriod={form.noticePeriod || ""}
+              servingNoticePeriod={form.servingNoticePeriod || false}
+              noticePeriodStartDate={form.noticePeriodStartDate || ""}
+              currentSalaryCurrency={form.currentSalaryCurrency || "₹"}
+              currentSalaryAmount={form.currentSalaryAmount || ""}
+              experiences={form.experiences || []}
+              onUpdate={(field: string, value: string | boolean) => {
+                updateField(field as keyof EditForm, value as never);
+              }}
             />
+
             <SectionActions
               loading={savingSection === "Career Details"}
               onCancel={cancelChanges}
@@ -900,7 +1015,7 @@ export default function EditProfilePage() {
             id="preferences"
             openSection={openSection}
             setOpenSection={setOpenSection}
-            icon={<Settings className="h-5 w-5 text-[var(--primary)]" />}
+            icon={<Settings />}
             title="Job Preferences"
             subtitle="Roles, locations, industry and job type"
           >
@@ -910,12 +1025,20 @@ export default function EditProfilePage() {
               lookingFor={form.lookingFor}
               employmentType={form.employmentType}
               locations={form.locations}
-              onUpdate={(field, items) =>
-                updateField(field as keyof EditForm, items as never)
-              }
+              openToShift={form.openToShift}
+              shiftPreferences={form.shiftPreferences}
+              currentSalaryCurrency={form.currentSalaryCurrency}
+              currentSalaryAmount={form.currentSalaryAmount}
+              expectedSalaryCurrency={form.expectedSalaryCurrency}
+              expectedSalaryAmount={form.expectedSalaryAmount}
+              onUpdate={(field: string, value: any) => {
+                console.log(`Updating ${field}:`, value);
+                updateField(field as keyof EditForm, value as never);
+              }}
               roleOptions={masterData.jobRoles}
               industryOptions={masterData.industries}
             />
+
             <SectionActions
               loading={savingSection === "Job Preferences"}
               onCancel={cancelChanges}
@@ -927,7 +1050,7 @@ export default function EditProfilePage() {
             id="tools"
             openSection={openSection}
             setOpenSection={setOpenSection}
-            icon={<Award className="h-5 w-5 text-[var(--primary)]" />}
+            icon={<Award />}
             title="Tools & Languages"
             subtitle="Tools, domains and known languages"
           >
@@ -935,10 +1058,11 @@ export default function EditProfilePage() {
               tools={form.toolsAndPlatforms}
               domains={form.domainKnowledge}
               languages={form.languagesKnown}
-              onUpdate={(field, items) =>
-                updateField(field as keyof EditForm, items as never)
-              }
+              onUpdate={(field: string, items: string[]) => {
+                updateField(field as keyof EditForm, items as never);
+              }}
             />
+
             <SectionActions
               loading={savingSection === "Tools & Languages"}
               onCancel={cancelChanges}
@@ -950,7 +1074,7 @@ export default function EditProfilePage() {
             id="international"
             openSection={openSection}
             setOpenSection={setOpenSection}
-            icon={<Globe className="h-5 w-5 text-[var(--primary)]" />}
+            icon={<Globe />}
             title="International Experience"
             subtitle="Work experience in different countries"
           >
@@ -960,6 +1084,7 @@ export default function EditProfilePage() {
               onAdd={addInternational}
               onRemove={removeInternational}
             />
+
             <SectionActions
               loading={savingSection === "International Experience"}
               onCancel={cancelChanges}
@@ -971,7 +1096,7 @@ export default function EditProfilePage() {
             id="leadership"
             openSection={openSection}
             setOpenSection={setOpenSection}
-            icon={<Trophy className="h-5 w-5 text-[var(--primary)]" />}
+            icon={<Trophy />}
             title="Leadership"
             subtitle="Leadership roles and positions"
           >
@@ -981,6 +1106,7 @@ export default function EditProfilePage() {
               onAdd={addLeadership}
               onRemove={removeLeadership}
             />
+
             <SectionActions
               loading={savingSection === "Leadership"}
               onCancel={cancelChanges}
@@ -992,7 +1118,7 @@ export default function EditProfilePage() {
             id="achievements"
             openSection={openSection}
             setOpenSection={setOpenSection}
-            icon={<Trophy className="h-5 w-5 text-[var(--primary)]" />}
+            icon={<Trophy />}
             title="Achievements"
             subtitle="Awards, certificates and achievements"
           >
@@ -1002,6 +1128,7 @@ export default function EditProfilePage() {
               onAdd={addAchievement}
               onRemove={removeAchievement}
             />
+
             <SectionActions
               loading={savingSection === "Achievements"}
               onCancel={cancelChanges}

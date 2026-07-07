@@ -8,6 +8,7 @@ type SelectInputProps = {
   onChange: (value: string) => void;
   onFocus?: () => void;
   allowCustom?: boolean;
+  placeholder?: string;
 };
 
 export function SelectInput({ label, value, options, onChange, onFocus, allowCustom = false }: SelectInputProps) {

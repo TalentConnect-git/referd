@@ -69,6 +69,7 @@ export default function DashboardJobs({
     ...offCampusJobs,
   ];
   const displayJobs = allJobsCombined.slice(0, 3);
+  console.log("displayJobs",allJobsCombined);
   const hasMore = allJobsCombined.length > 3;
 
   return (

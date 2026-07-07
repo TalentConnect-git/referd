@@ -1,63 +1,42 @@
 "use client";
 
-import { Mail, User, ExternalLink } from "lucide-react";
-// import { ProfileData } from "@/types/profile";
-import { AboutCardProps } from "@/types/profile";
+import { User } from "lucide-react";
+import { ProfileData } from "@/types/profile";
 
-export default function AboutCard({
-  profile,
-}: AboutCardProps) {
+interface AboutCardProps {
+  profile: ProfileData;
+}
+
+const getAboutText = (profile: ProfileData) => {
+  const about = profile.about?.trim();
+
+  if (!about) {
+    return "No about information provided.";
+  }
+
+  return about;
+};
+
+export default function AboutCard({ profile }: AboutCardProps) {
+  const aboutText = getAboutText(profile);
+
   return (
-    <>
-      {/* About */}
-      <div className="rounded-3xl border border-white/10 bg-[var(--card)] p-6">
-        <div className="flex items-center gap-3">
-          <User className="h-6 w-6 text-yellow-400" />
-          <h2 className="text-xl font-bold text-white">
-            About
-          </h2>
+    <section className="rounded-[18px] border border-white/10 bg-[#071018] px-[18px] py-[18px] shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
+      <div className="flex items-center gap-3">
+        <div className="flex h-7 w-7 items-center justify-center rounded-[9px] bg-[#12381f] text-[#37e875]">
+          <User className="h-3.5 w-3.5" />
         </div>
 
-        <div className="my-5 border-t border-white/10" />
+        <h2 className="text-[14px] font-black text-white">About</h2>
+      </div>
 
-        <p className="text-gray-300 leading-7">
-          {profile.about || "-"}
+      <div className="mt-[18px] border-t border-white/10" />
+
+      <div className="mt-[17px] rounded-[14px] border border-white/7 bg-[#0b1621]/90 px-4 py-4">
+        <p className="whitespace-pre-line text-[13px] font-medium leading-7 text-[#b3bdc9]">
+          {aboutText}
         </p>
       </div>
-
-      {/* Official Email */}
-      <div className="rounded-3xl border border-white/10 bg-[var(--card)] p-5">
-        <div className="flex items-center justify-between">
-
-          <div className="flex items-center gap-4">
-
-            <div className="rounded-2xl bg-green-500/15 p-4">
-              <Mail className="h-7 w-7 text-green-400" />
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-400">
-                Official Email
-              </p>
-
-              <p className="mt-1 text-md font-semibold text-white break-all">
-                {profile.companyEmail || profile.email || "-"}
-              </p>
-            </div>
-
-          </div>
-
-          {(profile.companyEmail || profile.email) && (
-            <a
-              href={`mailto:${profile.companyEmail || profile.email}`}
-              className="rounded-lg p-2 transition hover:bg-white/10"
-            >
-              <ExternalLink className="h-5 w-5 text-white" />
-            </a>
-          )}
-
-        </div>
-      </div>
-    </>
+    </section>
   );
 }
