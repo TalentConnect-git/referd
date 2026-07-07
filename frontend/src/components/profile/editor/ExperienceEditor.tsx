@@ -1,7 +1,6 @@
 import { Plus, Trash2 } from "lucide-react";
-import { TextInput} from "../shared/TextInput";
-import { SelectInput} from "../shared/SelectInput";
-import {CheckboxInput } from "../shared/CheckboxInput";
+import { TextInput } from "../shared/TextInput";
+import { CheckboxInput } from "../shared/CheckboxInput";
 import { TextArea } from "../shared/TextArea";
 import type { Experience } from "@/types/profile";
 
@@ -20,7 +19,19 @@ export function ExperienceEditor({
   onAdd,
   onRemove,
 }: ExperienceEditorProps) {
-  const showProfessionalFields = userType === "professional";
+  const handleCurrentlyWorkingChange = (index: number, checked: boolean) => {
+    // Update isCurrent
+    onUpdate(index, "isCurrent", checked);
+    
+    // If checked, clear end date
+    if (checked) {
+      onUpdate(index, "endDate", "");
+    } else {
+      // If unchecked, clear notice period and company email (they're only for current jobs)
+      onUpdate(index, "noticePeriod", "");
+      onUpdate(index, "officialCompanyEmail", "");
+    }
+  };
 
   return (
     <div className="space-y-5">
@@ -34,14 +45,16 @@ export function ExperienceEditor({
               Experience {idx + 1}
             </h3>
 
-            <button
-              type="button"
-              onClick={() => onRemove(idx)}
-              className="flex items-center gap-2 rounded-lg border border-red-500/30 px-3 py-2 text-[12px] font-semibold text-red-300"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-              Remove
-            </button>
+            {experiences.length > 1 && (
+              <button
+                type="button"
+                onClick={() => onRemove(idx)}
+                className="flex items-center gap-2 rounded-lg border border-red-500/30 px-3 py-2 text-[12px] font-semibold text-red-300 transition hover:border-red-500/50 hover:bg-red-500/10"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Remove
+              </button>
+            )}
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -52,6 +65,7 @@ export function ExperienceEditor({
                 onUpdate(idx, "company", value);
                 onUpdate(idx, "organization", value);
               }}
+              placeholder="Enter company name"
             />
 
             <TextInput
@@ -61,6 +75,7 @@ export function ExperienceEditor({
                 onUpdate(idx, "role", value);
                 onUpdate(idx, "title", value);
               }}
+              placeholder="Enter your role"
             />
 
             <TextInput
@@ -68,23 +83,29 @@ export function ExperienceEditor({
               type="date"
               value={exp.startDate || ""}
               onChange={(value: string) => onUpdate(idx, "startDate", value)}
+              placeholder="Select start date"
             />
 
             <TextInput
               label="End Date"
               type="date"
               value={exp.endDate || ""}
-              disabled={exp.isCurrent}
+              disabled={Boolean(exp.isCurrent)}
               onChange={(value: string) => onUpdate(idx, "endDate", value)}
+              placeholder={exp.isCurrent ? "Currently working" : "Select end date"}
             />
 
-            <CheckboxInput
-              label="Currently working here"
-              checked={Boolean(exp.isCurrent)}
-              onChange={(value: boolean) => onUpdate(idx, "isCurrent", value)}
-            />
+            <div className="md:col-span-2">
+              <CheckboxInput
+                label="Currently working here"
+                checked={Boolean(exp.isCurrent)}
+                onChange={(checked: boolean) => handleCurrentlyWorkingChange(idx, checked)}
+              />
+            </div>
 
-            {showProfessionalFields && exp.isCurrent && (
+            {/* Show notice period and company email ONLY when currently working here is checked */}
+            {/* This is now shown for ALL user types */}
+            {Boolean(exp.isCurrent) && (
               <>
                 <TextInput
                   label="Notice Period (days)"
@@ -92,6 +113,8 @@ export function ExperienceEditor({
                   onChange={(value: string) =>
                     onUpdate(idx, "noticePeriod", value)
                   }
+                  placeholder="e.g., 30, 60, 90"
+                  type="number"
                 />
 
                 <TextInput
@@ -100,6 +123,8 @@ export function ExperienceEditor({
                   onChange={(value: string) =>
                     onUpdate(idx, "officialCompanyEmail", value)
                   }
+                  placeholder="yourname@company.com"
+                  type="email"
                 />
               </>
             )}
@@ -115,6 +140,8 @@ export function ExperienceEditor({
                 onChange={(value: string) =>
                   onUpdate(idx, "description", value)
                 }
+                placeholder="Describe your responsibilities and achievements"
+                rows={4}
               />
             </div>
           </div>
@@ -124,7 +151,7 @@ export function ExperienceEditor({
       <button
         type="button"
         onClick={onAdd}
-        className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--border)] bg-[var(--background)] py-4 text-[13px] font-bold text-white hover:border-[var(--primary)] hover:text-[var(--primary)]"
+        className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--border)] bg-[var(--background)] py-4 text-[13px] font-bold text-white transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
       >
         <Plus className="h-4 w-4" />
         Add more experience

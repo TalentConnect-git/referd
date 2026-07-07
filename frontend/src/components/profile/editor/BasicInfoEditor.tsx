@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEvent, useState } from "react";
+import { Upload, X, User, Mail, Phone, Calendar, Link, Globe, FileText, Image, Info, Briefcase } from "lucide-react";
 
 import { TextArea } from "../shared/TextArea";
 import { TextInput } from "../shared/TextInput";
@@ -8,6 +9,19 @@ import { SelectInput } from "../shared/SelectInput";
 
 import type { EditForm, Option } from "@/types/profile";
 import { updateOnboardingFilesApi } from "@/services/auth.service";
+
+// Custom SVG Icons
+const LinkedInIcon = () => (
+  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+  </svg>
+);
+
+const GitHubIcon = () => (
+  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.15 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.62.24 2.85.12 3.15.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+  </svg>
+);
 
 type BasicInfoEditorProps = {
   form: EditForm;
@@ -66,9 +80,6 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
   const [profileImageMessage, setProfileImageMessage] =
     useState<UploadMessage | null>(null);
 
-  const fileInputClass =
-    "text-sm text-white file:mr-4 file:cursor-pointer file:rounded-lg file:border-0 file:bg-[var(--primary)] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:brightness-110 disabled:cursor-not-allowed disabled:opacity-50";
-
   async function uploadSingleFile(
     fieldName: "resume" | "profileImage",
     file: File
@@ -108,7 +119,6 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
         return;
       }
 
-      // Show instant preview
       updateField("profileImage", previewUrl as EditForm["profileImage"]);
 
       const uploadedUrl = await uploadSingleFile("profileImage", file);
@@ -184,221 +194,313 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
   }
 
   return (
-    <div>
-      <div className="grid gap-4 md:grid-cols-2">
-        <TextInput
-          label="Full Name"
-          value={form.fullName}
-          onChange={(value: string) => {
-            updateField("fullName", value as EditForm["fullName"]);
-            updateField("name", value as EditForm["name"]);
-          }}
-        />
+    <div className="space-y-6">
+      {/* Personal Information Section */}
+      <div>
+        <div className="mb-4 flex items-center gap-2">
+          <User className="h-4 w-4 text-[var(--primary)]" />
+          <h3 className="text-[13px] font-semibold text-white">Personal Information</h3>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <TextInput
+            label="Full Name"
+            value={form.fullName}
+            onChange={(value: string) => {
+              updateField("fullName", value as EditForm["fullName"]);
+              updateField("name", value as EditForm["name"]);
+            }}
+            placeholder="Enter your full name"
+          />
 
-        <TextInput
-          label="Email"
-          value={form.email}
-          onChange={(value: string) =>
-            updateField("email", value as EditForm["email"])
-          }
-        />
+          <TextInput
+            label="Email"
+            value={form.email}
+            onChange={(value: string) =>
+              updateField("email", value as EditForm["email"])
+            }
+            placeholder="Enter your email"
+            type="email"
+          />
 
-        <TextInput
-          label="Phone"
-          value={form.phone}
-          onChange={(value: string) =>
-            updateField("phone", value as EditForm["phone"])
-          }
-        />
+          <TextInput
+            label="Phone"
+            value={form.phone}
+            onChange={(value: string) =>
+              updateField("phone", value as EditForm["phone"])
+            }
+            placeholder="Enter your phone number"
+            type="tel"
+          />
 
-        <SelectInput
-          label="Gender"
-          value={form.gender}
-          options={genderOptions}
-          onChange={(value: string) =>
-            updateField("gender", value as EditForm["gender"])
-          }
-        />
+          <SelectInput
+            label="Gender"
+            value={form.gender}
+            options={genderOptions}
+            onChange={(value: string) =>
+              updateField("gender", value as EditForm["gender"])
+            }
+            placeholder="Select gender"
+          />
 
-        <TextInput
-          label="Date of Birth"
-          type="date"
-          value={form.dob}
-          onChange={(value: string) =>
-            updateField("dob", value as EditForm["dob"])
-          }
-        />
+          <TextInput
+            label="Date of Birth"
+            type="date"
+            value={form.dob}
+            onChange={(value: string) =>
+              updateField("dob", value as EditForm["dob"])
+            }
+            placeholder="Select date of birth"
+          />
 
-        <SelectInput
-          label="Ethnicity"
-          value={form.ethnicity}
-          options={ethnicityOptions}
-          onChange={(value: string) =>
-            updateField("ethnicity", value as EditForm["ethnicity"])
-          }
-        />
+          <SelectInput
+            label="Ethnicity"
+            value={form.ethnicity}
+            options={ethnicityOptions}
+            onChange={(value: string) =>
+              updateField("ethnicity", value as EditForm["ethnicity"])
+            }
+            placeholder="Select ethnicity"
+          />
 
-        <SelectInput
-          label="Marital Status"
-          value={form.maritalStatus}
-          options={maritalStatusOptions}
-          onChange={(value: string) =>
-            updateField("maritalStatus", value as EditForm["maritalStatus"])
-          }
-        />
-
-        <TextInput
-          label="LinkedIn"
-          value={form.linkedin}
-          onChange={(value: string) =>
-            updateField("linkedin", value as EditForm["linkedin"])
-          }
-        />
-
-        <TextInput
-          label="GitHub"
-          value={form.github}
-          onChange={(value: string) =>
-            updateField("github", value as EditForm["github"])
-          }
-        />
-
-        <TextInput
-          label="Portfolio"
-          value={form.portfolio}
-          onChange={(value: string) =>
-            updateField("portfolio", value as EditForm["portfolio"])
-          }
-        />
+          <SelectInput
+            label="Marital Status"
+            value={form.maritalStatus}
+            options={maritalStatusOptions}
+            onChange={(value: string) =>
+              updateField("maritalStatus", value as EditForm["maritalStatus"])
+            }
+            placeholder="Select marital status"
+          />
+        </div>
       </div>
 
-      <div className="mt-4">
+      {/* Social & Professional Links Section */}
+      <div>
+        <div className="mb-4 flex items-center gap-2">
+          <Link className="h-4 w-4 text-[var(--primary)]" />
+          <h3 className="text-[13px] font-semibold text-white">Social & Professional Links</h3>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="relative">
+            <TextInput
+              label="LinkedIn"
+              value={form.linkedin}
+              onChange={(value: string) =>
+                updateField("linkedin", value as EditForm["linkedin"])
+              }
+              placeholder="https://linkedin.com/in/username"
+            />
+            <div className="absolute right-3 top-[38px] text-[var(--text-muted)]">
+              <LinkedInIcon />
+            </div>
+          </div>
+
+          <div className="relative">
+            <TextInput
+              label="GitHub"
+              value={form.github}
+              onChange={(value: string) =>
+                updateField("github", value as EditForm["github"])
+              }
+              placeholder="https://github.com/username"
+            />
+            <div className="absolute right-3 top-[38px] text-[var(--text-muted)]">
+              <GitHubIcon />
+            </div>
+          </div>
+
+          <div className="relative">
+            <TextInput
+              label="Portfolio"
+              value={form.portfolio}
+              onChange={(value: string) =>
+                updateField("portfolio", value as EditForm["portfolio"])
+              }
+              placeholder="https://yourportfolio.com"
+            />
+            <div className="absolute right-3 top-[38px] text-[var(--text-muted)]">
+              <Globe className="h-4 w-4" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* About Section */}
+      <div>
+        <div className="mb-4 flex items-center gap-2">
+          <Info className="h-4 w-4 text-[var(--primary)]" />
+          <h3 className="text-[13px] font-semibold text-white">About</h3>
+        </div>
         <TextArea
           label="About"
           value={form.about}
           onChange={(value: string) =>
             updateField("about", value as EditForm["about"])
           }
+          placeholder="Tell us about yourself, your experience, and what you're looking for..."
+          rows={4}
         />
       </div>
 
-      <div className="mt-6 grid gap-6 md:grid-cols-2">
-        {/* Profile Image */}
-        <div>
-          <span className="mb-2 block text-[12px] font-semibold text-[var(--text-primary)]">
-            Profile Image
-          </span>
+      {/* File Uploads Section */}
+      <div>
+        <div className="mb-4 flex items-center gap-2">
+          <FileText className="h-4 w-4 text-[var(--primary)]" />
+          <h3 className="text-[13px] font-semibold text-white">Files & Media</h3>
+        </div>
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Profile Image */}
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--background)] p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Image className="h-4 w-4 text-[var(--primary)]" />
+                <span className="text-[13px] font-semibold text-white">Profile Image</span>
+              </div>
+              {form.profileImage && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    updateField("profileImage", "" as EditForm["profileImage"]);
+                    setProfileImageMessage(null);
+                  }}
+                  className="rounded-lg p-1 text-red-400 transition hover:bg-red-500/10 hover:text-red-300"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
 
-          {form.profileImage && (
-            <img
-              src={form.profileImage}
-              alt="Profile"
-              className="mb-3 h-20 w-20 rounded-full object-cover ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--background)]"
-            />
-          )}
-
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleProfileImageChange}
-            disabled={isUploadingProfileImage}
-            className={fileInputClass}
-          />
-
-          {isUploadingProfileImage && (
-            <p className="mt-2 flex items-center gap-2 text-xs text-[var(--primary)]">
-              <svg
-                className="h-3.5 w-3.5 animate-spin"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
+            {form.profileImage && (
+              <div className="mt-3 flex items-center gap-4">
+                <img
+                  src={form.profileImage}
+                  alt="Profile"
+                  className="h-16 w-16 rounded-full object-cover ring-2 ring-[var(--primary)] ring-offset-2 ring-offset-[var(--background)]"
                 />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                />
-              </svg>
-              Uploading profile image…
-            </p>
-          )}
+                <span className="text-[12px] text-[var(--text-muted)] break-all flex-1">
+                  {form.profileImage.length > 50 
+                    ? form.profileImage.substring(0, 50) + "..." 
+                    : form.profileImage}
+                </span>
+              </div>
+            )}
 
-          {profileImageMessage && !isUploadingProfileImage && (
-            <p
-              className={`mt-2 text-xs ${
+            <div className="mt-3">
+              <label className="relative flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-[var(--border)] bg-[var(--background)] px-4 py-3 transition hover:border-[var(--primary)] hover:bg-[var(--card-hover)]">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleProfileImageChange}
+                  disabled={isUploadingProfileImage}
+                  className="absolute inset-0 cursor-pointer opacity-0"
+                />
+                <div className="flex items-center gap-2">
+                  <Upload className="h-4 w-4 text-[var(--primary)]" />
+                  <span className="text-[13px] font-medium text-white">
+                    {isUploadingProfileImage ? "Uploading..." : "Upload Image"}
+                  </span>
+                </div>
+              </label>
+            </div>
+
+            {isUploadingProfileImage && (
+              <p className="mt-2 flex items-center gap-2 text-xs text-[var(--primary)]">
+                <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                </svg>
+                Uploading profile image…
+              </p>
+            )}
+
+            {profileImageMessage && !isUploadingProfileImage && (
+              <p className={`mt-2 text-xs ${
                 profileImageMessage.type === "success"
                   ? "text-emerald-400"
                   : "text-red-400"
-              }`}
-            >
-              {profileImageMessage.text}
+              }`}>
+                {profileImageMessage.text}
+              </p>
+            )}
+
+            <p className="mt-2 text-[11px] text-[var(--text-muted)]">
+              Accepted formats: JPG, PNG, GIF, SVG • Max size: 5MB
             </p>
-          )}
-        </div>
+          </div>
 
-        {/* Resume */}
-        <div>
-          <span className="mb-2 block text-[12px] font-semibold text-[var(--text-primary)]">
-            Resume
-          </span>
+          {/* Resume */}
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--background)] p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-[var(--primary)]" />
+                <span className="text-[13px] font-semibold text-white">Resume</span>
+              </div>
+              {form.resume && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    updateField("resume", "" as EditForm["resume"]);
+                    setResumeMessage(null);
+                  }}
+                  className="rounded-lg p-1 text-red-400 transition hover:bg-red-500/10 hover:text-red-300"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
 
-          <input
-            type="file"
-            accept=".pdf,application/pdf"
-            onChange={handleResumeChange}
-            disabled={isUploadingResume}
-            className={fileInputClass}
-          />
+            {form.resume && (
+              <div className="mt-3 flex items-center gap-2 rounded-lg bg-[var(--card-hover)] px-3 py-2">
+                <FileText className="h-4 w-4 text-[var(--primary)]" />
+                <span className="text-[13px] text-white truncate flex-1">
+                  {form.resume.length > 50 ? form.resume.substring(0, 50) + "..." : form.resume}
+                </span>
+                <span className="text-[11px] text-[var(--text-muted)]">PDF</span>
+              </div>
+            )}
 
-          {isUploadingResume && (
-            <p className="mt-2 flex items-center gap-2 text-xs text-[var(--primary)]">
-              <svg
-                className="h-3.5 w-3.5 animate-spin"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
+            <div className="mt-3">
+              <label className="relative flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-[var(--border)] bg-[var(--background)] px-4 py-3 transition hover:border-[var(--primary)] hover:bg-[var(--card-hover)]">
+                <input
+                  type="file"
+                  accept=".pdf,application/pdf"
+                  onChange={handleResumeChange}
+                  disabled={isUploadingResume}
+                  className="absolute inset-0 cursor-pointer opacity-0"
                 />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                />
-              </svg>
-              Uploading resume…
-            </p>
-          )}
+                <div className="flex items-center gap-2">
+                  <Upload className="h-4 w-4 text-[var(--primary)]" />
+                  <span className="text-[13px] font-medium text-white">
+                    {isUploadingResume ? "Uploading..." : "Upload Resume"}
+                  </span>
+                </div>
+              </label>
+            </div>
 
-          {resumeMessage && !isUploadingResume && (
-            <p
-              className={`mt-2 text-xs ${
+            {isUploadingResume && (
+              <p className="mt-2 flex items-center gap-2 text-xs text-[var(--primary)]">
+                <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                </svg>
+                Uploading resume…
+              </p>
+            )}
+
+            {resumeMessage && !isUploadingResume && (
+              <p className={`mt-2 text-xs ${
                 resumeMessage.type === "success"
                   ? "text-emerald-400"
                   : "text-red-400"
-              }`}
-            >
-              {resumeMessage.text}
-            </p>
-          )}
+              }`}>
+                {resumeMessage.text}
+              </p>
+            )}
 
-          {form.resume && !isUploadingResume && (
-            <p className="mt-2 break-all text-xs text-[var(--text-muted)]">
-              Current: {form.resume}
+            <p className="mt-2 text-[11px] text-[var(--text-muted)]">
+              Accepted format: PDF • Max size: 5MB
             </p>
-          )}
+          </div>
         </div>
       </div>
     </div>

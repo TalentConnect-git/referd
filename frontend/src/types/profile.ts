@@ -1,11 +1,23 @@
+// types/profile.ts
+
 export type Option = {
   value: string;
   label: string;
 };
 
+export type ShiftPreferences = {
+  Day: boolean;
+  Night: boolean;
+  Rotational: boolean;
+  Any?: boolean;
+};
+
 export type Education = {
   _id?: string;
   college?: string;
+  college_canonical_id?: string;
+  college_display?: string;
+  college_master_id?: string;
   degree?: string;
   specialization?: string;
   semester?: string;
@@ -14,9 +26,12 @@ export type Education = {
   degreeCertificate?: string;
   startDate?: string;
   endDate?: string;
-  educationType?: string;
+  educationType?: "school" | "diploma" | "bachelors" | "masters" | "phd" | "certification" | "other";
   isCurrent?: boolean;
-  college_display?:string;
+  // Old frontend fields for compatibility
+  collegeName?: string;
+  course?: string;
+  graduationYear?: string;
 };
 
 export type Experience = {
@@ -31,6 +46,10 @@ export type Experience = {
   isCurrent?: boolean;
   noticePeriod?: string;
   officialCompanyEmail?: string;
+  location?: string;
+  company_canonical_id?: string;
+  company_display?: string;
+  company_master_id?: string;
 };
 
 export type InternationalExperience = {
@@ -61,68 +80,129 @@ export type Achievement = {
   description?: string;
 };
 
+export type Award = {
+  _id?: string;
+  title?: string;
+  organization?: string;
+  startDate?: string;
+  endDate?: string;
+  description?: string;
+};
+
+export type Publication = {
+  _id?: string;
+  title?: string;
+  url?: string;
+};
+
+export type Project = {
+  name: string;
+  description?: string;
+  link?: string;
+  technologies?: string[];
+};
+
 export type ProfileData = {
   _id?: string;
   userId?: string;
   profileType?: "student" | "fresher" | "professional" | string;
-
+  
+  // Basic Info
   name?: string;
   fullName?: string;
   email?: string;
   phone?: string;
   about?: string;
-
-  visaStatus?:string;
-
+  
+  // Personal Info
+  visaStatus?: string;
   gender?: string;
   dob?: string;
   ethnicity?: string;
   maritalStatus?: string;
-
+  languagesKnown?: string[];
+  
+  // Social & Media
   linkedin?: string;
   github?: string;
   portfolio?: string;
   profileImage?: string;
   resume?: string;
-
   responseRate?: number;
-
-  educations?: Education[];
-  education?: Education[];
-
-
+  
+  // Salary
   currentSalaryAmount?: string;
   currentSalaryCurrency?: string;
-
   expectedSalaryAmount?: string;
   expectedSalaryCurrency?: string;
-
+  
+  // Shift Preferences
+  shiftPreferences?: ShiftPreferences;
+  openToShift?: string;
+  
+  // Education
+  educations?: Education[];
+  education?: Education[];
+  
+  // Experience
   experiences?: Experience[];
   experience?: Experience[];
-
+  
+  // International Experience
   internationalExperience?: InternationalExperience[];
+  
+  // Leadership
   leadership?: Leadership[];
+  
+  // Achievements
   achievements?: Achievement[];
-
+  awards?: Award[];
+  publications?: Publication[];
+  projectsHandled?: Project[];
+  
+  // Skills & Domain
   skills?: string[];
   toolsAndPlatforms?: string[];
-  languagesKnown?: string[];
   domainKnowledge?: string[];
+  industry?: string[];
+  categorizedSkills?: {
+    highInDemand?: string[];
+    growing?: string[];
+    saturated?: string[];
+    obsolete?: string[];
+  };
+  
+  // Job Preferences
   jobRoles?: string[];
   locations?: string[];
+  clientLocation?: string;
   employmentType?: string[];
   lookingFor?: string[];
-  industry?: string[];
-
+  
+  // Company & Notice Period
   currentCompany?: string;
+  currentCompany_display?: string;
   companyEmail?: string;
   totalYearsOfExperience?: string;
   noticePeriod?: string;
-  openToShift?: string;
-
-  emailVerified?: boolean;
+  noticePeriodStartDate?: string;
+  servingNoticePeriod?: boolean;
+  
+  // Referral
+  referralMilestonesAchieved?: any[];
+  totalCandidatesReferred?: number;
+  referralSource?: string;
+  
+  // Metadata
   createdAt?: string;
   updatedAt?: string;
+  emailVerified?: boolean;
+  __v?: number;
+  
+  // Additional fields from various components
+  certifications?: string;
+  projects?: Project[];
+  portfolioLinks?: string[];
 };
 
 export type EditForm = {
@@ -131,24 +211,20 @@ export type EditForm = {
   email: string;
   phone: string;
   about: string;
-
   gender: string;
   dob: string;
   ethnicity: string;
   maritalStatus: string;
-
   linkedin: string;
   github: string;
   portfolio: string;
   profileImage: string;
   resume: string;
-
   educations: Education[];
   experiences: Experience[];
   internationalExperience: InternationalExperience[];
   leadership: Leadership[];
   achievements: Achievement[];
-
   skills: string[];
   toolsAndPlatforms: string[];
   languagesKnown: string[];
@@ -158,14 +234,21 @@ export type EditForm = {
   employmentType: string[];
   lookingFor: string[];
   industry: string[];
-
-  
   currentCompany: string;
+  currentCompany_display?: string;
   companyEmail: string;
   totalYearsOfExperience: string;
   noticePeriod: string;
+  noticePeriodStartDate?: string;
+  servingNoticePeriod?: boolean;
   openToShift: string;
+  shiftPreferences?: ShiftPreferences;
+  currentSalaryCurrency: string;
+  currentSalaryAmount: string;
+  expectedSalaryCurrency: string;
+  expectedSalaryAmount: string;
 };
+
 
 export type MasterData = {
   colleges: Option[];
@@ -175,6 +258,7 @@ export type MasterData = {
   jobRoles: Option[];
 };
 
+// Component Props Types
 export interface ProfileContainerProps {
   profile: ProfileData;
 }
@@ -204,7 +288,20 @@ export interface AboutCardProps {
 }
 
 export interface SkillsCardProps {
-
   profile: ProfileData;
+}
 
+export interface CandidateHeaderProps {
+  profile: ProfileData;
+}
+
+export interface ContactCardProps {
+  profile: ProfileData & {
+    email?: string;
+    phone?: string;
+  };
+}
+
+export interface AchievementsCardProps {
+  profile: ProfileData;
 }

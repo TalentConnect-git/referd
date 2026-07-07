@@ -13,14 +13,14 @@ import {
 import type { AlumniProfile } from "@/services/alumani.services";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import Image from "next/image";
 
 type AlumniCardProps = {
   profile: AlumniProfile;
   collegeFallback: string;
   companyFallback: string;
   onMessage: (profile: AlumniProfile) => void;
- 
-  isMessageLoading?: boolean; 
+  isMessageLoading?: boolean;
 };
 
 const getInitials = (name?: string) => {
@@ -65,7 +65,6 @@ export function AlumniCard({
   collegeFallback = "",
   companyFallback = "",
   onMessage,
-  
   isMessageLoading = false,
 }: AlumniCardProps) {
   console.log("profile ", profile);
@@ -103,9 +102,6 @@ export function AlumniCard({
     onMessage?.(profile);
   };
 
- 
-  
-
   return (
     <article
       className="rounded-3xl border border-[#242d3a] bg-[#111821] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition hover:border-[#2fb344]/40 cursor-pointer"
@@ -113,8 +109,21 @@ export function AlumniCard({
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#123321] text-base font-bold text-[#2fb344]">
-            {initials}
+          {/* Profile Image with Fallback */}
+          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-[#123321]">
+            {profile.profileImage ? (
+              <Image
+                src={profile.profileImage}
+                alt={name}
+                fill
+                className="object-cover"
+                sizes="48px"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-base font-bold text-[#2fb344]">
+                {initials}
+              </div>
+            )}
           </div>
 
           <div>
@@ -182,7 +191,6 @@ export function AlumniCard({
 
         <button
           type="button"
-          
           onClick={handleCardClick}
           className="h-10 rounded-lg bg-[#2fb344] text-sm font-semibold text-black transition hover:bg-[#35c94d] disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
         >

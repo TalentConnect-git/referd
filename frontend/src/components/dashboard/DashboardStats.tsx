@@ -97,7 +97,7 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
         setTotalApplicationsReceived(metrics?.totalApplicationsReceived ?? 0);
         setResponseRate(metrics?.responseRate ?? 0);
         setReferralSuccessRate(metrics?.referralSuccessRate ?? 0);
-        setCandidatesWaiting(candidatesList.length); // Set to array length
+        setCandidatesWaiting(candidatesList.length); 
         setAlumniCount(totalAlumni);
         
       } else if (userType === "student" || userType === "fresher") {

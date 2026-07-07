@@ -1,87 +1,124 @@
 "use client";
 
-import { Award, Building2 } from "lucide-react";
-// import { ProfileData } from "@/types/profile";
-import { SkillsCardProps } from "@/types/profile";
+import { Code2 } from "lucide-react";
+import { ProfileData } from "@/types/profile";
 
-export default function SkillsCard({
-  profile,
-}: SkillsCardProps) {
+interface SkillsCardProps {
+  profile: ProfileData;
+}
 
-  const skills = Array.isArray(profile.skills)
-    ? profile.skills
-    : profile.skills
-      ? [profile.skills]
-      : [];
+const toStringList = (value: unknown): string[] => {
+  if (!value) return [];
 
-  const industries = Array.isArray(profile.industry)
-    ? profile.industry
-    : profile.industry
-      ? [profile.industry]
-      : [];
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => {
+        if (!item) return "";
+
+        if (typeof item === "string") return item.trim();
+
+        if (typeof item === "object") {
+          const obj = item as {
+            name?: string;
+            title?: string;
+            label?: string;
+            value?: string;
+            skill?: string;
+          };
+
+          return (
+            obj.name ||
+            obj.title ||
+            obj.label ||
+            obj.value ||
+            obj.skill ||
+            ""
+          ).trim();
+        }
+
+        return String(item).trim();
+      })
+      .filter(Boolean);
+  }
+
+  if (typeof value === "string") {
+    return value
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+};
+
+const SkillPill = ({ label }: { label: string }) => {
+  return (
+    <span className="inline-flex h-[27px] items-center rounded-full bg-[#0d1924] px-3 text-[11px] font-black leading-none text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+      {label}
+    </span>
+  );
+};
+
+const SkillSection = ({
+  title,
+  items,
+}: {
+  title: string;
+  items: string[];
+}) => {
+  return (
+    <div>
+      <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[#7891c7]">
+        {title}
+      </p>
+
+      <div className="mt-2 flex flex-wrap gap-2">
+        {items.length > 0 ? (
+          items.map((item) => <SkillPill key={`${title}-${item}`} label={item} />)
+        ) : (
+          <SkillPill label="-" />
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default function SkillsCard({ profile }: SkillsCardProps) {
+  const technicalSkills = toStringList(profile.skills);
+  const domainKnowledge = toStringList(profile.domainKnowledge);
+  const industries = toStringList(profile.industry);
+  const languages = toStringList(profile.languagesKnown);
+  const toolsAndPlatforms = toStringList(profile.toolsAndPlatforms);
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-[var(--card)] p-6">
-
-      {/* Skills */}
+    <section className="rounded-[18px] border border-white/10 bg-[#071018] px-[18px] py-[18px] shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
       <div className="flex items-center gap-3">
-        <Award className="h-5 w-5 text-yellow-400" />
-        <h2 className="text-xl font-bold text-white">
-          Skills
+        <div className="flex h-7 w-7 items-center justify-center rounded-[9px] bg-[#12381f] text-[#37e875]">
+          <Code2 className="h-3.5 w-3.5" />
+        </div>
+
+        <h2 className="text-[14px] font-black text-white">
+          Skills &amp; Expertise
         </h2>
       </div>
 
-      <div className="my-5 border-t border-white/10" />
+      <div className="mt-[18px] border-t border-white/10" />
 
-      <div className="flex flex-wrap gap-3">
+      <div className="mt-[17px] grid grid-cols-1 gap-x-14 gap-y-6 lg:grid-cols-2">
+        <div className="space-y-[18px]">
+          <SkillSection title="TECHNICAL SKILLS" items={technicalSkills} />
 
-        {skills.length ? (
-          skills.map((skill) => (
-            <span
-              key={skill}
-              className="rounded-full border border-gray-500/30 bg-gray-500/10 px-4 py-2 text-sm font-medium text-gray-300"
-            >
-              {skill}
-            </span>
-          ))
-        ) : (
-          <span className="text-gray-400">
-            No skills added
-          </span>
-        )}
+          <SkillSection title="DOMAIN KNOWLEDGE" items={domainKnowledge} />
 
+          <SkillSection title="INDUSTRIES" items={industries} />
+        </div>
+
+        <div className="space-y-[18px]">
+          
+
+          <SkillSection title="TOOLS & PLATFORMS" items={toolsAndPlatforms} />
+        </div>
       </div>
-
-      {/* Industries */}
-
-      <div className="mt-8 flex items-center gap-3">
-        <Building2 className="h-5 w-5 text-yellow-400" />
-        <h2 className="text-xl font-bold text-white">
-          Industries
-        </h2>
-      </div>
-
-      <div className="my-5 border-t border-white/10" />
-
-      <div className="flex flex-wrap gap-3">
-
-        {industries.length ? (
-          industries.map((industry) => (
-            <span
-              key={industry}
-              className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-4 py-2 text-sm font-medium text-cyan-300"
-            >
-              {industry}
-            </span>
-          ))
-        ) : (
-          <span className="text-gray-400">
-            No industries added
-          </span>
-        )}
-
-      </div>
-
-    </div>
+    </section>
   );
 }

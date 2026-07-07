@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
 import {
@@ -21,7 +21,7 @@ import TagList from "@/components/profile/TagList";
 import Empty from "@/components/profile/Empty";
 import Sidebar from "@/components/profile/Sidebar";
 import ResumeModal from "@/components/profile/ResumeModal";
-
+import axiosInstance from '@/lib/axiosInstance';
 import type { ProfileData } from "@/types/profile";
 
 import {
@@ -33,6 +33,7 @@ import {
 
 import { getResumePdfViewUrl, getResumeServeUrl } from "@/services/auth.service";
 import { useAuth } from "@/context/AuthContext";
+import { getCareerInsights } from "@/services/stats.services";
 
 // ---------- Helper ----------
 function getProfileUserId(profile: ProfileData | null) {
@@ -45,12 +46,12 @@ export default function ProfilePage() {
   const router = useRouter();
   const pathname = usePathname();
 
-  // ✅ Global profile from Auth context
   const { profile, profileLoading, refreshProfile } = useAuth();
 
-  // Local UI states
   const [resumeModalOpen, setResumeModalOpen] = useState(false);
   const [switching, setSwitching] = useState(false);
+  const [careerInsightsLoading, setCareerInsightsLoading] = useState(true);
+  const [careerInsightsError, setCareerInsightsError] = useState<string | null>(null);
 
   const editHref = `${pathname.replace(/\/profile\/?$/, "")}/edit-option`;
 
@@ -76,10 +77,7 @@ export default function ProfilePage() {
         },
       );
 
-      // Refresh global profile so the whole app sees the updated type
       await refreshProfile();
-
-      // Navigate to professional dashboard
       router.push("/professional/home");
     } catch (err) {
       console.error("Failed to switch to professional", err);
@@ -142,29 +140,29 @@ export default function ProfilePage() {
 
   if (profileLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[var(--background)] text-white">
-        <Loader2 className="mr-2 h-5 w-5 animate-spin text-[var(--primary)]" />
-        Loading profile...
+      <div className="flex min-h-screen items-center justify-center bg-[#0a0f16] text-white">
+        <Loader2 className="mr-2 h-5 w-5 animate-spin text-[#2fb344]" />
+        <span className="text-[#94a3b8]">Loading profile...</span>
       </div>
     );
   }
 
   if (!profile || !computed) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[var(--background)] text-white">
-        No profile data found
+      <div className="flex min-h-screen items-center justify-center bg-[#0a0f16] text-white">
+        <div className="text-center">
+          <p className="text-[#94a3b8]">No profile data found</p>
+        </div>
       </div>
     );
   }
 
   const userId = getProfileUserId(profile);
-
-  // These are available if needed for other features
   const resumePdfUrl = getResumePdfViewUrl(userId);
   const resumeServeUrl = getResumeServeUrl(userId);
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-white">
+    <div className="min-h-screen bg-[#0a0f16] text-white">
       <ProfileHeader
         editHref={editHref}
         profileType={profile.profileType}
@@ -183,10 +181,22 @@ export default function ProfilePage() {
 
           <ProfileSection title="Personal Details" icon={<User />}>
             <div className="grid grid-cols-2 gap-4">
-              <InfoItem label="Gender" value={computed.gender} />
-              <InfoItem label="Date of Birth" value={computed.dob} />
-              <InfoItem label="Ethnicity" value={computed.ethnicity} />
-              <InfoItem label="Marital Status" value={computed.maritalStatus} />
+              <InfoItem 
+                label="Gender" 
+                value={computed.gender || "N/A"} 
+              />
+              <InfoItem 
+                label="Date of Birth" 
+                value={computed.dob || "N/A"} 
+              />
+              <InfoItem 
+                label="Ethnicity" 
+                value={computed.ethnicity || "N/A"} 
+              />
+              <InfoItem 
+                label="Marital Status" 
+                value={computed.maritalStatus || "N/A"} 
+              />
             </div>
           </ProfileSection>
 
@@ -194,17 +204,17 @@ export default function ProfilePage() {
             {computed.educations.length ? (
               <div className="space-y-5">
                 {computed.educations.map((edu, index) => (
-                  <div key={edu._id || index}>
+                  <div key={edu._id || index} className="border-b border-[#242d3a] last:border-0 pb-4 last:pb-0">
                     <h3 className="text-[15px] font-bold text-white">
                       {edu.college || "N/A"}
                     </h3>
-                    <p className="mt-1 text-[13px] text-[var(--text-primary)]">
+                    <p className="mt-1 text-[13px] text-[#94a3b8]">
                       {[edu.degree, edu.specialization, edu.yearOfGraduation]
                         .filter(Boolean)
-                        .join(" · ")}
+                        .join(" · ") || "N/A"}
                     </p>
                     {edu.cgpa && (
-                      <p className="mt-1 text-[13px] text-[var(--text-muted)]">
+                      <p className="mt-1 text-[13px] text-[#64748b]">
                         CGPA / Percentage: {edu.cgpa}
                       </p>
                     )}
@@ -220,21 +230,21 @@ export default function ProfilePage() {
             {computed.experiences.length ? (
               <div className="space-y-5">
                 {computed.experiences.map((exp, index) => (
-                  <div key={exp._id || index}>
+                  <div key={exp._id || index} className="border-b border-[#242d3a] last:border-0 pb-4 last:pb-0">
                     <h3 className="text-[15px] font-bold text-white">
                       {exp.role || exp.title || "Role"} ·{" "}
                       {exp.company || exp.organization || "Company"}
                     </h3>
-                    <p className="mt-1 text-[13px] text-[var(--text-primary)]">
+                    <p className="mt-1 text-[13px] text-[#94a3b8]">
                       {formatDateRange(exp.startDate, exp.endDate, exp.isCurrent)}
                     </p>
                     {exp.isCurrent && exp.noticePeriod && (
-                      <p className="text-[12px] text-[var(--text-muted)]">
+                      <p className="text-[12px] text-[#64748b]">
                         Notice Period: {exp.noticePeriod} days
                       </p>
                     )}
                     {getDescription(exp.description) && (
-                      <p className="mt-2 text-[13px] leading-6 text-[var(--text-muted)]">
+                      <p className="mt-2 text-[13px] leading-6 text-[#94a3b8]">
                         {getDescription(exp.description)}
                       </p>
                     )}
@@ -250,16 +260,16 @@ export default function ProfilePage() {
             <ProfileSection title="International Experience" icon={<Globe />}>
               <div className="space-y-4">
                 {computed.internationalExperience.map((exp, idx) => (
-                  <div key={exp._id || idx}>
+                  <div key={exp._id || idx} className="border-b border-[#242d3a] last:border-0 pb-4 last:pb-0">
                     <h3 className="text-[15px] font-bold text-white">
-                      {exp.organization} – {exp.role}
+                      {exp.organization || "N/A"} – {exp.role || "N/A"}
                     </h3>
-                    <p className="text-[13px] text-[var(--text-primary)]">
-                      {exp.country} ·{" "}
+                    <p className="text-[13px] text-[#94a3b8]">
+                      {exp.country || "N/A"} ·{" "}
                       {formatDateRange(exp.startDate, exp.endDate)}
                     </p>
                     {exp.description && (
-                      <p className="mt-1 text-[13px] text-[var(--text-muted)]">
+                      <p className="mt-1 text-[13px] text-[#94a3b8]">
                         {exp.description}
                       </p>
                     )}
@@ -273,14 +283,18 @@ export default function ProfilePage() {
             <ProfileSection title="Leadership" icon={<Trophy />}>
               <div className="space-y-4">
                 {computed.leadership.map((item, idx) => (
-                  <div key={item._id || idx}>
+                  <div key={item._id || idx} className="border-b border-[#242d3a] last:border-0 pb-4 last:pb-0">
                     <h3 className="text-[15px] font-bold text-white">
-                      {item.role} at {item.organization || item.company}
+                      {item.role || "N/A"} at {item.organization || item.company || "N/A"}
                     </h3>
-                    <p className="text-[13px] text-[var(--text-primary)]">
+                    <p className="text-[13px] text-[#94a3b8]">
                       {formatDateRange(item.startDate, item.endDate)}
                     </p>
-                    <p>{item.description}</p>
+                    {item.description && (
+                      <p className="mt-1 text-[13px] text-[#94a3b8]">
+                        {item.description}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
@@ -288,11 +302,39 @@ export default function ProfilePage() {
           )}
 
           <ProfileSection title="Skills" icon={<Award />}>
-            <TagList items={computed.skills} />
+            {computed.skills.length > 0 ? (
+              <TagList items={computed.skills} />
+            ) : (
+              <Empty>No skills added</Empty>
+            )}
+          </ProfileSection>
+
+          <ProfileSection title="Languages" icon={<Globe />}>
+            {computed.languages.length > 0 ? (
+              <TagList items={computed.languages} />
+            ) : (
+              <Empty>No languages added</Empty>
+            )}
+          </ProfileSection>
+
+          <ProfileSection title="Domains" icon={<Briefcase />}>
+            {computed.domains.length > 0 ? (
+              <TagList items={computed.domains} />
+            ) : (
+              <Empty>No domains added</Empty>
+            )}
+          </ProfileSection>
+
+          <ProfileSection title="Tools & Platforms" icon={<Award />}>
+            {computed.tools.length > 0 ? (
+              <TagList items={computed.tools} />
+            ) : (
+              <Empty>No tools added</Empty>
+            )}
           </ProfileSection>
 
           <ProfileSection title="About" icon={<User />}>
-            <p className="text-[14px] leading-7 text-[var(--text-primary)]">
+            <p className="text-[14px] leading-7 text-[#94a3b8]">
               {profile.about || "No about information provided."}
             </p>
           </ProfileSection>
@@ -301,15 +343,15 @@ export default function ProfilePage() {
             {profile.achievements?.length ? (
               <div className="space-y-4">
                 {profile.achievements.map((item, index) => (
-                  <div key={item._id || index}>
+                  <div key={item._id || index} className="border-b border-[#242d3a] last:border-0 pb-4 last:pb-0">
                     <h3 className="text-[15px] font-bold text-white">
                       {item.title || "Achievement"}
                     </h3>
-                    <p className="mt-1 text-[13px] text-[var(--text-primary)]">
-                      {[item.event, item.date].filter(Boolean).join(" · ")}
+                    <p className="mt-1 text-[13px] text-[#94a3b8]">
+                      {[item.event, item.date].filter(Boolean).join(" · ") || "N/A"}
                     </p>
                     {item.description && (
-                      <p className="mt-2 text-[13px] text-[var(--text-muted)]">
+                      <p className="mt-2 text-[13px] text-[#94a3b8]">
                         {item.description}
                       </p>
                     )}
