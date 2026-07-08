@@ -9,8 +9,12 @@ import NoticePeriodCard from "./NoticePeriod";
 import JobPreferencesCard from "./JobPreferencesCard";
 import AboutCard from "./AboutCard";
 import SkillsCard from "./SkillsCard";
-import AchievementsCard from "./AchievementsCard";
+import AchievementCard from "./AchievementCard";
+import AwardCard from "./AwardCard";
+import PublicationCard from "./PublicationCard";
+import LeadershipCard from "./LeadershipCard";
 import ContactCard from "./ContactCard";
+import InternationalExperienceCard from "./InternationalExperienceCard";
 
 import { ProfileData } from "@/types/profile";
 
@@ -26,32 +30,43 @@ export default function ProfileContainer({ profile }: ProfileContainerProps) {
           {/* Full Width Header */}
           <CandidateHeader profile={profile} />
 
-          {/* Row 1: Notice Period + Experience */}
-          <section className="grid grid-cols-1 gap-5 lg:grid-cols-[1.6fr_0.8fr]">
-            <NoticePeriodCard profile={profile} />
-            <ExperienceCard profile={profile} />
-          </section>
-
-          {/* Row 2: About + Contact */}
-          <section className="grid grid-cols-1 gap-5 lg:grid-cols-[1.6fr_0.8fr]">
+          {/* Row: About + Education (flex row) */}
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             <AboutCard profile={profile} />
-            <ContactCard profile={profile} />
-          </section>
+            <EducationCard profile={profile} />
+          </div>
 
-          {/* Row 3: Achievements / International / Awards / Publications */}
-          <AchievementsCard profile={profile} />
+          {/* Row: Experience + International Experience */}
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <ExperienceCard profile={profile} />
+            <InternationalExperienceCard profile={profile} />
+          </div>
 
-          {/* Full Width Skills */}
-          <SkillsCard profile={profile} />
+          {/* Row: Achievement + Awards */}
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <AchievementCard profile={profile} />
+            <AwardCard profile={profile} />
+          </div>
 
-          {/* Full Width Job Preferences */}
-          <JobPreferencesCard profile={profile} />
+          {/* Row: Publications + Leadership */}
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <PublicationCard profile={profile} />
+            <LeadershipCard profile={profile} />
+          </div>
 
-          {/* Full Width Personal Information */}
-          <PersonalInformation profile={profile} />
+          {/* Row: Skills + Job Preferences */}
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <SkillsCard profile={profile} />
+            <JobPreferencesCard profile={profile} />
+          </div>
 
-          {/* Full Width Education */}
-          <EducationCard profile={profile} />
+          {/* Full Width Notice Period */}
+
+          {/* Row: Personal Information + Contact (flex row) - LAST */}
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <NoticePeriodCard profile={profile} />
+            <PersonalInformation profile={profile} />
+          </div>
         </div>
       </main>
     </div>

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import {
   ArrowLeft,
-  Award,
   Briefcase,
   Globe,
   GraduationCap,
@@ -13,7 +12,12 @@ import {
   Settings,
   Trophy,
   User,
+  Users,
 } from "lucide-react";
+
+// ---------- Custom SVG Icons ----------
+import { AwardSvgIcon } from "@/components/profile/icons/AwardSvgIcon";
+import { PublicationSvgIcon } from "@/components/profile/icons/PublicationSvgIcon";
 
 // ---------- Shared Components ----------
 import { NavOption } from "@/components/profile/shared/NavOption";
@@ -31,6 +35,8 @@ import { ToolsAndLanguagesEditor } from "@/components/profile/editor/ToolsAndLan
 import { InternationalExperienceEditor } from "@/components/profile/editor/InternationalExperienceEditor";
 import { LeadershipEditor } from "@/components/profile/editor/LeadershipEditor";
 import { AchievementEditor } from "@/components/profile/editor/AchievementEditor";
+import { AwardEditor } from "@/components/profile/editor/AwardEditor";
+import { PublicationEditor } from "@/components/profile/editor/PublicationEditor";
 
 // ---------- Types ----------
 import type {
@@ -42,6 +48,8 @@ import type {
   InternationalExperience,
   Leadership,
   Achievement,
+  Award,
+  Publication,
   MasterData,
   ShiftPreferences,
 } from "@/types/profile";
@@ -98,6 +106,19 @@ const emptyAchievement: Achievement = {
   description: "",
 };
 
+const emptyAward: Award = {
+  title: "",
+  organization: "",
+  startDate: "",
+  endDate: "",
+  description: "",
+};
+
+const emptyPublication: Publication = {
+  title: "",
+  url: "",
+};
+
 // ---------- Helpers ----------
 function getBackendUrl(): string {
   const url = process.env.NEXT_PUBLIC_API_URL;
@@ -123,7 +144,13 @@ function getResponseData(data: unknown): ProfileData {
     profile?: ProfileData;
     user?: ProfileData;
   };
-  return response?.data || response?.profile || response?.user || (data as ProfileData) || {};
+  return (
+    response?.data ||
+    response?.profile ||
+    response?.user ||
+    (data as ProfileData) ||
+    {}
+  );
 }
 
 function getErrorMessage(error: unknown, fallback: string): string {
@@ -199,12 +226,14 @@ function profileToForm(profile: ProfileData): EditForm {
     portfolio: profile.portfolio || "",
     profileImage: profile.profileImage || "",
     resume: profile.resume || "",
-    educations: profile.educations?.length || profile.education?.length
-      ? profile.educations || profile.education || []
-      : [{ ...emptyEducation }],
-    experiences: profile.experiences?.length || profile.experience?.length
-      ? profile.experiences || profile.experience || []
-      : [{ ...emptyExperience }],
+    educations:
+      profile.educations?.length || profile.education?.length
+        ? profile.educations || profile.education || []
+        : [{ ...emptyEducation }],
+    experiences:
+      profile.experiences?.length || profile.experience?.length
+        ? profile.experiences || profile.experience || []
+        : [{ ...emptyExperience }],
     internationalExperience: profile.internationalExperience?.length
       ? profile.internationalExperience
       : [{ ...emptyInternationalExperience }],
@@ -214,6 +243,10 @@ function profileToForm(profile: ProfileData): EditForm {
     achievements: profile.achievements?.length
       ? profile.achievements
       : [{ ...emptyAchievement }],
+    award: profile.awards?.length ? profile.awards : [{ ...emptyAward }],
+    publications: profile.publications?.length
+      ? profile.publications
+      : [{ ...emptyPublication }],
     skills: toArray(profile.skills),
     toolsAndPlatforms: toArray(profile.toolsAndPlatforms),
     languagesKnown: toArray(profile.languagesKnown),
@@ -267,6 +300,8 @@ function buildPayload(form: EditForm) {
     internationalExperience: form.internationalExperience,
     leadership: form.leadership,
     achievements: form.achievements,
+    awards: form.award,
+    publications: form.publications,
     skills: form.skills,
     toolsAndPlatforms: form.toolsAndPlatforms,
     languagesKnown: form.languagesKnown,
@@ -321,7 +356,13 @@ export default function EditProfilePage() {
   }, [profile]);
 
   const displayName = useMemo<string>(() => {
-    return form?.fullName || form?.name || profile?.fullName || profile?.name || "User";
+    return (
+      form?.fullName ||
+      form?.name ||
+      profile?.fullName ||
+      profile?.name ||
+      "User"
+    );
   }, [form, profile]);
 
   useEffect(() => {
@@ -349,10 +390,13 @@ export default function EditProfilePage() {
             withCredentials: true,
             headers: authHeaders(),
           }),
-          axios.get(`${backendUrl}/api/company-master-data?type=INDUSTRY_TYPE`, {
-            withCredentials: true,
-            headers: authHeaders(),
-          }),
+          axios.get(
+            `${backendUrl}/api/company-master-data?type=INDUSTRY_TYPE`,
+            {
+              withCredentials: true,
+              headers: authHeaders(),
+            },
+          ),
           axios.get(`${backendUrl}/api/company-master-data?type=JOB_ROLE`, {
             withCredentials: true,
             headers: authHeaders(),
@@ -599,7 +643,8 @@ export default function EditProfilePage() {
     setForm((prev: EditForm | null) => {
       if (!prev) return prev;
       const next = prev.internationalExperience.filter(
-        (_item: InternationalExperience, itemIndex: number) => itemIndex !== index,
+        (_item: InternationalExperience, itemIndex: number) =>
+          itemIndex !== index,
       );
       return {
         ...prev,
@@ -690,6 +735,96 @@ export default function EditProfilePage() {
       return {
         ...prev,
         achievements: next.length ? next : [{ ...emptyAchievement }],
+      };
+    });
+  }
+
+ function updateAward<K extends keyof Award>(
+  index: number,
+  key: K,
+  value: Award[K],
+) {
+  setForm((prev: EditForm | null) => {
+    if (!prev) return prev;
+
+    const next = [...prev.award];
+
+    next[index] = {
+      ...next[index],
+      [key]: value,
+    };
+
+    return {
+      ...prev,
+      award: next,
+    };
+  });
+}
+
+function addAward() {
+  setForm((prev: EditForm | null) => {
+    if (!prev) return prev;
+
+    return {
+      ...prev,
+      award: [...prev.award, { ...emptyAward }],
+    };
+  });
+}
+
+function removeAward(index: number) {
+  setForm((prev: EditForm | null) => {
+    if (!prev) return prev;
+
+    const next = prev.award.filter(
+      (_item: Award, itemIndex: number) => itemIndex !== index,
+    );
+
+    return {
+      ...prev,
+      award: next.length ? next : [{ ...emptyAward }],
+    };
+  });
+}
+
+  function updatePublication<K extends keyof Publication>(
+    index: number,
+    key: K,
+    value: Publication[K],
+  ) {
+    setForm((prev: EditForm | null) => {
+      if (!prev) return prev;
+      const next = [...prev.publications];
+      next[index] = {
+        ...next[index],
+        [key]: value,
+      };
+      return {
+        ...prev,
+        publications: next,
+      };
+    });
+  }
+
+  function addPublication() {
+    setForm((prev: EditForm | null) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        publications: [...prev.publications, { ...emptyPublication }],
+      };
+    });
+  }
+
+  function removePublication(index: number) {
+    setForm((prev: EditForm | null) => {
+      if (!prev) return prev;
+      const next = prev.publications.filter(
+        (_item: Publication, itemIndex: number) => itemIndex !== index,
+      );
+      return {
+        ...prev,
+        publications: next.length ? next : [{ ...emptyPublication }],
       };
     });
   }
@@ -812,72 +947,86 @@ export default function EditProfilePage() {
           <div className="space-y-2">
             <NavOption
               active={openSection === "basic"}
-              icon={<User />}
+              icon={<User className="h-4 w-4" />}
               title="Basic Information"
               onClick={() => setOpenSection("basic")}
             />
 
             <NavOption
               active={openSection === "education"}
-              icon={<GraduationCap />}
+              icon={<GraduationCap className="h-4 w-4" />}
               title="Education"
               onClick={() => setOpenSection("education")}
             />
 
             <NavOption
               active={openSection === "experience"}
-              icon={<Briefcase />}
+              icon={<Briefcase className="h-4 w-4" />}
               title="Experience"
               onClick={() => setOpenSection("experience")}
             />
 
             <NavOption
               active={openSection === "skills"}
-              icon={<Award />}
+              icon={<AwardSvgIcon className="h-4 w-4" />}
               title="Skills"
               onClick={() => setOpenSection("skills")}
             />
 
             <NavOption
               active={openSection === "career"}
-              icon={<Settings />}
+              icon={<Settings className="h-4 w-4" />}
               title="Career Details"
               onClick={() => setOpenSection("career")}
             />
 
             <NavOption
               active={openSection === "preferences"}
-              icon={<Settings />}
+              icon={<Settings className="h-4 w-4" />}
               title="Job Preferences"
               onClick={() => setOpenSection("preferences")}
             />
 
             <NavOption
               active={openSection === "tools"}
-              icon={<Award />}
+              icon={<AwardSvgIcon className="h-4 w-4" />}
               title="Tools & Languages"
               onClick={() => setOpenSection("tools")}
             />
 
             <NavOption
               active={openSection === "international"}
-              icon={<Globe />}
+              icon={<Globe className="h-4 w-4" />}
               title="International Experience"
               onClick={() => setOpenSection("international")}
             />
 
             <NavOption
               active={openSection === "leadership"}
-              icon={<Trophy />}
+              icon={<Users className="h-4 w-4" />}
               title="Leadership"
               onClick={() => setOpenSection("leadership")}
             />
 
             <NavOption
               active={openSection === "achievements"}
-              icon={<Trophy />}
+              icon={<Trophy className="h-4 w-4" />}
               title="Achievements"
               onClick={() => setOpenSection("achievements")}
+            />
+
+            <NavOption
+              active={openSection === "awards"}
+              icon={<AwardSvgIcon className="h-4 w-4" />}
+              title="Awards"
+              onClick={() => setOpenSection("awards")}
+            />
+
+            <NavOption
+              active={openSection === "publications"}
+              icon={<PublicationSvgIcon className="h-4 w-4" />}
+              title="Publications"
+              onClick={() => setOpenSection("publications")}
             />
           </div>
         </aside>
@@ -899,7 +1048,7 @@ export default function EditProfilePage() {
             id="basic"
             openSection={openSection}
             setOpenSection={setOpenSection}
-            icon={<User />}
+            icon={<User className="h-4 w-4" />}
             title="Basic Information"
             subtitle="Name, contact, about and social links"
           >
@@ -916,7 +1065,7 @@ export default function EditProfilePage() {
             id="education"
             openSection={openSection}
             setOpenSection={setOpenSection}
-            icon={<GraduationCap />}
+            icon={<GraduationCap className="h-4 w-4" />}
             title="Education"
             subtitle="College, degree, stream, semester and CGPA"
           >
@@ -941,7 +1090,7 @@ export default function EditProfilePage() {
             id="experience"
             openSection={openSection}
             setOpenSection={setOpenSection}
-            icon={<Briefcase />}
+            icon={<Briefcase className="h-4 w-4" />}
             title="Experience"
             subtitle="Company, role, dates and description"
           >
@@ -964,7 +1113,7 @@ export default function EditProfilePage() {
             id="skills"
             openSection={openSection}
             setOpenSection={setOpenSection}
-            icon={<Award />}
+            icon={<AwardSvgIcon className="h-4 w-4" />}
             title="Skills"
             subtitle="Add or remove technical skills"
           >
@@ -984,7 +1133,7 @@ export default function EditProfilePage() {
             id="career"
             openSection={openSection}
             setOpenSection={setOpenSection}
-            icon={<Settings />}
+            icon={<Settings className="h-4 w-4" />}
             title="Career Details"
             subtitle="Company, experience and notice period"
           >
@@ -1015,7 +1164,7 @@ export default function EditProfilePage() {
             id="preferences"
             openSection={openSection}
             setOpenSection={setOpenSection}
-            icon={<Settings />}
+            icon={<Settings className="h-4 w-4" />}
             title="Job Preferences"
             subtitle="Roles, locations, industry and job type"
           >
@@ -1050,7 +1199,7 @@ export default function EditProfilePage() {
             id="tools"
             openSection={openSection}
             setOpenSection={setOpenSection}
-            icon={<Award />}
+            icon={<AwardSvgIcon className="h-4 w-4" />}
             title="Tools & Languages"
             subtitle="Tools, domains and known languages"
           >
@@ -1074,7 +1223,7 @@ export default function EditProfilePage() {
             id="international"
             openSection={openSection}
             setOpenSection={setOpenSection}
-            icon={<Globe />}
+            icon={<Globe className="h-4 w-4" />}
             title="International Experience"
             subtitle="Work experience in different countries"
           >
@@ -1096,7 +1245,7 @@ export default function EditProfilePage() {
             id="leadership"
             openSection={openSection}
             setOpenSection={setOpenSection}
-            icon={<Trophy />}
+            icon={<Users className="h-4 w-4" />}
             title="Leadership"
             subtitle="Leadership roles and positions"
           >
@@ -1118,7 +1267,7 @@ export default function EditProfilePage() {
             id="achievements"
             openSection={openSection}
             setOpenSection={setOpenSection}
-            icon={<Trophy />}
+            icon={<Trophy className="h-4 w-4" />}
             title="Achievements"
             subtitle="Awards, certificates and achievements"
           >
@@ -1133,6 +1282,50 @@ export default function EditProfilePage() {
               loading={savingSection === "Achievements"}
               onCancel={cancelChanges}
               onSave={() => saveSection("Achievements")}
+            />
+          </EditAccordion>
+
+          <EditAccordion
+            id="awards"
+            openSection={openSection}
+            setOpenSection={setOpenSection}
+            icon={<AwardSvgIcon className="h-4 w-4" />}
+            title="Awards"
+            subtitle="Awards and recognitions"
+          >
+            <AwardEditor
+              awards={form.award}
+              onUpdate={updateAward}
+              onAdd={addAward}
+              onRemove={removeAward}
+            />
+
+            <SectionActions
+              loading={savingSection === "Awards"}
+              onCancel={cancelChanges}
+              onSave={() => saveSection("Awards")}
+            />
+          </EditAccordion>
+
+          <EditAccordion
+            id="publications"
+            openSection={openSection}
+            setOpenSection={setOpenSection}
+            icon={<PublicationSvgIcon className="h-4 w-4" />}
+            title="Publications"
+            subtitle="Published works and articles"
+          >
+            <PublicationEditor
+              publications={form.publications}
+              onUpdate={updatePublication}
+              onAdd={addPublication}
+              onRemove={removePublication}
+            />
+
+            <SectionActions
+              loading={savingSection === "Publications"}
+              onCancel={cancelChanges}
+              onSave={() => saveSection("Publications")}
             />
           </EditAccordion>
         </section>

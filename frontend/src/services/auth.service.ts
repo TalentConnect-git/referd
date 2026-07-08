@@ -1,3 +1,4 @@
+import axios from "axios";
 import axiosInstance from "@/lib/axiosInstance";
 
 export type UserType = "student" | "fresher" | "professional";
@@ -43,12 +44,15 @@ export type LoginPayload = {
 };
 
 export type LoginResponse = {
+  success?: boolean;
   message: string;
   token: string;
+  accessToken: string;
   user: AuthUser;
 };
 
 export type MeResponse = {
+  success?: boolean;
   user: AuthUser | null;
 };
 
@@ -65,9 +69,11 @@ export type SignupPayload = {
 };
 
 export type SignupResponse = {
+  success?: boolean;
   message: string;
-  user: AuthUser;
   token: string;
+  accessToken: string;
+  user: AuthUser;
 };
 
 export type ApiResponse<T = object> = {
@@ -84,6 +90,21 @@ export type GoogleOAuthLoginPayload = {
   userType: UserType;
   isApp?: boolean;
   googleToken?: string;
+};
+
+export type GoogleOAuthLoginResponse = {
+  success?: boolean;
+  message: string;
+  token: string;
+  accessToken: string;
+  user: AuthUser;
+};
+
+export type RefreshTokenResponse = {
+  success: boolean;
+  message?: string;
+  token: string;
+  accessToken: string;
 };
 
 export type ParsedResumeResponse = {
@@ -118,17 +139,17 @@ const API_URL =
 const TOKEN_KEY = "token";
 const USER_KEY = "user";
 
-const getErrorMessage = (error: unknown, fallback: string): string => {
-  if (typeof error === "object" && error !== null && "response" in error) {
-    const axiosError = error as {
-      response?: {
-        data?: {
-          message?: string;
-        };
-      };
-    };
+const refreshAxios = axios.create({
+  baseURL: API_URL,
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
-    return axiosError.response?.data?.message || fallback;
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (axios.isAxiosError(error)) {
+    return error.response?.data?.message || fallback;
   }
 
   if (error instanceof Error) {
@@ -138,14 +159,23 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
   return fallback;
 };
 
-export const saveAuthToStorage = (data: any) => {
-  const token =
-    data?.token ||
+const extractAccessToken = (data: any): string | null => {
+  return (
     data?.accessToken ||
+    data?.token ||
+    data?.data?.accessToken ||
     data?.data?.token ||
-    data?.data?.accessToken;
+    null
+  );
+};
 
-  const user = data?.user || data?.data?.user;
+const extractUser = (data: any): AuthUser | null => {
+  return data?.user || data?.data?.user || null;
+};
+
+export const saveAuthToStorage = (data: any) => {
+  const token = extractAccessToken(data);
+  const user = extractUser(data);
 
   if (typeof window !== "undefined") {
     if (token) {
@@ -159,8 +189,19 @@ export const saveAuthToStorage = (data: any) => {
 
   return {
     token,
+    accessToken: token,
     user,
   };
+};
+
+export const clearAuthStorage = () => {
+  if (typeof window === "undefined") return;
+
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
+  sessionStorage.clear();
+
+  window.dispatchEvent(new Event("auth-logout"));
 };
 
 export const sendSignupOtp = async (
@@ -168,7 +209,7 @@ export const sendSignupOtp = async (
 ): Promise<SendOtpResponse> => {
   try {
     const { data } = await axiosInstance.post("/api/auth/send-otp", {
-      email,
+      email: email.trim().toLowerCase(),
     });
 
     return data;
@@ -181,11 +222,23 @@ export const signupUser = async (
   payload: SignupPayload,
 ): Promise<SignupResponse> => {
   try {
-    const { data } = await axiosInstance.post("/api/auth/signup", payload);
+    const { data } = await axiosInstance.post("/api/auth/signup", {
+      ...payload,
+      email: payload.email.trim().toLowerCase(),
+    });
 
-    saveAuthToStorage(data);
+    const saved = saveAuthToStorage(data);
 
-    return data;
+    if (!saved.token || !saved.user) {
+      throw new Error("Signup API did not return token or user.");
+    }
+
+    return {
+      ...data,
+      token: saved.token,
+      accessToken: saved.token,
+      user: saved.user,
+    };
   } catch (error) {
     throw new Error(
       getErrorMessage(error, "Signup failed. Please try again."),
@@ -197,11 +250,29 @@ export const loginUser = async (
   payload: LoginPayload,
 ): Promise<LoginResponse> => {
   try {
-    const { data } = await axiosInstance.post("/api/auth/login", payload);
+    const { data } = await axiosInstance.post(
+      "/api/auth/login",
+      {
+        email: payload.email.trim().toLowerCase(),
+        password: payload.password,
+      },
+      {
+        withCredentials: true,
+      },
+    );
 
-    saveAuthToStorage(data);
+    const saved = saveAuthToStorage(data);
 
-    return data;
+    if (!saved.token || !saved.user) {
+      throw new Error("Login API did not return token or user.");
+    }
+
+    return {
+      ...data,
+      token: saved.token,
+      accessToken: saved.token,
+      user: saved.user,
+    };
   } catch (error) {
     throw new Error(getErrorMessage(error, "Invalid credentials"));
   }
@@ -212,28 +283,33 @@ export const googleOAuthLogin = async ({
   userType,
   isApp = false,
   googleToken = "",
-}: GoogleOAuthLoginPayload) => {
+}: GoogleOAuthLoginPayload): Promise<GoogleOAuthLoginResponse> => {
   try {
-    const { data } = await axiosInstance.post("/api/auth/google", {
-      code,
-      userType,
+    const { data } = await axiosInstance.post(
+      "/api/auth/google",
+      {
+        code,
+        userType,
+        isApp,
+        googleToken,
+      },
+      {
+        withCredentials: true,
+      },
+    );
 
-      /**
-       * Important:
-       * Web login sends authorization code.
-       * Your backend uses code flow only when isApp is false.
-       */
-      isApp,
+    const saved = saveAuthToStorage(data);
 
-      /**
-       * Web flow does not use googleToken.
-       */
-      googleToken,
-    });
+    if (!saved.token || !saved.user) {
+      throw new Error("Google login API did not return token or user.");
+    }
 
-    saveAuthToStorage(data);
-
-    return data;
+    return {
+      ...data,
+      token: saved.token,
+      accessToken: saved.token,
+      user: saved.user,
+    };
   } catch (error) {
     throw new Error(
       getErrorMessage(error, "Google authentication failed."),
@@ -241,14 +317,43 @@ export const googleOAuthLogin = async ({
   }
 };
 
-export const refreshToken = async () => {
+export const refreshToken = async (): Promise<RefreshTokenResponse> => {
   try {
-    const { data } = await axiosInstance.post("/api/auth/refresh");
+    /**
+     * Important:
+     * Use refreshAxios, not axiosInstance.
+     * This avoids sending old accessToken in Authorization header.
+     *
+     * Web refreshToken is sent automatically through httpOnly cookie.
+     */
+    const { data } = await refreshAxios.post("/api/auth/refresh", {});
 
-    saveAuthToStorage(data);
+    const token = extractAccessToken(data);
 
-    return data;
+    if (!token) {
+      throw new Error("Refresh API did not return access token.");
+    }
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem(TOKEN_KEY, token);
+
+      window.dispatchEvent(
+        new CustomEvent("auth-token-refreshed", {
+          detail: {
+            token,
+          },
+        }),
+      );
+    }
+
+    return {
+      ...data,
+      token,
+      accessToken: token,
+    };
   } catch (error) {
+    clearAuthStorage();
+
     throw new Error(
       getErrorMessage(error, "Session expired. Please login again."),
     );
@@ -257,11 +362,16 @@ export const refreshToken = async () => {
 
 export const logoutUser = async () => {
   try {
-    const { data } = await axiosInstance.post("/api/auth/logout");
+    const { data } = await refreshAxios.post("/api/auth/logout", {});
+
+    clearAuthStorage();
 
     return data;
   } catch {
+    clearAuthStorage();
+
     return {
+      success: true,
       message: "Logged out",
     };
   }
@@ -272,7 +382,7 @@ export const requestPasswordReset = async (
 ): Promise<ApiResponse> => {
   try {
     const { data } = await axiosInstance.post("/api/auth/forgot-password", {
-      email,
+      email: email.trim().toLowerCase(),
     });
 
     return data;
@@ -322,9 +432,13 @@ export const getCurrentUser = async (): Promise<MeResponse> => {
   try {
     const { data } = await axiosInstance.get("/api/auth/me");
 
-    return data;
+    return {
+      success: data?.success ?? true,
+      user: data?.user ?? null,
+    };
   } catch {
     return {
+      success: false,
       user: null,
     };
   }

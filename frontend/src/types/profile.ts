@@ -12,6 +12,9 @@ export type ShiftPreferences = {
   Any?: boolean;
 };
 
+
+
+
 export type Education = {
   _id?: string;
   college?: string;
@@ -203,6 +206,8 @@ export type ProfileData = {
   certifications?: string;
   projects?: Project[];
   portfolioLinks?: string[];
+
+  
 };
 
 export type EditForm = {
@@ -214,6 +219,8 @@ export type EditForm = {
   gender: string;
   dob: string;
   ethnicity: string;
+  award:Award[];
+  publications: Publication[];
   maritalStatus: string;
   linkedin: string;
   github: string;
@@ -247,6 +254,7 @@ export type EditForm = {
   currentSalaryAmount: string;
   expectedSalaryCurrency: string;
   expectedSalaryAmount: string;
+  
 };
 
 
