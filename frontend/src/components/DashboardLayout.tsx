@@ -20,10 +20,12 @@ import {
   Monitor,
   Network,
   Settings,
+  TrendingUp,
   User,
   UserCheck,
   Users,
   X,
+  HelpCircle,
   type LucideIcon,
 } from "lucide-react";
 import type { ReactNode } from "react";
@@ -39,6 +41,7 @@ export type DashboardIconKey =
   | "dashboard"
   | "briefcase"
   | "file"
+  | "trendingUp"
   | "users"
   | "userCheck"
   | "message"
@@ -51,13 +54,14 @@ export type DashboardIconKey =
   | "award"
   | "network"
   | "user"
-  | "settings";
+  | "settings"
+  | "helpCircle"; // Added support icon
 
 export type DashboardNavItem = {
   to: string;
   label: string;
   icon: DashboardIconKey;
-  badge?: number;
+  badge?: number | string;
 };
 
 type DashboardLayoutProps = {
@@ -71,6 +75,7 @@ const iconMap: Record<DashboardIconKey, LucideIcon> = {
   dashboard: LayoutDashboard,
   briefcase: Briefcase,
   file: FileText,
+  trendingUp: TrendingUp,
   users: Users,
   userCheck: UserCheck,
   message: MessageSquare,
@@ -84,6 +89,7 @@ const iconMap: Record<DashboardIconKey, LucideIcon> = {
   network: Network,
   user: User,
   settings: Settings,
+  helpCircle: HelpCircle, // Added support icon mapping
 };
 
 // ---------- Component ----------
@@ -105,7 +111,7 @@ export function DashboardLayout({
 
   // Get unread message counts
   // Realtime unread message count for navbar/sidebar message badge
-const { messageUnreadCount } = useMessageUnreadCount();
+  const { messageUnreadCount } = useMessageUnreadCount();
 
   const handleClick = () => {
     goToHome(router);
@@ -162,17 +168,16 @@ const { messageUnreadCount } = useMessageUnreadCount();
 
   // Update nav items with unread count
   const updatedNavItems = useMemo(() => {
-  return navItems.map((item) => {
-    if (item.icon === "message") {
-      return {
-        ...item,
-        badge: messageUnreadCount > 0 ? messageUnreadCount : undefined,
-      };
-    }
-
-    return item;
-  });
-}, [navItems, messageUnreadCount]);
+    return navItems.map((item) => {
+      if (item.icon === "message") {
+        return {
+          ...item,
+          badge: messageUnreadCount > 0 ? messageUnreadCount : undefined,
+        };
+      }
+      return item;
+    });
+  }, [navItems, messageUnreadCount]);
 
   // Initials for avatar
   const initials = useMemo(() => {
@@ -229,7 +234,7 @@ const { messageUnreadCount } = useMessageUnreadCount();
                   >
                     <Icon className="h-4 w-4 shrink-0" />
                     <span className="flex-1 truncate">{item.label}</span>
-                    {item.badge && item.badge > 0 && (
+                    {item.badge && (
                       <span
                         className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-semibold ${
                           active
@@ -398,7 +403,7 @@ const { messageUnreadCount } = useMessageUnreadCount();
                 >
                   <Icon className="h-5 w-5" />
                   <span className="flex-1">{item.label}</span>
-                  {item.badge && item.badge > 0 && (
+                  {item.badge && (
                     <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-black/20 px-1.5 text-[10px] font-semibold">
                       {item.badge}
                     </span>

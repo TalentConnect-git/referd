@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import axiosInstance from "@/lib/axiosInstance";
 import IncomingRequestCard from "./IncomingRequestCard";
 import Link from "next/link";
+import Image from "next/image";
+import { RefreshCw } from "lucide-react";
 
 const IncomingRequests = () => {
   const router = useRouter();
@@ -14,6 +16,7 @@ const IncomingRequests = () => {
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [meta, setMeta] = useState(null);
 
   useEffect(() => {
     fetchApplications();
@@ -23,14 +26,23 @@ const IncomingRequests = () => {
     try {
       setLoading(true);
       const response = await axiosInstance.get(
-        `/application/all-referrals`,
+        `/application/all-referrals?page=${page}&limit=10`
       );
 
+      console.log("all referrals", response.data);
+
       if (response.data && response.data.success) {
-        setApplications(response.data.data || []);
+        // Handle the response data structure properly
+        const data = response.data.data || [];
+        setApplications(data);
         setTotalPages(response.data.totalPages || 1);
+        setMeta(response.data.meta || null);
       } else if (Array.isArray(response.data)) {
         setApplications(response.data);
+      } else if (response.data && response.data.applications) {
+        // Alternative structure
+        setApplications(response.data.applications);
+        setTotalPages(response.data.totalPages || 1);
       } else {
         setApplications([]);
       }
@@ -50,6 +62,37 @@ const IncomingRequests = () => {
       day: "numeric",
       year: "numeric",
     });
+  };
+
+  // Helper function to get applicant name
+  const getApplicantName = (application) => {
+    return application?.applicant?.name || 
+           application?.displayCompanyName || 
+           application?.applicant?.fullName ||
+           "Anonymous";
+  };
+
+  // Helper function to get applicant image
+  const getApplicantImage = (application) => {
+    return application?.applicant?.profileImage || 
+           application?.applicant?.avatar ||
+           "/images/default-user.png";
+  };
+
+  // Helper function to get job role
+  const getJobRole = (application) => {
+    return application?.applicant?.jobRoles?.[0] || 
+           application?.jobRole ||
+           application?.role ||
+           "N/A";
+  };
+
+  // Helper function to get match score
+  const getMatchScore = (application) => {
+    return application?.matchScore || 
+           application?.score ||
+           application?.matchingScore ||
+           "N/A";
   };
 
   if (loading) {
@@ -134,21 +177,91 @@ const IncomingRequests = () => {
         </Link>
       </div>
 
-      {/* Applications List - Show only first 3 */}
+      {/* Applications List - Enhanced with better data display */}
       <div className="divide-y divide-[#1e293b]">
         {displayApplications.length > 0 ? (
           <>
             {displayApplications.map((application, index) => (
               <div 
-                key={application._id} 
-                className={`hover:bg-[#1a2332]/50 transition-colors duration-150 ${
+                key={application._id || index} 
+                className={`hover:bg-[#1a2332]/50 transition-colors duration-150 cursor-pointer ${
                   index === 0 ? '' : ''
                 }`}
+                onClick={() => {
+                  if (application._id) {
+                    router.push(`/professional/applications/${application._id}`);
+                  }
+                }}
               >
-                <IncomingRequestCard
-                  application={application}
-                  formatDate={formatDate}
-                />
+                {/* Enhanced Card Layout similar to ApplicationTable */}
+                <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  {/* Applicant Info */}
+                  <div className="flex items-center gap-3 min-w-[200px]">
+                    <Image
+                      src={getApplicantImage(application)}
+                      alt={getApplicantName(application)}
+                      width={40}
+                      height={40}
+                      className="h-10 w-10 rounded-full object-cover border border-[#1e293b]"
+                      onError={(e) => {
+                        e.target.src = "/images/default-user.png";
+                      }}
+                    />
+                    <div>
+                      <p className="text-sm font-medium text-white">
+                        {getApplicantName(application)}
+                      </p>
+                      <p className="text-xs text-[#94a3b8]">
+                        {getJobRole(application)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Stage/Status */}
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${
+                      application?.currentStatus === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                      application?.currentStatus === 'accepted' ? 'bg-green-500/20 text-green-400' :
+                      application?.currentStatus === 'rejected' ? 'bg-red-500/20 text-red-400' :
+                      'bg-[#1a2332] text-[#94a3b8]'
+                    }`}>
+                      {application?.currentStatus || "Pending"}
+                    </span>
+                  </div>
+
+                  {/* Applied Date */}
+                  <div className="text-sm text-[#94a3b8] min-w-[100px]">
+                    {formatDate(application?.createdAt)}
+                  </div>
+
+                  {/* Match Score */}
+                  <div className="flex items-center gap-2 min-w-[80px]">
+                    <div className="w-12 h-1.5 bg-[#1a2332] rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-[#31aa40] rounded-full transition-all duration-500"
+                        style={{ width: `${getMatchScore(application)}%` }}
+                      />
+                    </div>
+                    <span className="text-sm font-medium text-white">
+                      {getMatchScore(application)}%
+                    </span>
+                  </div>
+
+                  {/* Action Button */}
+                  {application.isAskForReferral && (
+                    <button 
+                      className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-[#0F1115] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#171A20] hover:border-[#31aa40]"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Handle referral action
+                        console.log("Referral action for:", application._id);
+                      }}
+                    >
+                      <RefreshCw className="h-3.5 w-3.5" />
+                      Refer
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
 

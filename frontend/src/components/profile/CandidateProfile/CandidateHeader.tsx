@@ -1,3 +1,4 @@
+// components/profile/CandidateHeader.tsx
 "use client";
 
 import { useMemo, useState } from "react";
@@ -11,10 +12,15 @@ import {
   MapPin,
   Trophy,
   CheckCircle,
+  Mail,
+  Phone,
+  MessageCircle,
 } from "lucide-react";
 
 import { ProfileData } from "@/types/profile";
 import ResumeModal from "@/components/profile/ResumeModal";
+import { useAuth } from "@/context/AuthContext"; // Import your auth context
+import { useRouter } from "next/navigation";
 
 type EducationItem = {
   college?: string;
@@ -51,6 +57,8 @@ type CandidateHeaderProfile = ProfileData & {
   jobRoles?: string[];
   locations?: string[];
   isVerified?: boolean;
+  email?: string;
+  phone?: string;
 };
 
 interface CandidateHeaderProps {
@@ -163,6 +171,8 @@ const PortfolioSvgIcon = ({
 
 export default function CandidateHeader({ profile }: CandidateHeaderProps) {
   const [isResumeOpen, setIsResumeOpen] = useState(false);
+  const { user } = useAuth(); // Get user from auth context
+  const router = useRouter();
 
   const currentExperience = useMemo(() => {
     return (
@@ -262,6 +272,14 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
     window.open(link.url, "_blank", "noopener,noreferrer");
   };
 
+  const handleMessageClick = () => {
+    const userRole = user?.userType || "candidate";
+    const userId = profile.userId;
+    const name = profile.name;
+
+    router.push(`/${userRole}/message/${userId}?userName=${name}`);
+  };
+
   return (
     <>
       <section className="relative overflow-hidden rounded-2xl border border-[#38e878]/15 bg-[#071018] px-4 py-4 shadow-[0_20px_70px_rgba(0,0,0,0.45)] sm:px-5">
@@ -325,7 +343,7 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
               </div>
             </div>
 
-            {/* Verified Badge + Social Icons - Compact */}
+            {/* Verified Badge + Social Icons + Contact */}
             <div className="flex flex-col items-end gap-1.5">
               {isVerified && (
                 <div className="flex items-center gap-1.5 rounded-full border border-[#38e878]/30 bg-[#12381f]/60 px-2.5 py-1 shadow-[0_0_20px_rgba(56,232,120,0.1)]">
@@ -336,8 +354,12 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
                 </div>
               )}
 
-              {/* Social Links - Compact row */}
+              {/* Contact Info - Email and Phone */}
+
+              {/* Social Links + Message Button - Compact row */}
               <div className="flex flex-wrap items-center justify-end gap-1.5">
+                {/* Message Button */}
+
                 {socialLinks.map((link) => {
                   const Icon = link.icon;
                   const hasUrl = Boolean(link.url);
@@ -361,6 +383,38 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
                     </button>
                   );
                 })}
+              </div>
+
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                {profile.email && (
+                  <a
+                    href={`mailto:${profile.email}`}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#38e878]/15 bg-[#0b1621] px-3 py-1.5 text-xs font-medium text-[#cbd5e1] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#38e878]/50 hover:bg-[#12381f] hover:text-[#38e878]"
+                  >
+                    <Mail className="h-3.5 w-3.5" />
+                    <span className="max-w-[120px] truncate">
+                      {profile.email}
+                    </span>
+                  </a>
+                )}
+                {profile.phone && (
+                  <a
+                    href={`tel:${profile.phone}`}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#38e878]/15 bg-[#0b1621] px-3 py-1.5 text-xs font-medium text-[#cbd5e1] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#38e878]/50 hover:bg-[#12381f] hover:text-[#38e878]"
+                  >
+                    <Phone className="h-3.5 w-3.5" />
+                    <span>{profile.phone}</span>
+                  </a>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleMessageClick}
+                  className="inline-flex h-[30px] items-center justify-center gap-1.5 rounded-lg bg-[#38e878] px-3 text-xs font-semibold text-[#071018] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#38e878]/90 hover:shadow-[0_8px_20px_rgba(56,232,120,0.25)]"
+                >
+                  <MessageCircle className="h-3.5 w-3.5" />
+                  Message
+                </button>
               </div>
             </div>
           </div>

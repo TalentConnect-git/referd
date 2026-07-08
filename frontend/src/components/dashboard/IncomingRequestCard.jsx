@@ -16,6 +16,8 @@ const IncomingRequestCard = ({ application, formatDate }) => {
     currentStatus,
   } = application || {};
 
+  console.log("application",application);
+
   const getStatusColor = (status) => {
     const statusMap = {
       pending: "bg-yellow-500/20 text-yellow-400",

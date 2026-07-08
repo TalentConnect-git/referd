@@ -86,13 +86,43 @@ const clamp = (value: number, min: number, max: number) => {
 
 export default function NoticePeriodCard({ profile }: NoticePeriodCardProps) {
   const servingNotice = Boolean(profile.servingNoticePeriod);
+  const totalNoticeDays = parseNumber(profile.noticePeriod);
 
-  // If servingNoticePeriod is false, do not display this UI
+  // If servingNoticePeriod is false, show simplified version
   if (!servingNotice) {
-    return null;
+    return (
+      <section className="rounded-[18px] border border-white/10 bg-[#071018] px-[18px] py-[18px] shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
+        <div className="flex items-center gap-3">
+          <div className="flex h-7 w-7 items-center justify-center rounded-[9px] bg-[#12381f] text-[#37e875]">
+            <Timer className="h-3.5 w-3.5" />
+          </div>
+
+          <h2 className="text-[14px] font-bold text-white">
+            Notice Period
+          </h2>
+        </div>
+
+        <div className="mt-[18px] border-t border-white/10" />
+
+        <div className="mt-[17px] grid grid-cols-1 gap-3 md:grid-cols-1">
+          <div className="rounded-[12px] border border-white/10 bg-[#0b1621] px-4 py-4">
+            <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-[9px] bg-[#12381f] text-[#37e875]">
+              <CalendarDays className="h-3.5 w-3.5" />
+            </div>
+
+            <p className="text-[14px] font-medium leading-none text-white">
+              {totalNoticeDays}
+            </p>
+            <p className="mt-2 text-[9px] font-normal uppercase tracking-[0.08em] text-[#7891c7]">
+              Notice Days
+            </p>
+          </div>
+        </div>
+      </section>
+    );
   }
 
-  const totalNoticeDays = parseNumber(profile.noticePeriod);
+  // If servingNoticePeriod is true, show full detailed view
   const startDate = parseDate(profile.noticePeriodStartDate);
 
   const today = getToday();

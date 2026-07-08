@@ -29,10 +29,6 @@ const axiosInstance = axios.create({
   },
 });
 
-/**
- * Separate axios instance for refresh API.
- * Important: do not use axiosInstance here, otherwise interceptor loop can happen.
- */
 const refreshAxios = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
@@ -53,9 +49,7 @@ const setToken = (token: string) => {
 
   window.dispatchEvent(
     new CustomEvent("auth-token-refreshed", {
-      detail: {
-        token,
-      },
+      detail: { token },
     }),
   );
 };
@@ -70,7 +64,7 @@ const clearAuthStorage = () => {
   window.dispatchEvent(new Event("auth-logout"));
 };
 
-const logoutUser = () => {
+const logoutUserLocally = () => {
   clearAuthStorage();
 
   if (typeof window !== "undefined") {
@@ -92,10 +86,10 @@ const processQueue = (error: unknown, token: string | null = null) => {
 
 const extractAccessToken = (data: any): string | null => {
   return (
-    data?.token ||
     data?.accessToken ||
-    data?.data?.token ||
+    data?.token ||
     data?.data?.accessToken ||
+    data?.data?.token ||
     null
   );
 };
@@ -126,37 +120,23 @@ axiosInstance.interceptors.response.use(
     const status = error.response?.status;
     const requestUrl = originalRequest.url || "";
 
-    const isLoginRequest = requestUrl.includes("/api/auth/login");
-    const isSignupRequest = requestUrl.includes("/api/auth/signup");
-    const isGoogleLoginRequest = requestUrl.includes("/api/auth/google");
-    const isRefreshRequest = requestUrl.includes("/api/auth/refresh");
-    const isLogoutRequest = requestUrl.includes("/api/auth/logout");
+    const isAuthRequest =
+      requestUrl.includes("/api/auth/login") ||
+      requestUrl.includes("/api/auth/signup") ||
+      requestUrl.includes("/api/auth/google") ||
+      requestUrl.includes("/api/auth/refresh") ||
+      requestUrl.includes("/api/auth/logout");
 
-    /**
-     * Do not refresh for auth entry APIs.
-     */
-    if (
-      isLoginRequest ||
-      isSignupRequest ||
-      isGoogleLoginRequest ||
-      isRefreshRequest ||
-      isLogoutRequest
-    ) {
+    if (isAuthRequest) {
       return Promise.reject(error);
     }
 
-    /**
-     * Only refresh on first 401.
-     */
     if (status !== 401 || originalRequest._retry) {
       return Promise.reject(error);
     }
 
     originalRequest._retry = true;
 
-    /**
-     * If refresh is already running, wait for it.
-     */
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         failedQueue.push({
@@ -173,21 +153,16 @@ axiosInstance.interceptors.response.use(
 
     try {
       /**
-       * Your backend route:
-       * router.post("/refresh", refreshToken)
-       *
-       * Because your frontend currently calls auth as:
-       * /api/auth/login
-       *
-       * refresh endpoint should be:
-       * /api/auth/refresh
+       * For web:
+       * Do not send refreshToken manually.
+       * Browser sends refreshToken cookie automatically because withCredentials=true.
        */
-      const refreshResponse = await refreshAxios.post("/api/auth/refresh");
+      const refreshResponse = await refreshAxios.post("/api/auth/refresh", {});
 
       const newToken = extractAccessToken(refreshResponse.data);
 
       if (!newToken) {
-        throw new Error("Refresh API did not return a new access token.");
+        throw new Error("Refresh API did not return accessToken.");
       }
 
       setToken(newToken);
@@ -201,7 +176,7 @@ axiosInstance.interceptors.response.use(
       return axiosInstance(originalRequest);
     } catch (refreshError) {
       processQueue(refreshError, null);
-      logoutUser();
+      logoutUserLocally();
 
       return Promise.reject(refreshError);
     } finally {
