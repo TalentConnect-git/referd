@@ -2,23 +2,32 @@
 
 import { useAuth } from "@/context/AuthContext";
 import JobCard from "./JobCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Briefcase } from "lucide-react";
 
 interface JobContainerProps {
   jobs: any[];
   loading: boolean;
   type: "offcampus" | "referral";
+  onJobRemove?: (jobId: string) => void; // Optional callback for parent
 }
 
 export default function JobContainer({
   jobs,
   loading,
   type,
+  onJobRemove,
 }: JobContainerProps) {
   const { profile } = useAuth();
   const role = profile?.profileType || "student";
   const [savedJobs, setSavedJobs] = useState<Record<string, boolean>>({});
+  const [removingJobIds, setRemovingJobIds] = useState<Set<string>>(new Set());
+  const [localJobs, setLocalJobs] = useState<any[]>(jobs);
+
+  // Update local jobs when prop changes
+  useEffect(() => {
+    setLocalJobs(jobs);
+  }, [jobs]);
 
   console.log("job received ******** ", jobs?.[0]);
 
@@ -30,6 +39,27 @@ export default function JobContainer({
     }));
   };
 
+  // Handle job removal from the list
+  const handleJobRemove = (jobId: string) => {
+    // Add to removing set for animation
+    setRemovingJobIds((prev) => new Set(prev).add(jobId));
+
+    // Remove from local jobs after animation
+    setTimeout(() => {
+      setLocalJobs((prev) => prev.filter((job) => job._id !== jobId));
+      setRemovingJobIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(jobId);
+        return newSet;
+      });
+
+      // Notify parent if callback provided
+      if (onJobRemove) {
+        onJobRemove(jobId);
+      }
+    }, 300); // Match the animation duration in JobCard
+  };
+
   // Check if a job is saved (from state or from job data)
   const isJobSaved = (job: any) => {
     // First check local state
@@ -38,6 +68,11 @@ export default function JobContainer({
     }
     // Then check job data
     return job?.isSaved || job?.saved || false;
+  };
+
+  // Check if job is currently being removed
+  const isJobRemoving = (jobId: string) => {
+    return removingJobIds.has(jobId);
   };
 
   // Loading skeleton
@@ -76,8 +111,11 @@ export default function JobContainer({
     );
   }
 
+  // Filter out jobs that are being removed
+  const visibleJobs = localJobs.filter((job) => !removingJobIds.has(job._id));
+
   // Empty state
-  if (!jobs || jobs.length === 0) {
+  if (!visibleJobs || visibleJobs.length === 0) {
     return (
       <div className="ml-5 mr-5 mb-5">
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-10 text-center">
@@ -102,10 +140,11 @@ export default function JobContainer({
   // Main render
   return (
     <div className="space-y-3 ml-5 mr-5 mb-5">
-      {jobs.map((job) => {
+      {visibleJobs.map((job) => {
         // Determine job type for saving
         const jobType = type === "referral" ? "referral" : "offcampus";
         const isSaved = isJobSaved(job);
+        const isRemoving = isJobRemoving(job._id);
 
         // Extract package details from job data
         const packageDetails = job?.packageDetails || job?.package || null;
@@ -121,18 +160,10 @@ export default function JobContainer({
               "Unknown Company"
             }
             location={
-              job.location?.[0] ||
-              job.workLocation?.[0] ||
-              job.city ||
-              "Remote"
+              job.location?.[0] || job.workLocation?.[0] || job.city || "Remote"
             }
             matchScore={job.matchScore}
-            postedBy={
-              job.receiverProfile?.name ||
-              job.candidatePosted?.name ||
-              job.postedBy ||
-              "Anonymous"
-            }
+            postedBy={job.candidatePosted?.name || "Anonymous"}
             secondaryInfo={
               type === "referral"
                 ? "Referral"
@@ -146,7 +177,10 @@ export default function JobContainer({
             jobType={jobType}
             isSaved={isSaved}
             onSaveToggle={handleSaveToggle}
+            onRemove={handleJobRemove}
+            isRemoving={isRemoving}
             packageDetails={packageDetails}
+            alumniCount={job.alumniCount}
           />
         );
       })}

@@ -12,4 +12,6 @@ export interface InternshipCardProps {
   postedBy: string;
   secondaryInfo?: string;
   route: string;
+  onRemove?: (jobId: string) => void;
+  isRemoving?: boolean;
 }

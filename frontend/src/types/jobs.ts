@@ -23,6 +23,7 @@ export interface JobCardProps {
   isSaved?: boolean;
   packageDetails?: PackageDetails;
   onSaveToggle?: (jobId: string, isSaved: boolean) => void;
+  alumniCount?: number; 
 }
 
 export interface Job {
