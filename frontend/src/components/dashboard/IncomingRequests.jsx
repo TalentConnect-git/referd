@@ -4,10 +4,9 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axiosInstance from "@/lib/axiosInstance";
-import IncomingRequestCard from "./IncomingRequestCard";
 import Link from "next/link";
 import Image from "next/image";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Star, MessageCircle, ChevronRight } from "lucide-react";
 
 const IncomingRequests = () => {
   const router = useRouter();
@@ -32,7 +31,6 @@ const IncomingRequests = () => {
       console.log("all referrals", response.data);
 
       if (response.data && response.data.success) {
-        // Handle the response data structure properly
         const data = response.data.data || [];
         setApplications(data);
         setTotalPages(response.data.totalPages || 1);
@@ -40,7 +38,6 @@ const IncomingRequests = () => {
       } else if (Array.isArray(response.data)) {
         setApplications(response.data);
       } else if (response.data && response.data.applications) {
-        // Alternative structure
         setApplications(response.data.applications);
         setTotalPages(response.data.totalPages || 1);
       } else {
@@ -67,8 +64,8 @@ const IncomingRequests = () => {
   // Helper function to get applicant name
   const getApplicantName = (application) => {
     return application?.applicant?.name || 
-           application?.displayCompanyName || 
            application?.applicant?.fullName ||
+           application?.displayCompanyName ||
            "Anonymous";
   };
 
@@ -82,6 +79,7 @@ const IncomingRequests = () => {
   // Helper function to get job role
   const getJobRole = (application) => {
     return application?.applicant?.jobRoles?.[0] || 
+           application?.job?.jobTitle?.[0] ||
            application?.jobRole ||
            application?.role ||
            "N/A";
@@ -92,7 +90,58 @@ const IncomingRequests = () => {
     return application?.matchScore || 
            application?.score ||
            application?.matchingScore ||
-           "N/A";
+           0;
+  };
+
+  // Helper function to get college (FIXED)
+  const getCollege = (application) => {
+    try {
+      // Safely access nested education data
+      const education = application?.applicant?.educations;
+      
+      // Check if educations exists and is an array with items
+      if (education && Array.isArray(education) && education.length > 0) {
+        return education[0]?.college || "N/A";
+      }
+      return "N/A";
+    } catch (error) {
+      console.error("Error getting college:", error);
+      return "N/A";
+    }
+  };
+
+  // Helper function to get rating
+  const getRating = (application) => {
+    return application?.rating || 
+           application?.applicant?.rating || 
+           null;
+  };
+
+  // Helper function to get admin comment
+  const getAdminComment = (application) => {
+    return application?.adminComment || 
+           application?.comment || 
+           application?.applicant?.adminComment || 
+           null;
+  };
+
+  // Helper function to render stars
+  const renderStars = (rating) => {
+    if (!rating) return null;
+    const stars = Math.round(rating);
+    return (
+      <div className="flex items-center gap-0.5">
+        {[...Array(5)].map((_, i) => (
+          <Star
+            key={i}
+            className={`w-3.5 h-3.5 ${
+              i < stars ? 'text-yellow-400 fill-yellow-400' : 'text-gray-600'
+            }`}
+          />
+        ))}
+        <span className="ml-1 text-xs text-[#94a3b8]">({rating.toFixed(1)})</span>
+      </div>
+    );
   };
 
   if (loading) {
@@ -161,109 +210,142 @@ const IncomingRequests = () => {
           className="px-4 py-2 bg-[#31aa40] text-black text-sm font-medium rounded-lg hover:bg-[#16a34a] hover:shadow-lg hover:shadow-[#31aa40]/25 transition-all duration-200 flex items-center gap-2 whitespace-nowrap"
         >
           View All
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            strokeWidth={2.5}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
+          <ChevronRight className="w-4 h-4" />
         </Link>
       </div>
 
-      {/* Applications List - Enhanced with better data display */}
+      {/* Applications List */}
       <div className="divide-y divide-[#1e293b]">
         {displayApplications.length > 0 ? (
           <>
-            {displayApplications.map((application, index) => (
-              <div 
-                key={application._id || index} 
-                className={`hover:bg-[#1a2332]/50 transition-colors duration-150 cursor-pointer ${
-                  index === 0 ? '' : ''
-                }`}
-                onClick={() => {
-                  if (application._id) {
-                    router.push(`/professional/applications/${application._id}`);
-                  }
-                }}
-              >
-                {/* Enhanced Card Layout similar to ApplicationTable */}
-                <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  {/* Applicant Info */}
-                  <div className="flex items-center gap-3 min-w-[200px]">
-                    <Image
-                      src={getApplicantImage(application)}
-                      alt={getApplicantName(application)}
-                      width={40}
-                      height={40}
-                      className="h-10 w-10 rounded-full object-cover border border-[#1e293b]"
-                      onError={(e) => {
-                        e.target.src = "/images/default-user.png";
-                      }}
-                    />
-                    <div>
-                      <p className="text-sm font-medium text-white">
-                        {getApplicantName(application)}
-                      </p>
-                      <p className="text-xs text-[#94a3b8]">
-                        {getJobRole(application)}
-                      </p>
+            {displayApplications.map((application, index) => {
+              const rating = getRating(application);
+              const adminComment = getAdminComment(application);
+              const college = getCollege(application);
+              
+              return (
+                <div 
+                  key={application._id || index} 
+                  className={`hover:bg-[#1a2332]/50 transition-colors duration-150 cursor-pointer ${
+                    index === 0 ? '' : ''
+                  }`}
+                  onClick={() => {
+                    if (application._id) {
+                      router.push(`/professional/applications/${application._id}`);
+                    }
+                  }}
+                >
+                  {/* Enhanced Card Layout */}
+                  <div className="px-6 py-4">
+                    {/* Top Row - Applicant Info & Status */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      {/* Applicant Info */}
+                      <div className="flex items-center gap-3 min-w-[200px]">
+                        <Image
+                          src={getApplicantImage(application)}
+                          alt={getApplicantName(application)}
+                          width={40}
+                          height={40}
+                          className="h-10 w-10 rounded-full object-cover border border-[#1e293b]"
+                          onError={(e) => {
+                            e.target.src = "/images/default-user.png";
+                          }}
+                        />
+                        <div>
+                          <p className="text-sm font-medium text-white">
+                            {getApplicantName(application)}
+                          </p>
+                          <p className="text-xs text-[#94a3b8]">
+                            {getJobRole(application)}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Stage/Status & Date */}
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${
+                          application?.currentStatus === 'Application Sent' ? 'bg-blue-500/20 text-blue-400' :
+                          application?.currentStatus === 'Applied' ? 'bg-yellow-500/20 text-yellow-400' :
+                          application?.currentStatus === 'Accepted' ? 'bg-green-500/20 text-green-400' :
+                          application?.currentStatus === 'Rejected' ? 'bg-red-500/20 text-red-400' :
+                          'bg-[#1a2332] text-[#94a3b8]'
+                        }`}>
+                          {application?.currentStatus || "Pending"}
+                        </span>
+                        <span className="text-xs text-[#94a3b8]">
+                          {formatDate(application?.createdAt)}
+                        </span>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Stage/Status */}
-                  <div className="flex items-center gap-2">
-                    <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${
-                      application?.currentStatus === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
-                      application?.currentStatus === 'accepted' ? 'bg-green-500/20 text-green-400' :
-                      application?.currentStatus === 'rejected' ? 'bg-red-500/20 text-red-400' :
-                      'bg-[#1a2332] text-[#94a3b8]'
-                    }`}>
-                      {application?.currentStatus || "Pending"}
-                    </span>
-                  </div>
+                    {/* Middle Row - College & Match Score */}
+                    <div className="mt-3 flex flex-col sm:flex-row sm:items-center gap-3">
+                      {/* College - FIXED with safe access */}
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-[#64748b]">College:</span>
+                        <span className="text-sm text-white">{college}</span>
+                      </div>
 
-                  {/* Applied Date */}
-                  <div className="text-sm text-[#94a3b8] min-w-[100px]">
-                    {formatDate(application?.createdAt)}
-                  </div>
-
-                  {/* Match Score */}
-                  <div className="flex items-center gap-2 min-w-[80px]">
-                    <div className="w-12 h-1.5 bg-[#1a2332] rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-[#31aa40] rounded-full transition-all duration-500"
-                        style={{ width: `${getMatchScore(application)}%` }}
-                      />
+                      {/* Match Score */}
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-[#64748b]">Match:</span>
+                        <div className="w-16 h-1.5 bg-[#1a2332] rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-[#31aa40] rounded-full transition-all duration-500"
+                            style={{ width: `${getMatchScore(application)}%` }}
+                          />
+                        </div>
+                        <span className="text-sm font-medium text-white">
+                          {getMatchScore(application)}%
+                        </span>
+                      </div>
                     </div>
-                    <span className="text-sm font-medium text-white">
-                      {getMatchScore(application)}%
-                    </span>
-                  </div>
 
-                  {/* Action Button */}
-                  {application.isAskForReferral && (
-                    <button 
-                      className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-[#0F1115] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#171A20] hover:border-[#31aa40]"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // Handle referral action
-                        console.log("Referral action for:", application._id);
-                      }}
-                    >
-                      <RefreshCw className="h-3.5 w-3.5" />
-                      Refer
-                    </button>
-                  )}
+                    {/* Bottom Row - Rating & Admin Comment */}
+                    {(rating || adminComment) && (
+                      <div className="mt-3 pt-3 border-t border-[#1e293b]/50">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                          {/* Rating */}
+                          {rating && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-[#64748b]">Rating:</span>
+                              {renderStars(rating)}
+                            </div>
+                          )}
+                          
+                          {/* Admin Comment */}
+                          {adminComment && (
+                            <div className="flex items-start gap-2">
+                              <MessageCircle className="w-4 h-4 text-[#64748b] mt-0.5 flex-shrink-0" />
+                              <div>
+                                <span className="text-xs text-[#64748b]">Admin:</span>
+                                <span className="text-sm text-white ml-1.5">{adminComment}</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Action Button */}
+                    {application?.job?.isAskForReferral === true && (
+                      <div className="mt-3 flex justify-end">
+                        <button 
+                          className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-[#0F1115] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#171A20] hover:border-[#31aa40]"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            console.log("Referral action for:", application._id);
+                          }}
+                        >
+                          <RefreshCw className="h-4 w-4" />
+                          Refer Now
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             {/* Show "View All" message if there are more than 3 */}
             {hasMoreApplications && (
@@ -273,19 +355,7 @@ const IncomingRequests = () => {
                   className="text-[#31aa40] hover:text-[#16a34a] text-sm font-medium transition-all duration-200 hover:underline inline-flex items-center gap-1"
                 >
                   + {applications.length - 3} more application{applications.length - 3 > 1 ? 's' : ''} waiting
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
+                  <ChevronRight className="w-4 h-4" />
                 </Link>
               </div>
             )}
