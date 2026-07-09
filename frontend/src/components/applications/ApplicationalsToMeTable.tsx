@@ -5,13 +5,11 @@ import { ApplicationalsToMeTableProps } from "@/types/applications";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-
-
-// this is request received component earlier named as application to me 
+// this is request received component earlier named as application to me
 export default function ProfessionalAppTable({
   applications,
 }: ApplicationalsToMeTableProps) {
-   const router = useRouter();
+  const router = useRouter();
   return (
     <div className="rounded-3xl border border-slate-800 overflow-hidden min-h-[420px]">
       <table className="w-full">
@@ -33,38 +31,38 @@ export default function ProfessionalAppTable({
                 key={application._id}
                 onClick={() =>
                   router.push(
-                    `/professional/applications/to-me/${application._id}`
-                  )}
+                    `/professional/applications/to-me/${application._id}`,
+                  )
+                }
                 className="border-t border-slate-800 cursor-pointer"
               >
                 {/* <td className="px-6 py-4">
                   {application?.applicant.name || "N/A"}
                 </td> */}
 
-
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                    <Image src={application?.applicant?.profileImage || "/images/default-user.png"}
-                    alt={application?.applicant?.name || "Applicant"}
-                    width={40}
-                    height={40}
-                    className="h-10 w-10 rounded-full object-cover"
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <Image
+                      src={
+                        application?.applicant?.profileImage ||
+                        "/images/default-user.png"
+                      }
+                      alt={application?.applicant?.name || "Applicant"}
+                      width={40}
+                      height={40}
+                      className="h-10 w-10 rounded-full object-cover"
                     />
 
                     <span>{application?.applicant?.name || "N/A"}</span>
                   </div>
-                  </td>
-
+                </td>
 
                 <td className="px-6 py-4">
                   {application?.job?.jobTitle?.[0] || "N/A"}
                 </td>
 
                 <td className="px-6 py-4">
-                  {
-                    application?.applicant.educations?.[0].college
-                      || "N/A"
-                  }
+                  {application?.applicant?.educations?.[0]?.college || "N/A"}
                 </td>
 
                 {/* <td className="px-6 py-4">
@@ -74,22 +72,15 @@ export default function ProfessionalAppTable({
                 </td> */}
 
                 <td className="px-6 py-4">
-                  {new Date(
-                    application?.createdAt
-                  ).toLocaleDateString()}
+                  {new Date(application?.createdAt).toLocaleDateString()}
                 </td>
 
-                <td className="px-6 py-4">
-                  {application?.matchScore ?? 0}
-                </td>
+                <td className="px-6 py-4">{application?.matchScore ?? 0}</td>
               </tr>
             ))
           ) : (
             <tr>
-              <td
-                colSpan={6}
-                className="text-center text-slate-400 py-20"
-              >
+              <td colSpan={6} className="text-center text-slate-400 py-20">
                 No applications received yet.
               </td>
             </tr>

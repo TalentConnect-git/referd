@@ -14,7 +14,7 @@ export default function ApplicationTable({
   const { user } = useAuth();
   const userType = user?.userType;
   const router = useRouter();
-   return (
+  return (
     <div className="rounded-3xl border border-slate-800 overflow-hidden min-h-[420px] flex flex-col ml-5">
       <table className="w-full ">
         <thead className="bg-[#111827]">
@@ -30,102 +30,85 @@ export default function ApplicationTable({
 
         <tbody>
           {applications.length === 0 ? (
-    <tr>
+            <tr>
+              <td colSpan={5} className="h-[320px] text-center">
+                <div className="flex flex-col items-center justify-center">
+                  <p className="text-lg font-medium text-gray-300">
+                    No {applicationType} applications found
+                  </p>
 
-      <td
-        colSpan={5}
-        className="h-[320px] text-center"
-      >
-
-        <div className="flex flex-col items-center justify-center">
-          <p className="text-lg font-medium text-gray-300">
-            No {applicationType} applications found
-          </p>
-
-          <p className="mt-2 text-sm text-gray-500">
-            You haven't applied to any {applicationType.toLowerCase()} opportunities yet.
-          </p>
-        </div>
-      </td>
-    </tr>
-    ) : (
-
-    applications.map((application: any) => (
-
-      <tr
-        key={application._id}
-        className="border-t border-slate-800"
-        onClick={() =>
-
-    router.push(`/${userType}/applications/${application._id}`)
-
-  }
-      >
-
-        {/* incase later you want to display image  */}
-
-              <td className="px-6 py-4">
-            <div className="flex items-center gap-3">
-                <Image src={application?.applicant?.profileImage || "/images/default-user.png"}
-                alt={application?.applicant?.name || "Applicant"}
-                width={40}
-                height={40}
-                className="h-10 w-10 rounded-full object-cover"
-                />
-                <span>{application?.applicant?.name || application.displayCompanyName|| "N/A"}</span>
-              </div>
+                  <p className="mt-2 text-sm text-gray-500">
+                    You haven't applied to any {applicationType.toLowerCase()}{" "}
+                    opportunities yet.
+                  </p>
+                </div>
               </td>
-        
+            </tr>
+          ) : (
+            applications.map((application: any) => (
+              <tr
+                key={application._id}
+                className="border-t border-slate-800"
+                onClick={() =>
+                  router.push(`/${userType}/applications/${application._id}`)
+                }
+              >
+                {/* incase later you want to display image  */}
 
-        {/* <td className="px-6 py-4">
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <Image
+                      src={
+                        application?.applicant?.profileImage ||
+                        "/images/default-user.png"
+                      }
+                      alt={application?.applicant?.name || "Applicant"}
+                      width={40}
+                      height={40}
+                      className="h-10 w-10 rounded-full object-cover"
+                    />
+                    <span>
+                      {application?.applicant?.name ||
+                        application.displayCompanyName ||
+                        "N/A"}
+                    </span>
+                  </div>
+                </td>
+
+                {/* <td className="px-6 py-4">
           {application?.applicant?.name || "Louis Company"}
         </td> */}
 
-        {/* <Link href={`/student/applications/${application._id}`} className="block hover:text-green-500">
+                {/* <Link href={`/student/applications/${application._id}`} className="block hover:text-green-500">
         {application?.displayCompanyName || "Louis Company"}
         </Link> */}
 
-        <td className="px-6 py-4">
-          {application?.applicant?.jobRoles?.[0] || "N/A"}
-        </td>
+                <td className="px-6 py-4">
+                  {application?.applicant?.jobRoles?.[0] || "N/A"}
+                </td>
 
-        <td className="px-6 py-4">
+                <td className="px-6 py-4">
+                  <StageIndicator stage={application?.currentStatus} />
+                </td>
 
-          <StageIndicator
-            stage={application?.currentStatus}
-          />
-        </td>
+                <td className="px-6 py-4">
+                  {new Date(application?.createdAt).toLocaleDateString()}
+                </td>
+                <td className="px-6 py-4">{application?.matchScore} %</td>
 
-        <td className="px-6 py-4">
-
-          {new Date(
-            application?.createdAt
-          ).toLocaleDateString()}
-
-        </td>
-        <td className="px-6 py-4">
-            {application?.matchScore} %
-        </td>
-
-          <td>
-          {application.isAskForReferral && <button className="ml-5 inline-flex items-center gap-2 rounded-lg  border-slate-700 bg-[#0F1115] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#171A20]">
-          <RefreshCw className="h-4 w-4" />Update</button>}
-         </td>
-          
-
-
-
-      </tr>
-
-    ))
-
-  )}
+                <td>
+                  {application.isAskForReferral && (
+                    <button className="ml-5 inline-flex items-center gap-2 rounded-lg  border-slate-700 bg-[#0F1115] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#171A20]">
+                      <RefreshCw className="h-4 w-4" />
+                      Update
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>
   );
-
 }
-
-
-
