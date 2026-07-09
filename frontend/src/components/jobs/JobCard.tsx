@@ -8,7 +8,9 @@ import {
   Loader2,
   MapPin,
   Briefcase,
+  Clock,
   User,
+  Users,
 } from "lucide-react";
 import axiosInstance from "@/lib/axiosInstance";
 import toast from "react-hot-toast";
@@ -84,14 +86,53 @@ export default function JobCard({
   isSaved = false,
   onSaveToggle,
   packageDetails,
-}: JobCardProps) {
+  alumniCount,
+  onRemove,
+  isRemoving = false,
+}: JobCardProps & { 
+  onRemove?: (jobId: string) => void;
+  isRemoving?: boolean;
+}) {
   const router = useRouter();
   const [saved, setSaved] = useState(isSaved);
   const [isSaving, setIsSaving] = useState(false);
+  const [isRemovingCard, setIsRemovingCard] = useState(false);
+
+  console.log("posted", postedBy);
+  console.log("matchscore",matchScore);
 
   useEffect(() => {
     setSaved(isSaved);
   }, [isSaved]);
+
+  // Get match score color and label
+  const getMatchScoreColor = (score?: number): string => {
+    const numericScore = Number(score) || 0;
+    if (numericScore >= 75) return "text-green-400";
+    if (numericScore >= 40) return "text-orange-400";
+    return "text-red-400";
+  };
+
+  const getMatchScoreBg = (score?: number): string => {
+    const numericScore = Number(score) || 0;
+    if (numericScore >= 75) return "bg-green-500";
+    if (numericScore >= 40) return "bg-orange-500";
+    return "bg-red-500";
+  };
+
+  const getMatchScoreBorder = (score?: number): string => {
+    const numericScore = Number(score) || 0;
+    if (numericScore >= 75) return "border-green-500/30";
+    if (numericScore >= 40) return "border-orange-500/30";
+    return "border-red-500/30";
+  };
+
+  const getMatchScoreLabel = (score?: number): string => {
+    const numericScore = Number(score) || 0;
+    if (numericScore >= 75) return "High Match";
+    if (numericScore >= 40) return "Medium Match";
+    return "Low Match";
+  };
 
   const handleSaveToggle = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -111,6 +152,13 @@ export default function JobCard({
           setSaved(false);
           showSuccessToast("Job removed from saved list");
           if (onSaveToggle) onSaveToggle(jobId, false);
+          
+          if (onRemove) {
+            setIsRemovingCard(true);
+            setTimeout(() => {
+              onRemove(jobId);
+            }, 300);
+          }
         } else {
           throw new Error("Failed to unsave job");
         }
@@ -135,6 +183,13 @@ export default function JobCard({
         showInfoToast("Job is already saved");
         setSaved(true);
         if (onSaveToggle) onSaveToggle(jobId, true);
+        
+        if (onRemove) {
+          setIsRemovingCard(true);
+          setTimeout(() => {
+            onRemove(jobId);
+          }, 300);
+        }
         return;
       }
 
@@ -142,6 +197,13 @@ export default function JobCard({
         setSaved(true);
         showSuccessToast("Job saved successfully");
         if (onSaveToggle) onSaveToggle(jobId, true);
+        
+        if (onRemove) {
+          setIsRemovingCard(true);
+          setTimeout(() => {
+            onRemove(jobId);
+          }, 300);
+        }
       } else {
         throw new Error("Failed to save job");
       }
@@ -155,6 +217,13 @@ export default function JobCard({
         showInfoToast("Job is already saved");
         setSaved(true);
         if (onSaveToggle) onSaveToggle(jobId, true);
+        
+        if (onRemove) {
+          setIsRemovingCard(true);
+          setTimeout(() => {
+            onRemove(jobId);
+          }, 300);
+        }
       } else {
         showErrorToast(errorMsg);
       }
@@ -211,10 +280,15 @@ export default function JobCard({
     return jobType || "Job";
   };
 
+  const matchColor = getMatchScoreColor(matchScore);
+  const matchBg = getMatchScoreBg(matchScore);
+  const matchBorder = getMatchScoreBorder(matchScore);
+  const matchLabel = getMatchScoreLabel(matchScore);
+
   return (
     <div
       onClick={() => router.push(`${route}?matchScore=${matchScore ?? 0}`)}
-      className="
+      className={`
         cursor-pointer
         rounded-2xl
         border
@@ -222,13 +296,21 @@ export default function JobCard({
         bg-[var(--card)]
         p-4
         transition-all
-        duration-200
+        duration-300
         hover:border-green-500/50
         hover:shadow-lg
         hover:shadow-green-500/5
         relative
         group
-      "
+        ${isRemovingCard || isRemoving ? 
+          'opacity-0 scale-95 transform pointer-events-none' : 
+          'opacity-100 scale-100'
+        }
+        ${isRemovingCard ? 'max-h-0 overflow-hidden p-0 m-0 border-0' : ''}
+      `}
+      style={{
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+      }}
     >
       {/* Row 1: Company & Title + Match Score */}
       <div className="flex justify-between items-start">
@@ -261,28 +343,6 @@ export default function JobCard({
             <div className="flex items-center gap-2 mt-0.5 flex-wrap">
               <p className="text-xs text-zinc-400 truncate">{company}</p>
 
-              {/* Job Type Badge - Displayed with company name */}
-              {/* {jobType && (
-                <>
-                  <div className="w-px h-3 bg-[var(--border)]" />
-                  <span className="text-[10px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full border border-blue-500/20 whitespace-nowrap">
-                    {getJobTypeLabel()}
-                  </span>
-                </>
-              )} */}
-
-              {secondaryInfo && (
-                <>
-                  <div className="w-px h-3 bg-[var(--border)]" />
-                  <div className="flex items-center gap-1 text-xs">
-                    <span className="font-semibold text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20">
-                      {secondaryInfo}
-                    </span>
-                  </div>
-                </>
-              )}
-
-              {/* Work Mode - Displayed with company name */}
               {workMode && (
                 <>
                   <div className="w-px h-3 bg-[var(--border)]" />
@@ -292,61 +352,84 @@ export default function JobCard({
                   </div>
                 </>
               )}
+
+              {location && (
+                <>
+                  <div className="w-px h-3 bg-[var(--border)]" />
+                  <div className="flex items-center gap-1 text-zinc-400 text-xs">
+                    <MapPin className="w-3 h-3" />
+                    <span className="truncate max-w-[100px]">{location}</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Match Score */}
+        {/* Match Score - With Color Coding */}
         {matchScore !== undefined && matchScore !== null && (
-          <div
-            className="
-              inline-flex
-              items-center
-              rounded-full
-              border
-              border-green-500/30
-              bg-green-500/10
-              px-2
-              py-0.5
-              text-xs
-              font-medium
-              text-green-400
-              whitespace-nowrap
-              h-fit
-              ml-2
-              flex-shrink-0
-            "
-          >
-            {matchScore}%
+          <div className="flex flex-col items-end gap-0.5 ml-2 flex-shrink-0">
+            <div
+              className={`
+                inline-flex
+                items-center
+                rounded-full
+                border
+                px-2.5
+                py-0.5
+                text-xs
+                font-bold
+                whitespace-nowrap
+                ${matchBorder}
+                ${matchColor}
+                bg-opacity-10
+              `}
+              style={{
+                backgroundColor: matchScore >= 75 ? 'rgba(34, 197, 94, 0.1)' :
+                                 matchScore >= 40 ? 'rgba(251, 146, 60, 0.1)' :
+                                 'rgba(239, 68, 68, 0.1)'
+              }}
+            >
+              {matchScore}%
+            </div>
+            <span className={`text-[9px] font-medium ${matchColor}`}>
+              {matchLabel}
+            </span>
           </div>
         )}
       </div>
 
       {/* Divider */}
       <div className="mt-2.5 pt-2.5 border-t border-[var(--border)]" />
-
+      
       {/* Row 2: ALL elements in a single flex row */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
         {/* Left Side: Location, Posted By, Secondary Info */}
         <div className="flex items-center gap-2 flex-wrap">
-          {location && (
-            <div className="flex items-center gap-1 text-zinc-400 text-xs">
-              <MapPin className="w-3 h-3" />
-              <span className="truncate max-w-[100px]">{location}</span>
-            </div>
+          {postedBy && (
+            <>
+              <div className="w-px h-3 bg-[var(--border)]" />
+              <div className="flex items-center gap-1 text-zinc-400 text-xs">
+                <User className="w-3 h-3" />
+                <span>By {postedBy}</span>
+              </div>
+            </>
           )}
 
-         {postedBy && (
-  <>
-    <div className="w-px h-3 bg-[var(--border)]" />
-    <div className="flex items-center gap-1 text-zinc-400 text-xs">
-      <User className="w-3 h-3" />
-      <span>By {postedBy}</span>
-    </div>
-  </>
-)}
+          {/* Alumni Count */}
+          {alumniCount !== undefined && alumniCount !== null && (
+            <>
+              <div className="w-px h-3 bg-[var(--border)]" />
+              <div className="flex items-center gap-1 text-xs">
+                <Users className="w-3 h-3 text-green-400" />
+                <span className="font-semibold text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20">
+                  {alumniCount} Alumni{alumniCount !== 1 ? "s" : ""}
+                </span>
+              </div>
+            </>
+          )}
 
-          {/* Package Details - Displayed in Left Side */}
+          {/* Package Details */}
           {packageDisplay && (
             <>
               <div className="w-px h-3 bg-[var(--border)]" />
@@ -362,6 +445,27 @@ export default function JobCard({
               </div>
             </>
           )}
+
+          {/* Match Score Progress Bar - Only show if matchScore exists */}
+          {matchScore !== undefined && matchScore !== null && (
+            <>
+              <div className="w-px h-3 bg-[var(--border)]" />
+              <div className="flex items-center gap-2">
+                <div className="w-12 h-1.5 bg-[#1e293b] rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full ${matchBg}`}
+                    style={{ 
+                      width: `${Math.min(Math.max(Number(matchScore) || 0, 0), 100)}%`,
+                      transition: 'width 0.5s ease-in-out'
+                    }}
+                  />
+                </div>
+                <span className={`text-[10px] font-medium ${matchColor}`}>
+                  {matchLabel}
+                </span>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Right Side: Save Button & View Details */}
@@ -370,7 +474,7 @@ export default function JobCard({
           {jobId && (
             <button
               onClick={handleSaveToggle}
-              disabled={isSaving}
+              disabled={isSaving || isRemovingCard}
               className="
                 p-1.5
                 rounded-full
@@ -379,6 +483,7 @@ export default function JobCard({
                 hover:bg-white/5
                 disabled:opacity-50
                 disabled:cursor-not-allowed
+                relative
               "
               aria-label={saved ? "Unsave job" : "Save job"}
             >
@@ -424,6 +529,16 @@ export default function JobCard({
           </span>
         </div>
       </div>
+
+      {/* Remove indicator badge */}
+      {isRemovingCard && (
+        <div className="absolute inset-0 flex items-center justify-center bg-[var(--card)]/80 backdrop-blur-sm rounded-2xl">
+          <div className="flex items-center gap-2 text-green-400">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span className="text-sm font-medium">Removing...</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

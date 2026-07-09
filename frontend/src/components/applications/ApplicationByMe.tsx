@@ -1,13 +1,10 @@
 "use client";
 
-import StageIndicator from "./StageIndicator";
 import { ApplicationTableProps } from "@/types/applications";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
-import { RefreshCw, ChevronDown, Check, Building2, Briefcase, Calendar, Target } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
-import { updateApplicationStatus } from "@/services/application.service";
+import { Briefcase, Building2, Calendar, Target, User } from "lucide-react";
 
 // Status enum for applications
 export enum ApplicationStatus {
@@ -51,6 +48,13 @@ const getMatchScoreColor = (score?: number): string => {
   return "text-red-400";
 };
 
+const getMatchScoreBg = (score?: number): string => {
+  const numericScore = Number(score) || 0;
+  if (numericScore >= 75) return "bg-green-500";
+  if (numericScore >= 40) return "bg-orange-500";
+  return "bg-red-500";
+};
+
 // Status badge component
 const StatusBadge = ({ status }: { status: string }) => {
   const statusKey = status as ApplicationStatus;
@@ -63,47 +67,16 @@ const StatusBadge = ({ status }: { status: string }) => {
   );
 };
 
-export default function ApplicationTable({
+export default function ApplicationByMe({
   applicationType,
   applications,
   page = 1,
   meta,
   onPageChange,
-  onStatusUpdate,
 }: ApplicationTableProps) {
   const { user, role } = useAuth();
   const userType = role || user?.userType || "professional";
   const router = useRouter();
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
-  const [showSuccessToast, setShowSuccessToast] = useState<string | null>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setOpenDropdown(null);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Auto-hide success toast
-  useEffect(() => {
-    if (showSuccessToast) {
-      const timer = setTimeout(() => {
-        setShowSuccessToast(null);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [showSuccessToast]);
-
-  // Handle row click - navigate to application details
-  const handleRowClick = (applicationId: string) => {
-    router.push(`/${userType}/applications/${applicationId}`);
-  };
 
   // Handle profile navigation
   const handleProfileClick = (e: React.MouseEvent, userId: string) => {
@@ -112,55 +85,6 @@ export default function ApplicationTable({
       router.push(`/${userType}/profile/${userId}`);
     }
   };
-
-  // Handle update button click - prevent row navigation
-  const handleUpdateClick = (e: React.MouseEvent, applicationId: string) => {
-    e.stopPropagation();
-    setOpenDropdown(openDropdown === applicationId ? null : applicationId);
-  };
-
-  // Handle status update using the service function
-  const handleStatusUpdate = async (e: React.MouseEvent, applicationId: string, newStatus: string) => {
-    e.stopPropagation();
-    
-    // Only allow specific status values
-    const allowedStatuses = ["Referred To Company", "Rejected", "Accepted"];
-    if (!allowedStatuses.includes(newStatus)) {
-      // For other statuses, you might want to show a message or use a different API
-      console.warn(`Status "${newStatus}" is not allowed for this action`);
-      // You can still proceed if your API supports it
-    }
-
-    try {
-      setUpdatingStatus(applicationId);
-      
-      // Use the imported service function
-      const response = await updateApplicationStatus(
-        applicationId,
-        newStatus as "Referred To Company" | "Rejected" | "Accepted"
-      );
-      
-      if (response?.success || response?.status === 200) {
-        setOpenDropdown(null);
-        setShowSuccessToast(`Status updated to "${newStatus}" successfully!`);
-        
-        // Refresh the data
-        if (onStatusUpdate) {
-          onStatusUpdate();
-        }
-      } else {
-        console.error("Failed to update status:", response?.msg || "Unknown error");
-        alert(`Failed to update status: ${response?.msg || "Unknown error"}`);
-      }
-    } catch (error: any) {
-      console.error("Failed to update status:", error);
-      alert(`Failed to update status: ${error?.response?.data?.msg || error?.message || "Unknown error"}`);
-    } finally {
-      setUpdatingStatus(null);
-    }
-  };
-
-  const statusOptions = Object.values(ApplicationStatus);
 
   // Handle pagination with proper null checks
   const handlePreviousPage = () => {
@@ -187,33 +111,22 @@ export default function ApplicationTable({
 
   return (
     <div className="rounded-3xl border border-slate-800 overflow-hidden min-h-[420px] flex flex-col ml-5">
-      {/* Success Toast */}
-      {showSuccessToast && (
-        <div className="fixed top-4 right-4 z-50 bg-green-500/10 border border-green-500/30 text-green-400 px-4 py-3 rounded-lg shadow-lg max-w-md animate-in slide-in-from-top-2">
-          <div className="flex items-center gap-2">
-            <Check className="h-5 w-5" />
-            <span className="text-sm font-medium">{showSuccessToast}</span>
-          </div>
-        </div>
-      )}
-
       <table className="w-full">
         <thead className="bg-[#111827]">
           <tr className="text-left text-gray-400">
             <th className="px-6 py-4">Posted By</th>
+            <th className="px-6 py-4">Job Title</th>
             <th className="px-6 py-4">Company</th>
-            <th className="px-6 py-4">Role</th>
             <th className="px-6 py-4">Stage</th>
             <th className="px-6 py-4">Applied</th>
             <th className="px-6 py-4">Match Score</th>
-            <th className="px-6 py-4 text-center">Actions</th>
           </tr>
         </thead>
 
         <tbody>
           {applications.length === 0 ? (
             <tr>
-              <td colSpan={7} className="h-[320px] text-center">
+              <td colSpan={6} className="h-[320px] text-center">
                 <div className="flex flex-col items-center justify-center">
                   <p className="text-lg font-medium text-gray-300">
                     No {applicationType} applications found
@@ -226,29 +139,26 @@ export default function ApplicationTable({
             </tr>
           ) : (
             applications.map((application: any) => {
-              const isUpdating = updatingStatus === application._id;
-              const isOpen = openDropdown === application._id;
-              
-              // Get data from jobDetails
               const jobDetails = application.jobDetails || {};
+              
+              // Get receiver profile from jobDetails
               const receiverProfile = jobDetails.receiverProfile || {};
               
-              // Get poster info from receiverProfile
+              // Get poster name and image from receiverProfile
               const posterName = receiverProfile?.name || "Unknown";
               const posterImage = receiverProfile?.profileImage || null;
               const posterUserId = receiverProfile?.userId || null;
               
               // Get job title from jobDetails
-              const jobRole = jobDetails.jobTitle?.[0] || "N/A";
+              const jobTitle = jobDetails.jobTitle?.[0] || "N/A";
               
-              // Get company name
-              const referralCompany = 
-                jobDetails.companyName || 
-                application.referralCompany || 
-                application.displayCompanyName || 
+              // Get company name - priority: companyName from jobDetails, then displayCompanyName
+              const companyName = 
+                jobDetails.companyName ||
+                application.displayCompanyName ||
                 "N/A";
               
-              // Get status
+              // Get status from currentStatus
               const currentStatus = application.currentStatus || "Applied";
               
               // Get match score
@@ -281,7 +191,7 @@ export default function ApplicationTable({
                 <tr
                   key={application._id}
                   className="border-t border-slate-800 hover:bg-slate-800/30 transition-colors cursor-pointer"
-                  onClick={() => handleRowClick(application._id)}
+                  onClick={() => router.push(`/${userType}/applications/${application._id}`)}
                 >
                   {/* Posted By Column */}
                   <td className="px-6 py-4">
@@ -312,24 +222,24 @@ export default function ApplicationTable({
                     </div>
                   </td>
 
+                  {/* Job Title Column */}
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <Briefcase className="w-4 h-4 text-gray-500" />
+                      <span className="text-white font-medium">{jobTitle}</span>
+                    </div>
+                  </td>
+
                   {/* Company Column */}
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
                       <Building2 className="w-4 h-4 text-gray-500" />
-                      <span className="text-white">{referralCompany}</span>
+                      <span className="text-white">{companyName}</span>
                       {jobDetails.isAskForReferral && (
                         <span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded-full border border-purple-500/20">
                           Referral
                         </span>
                       )}
-                    </div>
-                  </td>
-
-                  {/* Role Column */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <Briefcase className="w-4 h-4 text-gray-500" />
-                      <span className="text-white font-medium">{jobRole}</span>
                     </div>
                   </td>
 
@@ -356,11 +266,7 @@ export default function ApplicationTable({
                       {matchScore > 0 && (
                         <div className="w-12 h-1.5 bg-[#1e293b] rounded-full overflow-hidden">
                           <div
-                            className={`h-full rounded-full ${
-                              matchScore >= 75 ? "bg-green-500" :
-                              matchScore >= 40 ? "bg-orange-500" :
-                              "bg-red-500"
-                            }`}
+                            className={`h-full rounded-full ${getMatchScoreBg(matchScore)}`}
                             style={{ width: `${Math.min(matchScore, 100)}%` }}
                           />
                         </div>
@@ -370,58 +276,6 @@ export default function ApplicationTable({
                       </span>
                     </div>
                   </td>
-
-                  {/* Actions Column */}
-                  <td className="px-6 py-4">
-                    <div className="relative" ref={isOpen ? dropdownRef : undefined}>
-                      <button
-                        onClick={(e) => handleUpdateClick(e, application._id)}
-                        disabled={isUpdating}
-                        className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-[#0F1115] px-4 py-2 text-sm font-medium text-white transition-all hover:bg-[#171A20] hover:border-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {isUpdating ? (
-                          <>
-                            <RefreshCw className="h-4 w-4 animate-spin" />
-                            Updating...
-                          </>
-                        ) : (
-                          <>
-                            <RefreshCw className="h-4 w-4" />
-                            Update
-                            <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-                          </>
-                        )}
-                      </button>
-
-                      {/* Dropdown Menu */}
-                      {isOpen && !isUpdating && (
-                        <div className="absolute right-0 mt-2 w-64 max-h-80 overflow-y-auto rounded-lg border border-slate-700 bg-[#0F1115] shadow-xl z-50 py-1">
-                          <div className="px-3 py-2 text-xs text-gray-500 border-b border-slate-700">
-                            Change Status
-                          </div>
-                          {statusOptions.map((status) => {
-                            const isSelected = status === currentStatus;
-                            
-                            return (
-                              <button
-                                key={status}
-                                onClick={(e) => handleStatusUpdate(e, application._id, status)}
-                                className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors hover:bg-slate-800/50 ${
-                                  isSelected ? 'text-white bg-slate-800/30' : 'text-gray-300'
-                                }`}
-                              >
-                                <span className="flex items-center gap-2">
-                                  <span className={`w-2 h-2 rounded-full ${statusColors[status]?.split(' ')[0] || 'bg-gray-500'}`} />
-                                  {status}
-                                </span>
-                                {isSelected && <Check className="h-4 w-4 text-green-400" />}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  </td>
                 </tr>
               );
             })
@@ -429,7 +283,7 @@ export default function ApplicationTable({
         </tbody>
       </table>
 
-      {/* Pagination - with proper null checks */}
+      {/* Pagination */}
       {meta && applications.length > 0 && totalItems > 0 && (
         <div className="flex items-center justify-between px-6 py-4 border-t border-slate-800 bg-[#0F1115]">
           <div className="text-sm text-gray-400">
