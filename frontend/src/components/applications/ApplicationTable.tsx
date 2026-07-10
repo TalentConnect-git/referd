@@ -11,8 +11,7 @@ import { updateApplicationStatus } from "@/services/application.service";
 
 // Status enum for applications
 export enum ApplicationStatus {
-  Saved = "Saved",
-  Applied = "Applied",
+  
   ApplicationSent = "Application Sent",
   AwaitingRecruiterAction = "Awaiting Recruiter Action",
   Shortlisted = "Shortlisted",
@@ -28,8 +27,7 @@ export enum ApplicationStatus {
 
 // Status color mapping
 const statusColors: Record<ApplicationStatus, string> = {
-  [ApplicationStatus.Saved]: "bg-gray-500/10 text-gray-400 border-gray-500/20",
-  [ApplicationStatus.Applied]: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+ 
   [ApplicationStatus.ApplicationSent]: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
   [ApplicationStatus.AwaitingRecruiterAction]: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
   [ApplicationStatus.Shortlisted]: "bg-purple-500/10 text-purple-400 border-purple-500/20",
@@ -57,7 +55,7 @@ const StatusBadge = ({ status }: { status: string }) => {
   const colorClass = statusColors[statusKey] || "bg-gray-500/10 text-gray-400 border-gray-500/20";
   
   return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${colorClass}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${colorClass}`}>
       {status}
     </span>
   );
@@ -185,10 +183,10 @@ export default function ApplicationTable({
     <div className="rounded-3xl border border-slate-800 overflow-hidden min-h-[420px] flex flex-col ml-5">
       {/* Success Toast */}
       {showSuccessToast && (
-        <div className="fixed top-4 right-4 z-50 bg-green-500/10 border border-green-500/30 text-green-400 px-4 py-3 rounded-lg shadow-lg max-w-md animate-in slide-in-from-top-2">
+        <div className="fixed top-4 right-4 z-50 bg-green-500/10 border border-green-500/30 text-green-400 px-3.5 py-2.5 rounded-lg shadow-lg max-w-md animate-in slide-in-from-top-2">
           <div className="flex items-center gap-2">
-            <Check className="h-5 w-5" />
-            <span className="text-sm font-medium">{showSuccessToast}</span>
+            <Check className="h-4 w-4" />
+            <span className="text-[12px] font-medium">{showSuccessToast}</span>
           </div>
         </div>
       )}
@@ -196,13 +194,12 @@ export default function ApplicationTable({
       <table className="w-full">
         <thead className="bg-[#111827]">
           <tr className="text-left text-gray-400">
-            <th className="px-6 py-4">Applicant</th>
-            <th className="px-6 py-4">Company</th>
-           
-            <th className="px-6 py-4">Stage</th>
-            <th className="px-6 py-4">Applied</th>
-            <th className="px-6 py-4">Match Score</th>
-            <th className="px-6 py-4 text-center">Actions</th>
+            <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wider">Applicant</th>
+            <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wider">Company</th>
+            <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wider">Stage</th>
+            <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wider">Applied</th>
+            <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wider">Match Score</th>
+            <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wider text-center">Actions</th>
           </tr>
         </thead>
 
@@ -211,10 +208,10 @@ export default function ApplicationTable({
             <tr>
               <td colSpan={7} className="h-[320px] text-center">
                 <div className="flex flex-col items-center justify-center">
-                  <p className="text-lg font-medium text-gray-300">
+                  <p className="text-base font-medium text-gray-300">
                     No {applicationType} applications found
                   </p>
-                  <p className="mt-2 text-sm text-gray-500">
+                  <p className="mt-1 text-xs text-gray-500">
                     You haven't applied to any {applicationType?.toLowerCase()} opportunities yet.
                   </p>
                 </div>
@@ -236,7 +233,7 @@ export default function ApplicationTable({
               const receiverProfile = jobDetails.receiverProfile || {};
               
               // Get job title from jobDetails
-              const jobRole = jobDetails.jobTitle?.[0] || jobDetails.jobRoles?.[0] || "N/A";
+              
               
               // Get company name
               const referralCompany = 
@@ -281,28 +278,28 @@ export default function ApplicationTable({
                   onClick={() => handleRowClick(application._id)}
                 >
                   {/* Applicant Column */}
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-3">
                     <div 
-                      className="flex items-center gap-3 cursor-pointer"
+                      className="flex items-center gap-2.5 cursor-pointer"
                       onClick={(e) => handleProfileClick(e, applicantUserId)}
                     >
                       {applicantImage ? (
                         <Image
                           src={applicantImage}
                           alt={applicantName}
-                          width={40}
-                          height={40}
-                          className="h-10 w-10 rounded-full object-cover border border-gray-600/30"
+                          width={32}
+                          height={32}
+                          className="h-8 w-8 rounded-full object-cover border border-gray-600/30"
                         />
                       ) : (
-                        <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center border border-gray-600/30">
-                          <span className="text-blue-400 font-medium text-sm">
+                        <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center border border-gray-600/30">
+                          <span className="text-blue-400 font-medium text-[11px]">
                             {getInitials(applicantName)}
                           </span>
                         </div>
                       )}
                       <div>
-                        <span className="text-white font-medium hover:text-blue-400 transition-colors">
+                        <span className="text-white font-medium text-[13px] hover:text-blue-400 transition-colors">
                           {applicantName}
                         </span>
                       </div>
@@ -310,48 +307,40 @@ export default function ApplicationTable({
                   </td>
 
                   {/* Company Column */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <Building2 className="w-4 h-4 text-gray-500" />
-                      <span className="text-white">{referralCompany}</span>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1.5">
+                      <Building2 className="w-3.5 h-3.5 text-gray-500" />
+                      <span className="text-white text-[13px]">{referralCompany}</span>
                       {jobDetails.isAskForReferral && (
-                        <span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded-full border border-purple-500/20">
+                        <span className="text-[9px] bg-purple-500/10 text-purple-400 px-1.5 py-0.5 rounded-full border border-purple-500/20">
                           Referral
                         </span>
                       )}
                     </div>
                   </td>
 
-                  {/* Role Column */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <Briefcase className="w-4 h-4 text-gray-500" />
-                      <span className="text-white font-medium">{jobRole}</span>
-                    </div>
-                  </td>
-
                   {/* Stage Column */}
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-3">
                     <StatusBadge status={currentStatus} />
                   </td>
 
                   {/* Applied Date Column */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-gray-500" />
-                      <span className="text-gray-300">{formatDate(appliedDate)}</span>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-gray-500" />
+                      <span className="text-gray-300 text-[13px]">{formatDate(appliedDate)}</span>
                     </div>
                   </td>
 
                   {/* Match Score Column */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <Target className="w-4 h-4 text-gray-500" />
-                      <span className={`font-semibold ${getMatchScoreColor(matchScore)}`}>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1.5">
+                      <Target className="w-3.5 h-3.5 text-gray-500" />
+                      <span className={`font-semibold text-[13px] ${getMatchScoreColor(matchScore)}`}>
                         {matchScore}%
                       </span>
                       {matchScore > 0 && (
-                        <div className="w-12 h-1.5 bg-[#1e293b] rounded-full overflow-hidden">
+                        <div className="w-10 h-1 bg-[#1e293b] rounded-full overflow-hidden">
                           <div
                             className={`h-full rounded-full ${
                               matchScore >= 75 ? "bg-green-500" :
@@ -362,38 +351,38 @@ export default function ApplicationTable({
                           />
                         </div>
                       )}
-                      <span className={`text-[9px] font-medium ${getMatchScoreColor(matchScore)}`}>
+                      <span className={`text-[8px] font-medium ${getMatchScoreColor(matchScore)}`}>
                         {matchScore >= 75 ? "High" : matchScore >= 40 ? "Medium" : "Low"}
                       </span>
                     </div>
                   </td>
 
                   {/* Actions Column */}
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-3">
                     <div className="relative" ref={isOpen ? dropdownRef : undefined}>
                       <button
                         onClick={(e) => handleUpdateClick(e, application._id)}
                         disabled={isUpdating}
-                        className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-[#0F1115] px-4 py-2 text-sm font-medium text-white transition-all hover:bg-[#171A20] hover:border-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-[#0F1115] px-3 py-1.5 text-[12px] font-medium text-white transition-all hover:bg-[#171A20] hover:border-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {isUpdating ? (
                           <>
-                            <RefreshCw className="h-4 w-4 animate-spin" />
+                            <RefreshCw className="h-3.5 w-3.5 animate-spin" />
                             Updating...
                           </>
                         ) : (
                           <>
-                            <RefreshCw className="h-4 w-4" />
+                            <RefreshCw className="h-3.5 w-3.5" />
                             Update
-                            <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                            <ChevronDown className={`h-3.5 w-3.5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                           </>
                         )}
                       </button>
 
                       {/* Dropdown Menu */}
                       {isOpen && !isUpdating && (
-                        <div className="absolute right-0 mt-2 w-64 max-h-80 overflow-y-auto rounded-lg border border-slate-700 bg-[#0F1115] shadow-xl z-50 py-1">
-                          <div className="px-3 py-2 text-xs text-gray-500 border-b border-slate-700">
+                        <div className="absolute right-0 mt-2 w-56 max-h-80 overflow-y-auto rounded-lg border border-slate-700 bg-[#0F1115] shadow-xl z-50 py-1">
+                          <div className="px-3 py-1.5 text-[10px] text-gray-500 border-b border-slate-700">
                             Change Status
                           </div>
                           {statusOptions.map((status) => {
@@ -403,15 +392,15 @@ export default function ApplicationTable({
                               <button
                                 key={status}
                                 onClick={(e) => handleStatusUpdate(e, application._id, status)}
-                                className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors hover:bg-slate-800/50 ${
+                                className={`w-full flex items-center justify-between px-3 py-2 text-[12px] transition-colors hover:bg-slate-800/50 ${
                                   isSelected ? 'text-white bg-slate-800/30' : 'text-gray-300'
                                 }`}
                               >
                                 <span className="flex items-center gap-2">
-                                  <span className={`w-2 h-2 rounded-full ${statusColors[status]?.split(' ')[0] || 'bg-gray-500'}`} />
+                                  <span className={`w-1.5 h-1.5 rounded-full ${statusColors[status]?.split(' ')[0] || 'bg-gray-500'}`} />
                                   {status}
                                 </span>
-                                {isSelected && <Check className="h-4 w-4 text-green-400" />}
+                                {isSelected && <Check className="h-3.5 w-3.5 text-green-400" />}
                               </button>
                             );
                           })}
@@ -428,25 +417,25 @@ export default function ApplicationTable({
 
       {/* Pagination */}
       {meta && applications.length > 0 && totalItems > 0 && (
-        <div className="flex items-center justify-between px-6 py-4 border-t border-slate-800 bg-[#0F1115]">
-          <div className="text-sm text-gray-400">
+        <div className="flex items-center justify-between px-4 py-3 border-t border-slate-800 bg-[#0F1115]">
+          <div className="text-[12px] text-gray-400">
             Showing {startIndex} to {endIndex} of {totalItems} results
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={handlePreviousPage}
               disabled={!hasPrev}
-              className="px-3 py-1.5 rounded-lg border border-slate-700 text-sm text-gray-400 hover:bg-slate-800/50 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-2.5 py-1 rounded-lg border border-slate-700 text-[12px] text-gray-400 hover:bg-slate-800/50 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Previous
             </button>
-            <span className="text-sm text-gray-400">
+            <span className="text-[12px] text-gray-400">
               Page {currentPage} of {totalPages}
             </span>
             <button
               onClick={handleNextPage}
               disabled={!hasNext}
-              className="px-3 py-1.5 rounded-lg border border-slate-700 text-sm text-gray-400 hover:bg-slate-800/50 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-2.5 py-1 rounded-lg border border-slate-700 text-[12px] text-gray-400 hover:bg-slate-800/50 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Next
             </button>

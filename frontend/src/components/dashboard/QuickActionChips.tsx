@@ -10,7 +10,7 @@ type QuickActionChipsProps = {
 const actions = [
   {
     label: "Browse jobs",
-    href: "referral-jobs",
+    href: "jobs",
     icon: Briefcase,
   },
   {

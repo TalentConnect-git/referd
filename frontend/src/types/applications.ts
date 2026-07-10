@@ -317,7 +317,15 @@ export interface ApplicationStatsProps {
 export interface ApplicationsToMeTableProps {
   applications: Application[];
   page: number;
-  meta: any;
+  meta?: {
+    total?: number;
+    page?: number;
+    limit?: number;
+    totalPages?: number;
+    hasNext?: boolean;
+    hasPrev?: boolean;
+  };
+  onPageChange?: (page: number) => void;
 }
 
 /**

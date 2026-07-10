@@ -5,7 +5,7 @@ import { useState } from "react";
 import { CandidatePosted, Job, DashboardJobsProps } from "@/types/dashboard";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Briefcase, ClipboardList } from "lucide-react";
 
 function getFirstValue(value?: string | string[]) {
   if (Array.isArray(value)) return value[0] || "";
@@ -22,8 +22,6 @@ export default function DashboardJobs({
   const [open, setOpen] = useState(false);
   const { profile } = useAuth();
   const userType = profile?.profileType;
-  const [isHovered, setIsHovered] = useState(false);
-  const [isBottomHovered, setIsBottomHovered] = useState(false);
 
   const getTitle = (job: Job) =>
     getFirstValue(job.jobTitle) ||
@@ -69,34 +67,44 @@ export default function DashboardJobs({
     ...offCampusJobs,
   ];
   const displayJobs = allJobsCombined.slice(0, 3);
-  console.log("displayJobs",allJobsCombined);
+  console.log("displayJobs", allJobsCombined);
   const hasMore = allJobsCombined.length > 3;
 
+  const handleViewAll = () => {
+    // Navigate to view all jobs
+  };
+
   return (
-    <div className="ml-5 h-full rounded-2xl border border-[#1e293b] bg-[#0f172a]">
-      <div className="flex items-center justify-between border-b border-[#1e293b] px-5 py-5">
-        <div>
-          <h2 className="text-[15px] font-semibold text-white">
-            Referral Jobs for you
-          </h2>
+    <div className="ml-5 rounded-2xl border border-slate-800 bg-[#0f172a] overflow-hidden flex flex-col">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-[#0f172a]/50">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/10 border border-blue-500/20">
+            <Briefcase className="h-3.5 w-3.5 text-blue-400" />
+          </div>
+          <div>
+            <h2 className="text-[13px] font-semibold text-white">
+              Referral Jobs for you
+            </h2>
+            <p className="text-[10px] text-gray-500">
+              {allJobsCombined.length} jobs available
+            </p>
+          </div>
         </div>
 
-        <Link
-          href={viewAllRoute}
-          className="text-sm text-gray-400 hover:text-white flex items-center gap-1"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-          style={{
-            color: isHovered ? "#ffffff" : "#94a3b8",
-            transition: "color 0.2s ease-in-out",
-          }}
-        >
-          View all
-          <ChevronRight className="h-3 w-3" />
-        </Link>
+        {hasMore && (
+          <Link
+            href={viewAllRoute}
+            className="group inline-flex items-center gap-1 text-[11px] font-medium text-gray-400 hover:text-white transition-colors duration-200"
+          >
+            View All
+            <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform duration-200" />
+          </Link>
+        )}
       </div>
 
-      <div>
+      {/* Jobs List */}
+      <div className="flex-1">
         {displayJobs.length > 0 ? (
           <>
             {displayJobs.map((job, index) => (
@@ -116,38 +124,25 @@ export default function DashboardJobs({
             ))}
 
             {/* Bottom View All Button */}
-
             {hasMore && (
-              <div className="px-5 py-2 border-t border-[#1e293b]">
+              <div className="px-4 py-2.5 border-t border-slate-800 bg-slate-800/10">
                 <Link
                   href={viewAllRoute}
-                  className="text-xs text-[#64748b] hover:text-[#60a5fa] transition-colors duration-200 flex items-center gap-1"
+                  className="w-full inline-flex items-center justify-center gap-2 text-[11px] font-medium text-gray-400 hover:text-blue-400 transition-colors duration-200 group"
                 >
-                  <span>View all jobs</span>
-                  <span className="text-[10px]">→</span>
+                  <span>View all {allJobsCombined.length} jobs</span>
+                  <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform duration-200" />
                 </Link>
               </div>
             )}
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center py-8 px-5">
-            <div className="h-12 w-12 rounded-full bg-[#1e293b] flex items-center justify-center mb-3">
-              <svg
-                className="h-6 w-6 text-[#64748b]"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                />
-              </svg>
+          <div className="flex flex-col items-center justify-center py-10 px-5">
+            <div className="h-12 w-12 rounded-full bg-slate-800/50 flex items-center justify-center mb-3">
+              <Briefcase className="h-6 w-6 text-gray-500" />
             </div>
-            <p className="text-sm text-[#64748b]">No jobs available</p>
-            <p className="text-xs text-[#475569] mt-1">
+            <p className="text-sm text-gray-400">No jobs available</p>
+            <p className="text-xs text-gray-500 mt-1">
               Check back later for new opportunities
             </p>
           </div>

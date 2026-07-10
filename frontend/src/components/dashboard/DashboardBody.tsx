@@ -129,7 +129,7 @@ export default function DashboardBody() {
   }
   const dashboardJobs = referralJobs.slice(0, 5);
   return (
-    <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3 items-stretch">
+    <div className="mt-0 grid grid-cols-1 gap-6 lg:grid-cols-3 items-stretch">
       { (userType == "student"||userType == "fresher") && (
         <div className="lg:col-span-2">
           <DashboardJobs

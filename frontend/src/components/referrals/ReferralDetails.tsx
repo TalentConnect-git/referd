@@ -1,60 +1,59 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ReferralDetailsProps } from "@/types/referral";
 import ReferralDetailsCandidates from "./ReferralDetailsCandidates";
 import ReferralDetailsOverview from "./ReferralDetailsOverview";
 import ReferralDetailsHeader from "./ReferralDetailsHeader";
 import { X } from "lucide-react";
 
+type ReferralDetailsTab = "candidates" | "overview";
+
+type ReferralDetailsExtraProps = ReferralDetailsProps & {
+  initialTab?: ReferralDetailsTab;
+};
+
 export default function ReferralDetails({
   referral,
   onClose,
-}: ReferralDetailsProps) {
-  const [activeTab, setActiveTab] = useState<"overview" | "candidates">("overview");
+  initialTab = "candidates",
+}: ReferralDetailsExtraProps) {
+  const [activeTab, setActiveTab] = useState<ReferralDetailsTab>(initialTab);
+
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
 
   return (
     <div className="fixed inset-0 z-50">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      {/* Modal */}
       <div className="absolute inset-0 flex items-center justify-center p-4">
         <div
           onClick={(e) => e.stopPropagation()}
           className="
-            relative
-            w-full
-            max-w-4xl
-            max-h-[90vh]
-            overflow-y-auto
-            rounded-xl
-            border
-            border-[#1e293b]
-            bg-[#111827]
-            shadow-2xl
-            p-5
+            relative max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-xl
+            border border-[#1e293b] bg-[#111827] p-5 shadow-2xl
           "
         >
-          {/* Close Button */}
           <button
+            type="button"
             onClick={onClose}
-            className="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors"
+            className="absolute right-3 top-3 text-gray-400 transition-colors hover:text-white"
           >
             <X size={18} />
           </button>
 
-          {/* Header */}
           <ReferralDetailsHeader referral={referral} />
 
-          {/* Tabs */}
-          <div className="flex rounded-lg bg-[#1e293b] p-1 w-fit mb-4">
+          <div className="mb-4 flex w-fit rounded-lg bg-[#1e293b] p-1">
             <button
+              type="button"
               onClick={() => setActiveTab("overview")}
-              className={`px-4 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+              className={`rounded-md px-4 py-1.5 text-xs font-medium transition-all duration-200 ${
                 activeTab === "overview"
                   ? "bg-gradient-to-r from-green-500 to-emerald-500 text-black"
                   : "text-gray-300 hover:text-white"
@@ -64,8 +63,9 @@ export default function ReferralDetails({
             </button>
 
             <button
+              type="button"
               onClick={() => setActiveTab("candidates")}
-              className={`px-4 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+              className={`rounded-md px-4 py-1.5 text-xs font-medium transition-all duration-200 ${
                 activeTab === "candidates"
                   ? "bg-gradient-to-r from-green-500 to-emerald-500 text-black"
                   : "text-gray-300 hover:text-white"
@@ -75,7 +75,6 @@ export default function ReferralDetails({
             </button>
           </div>
 
-          {/* Content */}
           {activeTab === "overview" && (
             <ReferralDetailsOverview referral={referral} />
           )}

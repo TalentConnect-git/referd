@@ -58,10 +58,12 @@ export interface ReferralPaginationProps {
 
 export interface ReferralStatsProps {
   metrics: ReferralMetrics;
+  onViewDetails?:()=>void;
 };
 
 export interface ReferralCardProps {
   referral: ReferralJob;
+  onViewcandidate?:()=>void;
   onViewDetails: () => void;
   handleDelete:()=>void;
   onPause:()=>void;
