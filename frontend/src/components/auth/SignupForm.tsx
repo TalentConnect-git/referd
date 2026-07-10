@@ -1,7 +1,7 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import { FormEvent, useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { sendSignupOtp, signupUser, UserType } from "@/services/auth.service";
@@ -13,9 +13,19 @@ const roles: UserType[] = ["student", "fresher", "professional"];
 
 export default function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
 
   const [role, setRole] = useState<UserType>("student");
+
+  // Pre-select role from ?role= query param (e.g. from "Become a Referrer" CTA)
+  useEffect(() => {
+    const queryRole = searchParams.get("role") as UserType | null;
+    if (queryRole && roles.includes(queryRole)) {
+      setRole(queryRole);
+    }
+  }, [searchParams]);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");

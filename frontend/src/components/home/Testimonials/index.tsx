@@ -26,7 +26,7 @@ const testimonials = [
 export default function Testimonials() {
   return (
     <section
-      className="border-t border-[var(--border)] bg-[var(--background)] px-6 py-16 sm:px-8 lg:px-10"
+      className="bg-[var(--background)] px-6 py-16 sm:px-8 lg:px-10"
     >
       <div className="mx-auto max-w-7xl">
         <p className="mb-5 font-mono text-[12px] font-semibold uppercase tracking-[0.35em] text-[var(--primary)]">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import DashboardProfStats from "./DashboardProfStats";
 import DashboardStudStats from "./DashboardStudStats";
 import {
@@ -10,6 +10,17 @@ import {
 } from "@/services/stats.services";
 import axiosInstance from "@/lib/axiosInstance";
 import { DashboardStatsProps } from "@/types/dashboard";
+import EmptyStateStepper from "./EmptyStateStepper";
+import QuickActionChips from "./QuickActionChips";
+
+type CountResponse = {
+  data?: {
+    data?: unknown[];
+    meta?: {
+      total?: number;
+    };
+  };
+};
 
 export default function DashboardStats({ userType }: DashboardStatsProps) {
   // Professional Stats
@@ -30,7 +41,7 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
   const [loading, setLoading] = useState(true);
 
   // Helper function to safely get count from API response
-  const getCountFromResponse = (response: any): number => {
+  const getCountFromResponse = (response: CountResponse): number => {
     if (!response?.data) return 0;
     return response.data?.data?.length || 
            response.data?.meta?.total || 
@@ -38,7 +49,7 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
   };
 
   // Function to fetch total alumni count from all endpoints with fallback to 0
-  const fetchTotalAlumniCount = async () => {
+  const fetchTotalAlumniCount = useCallback(async () => {
     try {
       const DEFAULT_LIMIT = 10;
 
@@ -72,9 +83,9 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
       console.error("Error fetching alumni counts:", error);
       return 0;
     }
-  };
+  }, []);
 
-  const fetchDashboardStats = async () => {
+  const fetchDashboardStats = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -135,13 +146,17 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchTotalAlumniCount, userType]);
 
   useEffect(() => {
     if (userType) {
-      fetchDashboardStats();
+      const timer = window.setTimeout(() => {
+        void fetchDashboardStats();
+      }, 0);
+
+      return () => window.clearTimeout(timer);
     }
-  }, [userType]);
+  }, [fetchDashboardStats, userType]);
 
   if (loading) {
     return (
@@ -171,14 +186,27 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
       )}
 
       {(userType === "student" || userType === "fresher") && (
-        <DashboardStudStats
-          applicationsSent={applicationsSent}
-          savedCount={savedCount}
-          resumeScore={resumeScore}
-          hiringScore={hiringScore}
-          alumniCount={studentAlumniCount}
-          userType={userType}
-        />
+        <>
+          <QuickActionChips userType={userType} />
+          <DashboardStudStats
+            applicationsSent={applicationsSent}
+            savedCount={savedCount}
+            resumeScore={resumeScore}
+            hiringScore={hiringScore}
+            alumniCount={studentAlumniCount}
+            userType={userType}
+          />
+          <EmptyStateStepper
+            count={applicationsSent}
+            userType={userType}
+            variant="applications"
+          />
+          <EmptyStateStepper
+            count={savedCount}
+            userType={userType}
+            variant="savedJobs"
+          />
+        </>
       )}
     </>
   );
