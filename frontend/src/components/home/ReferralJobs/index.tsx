@@ -1,6 +1,7 @@
 "use client"
 import Link from "next/link";
 import ReferralCard from "@/components/ui/ReferralCard";
+import { RevealItem } from "@/components/ui/RevealSection";
 import axiosInstance from "@/lib/axiosInstance";
 import { useEffect, useState } from "react";
 
@@ -127,7 +128,7 @@ useEffect(() => {
   return (
     <section
       id="referrals"
-      className="border-t border-[var(--border)] bg-[var(--background)] px-6 py-24 sm:px-8 lg:px-10"
+      className="bg-[var(--background)] px-6 py-24 sm:px-8 lg:px-10"
     >
       <div className="mx-auto max-w-7xl">
         <p className="mb-7 font-mono text-[14px] font-semibold uppercase tracking-[0.35em] text-[var(--primary)]">
@@ -167,32 +168,31 @@ useEffect(() => {
 
           <div className="mt-10 grid gap-6 lg:grid-cols-3">
 
-          {referralJobs.map((job) => (
+          {referralJobs.map((job, index) => (
 
-            <ReferralCard
-
-              key={job._id}
-              companyLogo={
-                job.candidatePosted?.currentCompany?.[0]?.toUpperCase() || "C"
-              }
-              title={job.jobTitle?.[0] || "Referral Opportunity"}
-              company={
-                job.candidatePosted?.currentCompany || "Unknown Company"
-              }
-              location={
-                job.receiverProfile?.locations?.[0] ||
-                job.location?.[0] ||
-                "Remote"
-              }
-              match={`${job.matchScore}%`}
-              postedByInitials={getInitials(job.candidatePosted?.name)}
-              postedByName={job.receiverProfile?.name || job.candidatePosted?.name ||"Anonymous"}
-              college={
-                job.receiverProfile?.educations?.[0]?.college || "-"
-              }
-              salary={job.packageDetails.totalCTC ?? "-"}
-
-            />
+            <RevealItem key={job._id} delay={index * 0.1}>
+              <ReferralCard
+                companyLogo={
+                  job.candidatePosted?.currentCompany?.[0]?.toUpperCase() || "C"
+                }
+                title={job.jobTitle?.[0] || "Referral Opportunity"}
+                company={
+                  job.candidatePosted?.currentCompany || "Unknown Company"
+                }
+                location={
+                  job.receiverProfile?.locations?.[0] ||
+                  job.location?.[0] ||
+                  "Remote"
+                }
+                match={`${job.matchScore}%`}
+                postedByInitials={getInitials(job.candidatePosted?.name)}
+                postedByName={job.receiverProfile?.name || job.candidatePosted?.name || "Anonymous"}
+                college={
+                  job.receiverProfile?.educations?.[0]?.college || "-"
+                }
+                salary={job.packageDetails.totalCTC ?? "-"}
+              />
+            </RevealItem>
 
           ))}
 
