@@ -2,147 +2,75 @@ import { OverviewSectionProps } from "@/types/dashboard";
 import { applyJob } from "@/services/job.service";
 import PostedByReferrer from "./PostedByReferrer";
 import AlumniWhoCanHelp from "./AlumniWhoCanHelp";
+
 export default function OverviewSection({ job }: OverviewSectionProps) {
-console.log("Received Job ",job);
+  console.log("Received Job ", job);
 
+  return (
+    <>
+      {/* Job Details */}
+      <div className="rounded-xl border border-[#1e293b] bg-[#111827] p-4">
+        <h3 className="mb-4 text-sm font-semibold text-white">Job Details</h3>
 
-  
-//   const handleApply = async () => {
-//   try {
-//     console.log(job);
-//   console.log(
-//   job._id,
-//   job.jobType,
-//   job.matchScore
-// );
-//     await applyJob(
-//       job._id,
-//       job.jobType,
-//       job.matchScore || 0
-//     );
-//     alert("Applied successfully");
-//   } catch (err) {
-//     console.error("Error applying:", err);
-//   }
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-blue-400 font-medium">Job Role</p>
+            <p className="mt-0.5 text-sm text-white">{job.jobTitle || "N/A"}</p>
+          </div>
 
-// };
-    return(
-        <>
-        <div className="rounded-xl border border-[#1e293b] bg-[#111827] p-6">
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-blue-400 font-medium">Employment Type</p>
+            <p className="mt-0.5 text-sm text-white">{job.employmentType?.[0] || "N/A"}</p>
+          </div>
 
-              <h3 className="mb-6 text-xl font-semibold text-white">
-                Job Details
-              </h3>
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-blue-400 font-medium">Work Location</p>
+            <p className="mt-0.5 text-sm text-white">{job.location?.[0] || "N/A"}</p>
+          </div>
 
-              <div className="grid grid-cols-2 gap-8">
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-blue-400 font-medium">Work Mode</p>
+            <p className="mt-0.5 text-sm text-white">{job.workMode?.[0] || "N/A"}</p>
+          </div>
 
-                <div>
-                  <p className="text-sm text-blue-400">
-                    Job Role
-                  </p>
-                  <p className="mt-1 text-white">
-                    {job.jobTitle || "N/A"}
-                  </p>
-                </div>
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-blue-400 font-medium">Experience Required</p>
+            <p className="mt-0.5 text-sm text-white">
+              {job.internshipDuration || job.yearsOfExperience || "Entry Level"}
+            </p>
+          </div>
 
-                <div>
-                  <p className="text-sm text-blue-400">
-                    Employment Type
-                  </p>
-                  <p className="mt-1 text-white">
-                    {job.employmentType?.[0] || "N/A"}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-sm text-blue-400">
-                    Work Location
-                  </p>
-                  <p className="mt-1 text-white">
-                    {job.location?.[0] || "N/A"}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-sm text-blue-400">
-                    Work Mode
-                  </p>
-                  <p className="mt-1 text-white">
-                    {job.workMode?.[0] || "N/A"}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-sm text-blue-400">
-                    Experience Required
-                  </p>
-                  <p className="mt-1 text-white">
-                    {job.internshipDuration ||
-                      job.yearsOfExperience ||
-                      "Entry Level"}
-                  </p>
-                </div>
-
-               {job.jobType != "Referral" &&  <div>
-                  <p className="text-sm text-blue-400">
-                    CGPA Required
-                  </p>
-                  <p className="mt-1 text-white">
-                    {job.cgpa || "N/A"}
-                  </p>
-                </div>}
-
-
-                <div>
-                  <p className="text-sm text-blue-400">
-                    Package
-                  </p>
-                  <p className="mt-1 text-white">
-                    ₹ {job.packageDetails?.totalCTC || "N/A"}
-                  </p>
-                </div>
-
-              </div>
+          {job.jobType != "Referral" && (
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-blue-400 font-medium">CGPA Required</p>
+              <p className="mt-0.5 text-sm text-white">{job.cgpa || "N/A"}</p>
             </div>
+          )}
 
-            
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-blue-400 font-medium">Package</p>
+            <p className="mt-0.5 text-sm text-white">₹ {job.packageDetails?.totalCTC || "N/A"}</p>
+          </div>
+        </div>
+      </div>
 
-            {/* Description */}
-            <div className="mt-6 rounded-xl border border-[#1e293b] bg-[#111827] p-6">
+      {/* Description */}
+      <div className="mt-4 rounded-xl border border-[#1e293b] bg-[#111827] p-4">
+        <h3 className="mb-3 text-sm font-semibold text-white">Job Description</h3>
+        <p className="text-sm leading-7 text-gray-300">{job.description || "No description provided"}</p>
+      </div>
 
-              <h3 className="mb-4 text-xl font-semibold text-white">
-                Job Description
-              </h3>
+      {/* Posted By Referrer */}
+      {job.candidatePosted && (
+        <div className="mt-4 rounded-xl border border-[#1e293b] bg-[#111827] p-4">
+          <PostedByReferrer candidateId={job.candidatePosted.userId} />
+        </div>
+      )}
 
-              <p className="leading-7 text-gray-300">
-                {job.description || "No description provided"}
-              </p>
-
-            </div>
-
-
-            {job.candidatePosted && <div className="mt-5 mb-5 rounded-xl border border-[#1e293b] bg-[#111827] p-6">
-               <PostedByReferrer candidateId={job.candidatePosted.userId} />
-            </div>}
-
-            <div className="mt-5 rounded-xl border border-[#1e293b] bg-[#111827] p-6">
-              <AlumniWhoCanHelp job={job} />
-            </div>
-
-            {/* Apply Button */}
-            {/* <div className="mt-8 flex justify-center">
-
-              <button  onClick={handleApply} className="rounded-lg bg-green-500 px-10 py-3 font-semibold text-black hover:bg-green-400">
-                Apply Now
-              </button>
-
-            </div> */}
-
-        </>
-    )
+      {/* Alumni Who Can Help */}
+      <div className="mt-4 rounded-xl border border-[#1e293b] bg-[#111827] p-4">
+        <AlumniWhoCanHelp job={job} />
+      </div>
+    </>
+  );
 }
-
-
-
-
-

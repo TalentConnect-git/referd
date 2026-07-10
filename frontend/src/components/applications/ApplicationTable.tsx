@@ -126,15 +126,12 @@ export default function ApplicationTable({
     // Only allow specific status values
     const allowedStatuses = ["Referred To Company", "Rejected", "Accepted"];
     if (!allowedStatuses.includes(newStatus)) {
-      // For other statuses, you might want to show a message or use a different API
       console.warn(`Status "${newStatus}" is not allowed for this action`);
-      // You can still proceed if your API supports it
     }
 
     try {
       setUpdatingStatus(applicationId);
       
-      // Use the imported service function
       const response = await updateApplicationStatus(
         applicationId,
         newStatus as "Referred To Company" | "Rejected" | "Accepted"
@@ -144,7 +141,6 @@ export default function ApplicationTable({
         setOpenDropdown(null);
         setShowSuccessToast(`Status updated to "${newStatus}" successfully!`);
         
-        // Refresh the data
         if (onStatusUpdate) {
           onStatusUpdate();
         }
@@ -200,9 +196,9 @@ export default function ApplicationTable({
       <table className="w-full">
         <thead className="bg-[#111827]">
           <tr className="text-left text-gray-400">
-            <th className="px-6 py-4">Posted By</th>
+            <th className="px-6 py-4">Applicant</th>
             <th className="px-6 py-4">Company</th>
-            <th className="px-6 py-4">Role</th>
+           
             <th className="px-6 py-4">Stage</th>
             <th className="px-6 py-4">Applied</th>
             <th className="px-6 py-4">Match Score</th>
@@ -229,17 +225,18 @@ export default function ApplicationTable({
               const isUpdating = updatingStatus === application._id;
               const isOpen = openDropdown === application._id;
               
-              // Get data from jobDetails
-              const jobDetails = application.jobDetails || {};
+              // Get applicant data from the applicant object
+              const applicant = application.applicant || {};
+              const applicantName = applicant?.name || "Unknown";
+              const applicantImage = applicant?.profileImage || null;
+              const applicantUserId = applicant?.userId || null;
+              
+              // Get job details
+              const jobDetails = application.job || application.jobDetails || {};
               const receiverProfile = jobDetails.receiverProfile || {};
               
-              // Get poster info from receiverProfile
-              const posterName = receiverProfile?.name || "Unknown";
-              const posterImage = receiverProfile?.profileImage || null;
-              const posterUserId = receiverProfile?.userId || null;
-              
               // Get job title from jobDetails
-              const jobRole = jobDetails.jobTitle?.[0] || "N/A";
+              const jobRole = jobDetails.jobTitle?.[0] || jobDetails.jobRoles?.[0] || "N/A";
               
               // Get company name
               const referralCompany = 
@@ -283,16 +280,16 @@ export default function ApplicationTable({
                   className="border-t border-slate-800 hover:bg-slate-800/30 transition-colors cursor-pointer"
                   onClick={() => handleRowClick(application._id)}
                 >
-                  {/* Posted By Column */}
+                  {/* Applicant Column */}
                   <td className="px-6 py-4">
                     <div 
                       className="flex items-center gap-3 cursor-pointer"
-                      onClick={(e) => handleProfileClick(e, posterUserId)}
+                      onClick={(e) => handleProfileClick(e, applicantUserId)}
                     >
-                      {posterImage ? (
+                      {applicantImage ? (
                         <Image
-                          src={posterImage}
-                          alt={posterName}
+                          src={applicantImage}
+                          alt={applicantName}
                           width={40}
                           height={40}
                           className="h-10 w-10 rounded-full object-cover border border-gray-600/30"
@@ -300,13 +297,13 @@ export default function ApplicationTable({
                       ) : (
                         <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center border border-gray-600/30">
                           <span className="text-blue-400 font-medium text-sm">
-                            {getInitials(posterName)}
+                            {getInitials(applicantName)}
                           </span>
                         </div>
                       )}
                       <div>
                         <span className="text-white font-medium hover:text-blue-400 transition-colors">
-                          {posterName}
+                          {applicantName}
                         </span>
                       </div>
                     </div>
@@ -429,7 +426,7 @@ export default function ApplicationTable({
         </tbody>
       </table>
 
-      {/* Pagination - with proper null checks */}
+      {/* Pagination */}
       {meta && applications.length > 0 && totalItems > 0 && (
         <div className="flex items-center justify-between px-6 py-4 border-t border-slate-800 bg-[#0F1115]">
           <div className="text-sm text-gray-400">

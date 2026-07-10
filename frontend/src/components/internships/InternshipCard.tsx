@@ -423,7 +423,7 @@ export default function InternshipCard({
           {/* Package Details */}
           {packageDisplay && (
             <div className="flex items-center gap-1.5">
-              <DollarSign className="w-3 h-3 text-green-500" />
+             
               <span className="text-sm font-semibold text-white whitespace-nowrap">
                 {packageDisplay}
               </span>
@@ -444,26 +444,7 @@ export default function InternshipCard({
             </>
           )}
 
-          {/* Match Score Progress Bar */}
-          {matchScore !== undefined && matchScore !== null && (
-            <>
-              <div className="w-px h-3 bg-[var(--border)]" />
-              <div className="flex items-center gap-2">
-                <div className="w-12 h-1 bg-[#1e293b] rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full ${matchBg}`}
-                    style={{ 
-                      width: `${Math.min(Math.max(Number(matchScore) || 0, 0), 100)}%`,
-                      transition: 'width 0.5s ease-in-out'
-                    }}
-                  />
-                </div>
-                <span className={`text-[10px] font-medium ${matchColor}`}>
-                  {matchLabel}
-                </span>
-              </div>
-            </>
-          )}
+         
         </div>
 
         {/* Right Side: Save Button & View Details */}
