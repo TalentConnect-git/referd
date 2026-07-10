@@ -8,7 +8,8 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
 import { Building2, Briefcase, Calendar, Target, User, Store } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axiosInstance from "@/lib/axiosInstance"
 
 // Status enum for applications
 export enum ApplicationStatus {
@@ -87,6 +88,15 @@ export interface ApplicationsListProps {
   onPageChange?: (page: number) => void;
 }
 
+// Interface for user details
+interface UserDetails {
+  _id: string;
+  name: string;
+  profileImage?: string | null;
+  email?: string;
+  phone?: string;
+}
+
 export default function ApplicationsList({
   applicationType,
   applications,
@@ -98,13 +108,74 @@ export default function ApplicationsList({
   const userType = role || user?.userType || "professional";
   const router = useRouter();
 
+  // State to store user details for referral applications
+  const [userDetailsMap, setUserDetailsMap] = useState<Record<string, UserDetails>>({});
+  const [loadingUsers, setLoadingUsers] = useState<Record<string, boolean>>({});
+
+  // Fetch user details for a given userId
+  const fetchUserDetails = async (userId: string) => {
+    if (!userId || userDetailsMap[userId]) return;
+    
+    setLoadingUsers(prev => ({ ...prev, [userId]: true }));
+    
+    try {
+      const response = await axiosInstance.get(`/api/onboarding/get-details/${userId}`);
+      if (response.data?.success) {
+        const userData = response.data.data;
+        setUserDetailsMap(prev => ({
+          ...prev,
+          [userId]: {
+            _id: userData._id,
+            name: userData.name || "Unknown",
+            profileImage: userData.profileImage || null,
+            email: userData.email,
+            phone: userData.phone
+          }
+        }));
+      }
+    } catch (error) {
+      console.error(`Failed to fetch user details for ${userId}:`, error);
+      setUserDetailsMap(prev => ({
+        ...prev,
+        [userId]: {
+          _id: userId,
+          name: "Unknown User",
+          profileImage: null
+        }
+      }));
+    } finally {
+      setLoadingUsers(prev => ({ ...prev, [userId]: false }));
+    }
+  };
+
+  // Fetch user details for referral applications
+  useEffect(() => {
+    const uniqueUserIds = new Set<string>();
+    applications.forEach(app => {
+      const jobType = app?.jobType || app?.jobDetails?.jobType || "";
+      // Only fetch for referral type
+      if (jobType === "Referral") {
+        // Get postedByUser from jobDetails
+        const postedByUser = app?.jobDetails?.postedByUser;
+        if (postedByUser && !userDetailsMap[postedByUser]) {
+          uniqueUserIds.add(postedByUser);
+        }
+      }
+    });
+
+    // Fetch details for each unique user
+    uniqueUserIds.forEach(userId => {
+      fetchUserDetails(userId);
+    });
+  }, [applications]);
+
   // Handle row click - navigate to application details
   const handleRowClick = (applicationId: string) => {
     router.push(`/${userType}/applications/${applicationId}`);
   };
 
   // Handle profile navigation
-  const handleProfileClick = (e: React.MouseEvent, userId: string) => {
+  const handleProfileClick = (e: React.MouseEvent, userId?: string | null) => {
     e.stopPropagation();
     if (userId) {
       router.push(`/${userType}/profile/${userId}`);
@@ -142,12 +213,47 @@ export default function ApplicationsList({
   const hasPrev = meta?.hasPrev ?? false;
   const hasNext = meta?.hasNext ?? false;
 
+  // Get user details and render avatar
+  const renderUserAvatar = (userId?: string | null, userName?: string, profileImage?: string | null) => {
+    const getInitials = (name?: string) => {
+      if (!name) return "?";
+      return name.charAt(0).toUpperCase();
+    };
+
+    const displayName = userName || "Unknown";
+    const image = profileImage || null;
+
+    if (image) {
+      return (
+        <div className="h-10 w-10 rounded-full overflow-hidden border border-gray-600/30 flex-shrink-0">
+          <Image
+            src={image}
+            alt={displayName}
+            width={40}
+            height={40}
+            className="h-full w-full object-cover"
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center border border-gray-600/30 flex-shrink-0">
+        <span className="text-blue-400 font-medium text-sm">
+          {getInitials(displayName)}
+        </span>
+      </div>
+    );
+  };
+
   return (
     <div className="rounded-3xl border border-slate-800 overflow-hidden min-h-[420px] flex flex-col ml-5">
       <table className="w-full">
         <thead className="bg-[#111827]">
           <tr className="text-left text-gray-400">
-            <th className="px-6 py-4">Posted By</th>
+            <th className="px-6 py-4">
+              {applicationType === "Referral" ? "Referred By" : "Posted By"}
+            </th>
             <th className="px-6 py-4">Company</th>
             <th className="px-6 py-4">Role</th>
             <th className="px-6 py-4">Stage</th>
@@ -175,12 +281,13 @@ export default function ApplicationsList({
               // Get data from jobDetails
               const jobDetails = application.jobDetails || {};
               const companyProfile = application.companyProfile || {};
+              const jobType = application?.jobType || jobDetails?.jobType || "";
               
-              // Get poster info from companyProfile
+              // Get poster info from companyProfile (for Internship/Off-campus)
               const employerDetails = companyProfile.employerDetails || {};
               const posterName = employerDetails?.name || "Unknown";
               const posterDesignation = employerDetails?.designation || "";
-              const posterUserId = companyProfile?.userId || null;
+              
               const companyId = companyProfile?._id || null;
               
               // Get company name from companyProfile
@@ -206,7 +313,18 @@ export default function ApplicationsList({
               // Get applied date
               const appliedDate = application.createdAt || application.statusHistory?.[0]?.date;
               
+              // For Referral type: Get postedByUser from jobDetails
+              let referralUserId = null;
+              let referralUserName = "";
+              let referralUserImage = null;
               
+              if (jobType === "Referral") {
+                // Get postedByUser from jobDetails
+                referralUserId = jobDetails?.postedByUser || null;
+                const userDetails = referralUserId ? userDetailsMap[referralUserId] : null;
+                referralUserName = userDetails?.name || "Unknown";
+                referralUserImage = userDetails?.profileImage || null;
+              }
               
               // Format date
               const formatDate = (dateString: string) => {
@@ -228,30 +346,44 @@ export default function ApplicationsList({
                 return name.charAt(0).toUpperCase();
               };
 
+              // Determine which user data to display
+              const isReferral = jobType === "Referral";
+              const displayUserId = isReferral ? referralUserId : null;
+              const displayName = isReferral ? referralUserName : posterName;
+              const displayImage = isReferral ? referralUserImage : null;
+              const displayDesignation = isReferral ? "" : posterDesignation;
+
               return (
                 <tr
                   key={application._id}
                   className="border-t border-slate-800 hover:bg-slate-800/30 transition-colors cursor-pointer"
                   onClick={() => handleRowClick(application._id)}
                 >
-                  {/* Posted By Column */}
+                  {/* Posted By / Referred By Column */}
                   <td className="px-6 py-4">
                     <div 
                       className="flex items-center gap-3 cursor-pointer"
-                      onClick={(e) => handleProfileClick(e, posterUserId)}
+                      onClick={(e) => handleProfileClick(e, displayUserId)}
                     >
-                      {/* Avatar with first letter */}
-                      <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center border border-gray-600/30 flex-shrink-0">
-                        <span className="text-blue-400 font-medium text-sm">
-                          {getInitials(posterName)}
-                        </span>
-                      </div>
+                      {/* Avatar with image or first letter */}
+                      {isReferral ? (
+                        renderUserAvatar(displayUserId, displayName, displayImage)
+                      ) : (
+                        <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center border border-gray-600/30 flex-shrink-0">
+                          <span className="text-blue-400 font-medium text-sm">
+                            {getInitials(displayName)}
+                          </span>
+                        </div>
+                      )}
                       <div>
                         <span className="text-white font-medium hover:text-blue-400 transition-colors">
-                          {posterName}
+                          {displayName}
                         </span>
-                        {posterDesignation && (
-                          <p className="text-xs text-gray-400">{posterDesignation}</p>
+                        {displayDesignation && (
+                          <p className="text-xs text-gray-400">{displayDesignation}</p>
+                        )}
+                        {isReferral && referralUserId && loadingUsers[referralUserId] && (
+                          <p className="text-xs text-gray-500">Loading...</p>
                         )}
                       </div>
                     </div>
@@ -265,7 +397,6 @@ export default function ApplicationsList({
                     >
                       <Store className="w-4 h-4 text-gray-500" />
                       <span className="text-white">{companyName}</span>
-                      
                     </div>
                   </td>
 

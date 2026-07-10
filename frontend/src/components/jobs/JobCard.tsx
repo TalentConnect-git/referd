@@ -446,26 +446,7 @@ export default function JobCard({
             </>
           )}
 
-          {/* Match Score Progress Bar - Only show if matchScore exists */}
-          {matchScore !== undefined && matchScore !== null && (
-            <>
-              <div className="w-px h-3 bg-[var(--border)]" />
-              <div className="flex items-center gap-2">
-                <div className="w-12 h-1.5 bg-[#1e293b] rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full ${matchBg}`}
-                    style={{ 
-                      width: `${Math.min(Math.max(Number(matchScore) || 0, 0), 100)}%`,
-                      transition: 'width 0.5s ease-in-out'
-                    }}
-                  />
-                </div>
-                <span className={`text-[10px] font-medium ${matchColor}`}>
-                  {matchLabel}
-                </span>
-              </div>
-            </>
-          )}
+          
         </div>
 
         {/* Right Side: Save Button & View Details */}

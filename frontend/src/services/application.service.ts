@@ -40,16 +40,20 @@ export const getApplicationById = async (
 
 export const updateApplicationStatus = async (
   applicationId: string,
-  status: "Referred To Company" | "Rejected" | "Accepted"
+  status: "Referred To Company" | "Rejected" | "Accepted" | string
 ) => {
-  const { data } = await axiosInstance.patch(
-    `/application/update-status/${applicationId}`,
-    {
-      status,
-    }
-  );
-  return data;
-
+  try {
+    const { data } = await axiosInstance.patch(
+      `/application/update-status/${applicationId}`,
+      {
+        status,
+      }
+    );
+    return data;
+  } catch (error) {
+    console.error("Error updating application status:", error);
+    throw error;
+  }
 };
 
 export const getApplicationDetails = async (

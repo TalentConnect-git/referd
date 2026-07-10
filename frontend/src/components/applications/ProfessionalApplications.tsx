@@ -115,6 +115,7 @@ export default function ProfessionalApplications() {
       );
     }
 
+    // Return just the table based on active tab
     if (activeTab === "Requests Received") {
       return (
         <ApplicationsToMeTable
@@ -151,21 +152,28 @@ export default function ProfessionalApplications() {
       );
     }
 
-    return null;
+    // Show empty state if no applications and no matching tab
+    return (
+      <div className="ml-5 mr-5 mb-5">
+        <div className="rounded-3xl border border-slate-800 p-10 text-center">
+          <p className="text-gray-400">No applications found</p>
+        </div>
+      </div>
+    );
   };
 
   return (
     <div className="min-h-[calc(100vh-120px)] flex flex-col">
-
-       {renderTable()}
+      {/* Application Stats - Always at the top */}
       {!loading && !error && applications.length > 0 && (
-        <div className="mt-6 ml-5 mr-5">
+        <div className="mt-6 mx-5">
           <ApplicationStats
             applicationType={"Referral"}
             applications={applications}
           />
         </div>
       )}
+
       <div className="pt-6 mt-5 ml-5 mb-5">
         <ProfessionalApplicationTabs
           activeTab={activeTab}
@@ -173,9 +181,8 @@ export default function ProfessionalApplications() {
         />
       </div>
 
-     
-
-      {/* Application Stats - only show if there are applications */}
+      {/* Render the table */}
+      {renderTable()}
     </div>
   );
 }
