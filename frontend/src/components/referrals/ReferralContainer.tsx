@@ -16,13 +16,14 @@ export default function ReferralContainer() {
   const [referrals, setReferrals] = useState<ReferralJob[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [isAskReferralOpen, setIsAskReferralOpen] = useState(false);
+  
   const [meta, setMeta] = useState({
     totalPages: 1,
     hasNext: false,
     hasPrev: false,
   });
   const [selectedReferral, setSelectedReferral] = useState<ReferralJob | null>(null);
+  
   const [showResumeModal, setShowResumeModal] = useState(false);
   const [resumeReferralJob, setResumeReferralJob] = useState<ReferralJob | null>(null);
 

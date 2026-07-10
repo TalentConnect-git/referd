@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import DashboardProfStats from "./DashboardProfStats";
 import DashboardStudStats from "./DashboardStudStats";
 import {
@@ -10,6 +10,17 @@ import {
 } from "@/services/stats.services";
 import axiosInstance from "@/lib/axiosInstance";
 import { DashboardStatsProps } from "@/types/dashboard";
+import EmptyStateStepper from "./EmptyStateStepper";
+import QuickActionChips from "./QuickActionChips";
+
+type CountResponse = {
+  data?: {
+    data?: unknown[];
+    meta?: {
+      total?: number;
+    };
+  };
+};
 
 export default function DashboardStats({ userType }: DashboardStatsProps) {
   // Professional Stats
@@ -30,51 +41,42 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
   const [loading, setLoading] = useState(true);
 
   // Helper function to safely get count from API response
-  const getCountFromResponse = (response: any): number => {
+  const getCountFromResponse = (response: CountResponse): number => {
     if (!response?.data) return 0;
-    return response.data?.data?.length || 
-           response.data?.meta?.total || 
-           0;
+    return response.data?.data?.length || response.data?.meta?.total || 0;
   };
 
   // Function to fetch total alumni count from all endpoints with fallback to 0
-  const fetchTotalAlumniCount = async () => {
+  const fetchTotalAlumniCount = useCallback(async () => {
     try {
       const DEFAULT_LIMIT = 10;
 
       // Fetch all three endpoints with error handling
-      const [hiringResponse, collegeResponse, companyResponse] = await Promise.all([
+      const [hiringResponse] = await Promise.all([
         axiosInstance
-          .get(`/api/candidate/hiring-network?jobPostedOnly=true&page=1&limit=${DEFAULT_LIMIT}`)
-          .catch(() => ({ data: { data: [] } })),
-        axiosInstance
-          .get(`/api/candidate/college-alumni?page=1&limit=${DEFAULT_LIMIT}`)
-          .catch(() => ({ data: { data: [] } })),
-        axiosInstance
-          .get(`/api/candidate/company-alumni?page=1&limit=${DEFAULT_LIMIT}`)
+          .get(
+            `/api/candidate/hiring-network?jobPostedOnly=true&page=1&limit=${DEFAULT_LIMIT}`,
+          )
           .catch(() => ({ data: { data: [] } })),
       ]);
 
       // Safely get counts from each response
       const hiringCount = getCountFromResponse(hiringResponse);
-      const collegeCount = getCountFromResponse(collegeResponse);
-      const companyCount = getCountFromResponse(companyResponse);
 
       console.log("📊 Alumni Counts:", {
         hiring: hiringCount,
-        college: collegeCount,
-        company: companyCount,
-        total: hiringCount + collegeCount + companyCount,
+
+        total: hiringCount,
       });
 
-      return hiringCount + collegeCount + companyCount;
+      return hiringCount;
     } catch (error) {
       console.error("Error fetching alumni counts:", error);
       return 0;
     }
-  };
+  }, []);
 
-  const fetchDashboardStats = async () => {
+  const fetchDashboardStats = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -87,19 +89,18 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
           getProfessionalStats().catch(() => ({ data: {} })),
           axiosInstance
             .get(`/application/all-referrals`)
-            .catch(() => ({ data: { data: [] } }))
+            .catch(() => ({ data: { data: [] } })),
         ]);
 
         const metrics = profData?.data ?? profData;
         const candidatesList = candidatesResponse?.data?.data || [];
-        
+
         setTotalReferralsPosted(metrics?.totalReferralsPosted ?? 0);
         setTotalApplicationsReceived(metrics?.totalApplicationsReceived ?? 0);
         setResponseRate(metrics?.responseRate ?? 0);
         setReferralSuccessRate(metrics?.referralSuccessRate ?? 0);
-        setCandidatesWaiting(candidatesList.length); 
+        setCandidatesWaiting(candidatesList.length);
         setAlumniCount(totalAlumni);
-        
       } else if (userType === "student" || userType === "fresher") {
         const [statsData, insightsData] = await Promise.all([
           getCandidateStats().catch(() => ({ data: {} })),
@@ -135,13 +136,17 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchTotalAlumniCount, userType]);
 
   useEffect(() => {
     if (userType) {
-      fetchDashboardStats();
+      const timer = window.setTimeout(() => {
+        void fetchDashboardStats();
+      }, 0);
+
+      return () => window.clearTimeout(timer);
     }
-  }, [userType]);
+  }, [fetchDashboardStats, userType]);
 
   if (loading) {
     return (
@@ -171,14 +176,27 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
       )}
 
       {(userType === "student" || userType === "fresher") && (
-        <DashboardStudStats
-          applicationsSent={applicationsSent}
-          savedCount={savedCount}
-          resumeScore={resumeScore}
-          hiringScore={hiringScore}
-          alumniCount={studentAlumniCount}
-          userType={userType}
-        />
+        <>
+          <QuickActionChips userType={userType} />
+          <DashboardStudStats
+            applicationsSent={applicationsSent}
+            savedCount={savedCount}
+            resumeScore={resumeScore}
+            hiringScore={hiringScore}
+            alumniCount={studentAlumniCount}
+            userType={userType}
+          />
+          <EmptyStateStepper
+            count={applicationsSent}
+            userType={userType}
+            variant="applications"
+          />
+          <EmptyStateStepper
+            count={savedCount}
+            userType={userType}
+            variant="savedJobs"
+          />
+        </>
       )}
     </>
   );

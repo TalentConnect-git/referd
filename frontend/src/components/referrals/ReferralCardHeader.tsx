@@ -68,7 +68,7 @@ export default function ReferralCardHeader({
             }
           `}
         >
-          {/* Status Dot */}
+          {/*Status Dot */}
           <span className={`
             inline-block w-1.5 h-1.5 rounded-full
             ${referral.inactive 

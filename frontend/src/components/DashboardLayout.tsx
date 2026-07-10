@@ -33,6 +33,7 @@ import { useMemo, useRef, useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useMessageUnreadCount } from "@/hooks/useMessageUnreadCount";
 import { goToHome } from "@/helper/index";
+import OnboardingModal from "./dashboard/OnboardingModal";
 
 export type CandidateRole = "professional" | "student" | "fresher";
 
@@ -499,6 +500,9 @@ export function DashboardLayout({
           </button>
         </div>
       </div>
+
+      {/* Onboarding Modal */}
+      <OnboardingModal />
     </>
   );
 }

@@ -175,6 +175,8 @@ export interface JobRowProps  {
   onClick?: () => void;
   workMode?:string[];
   jobType:string;
+  isSaved?: boolean;   // Pass true if job is already saved
+isApplied?: boolean;
 };
 export interface JobDetailsModalProps {
   open: boolean;

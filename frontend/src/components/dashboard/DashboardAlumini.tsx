@@ -6,8 +6,9 @@ import Link from "next/link";
 import { fetchAlumniData } from "@/services/alumani.services";
 import { Alumni } from "@/types/dashboard";
 import { DashboardAluminiProps } from "@/types/dashboard";
+import { Users, ChevronRight, UserCheck, Building2 } from "lucide-react";
 
-export default function DashboardAlumni({userType}:DashboardAluminiProps) {
+export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
   const [alumni, setAlumni] = useState<Alumni[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -26,7 +27,7 @@ export default function DashboardAlumni({userType}:DashboardAluminiProps) {
           }
         }
       } catch (error) {
-        console.error("Error fetching alumini:", error);
+        console.error("Error fetching alumni:", error);
         setAlumni([]);
       } finally {
         setLoading(false);
@@ -40,22 +41,24 @@ export default function DashboardAlumni({userType}:DashboardAluminiProps) {
 
   // Get only the first 3 alumni for display
   const displayedAlumni = alumni.slice(0, 3);
+  const hasMore = alumni.length > 3;
 
   if (loading) {
     return (
-      <div className="mt-6 mx-5 rounded-3xl border border-[#1e293b] bg-[#0f172a]">
-        <div className="flex items-center justify-between border-b border-[#1e293b] p-4">
+      <div className="mt-6 mx-5 rounded-2xl border border-slate-800 bg-[#0f172a] overflow-hidden">
+        <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
           <div>
-            <div className="h-5 w-48 animate-pulse rounded bg-white/10" />
-            <div className="mt-2 h-4 w-56 animate-pulse rounded bg-white/10" />
+            <div className="h-5 w-40 animate-pulse rounded bg-slate-700/50" />
+            <div className="mt-1.5 h-3.5 w-48 animate-pulse rounded bg-slate-700/50" />
           </div>
+          <div className="h-4 w-20 animate-pulse rounded bg-slate-700/50" />
         </div>
 
-        <div className="grid grid-cols-1 gap-6 p-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 p-3 md:grid-cols-2 xl:grid-cols-3">
           {[1, 2, 3].map((item) => (
             <div
               key={item}
-              className="h-40 animate-pulse rounded-2xl border border-[#1e293b] bg-[#020617]"
+              className="h-32 animate-pulse rounded-xl border border-slate-800 bg-slate-800/20"
             />
           ))}
         </div>
@@ -63,35 +66,51 @@ export default function DashboardAlumni({userType}:DashboardAluminiProps) {
     );
   }
 
-  console.log("DashboardAlumni");
   return (
-    <div className="mt-6 mx-5 rounded-3xl border border-[#1e293b] bg-[#0f172a]">
-      <div className="flex items-center justify-between border-b border-[#1e293b] p-4">
-        <div>
-          <h2 className="text-lg font-semibold text-white">
-            Alumni Hiring Network
-          </h2>
+    <div className="mt-6 mx-5 rounded-2xl border border-slate-800 bg-[#0f172a] overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-[#0f172a]/50">
+        <div className="flex items-center gap-2.5">
 
-          <p className="mt-1 text-sm text-gray-400">
-            Verified alumni currently hiring
-          </p>
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/10 border border-blue-500/20">
+            <UserCheck className="h-3.5 w-3.5 text-blue-400" />
+          </div>
+          
+          <div>
+            <h2 className="text-[13px] font-semibold text-white">
+              Alumni Hiring Network
+            </h2>
+            <p className="text-[10px] text-gray-500">
+              {alumni.length} verified alumni currently hiring
+            </p>
+          </div>
         </div>
 
-        <Link 
-          href={`${
-            userType === "student" || userType === "fresher" ? "/student" : "/professional"
-          }/alumani-network`} 
-          className="text-sm text-gray-400 hover:text-white"
-        >
-          View All →
-        </Link>
+        {hasMore && (
+          <Link
+            href={`${
+              userType === "student" || userType === "fresher" ? "/student" : "/professional"
+            }/alumni-network`}
+            className="group inline-flex items-center gap-1 text-[11px] font-medium text-gray-400 hover:text-white transition-colors duration-200"
+          >
+            View All
+            <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform duration-200" />
+          </Link>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 gap-6 p-3 md:grid-cols-2 xl:grid-cols-3">
+      {/* Alumni Grid */}
+      <div className="grid grid-cols-1 gap-3 p-3 md:grid-cols-2 xl:grid-cols-3">
         {displayedAlumni.length === 0 ? (
-          <p className="col-span-full p-4 text-gray-400">
-            No alumni found
-          </p>
+          <div className="col-span-full flex flex-col items-center justify-center py-8 px-5">
+            <div className="h-12 w-12 rounded-full bg-slate-800/50 flex items-center justify-center mb-3">
+              <Users className="h-6 w-6 text-gray-500" />
+            </div>
+            <p className="text-sm text-gray-400">No alumni found</p>
+            <p className="text-xs text-gray-500 mt-1">
+              Check back later for updates
+            </p>
+          </div>
         ) : (
           displayedAlumni.map((person) => (
             <AlumniCard
@@ -105,11 +124,26 @@ export default function DashboardAlumni({userType}:DashboardAluminiProps) {
               openRoles={
                 person.referralMetrics?.totalReferralsPosted || 0
               }
-              onClick={() => router.push(`/${userType}/alumani-network/${person.userId}`)}
+              onClick={() => router.push(`/${userType}/alumni-network/${person.userId}`)}
             />
           ))
         )}
       </div>
+
+      {/* Footer - Show only if hasMore */}
+      {hasMore && displayedAlumni.length > 0 && (
+        <div className="px-4 py-2.5 border-t border-slate-800 bg-slate-800/10">
+          <Link
+            href={`${
+              userType === "student" || userType === "fresher" ? "/student" : "/professional"
+            }/alumni-network`}
+            className="w-full inline-flex items-center justify-center gap-2 text-[11px] font-medium text-gray-400 hover:text-pink-400 transition-colors duration-200 group"
+          >
+            <span>View all {alumni.length} alumni</span>
+            <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform duration-200" />
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

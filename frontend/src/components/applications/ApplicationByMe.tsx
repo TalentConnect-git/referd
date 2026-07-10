@@ -61,7 +61,7 @@ const StatusBadge = ({ status }: { status: string }) => {
   const colorClass = statusColors[statusKey] || "bg-gray-500/10 text-gray-400 border-gray-500/20";
   
   return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${colorClass}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${colorClass}`}>
       {status}
     </span>
   );
@@ -114,12 +114,12 @@ export default function ApplicationByMe({
       <table className="w-full">
         <thead className="bg-[#111827]">
           <tr className="text-left text-gray-400">
-            <th className="px-6 py-4">Posted By</th>
-            <th className="px-6 py-4">Job Title</th>
-            <th className="px-6 py-4">Company</th>
-            <th className="px-6 py-4">Stage</th>
-            <th className="px-6 py-4">Applied</th>
-            <th className="px-6 py-4">Match Score</th>
+            <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wider">Posted By</th>
+            <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wider">Job Title</th>
+            <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wider">Company</th>
+            <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wider">Stage</th>
+            <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wider">Applied</th>
+            <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wider">Match Score</th>
           </tr>
         </thead>
 
@@ -128,10 +128,10 @@ export default function ApplicationByMe({
             <tr>
               <td colSpan={6} className="h-[320px] text-center">
                 <div className="flex flex-col items-center justify-center">
-                  <p className="text-lg font-medium text-gray-300">
+                  <p className="text-base font-medium text-gray-300">
                     No {applicationType} applications found
                   </p>
-                  <p className="mt-2 text-sm text-gray-500">
+                  <p className="mt-1 text-xs text-gray-500">
                     You haven't applied to any {applicationType?.toLowerCase()} opportunities yet.
                   </p>
                 </div>
@@ -194,28 +194,28 @@ export default function ApplicationByMe({
                   onClick={() => router.push(`/${userType}/applications/${application._id}`)}
                 >
                   {/* Posted By Column */}
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-3">
                     <div 
-                      className="flex items-center gap-3 cursor-pointer"
+                      className="flex items-center gap-2.5 cursor-pointer"
                       onClick={(e) => handleProfileClick(e, posterUserId)}
                     >
                       {posterImage ? (
                         <Image
                           src={posterImage}
                           alt={posterName}
-                          width={40}
-                          height={40}
-                          className="h-10 w-10 rounded-full object-cover border border-gray-600/30"
+                          width={32}
+                          height={32}
+                          className="h-8 w-8 rounded-full object-cover border border-gray-600/30"
                         />
                       ) : (
-                        <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center border border-gray-600/30">
-                          <span className="text-blue-400 font-medium text-sm">
+                        <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center border border-gray-600/30">
+                          <span className="text-blue-400 font-medium text-[11px]">
                             {getInitials(posterName)}
                           </span>
                         </div>
                       )}
                       <div>
-                        <span className="text-white font-medium hover:text-blue-400 transition-colors">
+                        <span className="text-white font-medium text-[13px] hover:text-blue-400 transition-colors">
                           {posterName}
                         </span>
                       </div>
@@ -223,20 +223,20 @@ export default function ApplicationByMe({
                   </td>
 
                   {/* Job Title Column */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <Briefcase className="w-4 h-4 text-gray-500" />
-                      <span className="text-white font-medium">{jobTitle}</span>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1.5">
+                      <Briefcase className="w-3.5 h-3.5 text-gray-500" />
+                      <span className="text-white font-medium text-[13px]">{jobTitle}</span>
                     </div>
                   </td>
 
                   {/* Company Column */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <Building2 className="w-4 h-4 text-gray-500" />
-                      <span className="text-white">{companyName}</span>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1.5">
+                      <Building2 className="w-3.5 h-3.5 text-gray-500" />
+                      <span className="text-white text-[13px]">{companyName}</span>
                       {jobDetails.isAskForReferral && (
-                        <span className="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded-full border border-purple-500/20">
+                        <span className="text-[9px] bg-purple-500/10 text-purple-400 px-1.5 py-0.5 rounded-full border border-purple-500/20">
                           Referral
                         </span>
                       )}
@@ -244,34 +244,34 @@ export default function ApplicationByMe({
                   </td>
 
                   {/* Stage Column */}
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-3">
                     <StatusBadge status={currentStatus} />
                   </td>
 
                   {/* Applied Date Column */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-gray-500" />
-                      <span className="text-gray-300">{formatDate(appliedDate)}</span>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-gray-500" />
+                      <span className="text-gray-300 text-[13px]">{formatDate(appliedDate)}</span>
                     </div>
                   </td>
 
                   {/* Match Score Column */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <Target className="w-4 h-4 text-gray-500" />
-                      <span className={`font-semibold ${getMatchScoreColor(matchScore)}`}>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1.5">
+                      <Target className="w-3.5 h-3.5 text-gray-500" />
+                      <span className={`font-semibold text-[13px] ${getMatchScoreColor(matchScore)}`}>
                         {matchScore}%
                       </span>
                       {matchScore > 0 && (
-                        <div className="w-12 h-1.5 bg-[#1e293b] rounded-full overflow-hidden">
+                        <div className="w-10 h-1 bg-[#1e293b] rounded-full overflow-hidden">
                           <div
                             className={`h-full rounded-full ${getMatchScoreBg(matchScore)}`}
                             style={{ width: `${Math.min(matchScore, 100)}%` }}
                           />
                         </div>
                       )}
-                      <span className={`text-[9px] font-medium ${getMatchScoreColor(matchScore)}`}>
+                      <span className={`text-[8px] font-medium ${getMatchScoreColor(matchScore)}`}>
                         {matchScore >= 75 ? "High" : matchScore >= 40 ? "Medium" : "Low"}
                       </span>
                     </div>
@@ -285,25 +285,25 @@ export default function ApplicationByMe({
 
       {/* Pagination */}
       {meta && applications.length > 0 && totalItems > 0 && (
-        <div className="flex items-center justify-between px-6 py-4 border-t border-slate-800 bg-[#0F1115]">
-          <div className="text-sm text-gray-400">
+        <div className="flex items-center justify-between px-4 py-3 border-t border-slate-800 bg-[#0F1115]">
+          <div className="text-[12px] text-gray-400">
             Showing {startIndex} to {endIndex} of {totalItems} results
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={handlePreviousPage}
               disabled={!hasPrev}
-              className="px-3 py-1.5 rounded-lg border border-slate-700 text-sm text-gray-400 hover:bg-slate-800/50 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-2.5 py-1 rounded-lg border border-slate-700 text-[12px] text-gray-400 hover:bg-slate-800/50 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Previous
             </button>
-            <span className="text-sm text-gray-400">
+            <span className="text-[12px] text-gray-400">
               Page {currentPage} of {totalPages}
             </span>
             <button
               onClick={handleNextPage}
               disabled={!hasNext}
-              className="px-3 py-1.5 rounded-lg border border-slate-700 text-sm text-gray-400 hover:bg-slate-800/50 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-2.5 py-1 rounded-lg border border-slate-700 text-[12px] text-gray-400 hover:bg-slate-800/50 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Next
             </button>

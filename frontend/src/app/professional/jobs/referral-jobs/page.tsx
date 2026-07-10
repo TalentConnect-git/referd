@@ -47,7 +47,7 @@ export default function ProfessionalReferralJobsPage() {
   return (
     <div className="flex min-h-[calc(100vh-120px)] flex-col bg-[#0F172A]">
       {/* Header */}
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#1e293b] bg-[#111827] p-3 px-4">
+      <div className="mb-0 flex flex-wrap items-center justify-between gap-3 ml-4 mr-4 p-3 px-4">
         <div>
           <h1 className="text-lg font-bold text-white">Referral Jobs</h1>
           <p className="text-xs text-zinc-400">
