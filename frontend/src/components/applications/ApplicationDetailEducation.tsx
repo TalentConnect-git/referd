@@ -6,85 +6,109 @@ export default function ApplicationDetailEducation({
   educations,
 }: ApplicationDetailEducationProps) {
 
-    console.log("Educations:", educations);
+  console.log("Educations:", educations);
+  
   return (
     <div
       className="
-        rounded-3xl
+        rounded-2xl
         border
-        border-slate-800
-        p-6
+        border-[#2a3a52]
+        bg-gradient-to-r from-[#111827] to-[#1a2332]
+        p-5
+        shadow-xl
+        shadow-black/20
+        backdrop-blur-sm
       "
     >
-      <h2 className="text-xl font-semibold mb-6 text-blue-400">
+      <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+        <span className="bg-gradient-to-r from-green-500 to-emerald-600 w-1 h-6 rounded-full"></span>
         Education
       </h2>
 
       {educations?.length ? (
-        <div className="space-y-5">
+        <div className="space-y-4">
           {educations.map(
             (education: any, index: number) => (
               <div
                 key={index}
                 className="
                   border-l-2
-                  border-blue-500
-                  pl-5
+                  border-green-500/50
+                  pl-4
                   relative
+                  hover:border-green-500
+                  transition-colors
+                  group
                 "
               >
                 <div
                   className="
                     absolute
                     -left-[7px]
-                    top-2
+                    top-1.5
                     h-3
                     w-3
                     rounded-full
-                    bg-blue-500
+                    bg-gradient-to-r from-green-500 to-emerald-500
+                    group-hover:scale-110
+                    transition-transform
                   "
                 />
 
-                <h3 className="font-semibold text-lg">
+                <h3 className="font-semibold text-base text-white">
                   {education?.college_display ||
                     education?.college ||
                     "N/A"}
                 </h3>
 
-                <p className="text-slate-400">
+                <p className="text-sm text-slate-400 font-medium">
                   {education?.degree || "N/A"}
                 </p>
 
-                <p className="text-sm text-slate-500 mt-1">
-                  {education?.specialization || "N/A"}
-                </p>
+                {education?.specialization && (
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    {education?.specialization}
+                  </p>
+                )}
 
-                <div className="flex flex-wrap gap-4 mt-3 text-sm">
-                  <span>
-                    <strong>CGPA:</strong>{" "}
-                    {education?.cgpa || "N/A"}
-                  </span>
+                <div className="flex flex-wrap gap-3 mt-2 text-xs">
+                  {education?.cgpa && (
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700">
+                      <span className="text-slate-400 font-medium">CGPA:</span>
+                      <span className="text-white font-semibold">{education?.cgpa}</span>
+                    </span>
+                  )}
 
-                  <span>
-                    <strong>Graduation:</strong>{" "}
-                    {education?.yearOfGraduation ||
-                      "N/A"}
-                  </span>
+                  {education?.yearOfGraduation && (
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700">
+                      <span className="text-slate-400 font-medium">Graduation:</span>
+                      <span className="text-white font-semibold">{education?.yearOfGraduation}</span>
+                    </span>
+                  )}
+
+                  {education?.educationType && (
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700">
+                      <span className="text-slate-400 font-medium">Type:</span>
+                      <span className="text-white font-semibold capitalize">{education?.educationType}</span>
+                    </span>
+                  )}
                 </div>
 
                 {education?.isCurrent && (
                   <span
                     className="
                       inline-block
-                      mt-3
-                      px-3
-                      py-1
+                      mt-2
+                      px-2.5
+                      py-0.5
                       rounded-full
-                      bg-blue-500/10
+                      bg-green-500/10
                       border
-                      border-blue-500/30
-                      text-blue-400
+                      border-green-500/30
+                      text-green-400
                       text-xs
+                      font-medium
                     "
                   >
                     Current Education
@@ -95,15 +119,10 @@ export default function ApplicationDetailEducation({
           )}
         </div>
       ) : (
-        <p className="text-slate-500">
+        <p className="text-sm text-slate-500 text-center py-4">
           No education added
         </p>
       )}
     </div>
   );
 }
-
-
-
-
-

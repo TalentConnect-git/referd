@@ -3,6 +3,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { 
   User, 
   Briefcase, 
@@ -65,18 +66,26 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
   } = application || {};
 
   const applicantName = applicant?.name || "N/A";
-  const userId = applicant?.userId || null;
+  // const userId = applicant?.userId || null;
+  const profileImage = applicant?.profileImage || null;
 
   const jobTitle = Array.isArray(job?.jobTitle) ? job.jobTitle[0] : job?.jobTitle || "N/A";
-  const companyName = job?.companyName || "N/A";
+  const companyName = job?.companyName || null;
 
   const education: Education = applicant?.educations?.[0] || {};
   const collegeName = education?.college || "N/A";
-  const degree = education?.degree || "";
-  const graduationYear = education?.yearOfGraduation || education?.graduationYear || "";
+  // const degree = education?.degree || "";
+  // const graduationYear = education?.yearOfGraduation || education?.graduationYear || "";
 
   const isAlreadyReferred = currentStatus === "Referred To Company";
   const isRejected = currentStatus === "Rejected";
+
+  
+  const handleCardClick = () => {
+    if (applicationId) {
+      router.push(`/${role}/applications/${applicationId}`);
+    }
+  };
 
   const getMatchScoreColor = (score?: number): string => {
     const numericScore = Number(score) || 0;
@@ -116,12 +125,12 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
     }
   };
 
-  const handleProfileClick = (e: React.MouseEvent): void => {
-    e.stopPropagation();
-    if (userId) {
-      router.push(`/${role}/profile/${userId}`);
-    }
-  };
+  // const handleProfileClick = (e: React.MouseEvent): void => {
+  //   e.stopPropagation();
+  //   if (userId) {
+  //     router.push(`/${role}/profile/${userId}`);
+  //   }
+  // };
 
   const handleStatusUpdate = async (status: string) => {
     if (!applicationId) {
@@ -168,33 +177,59 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
     );
   };
 
+  // Truncate comment
+  const truncateComment = (text: string, maxLength: number = 20): string => {
+    if (!text) return "";
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + "...";
+  };
+
   return (
-    <div className="px-4 py-3 hover:bg-[#111a2e] transition-colors duration-150 border-b border-[#1e293b] last:border-b-0">
-      <div className="flex items-center gap-4">
+    <div 
+      onClick={handleCardClick}
+      className="px-4 py-3 hover:bg-[#111a2e] transition-colors duration-150 border-b border-[#1e293b] last:border-b-0 cursor-pointer"
+    >
+      <div className="flex items-center gap-3">
         
         {/* Profile Image */}
         <div 
-          onClick={handleProfileClick}
+          // onClick={handleProfileClick}
           className="flex-shrink-0 cursor-pointer group relative"
         >
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center group-hover:from-blue-500/30 group-hover:to-purple-500/30 transition-all border border-blue-500/30">
-            <span className="text-blue-400 font-semibold text-sm group-hover:text-blue-300">
-              {applicantName?.charAt(0)?.toUpperCase() || "A"}
-            </span>
-          </div>
+          {profileImage ? (
+            <Image
+              src={profileImage}
+              alt={applicantName}
+              width={36}
+              height={36}
+              className="w-9 h-9 rounded-full object-cover border border-blue-500/30 group-hover:border-blue-500/60 transition-all"
+            />
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center group-hover:from-blue-500/30 group-hover:to-purple-500/30 transition-all border border-blue-500/30">
+              <span className="text-blue-400 font-semibold text-sm group-hover:text-blue-300">
+                {applicantName?.charAt(0)?.toUpperCase() || "A"}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Name & Job Title */}
         <div className="min-w-0 flex-1">
           <p 
-            onClick={handleProfileClick}
+            // onClick={handleProfileClick}
             className="font-medium text-white hover:text-blue-400 cursor-pointer transition-colors truncate text-sm"
           >
             {applicantName}
           </p>
           <p className="text-xs text-gray-400 truncate flex items-center gap-1">
-            <Briefcase className="w-3 h-3 text-gray-500" />
-            {jobTitle} • {companyName}
+            <Briefcase className="w-3 h-3 text-gray-500 flex-shrink-0" />
+            {jobTitle}
+            {companyName && (
+              <>
+                <span className="text-gray-600">|</span>
+                <span>{companyName}</span>
+              </>
+            )}
           </p>
         </div>
 
@@ -204,9 +239,7 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
             <GraduationCap className="w-3 h-3 text-gray-500 flex-shrink-0" />
             {collegeName}
           </p>
-          <p className="text-[10px] text-gray-500 truncate">
-            {degree}{graduationYear ? ` (${graduationYear})` : ""}
-          </p>
+          
         </div>
 
         {/* Match Score */}
@@ -231,24 +264,26 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
         </div>
 
         {/* Rating & Comment */}
-        <div className="hidden lg:block flex-shrink-0">
+        <div className="hidden lg:block flex-shrink-0 min-w-[80px]">
           {rating && rating > 0 && (
             <div className="flex flex-col items-center">
               {renderStars(rating)}
             </div>
           )}
           {adminComment && (
-            <div className="flex items-center gap-1 mt-0.5">
-              <MessageSquare className="w-3 h-3 text-gray-500" />
-              <p className="text-[10px] text-gray-400 truncate max-w-[80px]">{adminComment}</p>
+            <div className="flex items-center gap-1 mt-0.5 justify-center">
+              <MessageSquare className="w-3 h-3 text-gray-500 flex-shrink-0" />
+              <p className="text-[10px] text-gray-400 truncate max-w-[60px]">
+                {truncateComment(adminComment)}
+              </p>
             </div>
           )}
         </div>
 
         {/* Created At */}
-        <div className="hidden xl:block flex-shrink-0">
+        <div className="hidden xl:block flex-shrink-0 min-w-[90px]">
           <p className="text-xs text-gray-400 flex items-center gap-1">
-            <Calendar className="w-3 h-3 text-gray-500" />
+            <Calendar className="w-3 h-3 text-gray-500 flex-shrink-0" />
             {formatDateToIST(createdAt)}
           </p>
         </div>
@@ -272,7 +307,10 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
           ) : (
             <>
               <button
-                onClick={() => setShowDropdown(!showDropdown)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowDropdown(!showDropdown);
+                }}
                 disabled={isUpdating}
                 className="
                   flex items-center gap-1.5 px-3 py-1.5
@@ -301,14 +339,20 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
               {showDropdown && !isUpdating && (
                 <div className="absolute right-0 top-full mt-1 w-36 bg-[#1e293b] border border-[#334155] rounded-lg shadow-xl z-10 overflow-hidden">
                   <button
-                    onClick={() => handleStatusUpdate("Referred To Company")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStatusUpdate("Referred To Company");
+                    }}
                     className="w-full text-left px-4 py-2 text-xs text-green-400 hover:bg-green-500/10 transition-colors flex items-center gap-2"
                   >
                     <CheckCircle className="w-3.5 h-3.5" />
                     Refer
                   </button>
                   <button
-                    onClick={() => handleStatusUpdate("Rejected")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStatusUpdate("Rejected");
+                    }}
                     className="w-full text-left px-4 py-2 text-xs text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-2 border-t border-[#334155]"
                   >
                     <XCircle className="w-3.5 h-3.5" />

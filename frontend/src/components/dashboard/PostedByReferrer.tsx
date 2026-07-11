@@ -1,14 +1,29 @@
-"use client"
+"use client";
 import { PostedByReferrerProps } from "@/types/dashboard";
 import { getAlumniDetails } from "@/services/alumani.services";
 import { Alumni } from "@/types/alumni";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { User, Briefcase, Mail, ExternalLink, Loader2, Building2, MapPin, Calendar, MessageCircle, Share2, Award, Clock } from "lucide-react";
+import {
+  User,
+  Briefcase,
+  Mail,
+  ExternalLink,
+  Loader2,
+  Building2,
+  MapPin,
+  Calendar,
+  MessageCircle,
+  Share2,
+  Award,
+  Clock,
+} from "lucide-react";
 import Image from "next/image";
 
-export default function PostedByReferrer({ candidateId }: PostedByReferrerProps) {
+export default function PostedByReferrer({
+  candidateId,
+}: PostedByReferrerProps) {
   const router = useRouter();
   const { profile: authProfile } = useAuth();
   const userType = authProfile?.profileType;
@@ -70,30 +85,26 @@ export default function PostedByReferrer({ candidateId }: PostedByReferrerProps)
   };
 
   // Format company and location
-  const companyName = profile?.currentCompany_display || profile?.currentCompany || "Not specified";
+  const companyName =
+    profile?.currentCompany_display ||
+    profile?.currentCompany ||
+    "Not specified";
   const location = profile?.locations?.[0] || "";
-
- 
 
   return (
     <div className="bg-gradient-to-br from-[#0F172A] to-[#1a2332] rounded-2xl border border-slate-800 p-5 transition-all duration-300 hover:border-green-500/40 hover:shadow-xl hover:shadow-green-500/5">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-green-500/10">
-            <User className="w-3.5 h-3.5 text-green-400" />
-          </div>
-          <h3 className="text-xs font-medium text-gray-400 tracking-wide uppercase">Posted By Referrer</h3>
-        </div>
-        <div className="flex items-center gap-2">
-          
           {profile.isHiring !== undefined && (
-            <span className={`text-[10px] px-2.5 py-0.5 rounded-full border font-medium ${
-              profile.isHiring 
-                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
-                : 'bg-gray-500/10 text-gray-400 border-gray-500/20'
-            }`}>
-              {profile.isHiring ? '● Hiring' : '○ Not Hiring'}
+            <span
+              className={`text-[10px] px-2.5 py-0.5 rounded-full border font-medium ${
+                profile.isHiring
+                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                  : "bg-gray-500/10 text-gray-400 border-gray-500/20"
+              }`}
+            >
+              {profile.isHiring ? "● Hiring" : "○ Not Hiring"}
             </span>
           )}
         </div>
@@ -121,24 +132,21 @@ export default function PostedByReferrer({ candidateId }: PostedByReferrerProps)
               </div>
             )}
             {/* Online status indicator */}
-           
           </div>
 
           {/* Profile Details */}
           <div className="min-w-0 flex-1">
-            <h3 
+            <h3
               className="text-base font-semibold text-white hover:text-green-400 transition-colors cursor-pointer truncate"
               onClick={handleViewProfile}
             >
               {profile.name || "Unknown User"}
             </h3>
-            
+
             {/* Role and Company */}
             <div className="flex flex-wrap items-center gap-2 mt-1">
-              
               {companyName && companyName !== "Not specified" && (
                 <>
-                  <span className="text-gray-600 text-xs">•</span>
                   <div className="flex items-center gap-1 text-xs text-gray-400">
                     <Building2 className="w-3 h-3 text-gray-500" />
                     <span>{companyName}</span>
@@ -149,12 +157,6 @@ export default function PostedByReferrer({ candidateId }: PostedByReferrerProps)
 
             {/* Additional Info - Compact */}
             <div className="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-gray-500">
-              {location && (
-                <div className="flex items-center gap-1">
-                  <MapPin className="w-3 h-3" />
-                  <span>{location}</span>
-                </div>
-              )}
               {profile.totalYearsOfExperience && (
                 <>
                   <span className="text-gray-700">|</span>
@@ -215,25 +217,6 @@ export default function PostedByReferrer({ candidateId }: PostedByReferrerProps)
             <ExternalLink className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </button>
         </div>
-      </div>
-
-      
-
-      {/* Footer - Quick Stats */}
-      <div className="mt-3 flex flex-wrap items-center gap-4 text-[10px] text-gray-500">
-       
-        {profile.email && (
-          <div className="flex items-center gap-1.5">
-            <Mail className="w-3 h-3" />
-            <span className="truncate max-w-[150px]">{profile.email}</span>
-          </div>
-        )}
-        {profile.phone && (
-          <div className="flex items-center gap-1.5">
-            <span>📱</span>
-            <span>{profile.phone}</span>
-          </div>
-        )}
       </div>
     </div>
   );
