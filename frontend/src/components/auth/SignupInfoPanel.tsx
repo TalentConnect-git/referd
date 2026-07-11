@@ -1,5 +1,7 @@
 import { BadgeCheck, LayoutDashboard, ShieldCheck } from "lucide-react";
 import Link from "next/link";
+import logo from "@/assets/icon.png"
+import Image from "next/image";
 
 const items = [
   {
@@ -22,15 +24,24 @@ const items = [
 export default function SignupInfoPanel() {
   return (
     <div className="hidden w-[40%] rounded-l-3xl bg-[var(--card)] px-9 py-8 lg:block">
-      <Link href="/" className="flex items-center gap-3">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-[rgba(49,170,64,0.35)] bg-[var(--primary-soft)]">
-          <span className="h-2.5 w-2.5 rounded-full bg-[var(--primary)]" />
-        </div>
+      <Link href="/" className="flex items-center gap-1.5 group">
+  {/* Logo Image */}
+  <div className="relative h-6 w-6 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
+    <Image
+      src={logo}
+      alt="Referd Logo"
+      fill
+      className="object-contain"
+      priority
+    />
+  </div>
 
-        <span className="text-[13px] font-bold tracking-tight text-white">
-          Referd<span className="text-[var(--primary)]">.</span>
-        </span>
-      </Link>
+  {/* Text with dot */}
+  <span className="text-lg font-medium tracking-tight text-white transition-colors duration-200 group-hover:text-[var(--primary)]">
+    referd
+    <span className="text-[var(--primary)]">.</span>
+  </span>
+</Link>
 
       <p className="mt-9 font-mono text-[11px] uppercase tracking-[0.25em] text-[var(--primary)]">
         Create Account

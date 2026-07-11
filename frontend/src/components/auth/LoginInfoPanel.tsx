@@ -1,5 +1,7 @@
 import { Briefcase, CheckCircle, ShieldCheck } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
+import logo from "@/assets/icon.png";
 
 const items = [
   {
@@ -22,13 +24,21 @@ const items = [
 export default function LoginInfoPanel() {
   return (
     <div className="hidden w-[40%] rounded-l-3xl bg-[var(--card)] px-9 py-8 lg:block">
-      <Link href="/" className="flex items-center gap-3">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-[rgba(49,170,64,0.35)] bg-[var(--primary-soft)]">
-          <span className="h-2.5 w-2.5 rounded-full bg-[var(--primary)]" />
+      <Link href="/" className="flex items-center gap-0.5 group">
+        {/* Logo Image */}
+        <div className="relative h-6 w-6 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
+          <Image
+            src={logo}
+            alt="Referd Logo"
+            fill
+            className="object-contain"
+            priority
+          />
         </div>
 
-        <span className="text-[13px] font-bold tracking-tight text-white">
-          Referd
+        {/* Text with dot */}
+        <span className="text-lg font-medium tracking-tight text-white transition-colors duration-200 group-hover:text-[var(--primary)]">
+          referd
           <span className="text-[var(--primary)]">.</span>
         </span>
       </Link>
@@ -44,9 +54,7 @@ export default function LoginInfoPanel() {
       <div className="mt-10 space-y-7">
         {items.map((item) => (
           <div key={item.title} className="flex gap-3">
-            <div className="mt-[2px] text-[var(--primary)]">
-              {item.icon}
-            </div>
+            <div className="mt-[2px] text-[var(--primary)]">{item.icon}</div>
 
             <div>
               <h3 className="text-[13px] font-semibold text-white">
