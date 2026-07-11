@@ -25,7 +25,7 @@ export default function JobRow({
   const [saved, setSaved] = useState(isSaved);
   const [applied, setApplied] = useState(isApplied);
 
-  console.log("Match Score ", matchScore);
+  
 
   const handleSave = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -70,7 +70,7 @@ export default function JobRow({
   };
 
   const handleRowClick = () => {
-    console.log("ROW CLICKED");
+   
     onClick?.();
   };
 
@@ -104,12 +104,7 @@ export default function JobRow({
               </span>
             )}
 
-            {referredBy && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-purple-500/10 px-2 py-0.5 text-[10px] font-medium text-purple-400">
-                <Briefcase className="w-2.5 h-2.5" />
-                Referral
-              </span>
-            )}
+            
           </div>
 
           <div className="flex flex-wrap items-center gap-2 mt-0.5">
@@ -127,10 +122,7 @@ export default function JobRow({
             
             <span className="text-gray-600 text-[10px]">•</span>
             
-            <div className="flex items-center gap-1">
-              <Clock className="w-3 h-3 text-gray-500 flex-shrink-0" />
-              <span className="text-xs text-gray-400">{getWorkModeDisplay()}</span>
-            </div>
+            
           </div>
         </div>
       </div>

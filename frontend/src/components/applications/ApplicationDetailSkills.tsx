@@ -9,37 +9,49 @@ export default function ApplicationDetailSkills({
   return (
     <div
       className="
-        rounded-3xl
+        rounded-2xl
         border
-        border-slate-800
-        p-6
+        border-[#2a3a52]
+        bg-gradient-to-r from-[#111827] to-[#1a2332]
+        p-5
+        shadow-xl
+        shadow-black/20
+        backdrop-blur-sm
       "
     >
-      <h2 className="text-xl font-semibold mb-6 text-blue-400">
+      <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+        <span className="bg-gradient-to-r from-green-500 to-emerald-600 w-1 h-6 rounded-full"></span>
         Skills & Technologies
       </h2>
 
       {/* Skills */}
-      <div className="mb-6">
-        <h3 className="text-slate-400 mb-3">
+      <div className="mb-4">
+        <h3 className="text-xs text-slate-400 font-medium mb-2.5 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
           Core Skills
         </h3>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {skills?.length ? (
             skills.map(
               (skill: string, index: number) => (
                 <span
                   key={index}
                   className="
-                    px-3
-                    py-2
+                    px-2.5
+                    py-1
                     rounded-full
-                    bg-slate-500/10
+                    bg-blue-500/10
                     border
-                    border-slate-500/30
-                    text-slate-400
-                    text-sm
+                    border-blue-500/20
+                    text-blue-400
+                    text-xs
+                    font-medium
+                    transition-all
+                    hover:bg-blue-500/20
+                    hover:border-blue-500/40
+                    hover:scale-105
+                    cursor-default
                   "
                 >
                   {skill}
@@ -47,20 +59,21 @@ export default function ApplicationDetailSkills({
               )
             )
           ) : (
-            <p className="text-slate-500">
+            <p className="text-xs text-slate-500">
               No skills added
             </p>
           )}
         </div>
       </div>
 
-      {/* Tools */}
+      {/* Tools & Platforms */}
       <div>
-        <h3 className="text-slate-400 mb-3">
+        <h3 className="text-xs text-slate-400 font-medium mb-2.5 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
           Tools & Platforms
         </h3>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {toolsAndPlatforms?.length ? (
             toolsAndPlatforms.map(
               (
@@ -70,14 +83,20 @@ export default function ApplicationDetailSkills({
                 <span
                   key={index}
                   className="
-                    px-3
-                    py-2
+                    px-2.5
+                    py-1
                     rounded-full
-                    bg-slate-800
+                    bg-purple-500/10
                     border
-                    border-slate-700
-                    text-slate-300
-                    text-sm
+                    border-purple-500/20
+                    text-purple-400
+                    text-xs
+                    font-medium
+                    transition-all
+                    hover:bg-purple-500/20
+                    hover:border-purple-500/40
+                    hover:scale-105
+                    cursor-default
                   "
                 >
                   {tool}
@@ -85,7 +104,7 @@ export default function ApplicationDetailSkills({
               )
             )
           ) : (
-            <p className="text-slate-500">
+            <p className="text-xs text-slate-500">
               No tools added
             </p>
           )}

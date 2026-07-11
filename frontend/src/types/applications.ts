@@ -353,6 +353,7 @@ export interface ApplicationDetailContainerProps {
 
 export interface ApplicationDetailHeaderProps {
   applicant: Applicant;
+  application:Application;
 }
 
 export interface ApplicationDetailAssessmentProps {

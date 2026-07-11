@@ -7,8 +7,6 @@ import ApplicationDetailExperience from "./ApplicationDetailExperience";
 import ApplicationDetailSkills from "./ApplicationDetailSkills";
 import ApplicationDetailReferralRequest from "./ApplicationDetailReferralRequest";
 import ApplicationDetailTimeline from "./ApplicationDetailTimeline";
-import ApplicationDetailActions from "./ApplicationDetailActions";
-import ApplicationDetailSocialLinks from "./ApplicationDetailSocialLinks";
 
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -48,6 +46,7 @@ export default function ApplicationDetailContainer({
       </button>
       <ApplicationDetailHeader
         applicant={applicant}
+        application={application}
       />
 
       <ApplicationDetailAssessment
@@ -70,9 +69,7 @@ export default function ApplicationDetailContainer({
         }
       />
 
-      <ApplicationDetailSocialLinks
-      applicant={applicant}
-      />
+      
 
       <ApplicationDetailReferralRequest
         job={application?.job}
@@ -84,9 +81,7 @@ export default function ApplicationDetailContainer({
         }
       />
 
-      <ApplicationDetailActions
-        application={application}
-      />
+      
 
     </div>
   );

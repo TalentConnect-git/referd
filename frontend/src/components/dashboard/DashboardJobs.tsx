@@ -60,7 +60,7 @@ export default function DashboardJobs({
     }
   };
 
-  // Combine all jobs and take first 3
+  
   const allJobsCombined = [
     ...referralJobs,
     ...internshipJobs,
