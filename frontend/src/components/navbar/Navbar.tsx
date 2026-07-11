@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { Bell, CalendarDays, MessageCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useGetAllUsers } from "@/hooks/useGetAllUsers";
@@ -7,9 +7,9 @@ import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import NotificationsDropdown from "../notifications/NotificationsDropDown";
 import InterviewCall from "./InterviewCall";
+import logo from "@/assets/icon.png";
 
 export default function Navbar() {
-
   const { profile, user } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -19,10 +19,7 @@ export default function Navbar() {
   const { totalUnread } = useGetAllUsers();
 
   const displayName =
-    profile?.fullName ||
-    profile?.name ||
-    user?.name ||
-    "User";
+    profile?.fullName || profile?.name || user?.name || "User";
 
   const initials = displayName
     .split(" ")
@@ -32,10 +29,7 @@ export default function Navbar() {
     .join("")
     .toUpperCase();
 
-  const userType =
-    profile?.profileType ||
-    user?.userType ||
-    "student";
+  const userType = profile?.profileType || user?.userType || "student";
 
   // Use profile.profileImage directly
   const profileImageUrl = profile?.profileImage || null;
@@ -77,24 +71,31 @@ export default function Navbar() {
       "
     >
       {/* Logo */}
-      <div className="flex items-center gap-2">
-        <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-[var(--primary)]">
-          <span className="h-1.5 w-1.5 rounded-full bg-black" />
+      <Link href="/" className="flex items-center gap-0.5 group">
+        {/* Logo Image */}
+        <div className="relative h-6 w-6 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
+          <Image
+            src={logo}
+            alt="Referd Logo"
+            fill
+            className="object-contain"
+            priority
+          />
         </div>
 
-        <span className="text-lg font-bold tracking-tight text-white">
-          Referd
+        {/* Text with dot */}
+        <span className="text-sm font-medium tracking-tight text-white transition-colors duration-200 group-hover:text-[var(--primary)]">
+          referd
           <span className="text-[var(--primary)]">.</span>
         </span>
-      </div>
+      </Link>
 
       {/* Right side icons */}
       <div className="flex items-center gap-3">
-
         {/* Calendar */}
         <div className="relative" ref={calendarRef}>
           <button
-            onClick={() => setShowCalendar(prev => !prev)}
+            onClick={() => setShowCalendar((prev) => !prev)}
             className="
               flex
               h-8
@@ -133,7 +134,7 @@ export default function Navbar() {
         {/* Notifications */}
         <div className="relative" ref={notificationRef}>
           <button
-            onClick={() => setShowNotifications(prev => !prev)}
+            onClick={() => setShowNotifications((prev) => !prev)}
             className="
               flex
               h-8
@@ -252,7 +253,6 @@ export default function Navbar() {
             <span>{initials}</span>
           )}
         </Link>
-
       </div>
     </header>
   );

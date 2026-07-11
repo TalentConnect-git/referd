@@ -1,4 +1,6 @@
 import Link from "next/link";
+import logo from "@/assets/icon.png"
+import Image from "next/image";
 
 const footerLinks = [
   {
@@ -24,16 +26,24 @@ export default function Footer() {
     <footer className="border-t border-[var(--border)] bg-[var(--background)] px-6 py-16 sm:px-8 lg:px-10 mt-5">
       <div className="mx-auto flex max-w-7xl flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-6 w-6 items-center justify-center rounded-b-lg rounded-t-lg border border-[rgba(49,170,64,0.35)] bg-[var(--primary-soft)]">
-              <span className="h-3 w-3 rounded-full bg-[var(--primary)]" />
-            </div>
+          <Link href="/" className="flex items-center gap-0.5 group">
+        {/* Logo Image */}
+        <div className="relative h-6 w-6 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
+          <Image
+            src={logo}
+            alt="Referd Logo"
+            fill
+            className="object-contain"
+            priority
+          />
+        </div>
 
-            <span className="text-[15px] font-bold tracking-tight text-white">
-              Referd
-              <span className="text-[var(--primary)]">.</span>
-            </span>
-          </Link>
+        {/* Text with dot */}
+        <span className="text-sm font-medium tracking-tight text-white transition-colors duration-200 group-hover:text-[var(--primary)]">
+          referd
+          <span className="text-[var(--primary)]">.</span>
+        </span>
+      </Link>
 
           <p className="mt-5 text-[15px] text-[var(--text-primary)]">
             India's first alumni-vouched referral network.

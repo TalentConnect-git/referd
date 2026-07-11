@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useState, useRef, useEffect, useMemo } from "react";
+import Image from "next/image";
+import logo from "@/assets/icon.png";
 
 const navLinks = [
   { label: "Product", href: "#product" },
@@ -30,7 +32,8 @@ export default function Navbar() {
     }
     if (dropdownOpen) {
       document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [dropdownOpen]);
 
@@ -54,9 +57,12 @@ export default function Navbar() {
   // ---------- Routes ----------
   const getProfileRoute = () => {
     switch (userType) {
-      case "professional": return "/professional/profile";
-      case "fresher": return "/fresher/profile";
-      default: return "/student/profile";
+      case "professional":
+        return "/professional/profile";
+      case "fresher":
+        return "/fresher/profile";
+      default:
+        return "/student/profile";
     }
   };
 
@@ -82,12 +88,22 @@ export default function Navbar() {
     <header className="fixed left-0 top-0 z-50 w-full border-b border-[var(--border)] bg-[var(--background)]/75 backdrop-blur-xl">
       <nav className="mx-auto flex h-13 max-w-7xl items-center justify-between px-5 sm:px-8">
         <div className="flex items-center gap-10">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-6 w-6 items-center justify-center rounded-b-lg rounded-t-lg border border-[rgba(49,170,64,0.35)] bg-[var(--primary-soft)]">
-              <span className="h-2.5 w-2.5 rounded-full bg-[var(--primary)]" />
+          <Link href="/" className="flex items-center gap-0.5 group">
+            {/* Logo Image */}
+            <div className="relative h-5 w-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
+              <Image
+                src={logo}
+                alt="Referd Logo"
+                fill
+                className="object-contain"
+                priority
+              />
             </div>
-            <span className="text-[13px] font-bold tracking-tight text-white">
-              Referd<span className="text-[var(--primary)]">.</span>
+
+            {/* Text with dot */}
+            <span className="text-[13px] font-medium tracking-tight text-white transition-colors duration-200 group-hover:text-[var(--primary)]">
+              referd
+              <span className="text-[var(--primary)]">.</span>
             </span>
           </Link>
 
@@ -178,4 +194,3 @@ export default function Navbar() {
     </header>
   );
 }
-

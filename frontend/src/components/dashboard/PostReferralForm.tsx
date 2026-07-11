@@ -1,291 +1,289 @@
+// components/referral/PostReferralForm.tsx
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 import BasicJobDetails from "./BasicJobDetails";
 import SelectionCriteriaSection from "./SelectionCriteriaSection";
 import { createReferralPosting } from "@/services/referral.service";
-import { Briefcase, GraduationCap } from "lucide-react";
+import { ReferralPostingPayload } from "@/types/referral";
 
 export default function PostReferralForm() {
-  const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [invalidFields, setInvalidFields] = useState<string[]>([]);
-  const [formData, setFormData] = useState({
-    cgpa: "",
-    batchYear: "",
-    employmentType: "",
-    endDate: "",
-    jobTitle: "",
-    workMode: "",
-    location: "",
-    broadcastType: "Everyone",
-
-    totalCTC: "",
-    fixedPay: "",
-    joiningBonus: "",
-
-    numberOfOpenings: "",
+  const router = useRouter();
+  const [currentStep, setCurrentStep] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState<ReferralPostingPayload>({
+    jobTitle: [],
+    companyName: "",
+    location: [],
+    workMode: [],
+    employmentType: [],
     description: "",
-
+    jobRoles: [],
+    packageDetails: {
+      currency: "INR",
+      totalCTC: 0,
+      fixedPay: 0,
+      joiningBonus: 0,
+    },
+    skills: [],
+    experience: "",
+    minEducation: "",
+    certifications: [],
+    benefits: [],
+    tags: [],
+    numberOfOpenings: 1,
+    careerPageUrl: "",
+    state: "",
+    city: "",
+    country: "India",
+    cgpa: 0,
+    studentStreams: [],
+    batchYear: [],
     eligibilityCriteria: "",
+    selectionProcess: [],
+    rounds: [],
+    onlineTestDate: undefined,
+    interviewWindow: {},
+    proposedSchedule: {},
+    venue: "",
+    isAskForReferral: false,
+    referralRequestId: null,
+    senderProfile: {},
+    receiverProfile: {},
+    broadcastType: "Everyone",
+    visibleTo: "All",
+    workLocation: [],
+    expireAt: undefined,
+    inactive: false,
     degree: "",
-
-    minYearofExperience: "",
-    yearsOfExperience: "",
-
+    degreeId: "",
     workAuthorization: "",
-
-    skills: "",
-    rounds: "",
-    selectionProcess: "",
-
-    benefits: "",
-    tags: "",
-    certifications: "",
+    endDate: undefined,
   });
 
-  const handleSubmit = async () => {
-    try {
-      setLoading(true);
+  const steps = [
+    {
+      title: "Basic Job Details",
+      component: BasicJobDetails,
+    },
+    {
+      title: "Selection Criteria",
+      component: SelectionCriteriaSection,
+    },
+  ];
 
-      const payload = {
-        jobType: "Referral",
+  // Reset form to initial state
+  const resetForm = () => {
+    setFormData({
+      jobTitle: [],
+      companyName: "",
+      location: [],
+      workMode: [],
+      employmentType: [],
+      description: "",
+      jobRoles: [],
+      packageDetails: {
+        currency: "INR",
+        totalCTC: 0,
+        fixedPay: 0,
+        joiningBonus: 0,
+      },
+      skills: [],
+      experience: "",
+      minEducation: "",
+      certifications: [],
+      benefits: [],
+      tags: [],
+      numberOfOpenings: 1,
+      careerPageUrl: "",
+      state: "",
+      city: "",
+      country: "India",
+      cgpa: 0,
+      studentStreams: [],
+      batchYear: [],
+      eligibilityCriteria: "",
+      selectionProcess: [],
+      rounds: [],
+      onlineTestDate: undefined,
+      interviewWindow: {},
+      proposedSchedule: {},
+      venue: "",
+      isAskForReferral: false,
+      referralRequestId: null,
+      senderProfile: {},
+      receiverProfile: {},
+      broadcastType: "Everyone",
+      visibleTo: "All",
+      workLocation: [],
+      expireAt: undefined,
+      inactive: false,
+      degree: "",
+      degreeId: "",
+      workAuthorization: "",
+      endDate: undefined,
+    });
+    setCurrentStep(0);
+  };
 
-        cgpa: Number(formData.cgpa),
-
-        batchYear: formData.batchYear ? [formData.batchYear] : [],
-
-        employmentType: formData.employmentType
-          ? [formData.employmentType]
-          : [],
-
-        workMode: formData.workMode ? [formData.workMode] : [],
-
-        location: formData.location ? [formData.location] : [],
-
-        broadcastType: formData.broadcastType,
-
-        jobTitle: formData.jobTitle ? [formData.jobTitle] : [],
-
-        packageDetails: {
-          totalCTC: Number(formData.totalCTC),
-          fixedPay: Number(formData.fixedPay),
-          joiningBonus: Number(formData.joiningBonus),
-        },
-
-        numberOfOpenings: Number(formData.numberOfOpenings),
-
-        description: formData.description,
-
-        eligibilityCriteria: formData.eligibilityCriteria,
-
-        degree: formData.degree ? [formData.degree] : [],
-
-        minYearofExperience: formData.minYearofExperience,
-
-        yearsOfExperience: formData.yearsOfExperience,
-
-        workAuthorization: formData.workAuthorization,
-
-        skills: formData.skills
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean),
-
-        rounds: formData.rounds
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean),
-
-        selectionProcess: formData.selectionProcess
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean),
-
-        benefits: formData.benefits
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean),
-
-        tags: formData.tags
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean),
-
-        certifications: formData.certifications
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean),
-
-        endDate: formData.endDate,
-      };
-
-      const response = await createReferralPosting(payload);
-
-      console.log("Referral Posted:", response);
-
-      alert("Referral posted successfully!");
-
-      // Reset form
-      setFormData({
-        cgpa: "",
-        batchYear: "",
-        employmentType: "",
-        endDate: "",
-        jobTitle: "",
-        workMode: "",
-        location: "",
-        broadcastType: "Everyone",
-        totalCTC: "",
-        fixedPay: "",
-        joiningBonus: "",
-        numberOfOpenings: "",
-        description: "",
-        eligibilityCriteria: "",
-        degree: "",
-        minYearofExperience: "",
-        yearsOfExperience: "",
-        workAuthorization: "",
-        skills: "",
-        rounds: "",
-        selectionProcess: "",
-        benefits: "",
-        tags: "",
-        certifications: "",
-      });
-
-      setStep(1);
-    } catch (error: any) {
-      console.error(error);
-
-      alert(error?.response?.data?.message || "Failed to post referral");
-    } finally {
-      setLoading(false);
+  const handleNext = () => {
+    // Validate required fields for step 1
+    if (currentStep === 0) {
+      if (!formData.jobTitle || formData.jobTitle.length === 0) {
+        toast.error("Please enter a job title");
+        return;
+      }
+      if (!formData.workMode || formData.workMode.length === 0) {
+        toast.error("Please select a work mode");
+        return;
+      }
+      if (!formData.employmentType || formData.employmentType.length === 0) {
+        toast.error("Please select an employment type");
+        return;
+      }
+      if (!formData.state) {
+        toast.error("Please select a state");
+        return;
+      }
+     
+      if (!formData.broadcastType) {
+        toast.error("Please select a broadcast type");
+        return;
+      }
+    }
+    
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
     }
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-    setInvalidFields((prev) => prev.filter((field) => field !== e.target.name));
+  const handlePrev = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
   };
 
-  const validateStep1 = () => {
-    const invalid: string[] = [];
+  const handleSubmit = async () => {
+    // Validate required fields for step 2
+    if (!formData.workAuthorization) {
+      toast.error("Please select work authorization");
+      return;
+    }
 
-    if (!formData.employmentType) invalid.push("employmentType");
-    if (!formData.jobTitle?.trim()) invalid.push("jobTitle");
-    if (!formData.workMode) invalid.push("workMode");
-    if (!formData.location) invalid.push("location");
-    if (!formData.broadcastType) invalid.push("broadcastType");
-    if (!formData.totalCTC) invalid.push("totalCTC");
-    if (!formData.numberOfOpenings) invalid.push("numberOfOpenings");
-    if (!formData.description?.trim()) invalid.push("description");
-    if (!formData.endDate) invalid.push("endDate");
+    // Validate rounds and selection process match
+    const totalRounds = (formData.rounds || []).length;
+    const selectionCount = (formData.selectionProcess || []).length;
+    
+    if (totalRounds === 0) {
+      toast.error("Please add at least one round");
+      return;
+    }
+    
+    if (selectionCount === 0) {
+      toast.error("Please add selection process items");
+      return;
+    }
+    
+    
 
-    setInvalidFields(invalid);
+    setIsLoading(true);
+    try {
+      const payload = {
+        ...formData,
+        jobTitle: formData.jobTitle || [],
+        location: [formData.city || ""],
+        workMode: formData.workMode || [],
+        employmentType: formData.employmentType || [],
+        jobRoles: formData.jobRoles || [],
+        skills: formData.skills || [],
+        certifications: formData.certifications || [],
+        benefits: formData.benefits || [],
+        tags: formData.tags || [],
+        studentStreams: formData.studentStreams || [],
+        batchYear: formData.batchYear || [],
+        selectionProcess: formData.selectionProcess || [],
+        rounds: formData.rounds || [],
+        workLocation: [formData.city || ""],
+        endDate: formData.endDate || undefined,
+      };
 
-    return invalid.length === 0;
+      const response = await createReferralPosting(payload);
+      
+      if (response.success) {
+        toast.success("Referral posting created successfully!", {
+          duration: 4000,
+          icon: '✅',
+        });
+        
+        // Reset form after successful submission
+        resetForm();
+        
+        // Optional: Navigate after a delay
+        setTimeout(() => {
+          router.push("/professional/referrals");
+        }, 2000);
+      } else {
+        toast.error(response.message || "Failed to create referral posting");
+      }
+    } catch (error: any) {
+      console.error("Error creating referral posting:", error);
+      toast.error(error?.response?.data?.message || "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  const StepComponent = steps[currentStep].component;
 
   return (
-    <div className="space-y-6">
-      <div className="mb-6 border-b border-[var(--border)] pb-4">
-        {step === 1 ? (
-          <button onClick={() => setStep(1)} className="flex items-start gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--primary)] text-sm font-semibold text-white">
-              1
-            </div>
-
-            <div>
-              <div className="flex items-center gap-2">
-                <Briefcase size={18} className="text-[var(--primary)]" />
-
-                <h2 className="text-lg font-semibold text-white">
-                  Basic Job Details
-                </h2>
-              </div>
-
-              <p className="mt-1 text-sm text-gray-400">
-                Provide the core details about this job opportunity.
-              </p>
-            </div>
-          </button>
-        ) : (
-          <button onClick={() => setStep(2)} className="flex items-start gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--primary)] text-sm font-semibold text-white">
-              2
-            </div>
-
-            <div>
-              <div className="flex items-center gap-2">
-                <GraduationCap size={18} className="text-[var(--primary)]" />
-
-                <h2 className="text-lg font-semibold text-white">
-                  Selection Criteria
-                </h2>
-              </div>
-
-              <p className="mt-1 text-sm text-gray-400">
-                Outline the qualifications for the ideal candidate.
-              </p>
-            </div>
-          </button>
-        )}
+    <div className="bg-[#0F172A] rounded-3xl border border-slate-800 p-6 ml-5">
+      {/* Progress Bar */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-gray-400">
+              Step {currentStep + 1} of {steps.length}
+            </span>
+            <span className="text-sm font-medium text-white">
+              {steps[currentStep].title}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            {steps.map((_, index) => (
+              <div
+                key={index}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  index <= currentStep
+                    ? "w-6 bg-green-500"
+                    : "w-4 bg-slate-700"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+        <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-green-500 to-emerald-400 transition-all duration-500"
+            style={{
+              width: `${((currentStep + 1) / steps.length) * 100}%`,
+            }}
+          />
+        </div>
       </div>
 
-      {step === 1 && (
-        <>
-          <BasicJobDetails
-            formData={formData}
-            handleChange={handleChange}
-            invalidFields={invalidFields}
-          />
-
-          <div className="flex justify-end">
-            <button
-              onClick={() => {
-                if (!validateStep1()) return;
-                setStep(2);
-              }}
-              className="rounded-xl cursor-pointer bg-green-500 px-6 py-3 font-medium text-black"
-            >
-              Next →
-            </button>
-          </div>
-        </>
-      )}
-
-      {step === 2 && (
-        <>
-          <SelectionCriteriaSection
-            formData={formData}
-            handleChange={handleChange}
-          />
-
-          <div className="flex justify-between">
-            <button
-              onClick={() => setStep(1)}
-              className="rounded-xl cursor-pointer border border-[#334155] px-6 py-3 text-white"
-            >
-              ← Back
-            </button>
-
-            <button
-              onClick={handleSubmit}
-              className="rounded-xl bg-green-500 px-6 py-3 font-medium text-black"
-            >
-              {loading ? "Posting..." : "Post Referral"}
-            </button>
-          </div>
-        </>
-      )}
+      {/* Form Content */}
+      <div className="min-h-[500px]">
+        <StepComponent
+          formData={formData}
+          setFormData={setFormData}
+          onNext={handleNext}
+          onPrev={handlePrev}
+          onSubmit={handleSubmit}
+          isLoading={isLoading}
+        />
+      </div>
     </div>
   );
 }
