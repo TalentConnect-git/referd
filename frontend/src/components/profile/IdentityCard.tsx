@@ -1,5 +1,5 @@
 // IdentityCard.tsx
-import { ShieldCheck, CheckCircle2, ExternalLink, FileText, Camera, Loader2 } from "lucide-react";
+import { ShieldCheck, CheckCircle2, ExternalLink, FileText, Camera, Loader2, User, Briefcase } from "lucide-react";
 import Badge from "./Badge";
 import { ProfileData } from "@/types/profile";
 import { useState, useRef } from "react";
@@ -8,7 +8,7 @@ import axiosInstance from "@/lib/axiosInstance";
 import toast from "react-hot-toast";
 
 // LinkedIn SVG Icon
-const LinkedInIcon = ({ className = "h-3.5 w-3.5" }) => (
+const LinkedInIcon = ({ className = "h-4 w-4" }) => (
   <svg 
     className={className} 
     viewBox="0 0 24 24" 
@@ -20,7 +20,7 @@ const LinkedInIcon = ({ className = "h-3.5 w-3.5" }) => (
 );
 
 // GitHub SVG Icon
-const GitHubIcon = ({ className = "h-3.5 w-3.5" }) => (
+const GitHubIcon = ({ className = "h-4 w-4" }) => (
   <svg 
     className={className} 
     viewBox="0 0 24 24" 
@@ -28,6 +28,18 @@ const GitHubIcon = ({ className = "h-3.5 w-3.5" }) => (
     xmlns="http://www.w3.org/2000/svg"
   >
     <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.468-2.38 1.235-3.22-.123-.3-.535-1.52.117-3.16 0 0 1.008-.322 3.3 1.23.96-.267 1.98-.399 3-.399s2.04.132 3 .399c2.292-1.552 3.3-1.23 3.3-1.23.653 1.64.24 2.86.118 3.16.768.84 1.233 1.91 1.233 3.22 0 4.61-2.804 5.62-5.476 5.92.43.37.824 1.102.824 2.22 0 1.602-.015 2.894-.015 3.287 0 .322.216.694.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+  </svg>
+);
+
+// Portfolio SVG Icon
+const PortfolioIcon = ({ className = "h-4 w-4" }) => (
+  <svg 
+    className={className} 
+    fill="none" 
+    stroke="currentColor" 
+    viewBox="0 0 24 24"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/>
   </svg>
 );
 
@@ -98,13 +110,11 @@ export default function IdentityCard({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error('Please upload an image file');
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('Image size should be less than 5MB');
       return;
@@ -122,12 +132,9 @@ export default function IdentityCard({
         },
       });
 
-      // FIX: Properly handle the response data
       if (response.data?.success || response.data?.message) {
-        // Get the updated profile data from response
         const updatedProfile = response.data.data || response.data.message || response.data;
         
-        // Update local state with new image URL
         if (updatedProfile?.profileImage) {
           setProfileImage(updatedProfile.profileImage);
         } else if (response.data?.profileImage) {
@@ -136,7 +143,6 @@ export default function IdentityCard({
         
         toast.success('Profile image updated successfully');
         
-        // Notify parent component about the update
         if (onProfileUpdate && updatedProfile) {
           onProfileUpdate(updatedProfile);
         } else if (onProfileUpdate && response.data) {
@@ -150,7 +156,6 @@ export default function IdentityCard({
       toast.error(error?.response?.data?.msg || 'Failed to update profile image');
     } finally {
       setIsUploading(false);
-      // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -159,40 +164,41 @@ export default function IdentityCard({
 
   return (
     <>
-      <div className="group rounded-2xl border border-[var(--border)] bg-[var(--card)] p-8 transition-all duration-300 hover:border-[var(--primary)]/30 hover:shadow-xl hover:shadow-[var(--primary)]/5">
-        <div className="flex items-start gap-6 sm:items-center">
-          {/* Avatar with ring effect - Clickable for upload */}
+      <div className="group rounded-2xl border border-[#2a3a52] bg-gradient-to-r from-[#111827] to-[#1a2332] p-5 shadow-xl shadow-black/20 backdrop-blur-sm">
+        <div className="flex items-start gap-5">
+          {/* Avatar */}
           <div className="relative shrink-0">
             <div 
-              className="relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-full ring-4 ring-[var(--primary-soft)] ring-offset-2 ring-offset-[var(--card)] transition-all duration-300 group-hover:ring-[var(--primary)]/40 cursor-pointer"
+              className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border-2 border-green-500/30 shadow-lg shadow-green-500/10 cursor-pointer transition-all duration-300 hover:scale-105 hover:border-green-500/50"
               onClick={handleImageClick}
             >
               {profileImage ? (
                 <img
                   src={profileImage}
                   alt={displayName}
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="h-full w-full object-cover"
                 />
               ) : (
-                <span className="bg-gradient-to-br from-[var(--primary-soft)] to-[var(--primary)]/20 text-3xl font-bold text-[var(--primary)]">
-                  {profileInitials}
-                </span>
+                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-green-500/20 to-emerald-500/20">
+                  <span className="text-2xl font-bold text-green-400">
+                    {profileInitials}
+                  </span>
+                </div>
               )}
               
               {/* Upload overlay */}
               <div className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 transition-opacity duration-300 hover:opacity-100">
                 {isUploading ? (
-                  <Loader2 className="h-8 w-8 text-white animate-spin" />
+                  <Loader2 className="h-6 w-6 text-white animate-spin" />
                 ) : (
-                  <Camera className="h-8 w-8 text-white" />
+                  <Camera className="h-6 w-6 text-white" />
                 )}
               </div>
             </div>
             
             {/* Status dot */}
-            <div className="absolute bottom-1 right-1 h-3.5 w-3.5 rounded-full border-2 border-[var(--card)] bg-emerald-400"></div>
+            <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-[#0f172a] bg-emerald-400"></div>
 
-            {/* Hidden file input */}
             <input
               ref={fileInputRef}
               type="file"
@@ -203,68 +209,79 @@ export default function IdentityCard({
           </div>
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-3 flex-wrap">
-              <h2 className="text-[24px] font-bold text-white transition-colors group-hover:text-[var(--primary)]">
-                {displayName}
-              </h2>
-              {/* Verified badge inline */}
-              <span className="inline-flex items-center gap-1 rounded-full bg-[var(--primary)]/10 px-2.5 py-0.5 text-xs font-medium text-[var(--primary)] border border-[var(--primary)]/20">
-                <ShieldCheck className="h-3 w-3" />
-                Verified
-              </span>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl font-bold text-white tracking-tight">
+                    {displayName}
+                  </h2>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-green-500/10 px-2 py-0.5 text-[10px] font-medium text-green-400 border border-green-500/20 flex-shrink-0">
+                    <ShieldCheck className="h-3 w-3" />
+                    Verified
+                  </span>
+                </div>
+
+                <p className="mt-1 text-sm text-slate-300 leading-relaxed">
+                  {headline}
+                </p>
+
+                {currentRoleLine && (
+                  <p className="mt-0.5 text-xs text-slate-400">
+                    {currentRoleLine}
+                  </p>
+                )}
+              </div>
+
+              {/* Social Links - Top Right */}
+              <div className="flex items-center gap-1.5 flex-shrink-0 mt-1">
+                {/* GitHub */}
+                {profile.github && (
+                  <button
+                    onClick={() => handleSocialLink(profile.github, 'GitHub')}
+                    className="p-1.5 rounded-lg border border-[#2a3a52] bg-[#0f172a] text-slate-400 hover:text-green-400 hover:border-green-500/30 hover:bg-green-500/10 transition-all hover:scale-105 active:scale-95"
+                    title="GitHub"
+                  >
+                    <GitHubIcon className="h-4 w-4" />
+                  </button>
+                )}
+
+                {/* LinkedIn */}
+                {profile.linkedin && (
+                  <button
+                    onClick={() => handleSocialLink(profile.linkedin, 'LinkedIn')}
+                    className="p-1.5 rounded-lg border border-[#2a3a52] bg-[#0f172a] text-slate-400 hover:text-green-400 hover:border-green-500/30 hover:bg-green-500/10 transition-all hover:scale-105 active:scale-95"
+                    title="LinkedIn"
+                  >
+                    <LinkedInIcon className="h-4 w-4" />
+                  </button>
+                )}
+
+                {/* Portfolio */}
+                {profile.portfolio && (
+                  <button
+                    onClick={() => handleSocialLink(profile.portfolio, 'Portfolio')}
+                    className="p-1.5 rounded-lg border border-[#2a3a52] bg-[#0f172a] text-slate-400 hover:text-green-400 hover:border-green-500/30 hover:bg-green-500/10 transition-all hover:scale-105 active:scale-95"
+                    title="Portfolio"
+                  >
+                    <PortfolioIcon className="h-4 w-4" />
+                  </button>
+                )}
+
+                {/* Resume */}
+                {profile.resume && (
+                  <button
+                    onClick={handleViewResume}
+                    className="p-1.5 rounded-lg border border-green-500/30 bg-green-500/10 text-green-400 hover:bg-green-500/20 hover:border-green-500/50 transition-all hover:scale-105 active:scale-95"
+                    title="View Resume"
+                  >
+                    <FileText className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
             </div>
 
-            <p className="mt-2 text-[15px] text-[var(--text-primary)] leading-relaxed">
-              {headline}
-            </p>
-
-            {currentRoleLine && (
-              <p className="mt-1 text-[14px] text-[var(--text-primary)]/80 font-medium">
-                {currentRoleLine}
-              </p>
-            )}
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              {/* Social Links - GitHub */}
-              {profile.github && (
-                <button
-                  onClick={() => handleSocialLink(profile.github, 'GitHub')}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--background)] px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] transition-all duration-200 hover:border-[var(--primary)] hover:bg-[var(--primary-soft)]/10 hover:text-[var(--primary)] hover:scale-105"
-                  title="View GitHub Profile"
-                >
-                  <GitHubIcon className="h-3.5 w-3.5" />
-                  GitHub
-                  <ExternalLink className="h-2.5 w-2.5 opacity-50" />
-                </button>
-              )}
-
-              {/* Social Links - LinkedIn */}
-              {profile.linkedin && (
-                <button
-                  onClick={() => handleSocialLink(profile.linkedin, 'LinkedIn')}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--background)] px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] transition-all duration-200 hover:border-[var(--primary)] hover:bg-[var(--primary-soft)]/10 hover:text-[var(--primary)] hover:scale-105"
-                  title="View LinkedIn Profile"
-                >
-                  <LinkedInIcon className="h-3.5 w-3.5" />
-                  LinkedIn
-                  <ExternalLink className="h-2.5 w-2.5 opacity-50" />
-                </button>
-              )}
-
-              {/* View Resume Button */}
-              {profile.resume && (
-                <button
-                  onClick={handleViewResume}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-[var(--primary)]/30 bg-[var(--primary)]/10 px-3 py-1.5 text-xs font-medium text-[var(--primary)] transition-all duration-200 hover:bg-[var(--primary)] hover:text-white hover:scale-105 hover:shadow-lg hover:shadow-[var(--primary)]/20"
-                  title="View Resume"
-                >
-                  <FileText className="h-3.5 w-3.5" />
-                  View Resume
-                  <ExternalLink className="h-2.5 w-2.5" />
-                </button>
-              )}
-
-              {/* Email Verified Badge */}
+            {/* Badges */}
+            <div className="mt-3 flex flex-wrap items-center gap-2">
               <Badge
                 icon={<CheckCircle2 className="h-3.5 w-3.5" />}
                 text={
@@ -273,6 +290,12 @@ export default function IdentityCard({
                     : "Email not verified"
                 }
               />
+              {profile.profileType && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 px-2.5 py-0.5 text-[10px] font-medium text-blue-400 border border-blue-500/20">
+                  <Briefcase className="h-3 w-3" />
+                  {profile.profileType.charAt(0).toUpperCase() + profile.profileType.slice(1)}
+                </span>
+              )}
             </div>
           </div>
         </div>

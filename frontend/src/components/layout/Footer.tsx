@@ -1,68 +1,84 @@
 import Link from "next/link";
-import logo from "@/assets/icon.png"
+import logo from "@/assets/icon.png";
 import Image from "next/image";
 
 const footerLinks = [
   {
-    label: "Privacy",
-    href: "#privacy",
+    label: "About Us",
+    href: "/aboutus",
   },
   {
-    label: "Terms",
-    href: "#terms",
+    label: "Privacy Policy",
+    href: "/privacy-policy",
   },
   {
-    label: "Security",
-    href: "#security",
+    label: "Terms of Service",
+    href: "/terms-of-service",
+  },
+  {
+    label: "FAQ",
+    href: "/faq",
   },
   {
     label: "Contact",
-    href: "#contact",
+    href: "mailto:support@referd.in",
+    isExternal: true,
   },
 ];
 
 export default function Footer() {
   return (
-    <footer className="border-t border-[var(--border)] bg-[var(--background)] px-6 py-16 sm:px-8 lg:px-10 mt-5">
-      <div className="mx-auto flex max-w-7xl flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <Link href="/" className="flex items-center gap-0.5 group">
-        {/* Logo Image */}
-        <div className="relative h-6 w-6 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
-          <Image
-            src={logo}
-            alt="Referd Logo"
-            fill
-            className="object-contain"
-            priority
-          />
+    <footer className="border-t border-[#2a3a52] bg-[#0f172a] px-4 sm:px-6 lg:px-8 py-6">
+      <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 sm:flex-row sm:justify-between">
+        {/* Logo & Brand */}
+        <Link href="/" className="flex items-center gap-1.5 group">
+          <div className="relative h-5 w-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
+            <Image
+              src={logo}
+              alt="Referd Logo"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
+          <span className="text-sm font-bold tracking-tight text-white transition-colors duration-200 group-hover:text-green-500">
+            referd<span className="text-green-500">.</span>
+          </span>
+        </Link>
+
+        {/* Tagline */}
+        <p className="text-[11px] text-slate-400 text-center sm:text-left">
+          India's first alumni-vouched referral network.
+        </p>
+
+        {/* Navigation Links */}
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+          {footerLinks.map((link) => {
+            if (link.isExternal) {
+              return (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="text-[11px] text-slate-400 transition-colors hover:text-green-500 whitespace-nowrap"
+                >
+                  {link.label}
+                </a>
+              );
+            }
+            return (
+              <Link
+                key={link.label}
+                href={link.href}
+                className="text-[11px] text-slate-400 transition-colors hover:text-green-500 whitespace-nowrap"
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </div>
 
-        {/* Text with dot */}
-        <span className="text-sm font-medium tracking-tight text-white transition-colors duration-200 group-hover:text-[var(--primary)]">
-          referd
-          <span className="text-[var(--primary)]">.</span>
-        </span>
-      </Link>
-
-          <p className="mt-5 text-[15px] text-[var(--text-primary)]">
-            India's first alumni-vouched referral network.
-          </p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-10">
-          {footerLinks.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className="text-[14px] text-[var(--text-primary)] transition hover:text-white"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
-
-        <p className="text-[13px] text-[var(--text-primary)]">
+        {/* Copyright */}
+        <p className="text-[10px] text-slate-500">
           © 2026 Referd Technologies, Inc.
         </p>
       </div>

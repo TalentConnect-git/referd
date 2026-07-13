@@ -25,6 +25,8 @@ import {
   User,
   GraduationCap,
   Briefcase as BriefcaseIcon,
+  Upload,
+  Loader2,
 } from "lucide-react";
 
 import SideCard from "./SideCard";
@@ -38,13 +40,15 @@ import GithubIcon from "./GithubIcon";
 
 import type { ProfileData } from "@/types/profile";
 import { toArray } from "@/helper/index";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axiosInstance from "@/lib/axiosInstance";
+import toast from "react-hot-toast";
 
 interface SidebarProps {
   profile: ProfileData;
   resumeModalOpen: boolean;
   setResumeModalOpen: (open: boolean) => void;
+  onProfileUpdate?: (updatedProfile: ProfileData) => void;
 }
 
 interface ProfessionalStats {
@@ -80,9 +84,15 @@ function getResumeFileName(profile: ProfileData): string {
     : `${cleanName}.pdf`;
 }
 
-export default function Sidebar({ profile, setResumeModalOpen }: SidebarProps) {
+export default function Sidebar({ 
+  profile, 
+  setResumeModalOpen,
+  onProfileUpdate 
+}: SidebarProps) {
   const resumeUrl = profile.resume;
   const hasResume = Boolean(resumeUrl);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Determine profile type
   const isProfessional = profile.profileType === "professional";
@@ -212,7 +222,7 @@ export default function Sidebar({ profile, setResumeModalOpen }: SidebarProps) {
 
   const handleViewResume = (): void => {
     if (!resumeUrl) {
-      alert("Resume URL not found");
+      toast.error("Resume URL not found");
       return;
     }
 
@@ -221,7 +231,7 @@ export default function Sidebar({ profile, setResumeModalOpen }: SidebarProps) {
 
   const handleDownloadResume = async (): Promise<void> => {
     if (!resumeUrl) {
-      alert("Resume URL not found");
+      toast.error("Resume URL not found");
       return;
     }
 
@@ -253,9 +263,69 @@ export default function Sidebar({ profile, setResumeModalOpen }: SidebarProps) {
       window.URL.revokeObjectURL(blobUrl);
       
       console.log("✅ Resume downloaded successfully");
+      toast.success("Resume downloaded successfully");
     } catch (error) {
       console.error("❌ Resume download failed:", error);
       window.open(resumeUrl, "_blank", "noopener,noreferrer");
+    }
+  };
+
+  const handleUploadClick = (): void => {
+    fileInputRef.current?.click();
+  };
+
+  const handleResumeUpload = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (file.type !== "application/pdf") {
+      toast.error("Please upload a PDF file");
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File size should be less than 10MB");
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("resume", file);
+
+      const response = await axiosInstance.put("/api/onboarding/update", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.data?.success || response.data?.message) {
+        const updatedProfile = response.data.data || response.data.message || response.data;
+        
+        toast.success("Resume uploaded successfully");
+        
+        // Update parent component with new profile data
+        if (onProfileUpdate && updatedProfile) {
+          onProfileUpdate(updatedProfile);
+        }
+        
+        // Refresh the page or update local state
+        window.location.reload();
+      } else {
+        throw new Error(response.data?.msg || "Failed to upload resume");
+      }
+    } catch (error: any) {
+      console.error("❌ Resume upload failed:", error);
+      toast.error(error?.response?.data?.msg || "Failed to upload resume");
+    } finally {
+      setIsUploading(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
@@ -455,7 +525,7 @@ export default function Sidebar({ profile, setResumeModalOpen }: SidebarProps) {
         </section>
       )}
 
-      {/* Documents - Enhanced */}
+      {/* Documents - Enhanced with Upload */}
       <section className="rounded-3xl border border-[#242d3a] bg-[#111821] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition hover:border-[#2fb344]/40">
         <div className="mb-6 flex items-center gap-3">
           <span className="text-[#2fb344] [&_svg]:h-5 [&_svg]:w-5">
@@ -463,6 +533,16 @@ export default function Sidebar({ profile, setResumeModalOpen }: SidebarProps) {
           </span>
           <h2 className="text-[16px] font-bold text-white">Documents</h2>
         </div>
+        
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".pdf"
+          onChange={handleResumeUpload}
+          className="hidden"
+        />
+
         {hasResume && resumeUrl ? (
           <div className="space-y-3">
             <button
@@ -486,22 +566,64 @@ export default function Sidebar({ profile, setResumeModalOpen }: SidebarProps) {
               <Eye className="h-4 w-4 text-[#64748b] opacity-0 transition group-hover:opacity-100" />
             </button>
 
-            <button
-              type="button"
-              onClick={handleDownloadResume}
-              className="group flex w-full items-center justify-center gap-2 rounded-xl border border-[#242d3a] bg-[#0a0f16] py-3 text-[13px] font-bold text-white transition-all duration-300 hover:border-[#2fb344] hover:bg-[#2fb344]/5 hover:text-[#2fb344] hover:shadow-md hover:shadow-[#2fb344]/5"
-            >
-              <Download className="h-4 w-4 transition group-hover:scale-110" />
-              Download Resume PDF
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleDownloadResume}
+                className="group flex-1 flex items-center justify-center gap-2 rounded-xl border border-[#242d3a] bg-[#0a0f16] py-3 text-[13px] font-bold text-white transition-all duration-300 hover:border-[#2fb344] hover:bg-[#2fb344]/5 hover:text-[#2fb344] hover:shadow-md hover:shadow-[#2fb344]/5"
+              >
+                <Download className="h-4 w-4 transition group-hover:scale-110" />
+                Download
+              </button>
+
+              <button
+                type="button"
+                onClick={handleUploadClick}
+                disabled={isUploading}
+                className="group flex-1 flex items-center justify-center gap-2 rounded-xl border border-[#242d3a] bg-[#0a0f16] py-3 text-[13px] font-bold text-white transition-all duration-300 hover:border-[#2fb344] hover:bg-[#2fb344]/5 hover:text-[#2fb344] hover:shadow-md hover:shadow-[#2fb344]/5 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isUploading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-4 w-4 transition group-hover:scale-110" />
+                    Update
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         ) : (
-          <Empty>
-            <div className="py-2 text-center">
-              <FileText className="mx-auto h-8 w-8 text-[#64748b]/30 mb-2" />
-              <p className="text-[#94a3b8]">No resume uploaded</p>
-            </div>
-          </Empty>
+          <div className="space-y-3">
+            <Empty>
+              <div className="py-2 text-center">
+                <FileText className="mx-auto h-8 w-8 text-[#64748b]/30 mb-2" />
+                <p className="text-[#94a3b8]">No resume uploaded</p>
+              </div>
+            </Empty>
+            
+            <button
+              type="button"
+              onClick={handleUploadClick}
+              disabled={isUploading}
+              className="group w-full flex items-center justify-center gap-2 rounded-xl border border-[#2fb344]/30 bg-[#2fb344]/10 py-3 text-[13px] font-bold text-[#2fb344] transition-all duration-300 hover:bg-[#2fb344]/20 hover:shadow-md hover:shadow-[#2fb344]/10 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isUploading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4" />
+                  Upload Resume
+                </>
+              )}
+            </button>
+          </div>
         )}
       </section>
 
