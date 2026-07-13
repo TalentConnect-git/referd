@@ -25,8 +25,6 @@ export default function JobRow({
   const [saved, setSaved] = useState(isSaved);
   const [applied, setApplied] = useState(isApplied);
 
-  
-
   const handleSave = async (e: React.MouseEvent) => {
     e.stopPropagation();
     
@@ -70,14 +68,59 @@ export default function JobRow({
   };
 
   const handleRowClick = () => {
-   
     onClick?.();
   };
 
   // Get work mode display
   const getWorkModeDisplay = () => {
-    if (!workMode || workMode.length === 0) return "-";
+    if (!workMode || workMode.length === 0) return null;
     return workMode[0];
+  };
+
+  // Render details with dots between items
+  const renderDetails = () => {
+    const details = [];
+    const workModeDisplay = getWorkModeDisplay();
+
+    // Company
+    if (company) {
+      details.push(
+        <div key="company" className="flex items-center gap-1">
+          <Building2 className="w-3 h-3 text-gray-500 flex-shrink-0" />
+          <span className="text-xs text-gray-300 truncate">{company}</span>
+        </div>
+      );
+    }
+
+    // Location
+    if (location) {
+      details.push(
+        <div key="location" className="flex items-center gap-1">
+          <MapPin className="w-3 h-3 text-gray-500 flex-shrink-0" />
+          <span className="text-xs text-gray-400 truncate">{location}</span>
+        </div>
+      );
+    }
+
+    // Work Mode
+    if (workModeDisplay) {
+      details.push(
+        <div key="workmode" className="flex items-center gap-1">
+          <Briefcase className="w-3 h-3 text-gray-500 flex-shrink-0" />
+          <span className="text-xs text-gray-400 truncate">{workModeDisplay}</span>
+        </div>
+      );
+    }
+
+    // Render with dots between items
+    return details.map((item, index) => (
+      <div key={index} className="flex items-center">
+        {item}
+        {index < details.length - 1 && (
+          <span className="text-gray-600 text-[10px] mx-1.5">•</span>
+        )}
+      </div>
+    ));
   };
 
   return (
@@ -103,26 +146,10 @@ export default function JobRow({
                 {matchScore}% match
               </span>
             )}
-
-            
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 mt-0.5">
-            <div className="flex items-center gap-1">
-              <Building2 className="w-3 h-3 text-gray-500 flex-shrink-0" />
-              <span className="text-xs text-gray-300 truncate">{company}</span>
-            </div>
-            
-            <span className="text-gray-600 text-[10px]">•</span>
-            
-            <div className="flex items-center gap-1">
-              <MapPin className="w-3 h-3 text-gray-500 flex-shrink-0" />
-              <span className="text-xs text-gray-400 truncate">{location}</span>
-            </div>
-            
-            <span className="text-gray-600 text-[10px]">•</span>
-            
-            
+          <div className="flex flex-wrap items-center gap-1 mt-0.5">
+            {renderDetails()}
           </div>
         </div>
       </div>
@@ -165,7 +192,7 @@ export default function JobRow({
           </span>
         )}
 
-        {/* Apply Button - Hidden if already applied or saved (if you want to hide when saved too) */}
+        {/* Apply Button - Hidden if already applied or saved */}
         {!applied && !saved && (
           <button
             onClick={handleApply}

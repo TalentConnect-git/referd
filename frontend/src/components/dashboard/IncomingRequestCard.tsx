@@ -97,31 +97,17 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
     };
   }, []);
 
-  // const handleCardClick = () => {
-  //   if (applicationId) {
-  //     router.push(`/${role}/applications/${applicationId}`);
-  //   }
-  // };
+  const handleCardClick = () => {
+    if (applicationId) {
+      router.push(`/${role}/applications/${applicationId}`);
+    }
+  };
 
   const getMatchScoreColor = (score?: number): string => {
     const numericScore = Number(score) || 0;
     if (numericScore >= 75) return "text-green-400";
     if (numericScore >= 40) return "text-orange-400";
     return "text-red-400";
-  };
-
-  const getMatchScoreBg = (score?: number): string => {
-    const numericScore = Number(score) || 0;
-    if (numericScore >= 75) return "bg-green-500";
-    if (numericScore >= 40) return "bg-orange-500";
-    return "bg-red-500";
-  };
-
-  const getMatchScoreLabel = (score?: number): string => {
-    const numericScore = Number(score) || 0;
-    if (numericScore >= 75) return "High Match";
-    if (numericScore >= 40) return "Medium Match";
-    return "Low Match";
   };
 
   const formatDateToIST = (dateString?: string): string => {
@@ -176,10 +162,6 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
     }
   };
 
-  const handlerefer = () => {
-    router.push(`/${role}/applications/to-me/${application._id}`);
-  };
-
   const renderStars = (rating?: number): React.ReactNode => {
     const numRating = Number(rating) || 0;
     return (
@@ -194,35 +176,32 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
             }`}
           />
         ))}
+        <span className="text-[10px] text-gray-500 ml-1">
+          {numRating}/5
+        </span>
       </div>
     );
   };
 
-  const truncateComment = (text: string, maxLength: number = 4): string => {
-    if (!text) return "";
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + "...";
-  };
-
   return (
     <div
-      onClick={handlerefer}
-      className="px-3 py-2.5 hover:bg-[#111a2e] transition-colors duration-150 border-b border-[#1e293b] last:border-b-0 cursor-pointer"
+      onClick={handleCardClick}
+      className="px-4 py-3 hover:bg-[#111a2e] transition-colors duration-150 border-b border-[#1e293b] last:border-b-0 cursor-pointer"
     >
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex items-center gap-4">
         {/* Profile Image */}
         <div className="flex-shrink-0">
           {profileImage ? (
             <Image
               src={profileImage}
               alt={applicantName}
-              width={32}
-              height={32}
-              className="w-8 h-8 rounded-full object-cover border border-blue-500/30 hover:border-blue-500/60 transition-all"
+              width={36}
+              height={36}
+              className="w-9 h-9 rounded-full object-cover border border-blue-500/30 hover:border-blue-500/60 transition-all"
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-blue-500/30">
-              <span className="text-blue-400 font-semibold text-xs">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-blue-500/30">
+              <span className="text-blue-400 font-semibold text-sm">
                 {applicantName?.charAt(0)?.toUpperCase() || "A"}
               </span>
             </div>
@@ -230,57 +209,48 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
         </div>
 
         {/* Name */}
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 max-w-[150px]">
           <p className="font-medium text-white text-sm truncate">
             {applicantName}
           </p>
         </div>
 
-        {/* Job Title - Hidden on very small screens */}
-        <p className="hidden sm:flex text-xs text-gray-400 truncate items-center gap-1 max-w-[120px] md:max-w-[150px]">
-          <Briefcase className="w-3 h-3 text-gray-500 flex-shrink-0" />
-          {jobTitle}
-        </p>
+        {/* Job Title */}
+        <div className="hidden sm:flex min-w-0 flex-1 max-w-[150px]">
+          <p className="text-xs text-gray-400 truncate flex items-center gap-1.5">
+            <Briefcase className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
+            <span className="truncate">{jobTitle}</span>
+          </p>
+        </div>
 
-        {/* Education - Hidden on small screens */}
-        <div className="hidden md:flex min-w-0 flex-1 max-w-[120px] lg:max-w-[180px]">
-          <p className="text-xs text-gray-300 truncate flex items-center gap-1">
-            <GraduationCap className="w-3 h-3 text-gray-500 flex-shrink-0" />
-            {collegeName}
+        {/* Education */}
+        <div className="hidden md:flex min-w-0 flex-1 max-w-[150px]">
+          <p className="text-xs text-gray-400 truncate flex items-center gap-1.5">
+            <GraduationCap className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
+            <span className="truncate">{collegeName}</span>
           </p>
         </div>
 
         {/* Match Score */}
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <div className="flex flex-col items-end">
-            <span
-              className={`text-sm font-bold ${getMatchScoreColor(matchScore)}`}
-            >
-              {matchScore || 0}%
-            </span>
-          </div>
+        <div className="flex flex-col items-center flex-shrink-0 min-w-[50px]">
+          <span className={`text-sm font-bold ${getMatchScoreColor(matchScore)}`}>
+            {matchScore || 0}%
+          </span>
         </div>
 
-        {/* Rating & Comment - Hidden on smaller screens */}
-        <div className="hidden lg:flex flex-shrink-0 min-w-[70px]  flex-row items-center">
-          {rating && rating > 0 && (
-            <div className="flex items-center">{renderStars(rating)}</div>
-          )}
-
-          {adminComment && (
-            <div className="flex items-center gap-1 mt-0.5">
-              <MessageSquare className="w-2.5 h-2.5 text-gray-500 flex-shrink-0" />
-              <p className="text-[9px] text-gray-400 truncate max-w-[50px]">
-                {truncateComment(adminComment)}
-              </p>
-            </div>
+        {/* Rating */}
+        <div className="hidden lg:flex flex-shrink-0 min-w-[100px] items-center">
+          {rating && rating > 0 ? (
+            renderStars(rating)
+          ) : (
+            <span className="text-[10px] text-gray-500">No rating</span>
           )}
         </div>
 
-        {/* Created At - Hidden on medium and smaller screens */}
-        <div className="hidden xl:flex flex-shrink-0 min-w-[80px]">
-          <p className="text-xs text-gray-400 flex items-center gap-1">
-            <Calendar className="w-3 h-3 text-gray-500 flex-shrink-0" />
+        {/* Created At */}
+        <div className="hidden xl:flex flex-shrink-0 min-w-[90px]">
+          <p className="text-xs text-gray-400 flex items-center gap-1.5">
+            <Calendar className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
             {formatDateToIST(createdAt)}
           </p>
         </div>
@@ -288,16 +258,16 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
         {/* Action Button / Dropdown */}
         <div className="flex-shrink-0 relative" ref={dropdownRef}>
           {isAlreadyReferred ? (
-            <div className="flex items-center gap-1 px-2.5 py-1 bg-green-500/10 border border-green-500/30 rounded-lg">
-              <CheckCircle className="w-3 h-3 text-green-400" />
-              <span className="text-[10px] font-medium text-green-400 whitespace-nowrap">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-500/10 border border-green-500/30 rounded-lg">
+              <CheckCircle className="w-3.5 h-3.5 text-green-400" />
+              <span className="text-xs font-medium text-green-400 whitespace-nowrap">
                 Referred
               </span>
             </div>
           ) : isRejected ? (
-            <div className="flex items-center gap-1 px-2.5 py-1 bg-red-500/10 border border-red-500/30 rounded-lg">
-              <XCircle className="w-3 h-3 text-red-400" />
-              <span className="text-[10px] font-medium text-red-400 whitespace-nowrap">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500/10 border border-red-500/30 rounded-lg">
+              <XCircle className="w-3.5 h-3.5 text-red-400" />
+              <span className="text-xs font-medium text-red-400 whitespace-nowrap">
                 Rejected
               </span>
             </div>
@@ -310,10 +280,10 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
                 }}
                 disabled={isUpdating}
                 className="
-                  flex items-center gap-1 px-2.5 py-1.5
+                  flex items-center gap-1.5 px-3 py-1.5
                   bg-green-500/10 hover:bg-green-500/20 
                   border border-green-500/30
-                  text-green-400 rounded-lg text-[10px] font-medium
+                  text-green-400 rounded-lg text-xs font-medium
                   transition-all duration-200 hover:scale-105
                   disabled:opacity-50 disabled:cursor-not-allowed
                   whitespace-nowrap
@@ -321,15 +291,15 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
               >
                 {isUpdating ? (
                   <>
-                    <Loader2 className="w-3 h-3 animate-spin" />
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     Updating...
                   </>
                 ) : (
                   <>
-                    <User className="w-3 h-3" />
+                    <User className="w-3.5 h-3.5" />
                     Action
                     <ChevronDown
-                      className={`w-3 h-3 transition-transform ${showDropdown ? "rotate-180" : ""}`}
+                      className={`w-3.5 h-3.5 transition-transform ${showDropdown ? "rotate-180" : ""}`}
                     />
                   </>
                 )}
@@ -337,7 +307,7 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
 
               {/* Dropdown - Opens upward */}
               {showDropdown && !isUpdating && (
-                <div className="absolute right-0 bottom-full mb-1 w-36 bg-[#1e293b] border border-[#334155] rounded-lg shadow-xl z-50 overflow-hidden">
+                <div className="absolute right-0 bottom-full mb-1 w-40 bg-[#1e293b] border border-[#334155] rounded-lg shadow-xl z-50 overflow-hidden">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
