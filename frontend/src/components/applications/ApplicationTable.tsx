@@ -477,11 +477,11 @@ export default function ApplicationTable({
                         )}
                       </button>
 
-                      {/* Dropdown Menu - Fixed positioning */}
+                      {/* Dropdown Menu - Opens Upward */}
                       {isOpen && !isUpdating && (
                         <div
                           ref={dropdownRef}
-                          className="absolute right-0 top-full mt-1 w-56 max-h-80 overflow-y-auto rounded-lg border border-slate-700 bg-[#0F1115] shadow-xl z-50 py-1"
+                          className="absolute right-0 bottom-full mb-1 w-56 max-h-80 overflow-y-auto rounded-lg border border-slate-700 bg-[#0F1115] shadow-xl z-50 py-1"
                         >
                           <div className="px-3 py-1.5 text-[10px] text-gray-500 border-b border-slate-700">
                             Change Status

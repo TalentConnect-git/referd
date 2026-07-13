@@ -1,95 +1,235 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import {
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
+import { RefreshCw } from "lucide-react";
+
 import ProfessionalApplicationTabs from "./ProfessionalApplicationTabs";
 import ApplicationTable from "./ApplicationTable";
 import ApplicationByMe from "./ApplicationByMe";
 import ApplicationStats from "./ApplicationStats";
 import ApplicationsToMeTable from "./ApplicationalsToMeTable";
+
 import {
   getProfessionalApplications,
   getProfessionalReceivedApplications,
   getReferredByMe,
 } from "@/services/application.service";
-import { ProfessionalApplicationType } from "@/types/applications";
-import { RefreshCw } from "lucide-react";
+
+import type { ProfessionalApplicationType } from "@/types/applications";
+
+const DEFAULT_TAB: ProfessionalApplicationType = "Requests Received";
+
+const VALID_TABS: ProfessionalApplicationType[] = [
+  "Requests Received",
+  "Applications By Me",
+  "Referred By Me",
+];
+
+function isValidTab(
+  value: string | null,
+): value is ProfessionalApplicationType {
+  return Boolean(
+    value &&
+      VALID_TABS.includes(value as ProfessionalApplicationType),
+  );
+}
 
 export default function ProfessionalApplications() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const urlTab = searchParams.get("tab");
+
+  const initialTab: ProfessionalApplicationType = isValidTab(urlTab)
+    ? urlTab
+    : DEFAULT_TAB;
+
   const [activeTab, setActiveTab] =
-    useState<ProfessionalApplicationType>("Requests Received");
+    useState<ProfessionalApplicationType>(initialTab);
 
   const [applications, setApplications] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const [page, setPage] = useState(1);
   const [meta, setMeta] = useState<any>(null);
-  const [limit] = useState(10);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // Fetch applications function
-  const fetchApplications = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      let response;
+  const limit = 10;
 
-      if (activeTab === "Requests Received") {
-        response = await getProfessionalReceivedApplications(page, limit);
-      } else if (activeTab === "Applications By Me") {
-        response = await getProfessionalApplications(page, limit);
-      } else if (activeTab === "Referred By Me") {
-        response = await getReferredByMe(page, limit);
-      } else {
-        // Fallback for any other tabs
-        response = await getProfessionalApplications(page, limit);
+  /**
+   * Keep local state synchronized when the user navigates
+   * with browser back/forward buttons.
+   */
+  useEffect(() => {
+    const nextTab = isValidTab(urlTab) ? urlTab : DEFAULT_TAB;
+
+    setActiveTab((currentTab) => {
+      if (currentTab === nextTab) {
+        return currentTab;
       }
 
-      setApplications(response?.data || []);
-      setMeta(response?.meta || null);
+      return nextTab;
+    });
 
-      console.log("Response is ", response);
-    } catch (error: any) {
-      console.error("Failed to fetch applications", error);
-      setError(error?.message || "Failed to load applications");
-      setApplications([]);
-      setMeta(null);
-    } finally {
-      setLoading(false);
-    }
-  }, [activeTab, page, limit]);
+    setPage(1);
+  }, [urlTab]);
 
-  // Fetch applications when dependencies change
+  const fetchApplications = useCallback(
+    async (signal?: AbortSignal) => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        let response;
+
+        if (activeTab === "Requests Received") {
+          response = await getProfessionalReceivedApplications(
+            page,
+            limit,
+          );
+        } else if (activeTab === "Applications By Me") {
+          response = await getProfessionalApplications(page, limit);
+        } else {
+          response = await getReferredByMe(page, limit);
+        }
+
+        if (signal?.aborted) return;
+
+        setApplications(
+          Array.isArray(response?.data) ? response.data : [],
+        );
+
+        setMeta(response?.meta || null);
+      } catch (fetchError: any) {
+        if (signal?.aborted) return;
+
+        console.error(
+          "Failed to fetch professional applications:",
+          fetchError,
+        );
+
+        setError(
+          fetchError?.response?.data?.message ||
+            fetchError?.message ||
+            "Failed to load applications",
+        );
+
+        setApplications([]);
+        setMeta(null);
+      } finally {
+        if (!signal?.aborted) {
+          setLoading(false);
+        }
+      }
+    },
+    [activeTab, page],
+  );
+
+  /**
+   * Fetch only when activeTab or page changes.
+   */
   useEffect(() => {
-    fetchApplications();
-  }, [fetchApplications, refreshTrigger]);
+    const controller = new AbortController();
 
-  // Handle status update - refresh the list
-  const handleStatusUpdate = useCallback(() => {
-    // Trigger a refresh by incrementing the counter
-    setRefreshTrigger((prev) => prev + 1);
-  }, []);
+    void fetchApplications(controller.signal);
 
-  // Handle page change
+    return () => {
+      controller.abort();
+    };
+  }, [fetchApplications]);
+
+  const handleTabChange = useCallback(
+    (tab: ProfessionalApplicationType) => {
+      // Do nothing when the same tab is clicked.
+      if (tab === activeTab) {
+        return;
+      }
+
+      setActiveTab(tab);
+      setPage(1);
+      setError(null);
+
+      const currentUrlTab = searchParams.get("tab");
+
+      // Prevent repeated router navigation.
+      if (currentUrlTab === tab) {
+        return;
+      }
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("tab", tab);
+
+      router.replace(`${pathname}?${params.toString()}`, {
+        scroll: false,
+      });
+    },
+    [
+      activeTab,
+      pathname,
+      router,
+      searchParams,
+    ],
+  );
+
   const handlePageChange = useCallback((newPage: number) => {
-    setPage(newPage);
+    if (newPage < 1) return;
+
+    setPage((currentPage) => {
+      if (currentPage === newPage) {
+        return currentPage;
+      }
+
+      return newPage;
+    });
   }, []);
 
-  // Handle tab change
-  const handleTabChange = useCallback((tab: ProfessionalApplicationType) => {
-    setActiveTab(tab);
-    setPage(1); // Reset to first page when changing tabs
-    setError(null);
-  }, []);
+  const handleStatusUpdate = useCallback(() => {
+    void fetchApplications();
+  }, [fetchApplications]);
 
-  // Determine which table to render
-  const renderTable = () => {
+  const handleRetry = useCallback(() => {
+    void fetchApplications();
+  }, [fetchApplications]);
+
+  const renderStats = useMemo(() => {
+    if (
+      loading ||
+      error ||
+      applications.length === 0
+    ) {
+      return null;
+    }
+
+    return (
+      <div className="mx-5 mt-3">
+        <ApplicationStats
+          applicationType="Referral"
+          applications={applications}
+        />
+      </div>
+    );
+  }, [applications, error, loading]);
+
+  const renderContent = () => {
     if (loading) {
       return (
-        <div className="ml-5 mr-5 mb-5">
-          <div className="rounded-3xl border border-slate-800 p-10 text-center">
+        <div className="mx-5 mb-4 mt-4">
+          <div className="rounded-2xl border border-slate-800 p-8 text-center">
             <div className="flex items-center justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-green-500/30 border-t-green-500"></div>
-              <span className="ml-3 text-gray-400">
+              <div className="h-6 w-6 animate-spin rounded-full border-[3px] border-green-500/30 border-t-green-500" />
+
+              <span className="ml-2 text-xs text-gray-400">
                 Loading applications...
               </span>
             </div>
@@ -100,14 +240,18 @@ export default function ProfessionalApplications() {
 
     if (error) {
       return (
-        <div className="ml-5 mr-5 mb-5">
-          <div className="rounded-3xl border border-red-500/30 bg-red-500/10 p-10 text-center">
-            <p className="text-red-400">Error: {error}</p>
+        <div className="mx-5 mb-4 mt-4">
+          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-8 text-center">
+            <p className="text-sm text-red-400">
+              Error: {error}
+            </p>
+
             <button
-              onClick={() => fetchApplications()}
-              className="mt-4 inline-flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/20 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/30 transition-colors"
+              type="button"
+              onClick={handleRetry}
+              className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/20 px-3 py-1.5 text-xs font-medium text-red-400 transition-colors hover:bg-red-500/30"
             >
-              <RefreshCw className="h-4 w-4" />
+              <RefreshCw className="h-3.5 w-3.5" />
               Retry
             </button>
           </div>
@@ -115,13 +259,13 @@ export default function ProfessionalApplications() {
       );
     }
 
-    // Return just the table based on active tab
     if (activeTab === "Requests Received") {
       return (
         <ApplicationsToMeTable
           applications={applications}
           page={page}
           meta={meta}
+          onPageChange={handlePageChange}
         />
       );
     }
@@ -129,7 +273,6 @@ export default function ProfessionalApplications() {
     if (activeTab === "Applications By Me") {
       return (
         <ApplicationByMe
-          applicationType="Referral"
           applications={applications}
           page={page}
           meta={meta}
@@ -152,37 +295,29 @@ export default function ProfessionalApplications() {
       );
     }
 
-    // Show empty state if no applications and no matching tab
     return (
-      <div className="ml-5 mr-5 mb-5">
-        <div className="rounded-3xl border border-slate-800 p-10 text-center">
-          <p className="text-gray-400">No applications found</p>
+      <div className="mx-5 mb-4 mt-4">
+        <div className="rounded-2xl border border-slate-800 p-8 text-center">
+          <p className="text-sm text-gray-400">
+            No applications found
+          </p>
         </div>
       </div>
     );
   };
 
   return (
-    <div className="min-h-[calc(100vh-120px)] flex flex-col">
-      {/* Application Stats - Always at the top */}
-      {!loading && !error && applications.length > 0 && (
-        <div className="mt-6 mx-5">
-          <ApplicationStats
-            applicationType={"Referral"}
-            applications={applications}
-          />
-        </div>
-      )}
+    <div className="flex min-h-[calc(100vh-120px)] flex-col">
+      {renderStats}
 
-      <div className="pt-6 mt-5 ml-5 mb-5">
+      <div className="mx-5 mt-3">
         <ProfessionalApplicationTabs
           activeTab={activeTab}
           onChange={handleTabChange}
         />
       </div>
 
-      {/* Render the table */}
-      {renderTable()}
+      {renderContent()}
     </div>
   );
 }

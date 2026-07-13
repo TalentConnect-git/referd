@@ -91,14 +91,24 @@ const StatusBadge = ({ status }: { status: string }) => {
   );
 };
 
+// Define the props for ApplicationByMe
+interface ApplicationByMeProps {
+  applications: any[];
+  page?: number;
+  meta?: any;
+  onPageChange?: (page: number) => void;
+  onStatusUpdate?: () => void;
+  totalPages?: number;
+}
+
 export default function ApplicationByMe({
-  applicationType,
   applications,
   page = 1,
   meta,
   onPageChange,
+  onStatusUpdate,
   totalPages: propTotalPages,
-}: ApplicationTableProps & { totalPages?: number }) {
+}: ApplicationByMeProps) {
   const { user, role } = useAuth();
   const userType = role || user?.userType || "professional";
   const router = useRouter();
@@ -225,11 +235,10 @@ export default function ApplicationByMe({
               <td colSpan={6} className="h-[320px] text-center">
                 <div className="flex flex-col items-center justify-center">
                   <p className="text-base font-medium text-gray-300">
-                    No {applicationType} applications found
+                    No applications found
                   </p>
                   <p className="mt-1 text-xs text-gray-500">
-                    You haven't applied to any {applicationType?.toLowerCase()}{" "}
-                    opportunities yet.
+                    You haven't applied to any opportunities yet.
                   </p>
                 </div>
               </td>
@@ -373,7 +382,6 @@ export default function ApplicationByMe({
       </table>
 
       {/* Pagination */}
-
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-2.5 border-t border-slate-800 bg-[#0F172A]">
         <div className="text-[11px] text-gray-400 order-2 sm:order-1">
           Showing {startIndex} to {endIndex} of {totalItems} results

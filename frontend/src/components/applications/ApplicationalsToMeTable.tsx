@@ -106,10 +106,12 @@ export default function ProfessionalAppTable({
   };
 
   // Handle role click - navigate to application details
+
+  
   const handleRoleClick = (e: React.MouseEvent, applicationId: string) => {
     e.stopPropagation();
     if (applicationId) {
-      router.push(`/${role}/applications/${applicationId}`);
+      router.push(`/${role}/applications/to-me/${applicationId}`);
     }
   };
 

@@ -14,32 +14,40 @@ export default function DashboardContainer() {
   const userRole = role || profile?.profileType || "student";
 
   return (
-    <>
-      <DashboardHeader userName={userName} userType={userRole} />
-
-      <br />
-
-      <DashboardStats userType={userRole} />
-
-      <br />
-
-      {/* Incoming Requests Section - Only for professional */}
-      {userRole === "professional" && (
-        <div className="mb-8">
-          <IncomingRequests />
+    <div className="min-h-screen ">
+      <div className="container mx-auto px-2 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 max-w-7xl">
+        {/* Header Section */}
+        <div className="mb-2 sm:mb-4">
+          <DashboardHeader userName={userName} userType={userRole} />
         </div>
-      )}
 
-      <DashboardBody />
+        {/* Stats Section */}
+        <div className="mb-2 sm:mb-4">
+          <DashboardStats userType={userRole} />
+        </div>
 
-      <br />
-      <DashboardAlumini userType={userRole} />
-      <br />
+        {/* Incoming Requests Section - Only for professional */}
+        {userRole === "professional" && (
+          <div className="mb-2 sm:mb-4">
+            <IncomingRequests />
+          </div>
+        )}
 
-      {/* <FloatingMessage /> */}
-      {/* <div className=" bottom-0 right-6 z-[9999] flex justify-end">
-        <FloatingMessage />
-      </div> */}
-    </>
+        {/* Main Body Section */}
+        <div className="mb-2 sm:mb-4">
+          <DashboardBody />
+        </div>
+
+        {/* Alumni Section */}
+        <div className="mb-2 sm:mb-4">
+          <DashboardAlumini userType={userRole} />
+        </div>
+
+        {/* Floating Message - Commented out for now */}
+        {/* <div className="fixed bottom-6 right-6 z-[9999]">
+          <FloatingMessage />
+        </div> */}
+      </div>
+    </div>
   );
 }

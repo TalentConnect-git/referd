@@ -1,26 +1,30 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowRight, Award, BarChart2, Briefcase, Users } from "lucide-react";
+import { ArrowRight, Award, BarChart2, Briefcase, Users, Shield } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { RevealItem } from "@/components/ui/RevealSection";
 
 const cards = [
   {
     icon: Briefcase,
-    text: "Post referral opportunities from your company",
+    title: "Post referral opportunities from your company",
+    description: "Share open roles from your team and get first access to serious candidates.",
   },
   {
     icon: Users,
-    text: "Help candidates from your network get hired",
+    title: "Help candidates from your network get hired",
+    description: "Every candidate is screened by a Referd Expert Interview before reaching you — so you refer with confidence, not guesswork.",
   },
   {
     icon: BarChart2,
-    text: "Track referral requests in one clean dashboard",
+    title: "Track referral requests in one clean dashboard",
+    description: "See every request and its status in one place — no chasing updates.",
   },
   {
     icon: Award,
-    text: "Earn referral rewards from your organization",
+    title: "Earn referral rewards from your organization",
+    description: "Get credited when your referral leads to a hire, as per your company's policy.",
   },
 ];
 
@@ -60,6 +64,15 @@ export default function ForReferrers() {
                 talented candidates and get rewarded for it.
               </p>
 
+              {/* Vetting line */}
+              <div className="mt-3 flex items-start gap-2.5 max-w-md">
+                <Shield className="h-5 w-5 text-[var(--primary)] flex-shrink-0 mt-0.5" />
+                <p className="text-[15px] leading-7 text-[var(--primary)] font-medium">
+                  Every candidate is vetted by a Referd Expert first — so you refer
+                  with confidence, not risk.
+                </p>
+              </div>
+
               <button
                 onClick={handleCTA}
                 className="mt-8 inline-flex items-center gap-2 rounded-full bg-[var(--primary)] px-6 py-3 text-[15px] font-semibold text-black transition hover:bg-[var(--primary-dark)]"
@@ -75,14 +88,19 @@ export default function ForReferrers() {
             {cards.map((card, index) => {
               const Icon = card.icon;
               return (
-                <RevealItem key={card.text} delay={0.08 + index * 0.07}>
-                  <div className="flex h-full flex-col gap-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 transition hover:border-[var(--primary)]/40 hover:bg-[var(--card-hover)]">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[rgba(49,170,64,0.20)] bg-[var(--primary-soft)] text-[var(--primary)]">
+                <RevealItem key={card.title} delay={0.08 + index * 0.07}>
+                  <div className="flex h-full flex-col gap-3 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 transition hover:border-[var(--primary)]/40 hover:bg-[var(--card-hover)] group">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[rgba(49,170,64,0.20)] bg-[var(--primary-soft)] text-[var(--primary)] transition-transform duration-300 group-hover:scale-110">
                       <Icon className="h-5 w-5" />
                     </div>
-                    <p className="text-[14px] font-medium leading-6 text-white/85">
-                      {card.text}
-                    </p>
+                    <div>
+                      <p className="text-[14px] font-semibold leading-6 text-white group-hover:text-[var(--primary)] transition-colors">
+                        {card.title}
+                      </p>
+                      <p className="mt-1.5 text-[13px] leading-5 text-[var(--text-primary)]">
+                        {card.description}
+                      </p>
+                    </div>
                   </div>
                 </RevealItem>
               );

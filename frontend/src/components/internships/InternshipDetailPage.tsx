@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Briefcase, MapPin, Building2, Calendar, Clock, Users, Bookmark, Send, CheckCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -57,199 +57,262 @@ export default function InternshipDetailPage({
     }
   };
 
+  // Get job role (priority: jobRoles > jobTitle)
+  const jobRole = internship.jobRoles?.[0] || internship.jobTitle?.[0] || "Untitled Internship";
+  
+  // Get company name
+  const companyName = internship.companyPosted?.companyDetails?.companyName || 
+                      internship.companyName || 
+                      "Unknown Company";
+  
+  // Get location
+  const location = internship.location?.[0] || internship.workLocation?.[0] || "Remote";
+  
+  // Get match score
+  const matchScore = internship.matchScore || 0;
+
   return (
-    <div className="p-6">
-      {/* Back Button */}
-      <button
-        onClick={() => router.back()}
-        className="
-          mb-6
-          flex
-          items-center
-          gap-2
-          text-zinc-400
-          transition-colors
-        "
-      >
-        <ArrowLeft size={18} />
-        Back
-      </button>
+    <div className="min-h-screen  p-4 sm:p-6">
+      <div className="max-w-4xl mx-auto">
+        {/* Back Button */}
+        <button
+          onClick={() => router.back()}
+          className="
+            mb-4
+            inline-flex
+            items-center
+            gap-1.5
+            text-xs
+            text-slate-400
+            hover:text-white
+            transition-colors
+            group
+          "
+        >
+          <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
+          Back
+        </button>
 
-      {/* Main Card */}
-      <div
-        className="
-          rounded-3xl
-          border
-          border-[var(--border)]
-          bg-[var(--card)]
-          p-8
-        "
-      >
-        {/* Header */}
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="mb-5 text-2xl font-bold text-slate-400">
-              {internship.jobTitle?.[0] ||
-                "Untitled Internship"}
-            </h1>
+        {/* Main Card */}
+        <div
+          className="
+            rounded-2xl
+            border
+            border-[#2a3a52]
+            bg-gradient-to-r
+            from-[#111827]
+            to-[#1a2332]
+            p-5
+            shadow-xl
+            shadow-black/20
+          "
+        >
+          {/* Header with Action Buttons */}
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg font-bold text-white tracking-tight">
+                {jobRole}
+              </h1>
 
-            <p className="mt-2 text-zinc-400">
-              {internship.companyPosted.companyDetails.companyName ||
-                // ?.currentCompany_display ||
-                // internship.companyName ||
-                "Unknown Company"}
-            </p>
+              <div className="mt-1.5 flex items-center gap-2">
+                <Building2 size={14} className="text-slate-500 flex-shrink-0" />
+                <p className="text-sm text-slate-400">
+                  {companyName}
+                </p>
+              </div>
 
-            <p className="mt-1 text-sm text-zinc-500">
-              📍
-              {internship.location?.[0] ||
-                internship.workLocation?.[0] ||
-                "Remote"}
-            </p>
+              <div className="mt-1 flex items-center gap-2">
+                <MapPin size={14} className="text-slate-500 flex-shrink-0" />
+                <p className="text-xs text-slate-500">
+                  {location}
+                </p>
+              </div>
+            </div>
+
+            {/* Action Buttons - Top Right */}
+            <div className="flex flex-col gap-2 flex-shrink-0">
+              {matchScore > 0 && (
+                <div
+                  className={`
+                    text-center
+                    rounded-full
+                    border
+                    px-3
+                    py-0.5
+                    text-[10px]
+                    font-semibold
+                    ${matchScore >= 75 ? 'border-green-500/30 bg-green-500/10 text-green-400' :
+                      matchScore >= 40 ? 'border-orange-500/30 bg-orange-500/10 text-orange-400' :
+                      'border-red-500/30 bg-red-500/10 text-red-400'}
+                  `}
+                >
+                  {matchScore}% Match
+                </div>
+              )}
+
+              <button
+                onClick={handleApply}
+                disabled={applying}
+                className="
+                  inline-flex
+                  items-center
+                  justify-center
+                  gap-1.5
+                  rounded-lg
+                  bg-gradient-to-r
+                  from-green-500
+                  to-emerald-600
+                  px-4
+                  py-1.5
+                  text-xs
+                  font-semibold
+                  text-black
+                  transition-all
+                  hover:scale-105
+                  hover:shadow-lg
+                  hover:shadow-green-500/30
+                  active:scale-95
+                  disabled:opacity-50
+                  disabled:cursor-not-allowed
+                  disabled:hover:scale-100
+                  whitespace-nowrap
+                "
+              >
+                {applying ? (
+                  <>
+                    <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Applying...
+                  </>
+                ) : (
+                  <>
+                    <Send size={12} />
+                    Apply
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="
+                  inline-flex
+                  items-center
+                  justify-center
+                  gap-1.5
+                  rounded-lg
+                  border
+                  border-[#2a3a52]
+                  bg-[#0f172a]
+                  px-4
+                  py-1.5
+                  text-xs
+                  font-semibold
+                  text-slate-400
+                  transition-all
+                  hover:border-green-500/30
+                  hover:bg-green-500/10
+                  hover:text-green-400
+                  hover:scale-105
+                  active:scale-95
+                  disabled:opacity-50
+                  disabled:cursor-not-allowed
+                  disabled:hover:scale-100
+                  whitespace-nowrap
+                "
+              >
+                {saving ? (
+                  <>
+                    <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Bookmark size={12} />
+                    Save
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
-          {internship.matchScore && (
-            <div
-              className="
-                rounded-full
-                border
-                border-green-500/30
-                bg-green-500/10
-                px-3
-                py-1
-                text-sm
-                font-medium
-                text-green-400
-              "
-            >
-              {internship.matchScore}% Match
+          {/* Divider */}
+          <div className="my-4 border-t border-[#2a3a52]" />
+
+          {/* Description */}
+          <section>
+            <h2 className="mb-2 text-xs font-semibold text-blue-400 uppercase tracking-wider">
+              Description
+            </h2>
+
+            <p className="text-sm text-slate-300 leading-relaxed">
+              {internship.description || "No description available"}
+            </p>
+          </section>
+
+          {/* Divider */}
+          <div className="my-4 border-t border-[#2a3a52]" />
+
+          {/* Internship Details */}
+          <section>
+            <h2 className="mb-3 text-xs font-semibold text-blue-400 uppercase tracking-wider">
+              Internship Details
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Employment Type */}
+              <div className="rounded-lg bg-[#0f172a] border border-[#2a3a52] p-3">
+                <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
+                  Employment Type
+                </p>
+                <p className="mt-0.5 text-sm text-slate-300">
+                  {internship.employmentType?.join(", ") || "Not specified"}
+                </p>
+              </div>
+
+              {/* Work Mode */}
+              <div className="rounded-lg bg-[#0f172a] border border-[#2a3a52] p-3">
+                <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
+                  Work Mode
+                </p>
+                <p className="mt-0.5 text-sm text-slate-300">
+                  {internship.workMode?.join(", ") || "Not specified"}
+                </p>
+              </div>
+
+              {/* Location */}
+              <div className="rounded-lg bg-[#0f172a] border border-[#2a3a52] p-3">
+                <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
+                  Location
+                </p>
+                <p className="mt-0.5 text-sm text-slate-300 flex items-center gap-1">
+                  <MapPin size={12} className="text-slate-500" />
+                  {internship.location?.join(", ") || 
+                   internship.workLocation?.join(", ") || 
+                   "Not specified"}
+                </p>
+              </div>
+
+              {/* Posted By */}
+              <div className="rounded-lg bg-[#0f172a] border border-[#2a3a52] p-3">
+                <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
+                  Posted By
+                </p>
+                <p className="mt-0.5 text-sm text-slate-300">
+                  {internship.companyPosted?.employerDetails?.name ||
+                   internship.companyPosted?.name ||
+                   "Anonymous"}
+                </p>
+              </div>
             </div>
-          )}
-        </div>
-
-        {/* Divider */}
-        <div className="my-8 mt-5 border-t border-[var(--border)]" />
-
-        {/* Description */}
-        <section>
-          <h2 className="mb-3 mt-5 text-xl font-semibold text-slate-400">
-            Description
-          </h2>
-
-          <p className="mb-5 whitespace-pre-wrap text-zinc-400">
-            {internship.description ||
-              "No description available"}
-          </p>
-        </section>
-
-        {/* Divider */}
-        <div className="my-8 border-t border-[var(--border)]" />
-
-        {/* Internship Details */}
-        <section>
-          <h2 className="mb-4 mt-5 text-xl font-semibold text-slate-400">
-            Internship Details
-          </h2>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <p className="mb-2 text-sm text-blue-400">
-                Employment Type
-              </p>
-              <p>
-                {internship.employmentType?.join(", ") ||
-                  "Not specified"}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-sm text-blue-400">
-                Work Mode
-              </p>
-              <p>
-                {internship.workMode?.join(", ") ||
-                  "Not specified"}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-sm text-blue-400">
-                Location
-              </p>
-              <p>
-                📍
-                {internship.location?.join(", ") ||
-                  internship.workLocation?.join(", ") ||
-                  "Not specified"}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-sm text-blue-400">
-                Posted By
-              </p>
-              <p>
-                {internship.companyPosted.employerDetails.name||
-                  "Anonymous"}
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Divider */}
-        <div className="my-8 mt-5 border-t border-[var(--border)]" />
-
-        {/* Actions */}
-        <div className="mt-8 flex gap-10">
-          <span
-            onClick={handleApply}
-            style={{
-              color: "#9ca3af",
-              cursor: "pointer",
-              fontSize: "18px",
-              fontWeight: "600",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = "#22c55e";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = "#9ca3af";
-            }}
-          >
-            {applying ? "Applying..." : "Apply Now"}
-          </span>
-
-          <span
-            onClick={handleSave}
-            style={{
-              color: "#9ca3af",
-              cursor: "pointer",
-              fontSize: "18px",
-              fontWeight: "600",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = "#22c55e";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = "#9ca3af";
-            }}
-          >
-            {saving
-              ? "Saving..."
-              : "Save Internship"}
-          </span>
+          </section>
         </div>
       </div>
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-

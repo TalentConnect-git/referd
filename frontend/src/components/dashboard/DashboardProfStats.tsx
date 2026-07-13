@@ -96,7 +96,7 @@ export default function DashboardProfStats({
       bgColor: "bg-pink-500/10",
       borderColor: "hover:border-pink-500/30",
       subtitle: `${alumniCount} hiring currently`,
-      redirect: `/${userType}/alumni-network`,
+      redirect: `/${userType}/alumani-network`,
       clickable: true,
     },
   ];
@@ -108,7 +108,7 @@ export default function DashboardProfStats({
   };
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 ml-4 mr-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
       {stats.map((stat) => (
         <div
           key={stat.id}

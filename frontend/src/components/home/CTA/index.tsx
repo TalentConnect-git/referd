@@ -1,7 +1,29 @@
+"use client"
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import  {useRouter}  from "next/navigation";
 
 export default function CTA() {
+  const { role, isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  const handleGetStarted = () => {
+    if (isAuthenticated && role) {
+      router.push(`/${role}/applications`);
+    } else {
+      router.push("/login");
+    }
+  };
+
+  const handleTalkToFounders = () => {
+    if (isAuthenticated && role) {
+      router.push(`/${role}/applications`);
+    } else {
+      router.push("/login");
+    }
+  };
+
   return (
     <section className="bg-[var(--background)] px-6 py-14 sm:px-8 lg:px-10">
       <div className="mx-auto max-w-7xl">
@@ -21,20 +43,20 @@ export default function CTA() {
             </p>
 
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Link
-                href="/signup"
+              <button
+                onClick={handleGetStarted}
                 className="button-color flex h-12 items-center gap-3 rounded-xl px-6 text-[14px] font-semibold transition hover:opacity-90"
               >
                 Join Referd today
                 <ArrowRight size={18} />
-              </Link>
+              </button>
 
-              <Link
-                href="/signup"
+              <button
+                onClick={handleTalkToFounders}
                 className="flex h-12 items-center rounded-xl border border-[var(--border)] bg-[var(--card)]/50 px-6 text-[14px] font-semibold text-white transition hover:bg-[var(--card-hover)]"
               >
                 Talk to founders
-              </Link>
+              </button>
             </div>
           </div>
         </div>

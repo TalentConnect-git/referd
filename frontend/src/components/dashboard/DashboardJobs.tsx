@@ -75,7 +75,7 @@ export default function DashboardJobs({
   };
 
   return (
-    <div className="ml-5 rounded-2xl border border-slate-800 bg-[#0f172a] overflow-hidden flex flex-col">
+    <div className="rounded-2xl border border-slate-800 bg-[#0f172a] overflow-hidden flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-[#0f172a]/50">
         <div className="flex items-center gap-2.5">

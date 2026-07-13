@@ -1,10 +1,11 @@
-"use client"
+"use client";
 import Link from "next/link";
 import ReferralCard from "@/components/ui/ReferralCard";
 import { RevealItem } from "@/components/ui/RevealSection";
 import axiosInstance from "@/lib/axiosInstance";
 import { useEffect, useState } from "react";
-
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 // const referralJobs = [
 //   {
@@ -75,25 +76,22 @@ import { useEffect, useState } from "react";
 //   },
 // ];
 
-
-
 export default function ReferralJobs() {
-const [referralJobs, setReferralJobs] = useState<any[]>([]);
-const [loading, setLoading] = useState(true);
-
-useEffect(() => {
+  const [referralJobs, setReferralJobs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { role, isAuthenticated } = useAuth();
+  const router = useRouter();
+  useEffect(() => {
     fetchReferralJobs();
   }, []);
 
   async function fetchReferralJobs() {
     try {
       const response = await axiosInstance.get(
-        "/api/student-dashboard/referral-jobs"
+        "/api/student-dashboard/referral-jobs",
       );
 
-      const jobs =
-        response.data?.data
-          ?.slice(0, 6) || [];
+      const jobs = response.data?.data?.slice(0, 6) || [];
       setReferralJobs(jobs);
     } catch (err) {
       console.error("Failed to fetch referral jobs", err);
@@ -101,29 +99,38 @@ useEffect(() => {
     } finally {
       setLoading(false);
     }
-
   }
 
-    const getInitials = (name = "") =>
-    {
-      return name
+  const getInitials = (name = "") => {
+    return name
       .split(" ")
       .map((n: string) => n[0])
       .join("")
       .slice(0, 2)
       .toUpperCase();
-    }
+  };
 
-
-    if (loading) {
+  if (loading) {
     return (
       <section className="px-6 py-24">
-        <p className="text-center text-gray-400">
-        </p>
+        <p className="text-center text-gray-400"></p>
       </section>
     );
   }
 
+  const handleGetStarted = () => {
+    if (loading) return; // prevent action while auth state is being determined
+
+    if (isAuthenticated && role) {
+      if (role === "professional") {
+        router.push(`/${role}/jobs/referral-jobs`);
+      } else {
+        router.push(`/${role}/jobs`);
+      }
+    } else {
+      router.push(`/login`);
+    }
+  };
 
   return (
     <section
@@ -149,13 +156,13 @@ useEffect(() => {
             </p>
           </div>
 
-          <Link
-            href="/signup"
+          <button
+            onClick={handleGetStarted}
             className="flex items-center gap-4 text-[16px] font-mono text-[var(--text-primary)] transition hover:text-white"
           >
             See all referrals
             <span className="text-[26px]">→</span>
-          </Link>
+          </button>
         </div>
 
         {/* <div className="mt-10 grid gap-6 lg:grid-cols-3">
@@ -164,12 +171,8 @@ useEffect(() => {
           ))}
         </div> */}
 
-
-
-          <div className="mt-10 grid gap-6 lg:grid-cols-3">
-
+        <div className="mt-10 grid gap-6 lg:grid-cols-3">
           {referralJobs.map((job, index) => (
-
             <RevealItem key={job._id} delay={index * 0.1}>
               <ReferralCard
                 companyLogo={
@@ -186,31 +189,18 @@ useEffect(() => {
                 }
                 match={`${job.matchScore}%`}
                 postedByInitials={getInitials(job.candidatePosted?.name)}
-                postedByName={job.receiverProfile?.name || job.candidatePosted?.name || "Anonymous"}
-                college={
-                  job.receiverProfile?.educations?.[0]?.college || "-"
+                postedByName={
+                  job.receiverProfile?.name ||
+                  job.candidatePosted?.name ||
+                  "Anonymous"
                 }
+                college={job.receiverProfile?.educations?.[0]?.college || "-"}
                 salary={job.packageDetails.totalCTC ?? "-"}
               />
             </RevealItem>
-
           ))}
-
         </div>
-
-
-
-
-
-
-
       </div>
     </section>
   );
 }
-
-
-
-
-
-

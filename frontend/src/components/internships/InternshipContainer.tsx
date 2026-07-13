@@ -47,7 +47,7 @@ export default function InternshipContainer({
   // Loading skeleton
   if (loading) {
     return (
-      <div className="space-y-3 ml-5 mr-5 mb-5">
+      <div className="space-y-3  mb-5">
         {[1, 2, 3].map((i) => (
           <div
             key={i}
@@ -83,7 +83,7 @@ export default function InternshipContainer({
   // Empty state
   if (!internships || internships.length === 0) {
     return (
-      <div className="ml-5 mr-5 mb-5">
+      <div className=" mb-5">
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-10 text-center">
           <div className="flex flex-col items-center gap-3">
             <div className="h-12 w-12 rounded-full bg-zinc-800/50 flex items-center justify-center">
@@ -106,7 +106,7 @@ export default function InternshipContainer({
   }
 
   return (
-    <div className="space-y-3 ml-5 mr-5 mb-5">
+    <div className="space-y-3  mb-5">
       {internships.map((internship) => {
         const isSaved = isInternshipSaved(internship);
         

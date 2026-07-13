@@ -211,16 +211,16 @@ export default function PostReferralForm() {
 
       const response = await createReferralPosting(payload);
       
-      if (response.success) {
+      if (response.message) {
         toast.success("Referral posting created successfully!", {
           duration: 4000,
           icon: '✅',
         });
         
-        // Reset form after successful submission
+        
         resetForm();
         
-        // Optional: Navigate after a delay
+        
         setTimeout(() => {
           router.push("/professional/referrals");
         }, 2000);

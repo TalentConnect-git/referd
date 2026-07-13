@@ -56,6 +56,9 @@ export default function BasicJobDetails({
   const [tagInput, setTagInput] = useState("");
   const [jobRoleInput, setJobRoleInput] = useState("");
 
+  // Validation states
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   // Fetch degrees on mount
   useEffect(() => {
     const fetchDegrees = async () => {
@@ -198,6 +201,10 @@ export default function BasicJobDetails({
       ...formData,
       [field]: value,
     });
+    // Clear error for this field when user changes it
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
   };
 
   const handleStateChange = (_stateId: string, stateName: string) => {
@@ -206,10 +213,16 @@ export default function BasicJobDetails({
       state: stateName,
       city: "",
     });
+    if (errors.state) {
+      setErrors((prev) => ({ ...prev, state: "" }));
+    }
   };
 
   const handleCityChange = (cityName: string) => {
     handleChange("city", cityName);
+    if (errors.city) {
+      setErrors((prev) => ({ ...prev, city: "" }));
+    }
   };
 
   const handlePackageChange = (field: string, value: unknown) => {
@@ -220,6 +233,9 @@ export default function BasicJobDetails({
         [field]: value,
       },
     });
+    if (errors[`packageDetails.${field}`]) {
+      setErrors((prev) => ({ ...prev, [`packageDetails.${field}`]: "" }));
+    }
   };
 
   const toggleStream = (streamName: string) => {
@@ -260,6 +276,80 @@ export default function BasicJobDetails({
     );
   };
 
+  // Validate form before proceeding
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    // Required: Job Title
+    if (!formData.jobTitle || formData.jobTitle.length === 0 || !formData.jobTitle[0]?.trim()) {
+      newErrors.jobTitle = "Job title is required";
+    }
+
+    // Required: Broadcast Type
+    if (!formData.broadcastType) {
+      newErrors.broadcastType = "Broadcast type is required";
+    }
+
+    // Required: State (if broadcast type is Location)
+    if (formData.broadcastType === "Location" && !formData.state) {
+      newErrors.state = "State is required for location-based broadcast";
+    }
+
+    // Required: Work Mode
+    if (!formData.workMode || formData.workMode.length === 0 || !formData.workMode[0]) {
+      newErrors.workMode = "Work mode is required";
+    }
+
+    // Required: Employment Type
+    if (!formData.employmentType || formData.employmentType.length === 0 || !formData.employmentType[0]) {
+      newErrors.employmentType = "Employment type is required";
+    }
+
+    // Required: Number of Openings (must be > 0)
+    if (!formData.numberOfOpenings || formData.numberOfOpenings < 1) {
+      newErrors.numberOfOpenings = "Number of openings must be at least 1";
+    }
+
+    // Required: Application Deadline
+    if (!formData.endDate) {
+      newErrors.endDate = "Application deadline is required";
+    }
+
+    // Required: Package Details - Total CTC
+    if (!formData.packageDetails?.totalCTC || formData.packageDetails.totalCTC < 0) {
+      newErrors["packageDetails.totalCTC"] = "Total CTC is required";
+    }
+
+    // Required: Package Details - Fixed Pay
+    if (!formData.packageDetails?.fixedPay || formData.packageDetails.fixedPay < 0) {
+      newErrors["packageDetails.fixedPay"] = "Fixed pay is required";
+    }
+
+    // Required: Degree
+    if (!formData.degreeId) {
+      newErrors.degreeId = "Degree is required";
+    }
+
+    // Required: Student Streams (at least one)
+    if (!formData.studentStreams || formData.studentStreams.length === 0) {
+      newErrors.studentStreams = "At least one stream/specialization is required";
+    }
+
+    // Required: Skills (at least one)
+    if (!formData.skills || formData.skills.length === 0) {
+      newErrors.skills = "At least one skill is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleNext = () => {
+    if (validateForm()) {
+      onNext();
+    }
+  };
+
   const availableStreams = useMemo(() => {
     const degreeId = formData.degreeId || "";
     if (!degreeId) return [];
@@ -285,19 +375,22 @@ export default function BasicJobDetails({
             value={formData.jobTitle?.[0] || ""}
             onChange={(event) => handleChange("jobTitle", [event.target.value])}
             placeholder="e.g., Full Stack Developer"
-            className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+            className={`w-full rounded-lg border ${errors.jobTitle ? 'border-red-500' : 'border-slate-700'} bg-[#0F172A] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500`}
           />
+          {errors.jobTitle && (
+            <p className="mt-1 text-xs text-red-400">{errors.jobTitle}</p>
+          )}
         </div>
 
         {/* Number of Openings */}
         <div>
           <label className="mb-1.5 block text-sm font-medium text-gray-300">
             <Users className="mr-1.5 inline h-4 w-4" />
-            Number of Openings
+            Number of Openings <span className="text-red-400">*</span>
           </label>
           <input
             type="number"
-            min={0}
+            min={1}
             value={formData.numberOfOpenings || ""}
             onChange={(event) =>
               handleChange(
@@ -306,19 +399,26 @@ export default function BasicJobDetails({
               )
             }
             placeholder="e.g., 5"
-            className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+            className={`w-full rounded-lg border ${errors.numberOfOpenings ? 'border-red-500' : 'border-slate-700'} bg-[#0F172A] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500`}
           />
+          {errors.numberOfOpenings && (
+            <p className="mt-1 text-xs text-red-400">{errors.numberOfOpenings}</p>
+          )}
         </div>
 
         {/* Application Deadline */}
         <div>
           <label className="mb-1.5 block text-sm font-medium text-gray-300">
             <Calendar className="mr-1.5 inline h-4 w-4" />
-            Application Deadline
+            Application Deadline <span className="text-red-400">*</span>
           </label>
           <input
             type="date"
-            value={formData.endDate ? new Date(formData.endDate).toISOString().split('T')[0] : ""}
+            value={
+              formData.endDate
+                ? new Date(formData.endDate).toISOString().split("T")[0]
+                : ""
+            }
             onChange={(event) => {
               const dateValue = event.target.value;
               if (dateValue) {
@@ -329,11 +429,14 @@ export default function BasicJobDetails({
                 handleChange("endDate", null);
               }
             }}
-            min={new Date().toISOString().split('T')[0]}
-            className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+            min={new Date().toISOString().split("T")[0]}
+            className={`w-full rounded-lg border ${errors.endDate ? 'border-red-500' : 'border-slate-700'} bg-[#0F172A] px-4 py-2.5 text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500`}
           />
+          {errors.endDate && (
+            <p className="mt-1 text-xs text-red-400">{errors.endDate}</p>
+          )}
           <p className="mt-1 text-xs text-gray-500">
-            Select the last date for applications. Defaults to 30 days from now.
+            Select the last date for applications.
           </p>
         </div>
 
@@ -345,15 +448,20 @@ export default function BasicJobDetails({
           </label>
           <select
             value={formData.broadcastType || "Everyone"}
-            onChange={(event) => handleChange("broadcastType", event.target.value)}
-            className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+            onChange={(event) =>
+              handleChange("broadcastType", event.target.value)
+            }
+            className={`w-full rounded-lg border ${errors.broadcastType ? 'border-red-500' : 'border-slate-700'} bg-[#0F172A] px-4 py-2.5 text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500`}
           >
             <option value="Everyone">Everyone</option>
             <option value="Location">Location</option>
           </select>
+          {errors.broadcastType && (
+            <p className="mt-1 text-xs text-red-400">{errors.broadcastType}</p>
+          )}
           <p className="mt-1 text-xs text-gray-500">
-            {formData.broadcastType === "Location" 
-              ? "Job will be visible to users in the selected location only" 
+            {formData.broadcastType === "Location"
+              ? "Job will be visible to users in the selected location only"
               : "Job will be visible to all users"}
           </p>
         </div>
@@ -365,8 +473,11 @@ export default function BasicJobDetails({
             selectedCity={formData.city || ""}
             onStateChange={handleStateChange}
             onCityChange={handleCityChange}
-            required
+            required={formData.broadcastType === "Location"}
           />
+          {errors.state && (
+            <p className="mt-1 text-xs text-red-400">{errors.state}</p>
+          )}
         </div>
 
         {/* Work Mode */}
@@ -377,13 +488,16 @@ export default function BasicJobDetails({
           <select
             value={formData.workMode?.[0] || ""}
             onChange={(event) => handleChange("workMode", [event.target.value])}
-            className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+            className={`w-full rounded-lg border ${errors.workMode ? 'border-red-500' : 'border-slate-700'} bg-[#0F172A] px-4 py-2.5 text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500`}
           >
             <option value="">Select Work Mode</option>
             <option value="Remote">Remote</option>
             <option value="On-site">On-site</option>
             <option value="Hybrid">Hybrid</option>
           </select>
+          {errors.workMode && (
+            <p className="mt-1 text-xs text-red-400">{errors.workMode}</p>
+          )}
         </div>
 
         {/* Employment Type */}
@@ -396,13 +510,16 @@ export default function BasicJobDetails({
             onChange={(event) =>
               handleChange("employmentType", [event.target.value])
             }
-            className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+            className={`w-full rounded-lg border ${errors.employmentType ? 'border-red-500' : 'border-slate-700'} bg-[#0F172A] px-4 py-2.5 text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500`}
           >
             <option value="">Select Employment Type</option>
             <option value="Full-time">Full-time</option>
             <option value="Part-time">Part-time</option>
             <option value="Contract">Contract</option>
           </select>
+          {errors.employmentType && (
+            <p className="mt-1 text-xs text-red-400">{errors.employmentType}</p>
+          )}
         </div>
 
         {/* Experience */}
@@ -429,13 +546,13 @@ export default function BasicJobDetails({
         <div>
           <label className="mb-1.5 block text-sm font-medium text-gray-300">
             <BookOpen className="mr-1.5 inline h-4 w-4" />
-            Degree
+            Degree <span className="text-red-400">*</span>
           </label>
           <select
             value={formData.degreeId || ""}
             onChange={(event) => void handleDegreeChange(event.target.value)}
             disabled={loadingDegrees}
-            className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:opacity-50"
+            className={`w-full rounded-lg border ${errors.degreeId ? 'border-red-500' : 'border-slate-700'} bg-[#0F172A] px-4 py-2.5 text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:opacity-50`}
           >
             <option value="">Select Degree</option>
             {masterDegrees.map((degree) => (
@@ -444,6 +561,9 @@ export default function BasicJobDetails({
               </option>
             ))}
           </select>
+          {errors.degreeId && (
+            <p className="mt-1 text-xs text-red-400">{errors.degreeId}</p>
+          )}
           {loadingDegrees && (
             <p className="mt-1.5 flex items-center gap-1.5 text-xs text-gray-500">
               <Loader2 className="h-3 w-3 animate-spin" />
@@ -456,7 +576,7 @@ export default function BasicJobDetails({
         <div>
           <label className="mb-1.5 block text-sm font-medium text-gray-300">
             <BookOpen className="mr-1.5 inline h-4 w-4" />
-            Specialization / Stream
+            Specialization / Stream <span className="text-red-400">*</span>
           </label>
           {!formData.degreeId ? (
             <div className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-sm text-gray-500">
@@ -477,12 +597,15 @@ export default function BasicJobDetails({
                       : "Enter or select streams"
                   }
                   disabled={loadingStreams || isCreatingStream}
-                  className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 pr-10 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:cursor-not-allowed disabled:opacity-60"
+                  className={`w-full rounded-lg border ${errors.studentStreams ? 'border-red-500' : 'border-slate-700'} bg-[#0F172A] px-4 py-2.5 pr-10 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:cursor-not-allowed disabled:opacity-60`}
                 />
                 {(loadingStreams || isCreatingStream) && (
                   <Loader2 className="absolute right-3 top-3 h-4 w-4 animate-spin text-green-400" />
                 )}
               </div>
+              {errors.studentStreams && (
+                <p className="mt-1 text-xs text-red-400">{errors.studentStreams}</p>
+              )}
               {!loadingStreams && availableStreams.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {availableStreams.map((stream) => {
@@ -520,8 +643,8 @@ export default function BasicJobDetails({
         {/* Skills - Enter key separated */}
         <div className="md:col-span-2">
           <label className="mb-1.5 block text-sm font-medium text-gray-300">
-            Skills Required{" "}
-            <span className="text-xs text-gray-500">(Press Enter to add)</span>
+            Skills Required <span className="text-red-400">*</span>
+            <span className="text-xs text-gray-500 ml-2">(Press Enter to add)</span>
           </label>
           <div className="flex gap-2">
             <input
@@ -538,9 +661,12 @@ export default function BasicJobDetails({
                 )
               }
               placeholder="Type and press Enter to add..."
-              className="flex-1 rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              className={`flex-1 rounded-lg border ${errors.skills ? 'border-red-500' : 'border-slate-700'} bg-[#0F172A] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500`}
             />
           </div>
+          {errors.skills && (
+            <p className="mt-1 text-xs text-red-400">{errors.skills}</p>
+          )}
           {formData.skills && formData.skills.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
               {formData.skills.map((item: string, index: number) => (
@@ -568,8 +694,8 @@ export default function BasicJobDetails({
         {/* Certifications - Enter key separated */}
         <div className="md:col-span-2">
           <label className="mb-1.5 block text-sm font-medium text-gray-300">
-            Certifications{" "}
-            <span className="text-xs text-gray-500">(Press Enter to add)</span>
+            Certifications
+            <span className="text-xs text-gray-500 ml-2">(Press Enter to add)</span>
           </label>
           <div className="flex gap-2">
             <input
@@ -616,8 +742,8 @@ export default function BasicJobDetails({
         {/* Benefits - Enter key separated */}
         <div className="md:col-span-2">
           <label className="mb-1.5 block text-sm font-medium text-gray-300">
-            Benefits{" "}
-            <span className="text-xs text-gray-500">(Press Enter to add)</span>
+            Benefits
+            <span className="text-xs text-gray-500 ml-2">(Press Enter to add)</span>
           </label>
           <div className="flex gap-2">
             <input
@@ -664,8 +790,8 @@ export default function BasicJobDetails({
         {/* Tags - Enter key separated */}
         <div className="md:col-span-2">
           <label className="mb-1.5 block text-sm font-medium text-gray-300">
-            Tags{" "}
-            <span className="text-xs text-gray-500">(Press Enter to add)</span>
+            Tags
+            <span className="text-xs text-gray-500 ml-2">(Press Enter to add)</span>
           </label>
           <div className="flex gap-2">
             <input
@@ -751,7 +877,7 @@ export default function BasicJobDetails({
             </div>
             <div>
               <label className="mb-1 block text-xs text-gray-400">
-                Total CTC
+                Total CTC <span className="text-red-400">*</span>
               </label>
               <input
                 type="number"
@@ -764,8 +890,32 @@ export default function BasicJobDetails({
                   )
                 }
                 placeholder="e.g., 1200000"
-                className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                className={`w-full rounded-lg border ${errors['packageDetails.totalCTC'] ? 'border-red-500' : 'border-slate-700'} bg-[#0F172A] px-4 py-2 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500`}
               />
+              {errors['packageDetails.totalCTC'] && (
+                <p className="mt-1 text-xs text-red-400">{errors['packageDetails.totalCTC']}</p>
+              )}
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-gray-400">
+                Fixed Pay <span className="text-red-400">*</span>
+              </label>
+              <input
+                type="number"
+                min={0}
+                value={formData.packageDetails?.fixedPay || ""}
+                onChange={(event) =>
+                  handlePackageChange(
+                    "fixedPay",
+                    event.target.value ? Number(event.target.value) : 0,
+                  )
+                }
+                placeholder="e.g., 50000"
+                className={`w-full rounded-lg border ${errors['packageDetails.fixedPay'] ? 'border-red-500' : 'border-slate-700'} bg-[#0F172A] px-4 py-2 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500`}
+              />
+              {errors['packageDetails.fixedPay'] && (
+                <p className="mt-1 text-xs text-red-400">{errors['packageDetails.fixedPay']}</p>
+              )}
             </div>
             <div>
               <label className="mb-1 block text-xs text-gray-400">
@@ -792,7 +942,7 @@ export default function BasicJobDetails({
       <div className="flex justify-end border-t border-slate-800 pt-4">
         <button
           type="button"
-          onClick={onNext}
+          onClick={handleNext}
           className="rounded-lg bg-green-500 px-6 py-2.5 font-medium text-black transition-colors hover:bg-green-400"
         >
           Next Step →

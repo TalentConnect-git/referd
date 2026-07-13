@@ -18,7 +18,7 @@ const steps = [
     num: "01",
     title: "Create profile",
     description:
-      "Verify with your college identity and add the roles you are targeting.",
+      "Verify with your college or work identity and add the roles you are targeting.",
     icon: <UserPlus size={24} />,
   },
   {
@@ -26,7 +26,7 @@ const steps = [
     num: "02",
     title: "Discover alumni",
     description:
-      "Filter verified alumni by company, role, batch, and background.",
+      "Browse alumni from your college and past companies working at your target companies — see their role and current company before you reach out.",
     icon: <Search size={24} />,
   },
   {
@@ -42,7 +42,7 @@ const steps = [
     num: "04",
     title: "Request referral",
     description:
-      "Send a focused referral request with your profile and context.",
+      "Submit your request — a Referd Expert conducts a short role-specific interview and rates your candidature. Only vetted requests reach the referrer.",
     icon: <Send size={24} />,
   },
   {
@@ -57,8 +57,7 @@ const steps = [
     id: 6,
     num: "06",
     title: "Get hired",
-    description:
-      "Land the offer with a warmer path into the company.",
+    description: "Land the offer with a warmer path into the company.",
     icon: <Trophy size={24} />,
   },
 ];
@@ -118,14 +117,18 @@ export default function HowItWorks() {
               >
                 <span
                   className={`font-mono text-sm transition-colors ${
-                    index === active ? "text-[var(--primary)]" : "text-[var(--text-muted)] group-hover:text-[var(--text-primary)]"
+                    index === active
+                      ? "text-[var(--primary)]"
+                      : "text-[var(--text-muted)] group-hover:text-[var(--text-primary)]"
                   }`}
                 >
                   {step.num}
                 </span>
                 <span
                   className={`text-[15px] font-medium transition-colors ${
-                    index === active ? "text-white" : "text-[var(--text-primary)] group-hover:text-white"
+                    index === active
+                      ? "text-white"
+                      : "text-[var(--text-primary)] group-hover:text-white"
                   }`}
                 >
                   {step.title}

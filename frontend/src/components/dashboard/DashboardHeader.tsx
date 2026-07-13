@@ -16,7 +16,7 @@ export default function DashboardHeader({
   };
 
   return (
-    <div className="rounded-2xl ml-4 mr-4 border border-[var(--border)] bg-[var(--card)] p-5">
+    <div className="rounded-2xl  border border-[var(--border)] bg-[var(--card)] p-5">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-white">
