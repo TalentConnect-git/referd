@@ -172,7 +172,7 @@ export default function ApplicationStats({
   // If no applications, show a message
   if (applications.length === 0) {
     return (
-      <div className="mt-6 ml-5 mr-5">
+      <div className="mt-6 ">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-white">
             Application Pipeline
@@ -189,7 +189,7 @@ export default function ApplicationStats({
   }
 
   return (
-    <div className="mt-6 ml-5 mr-5">
+    <div className="mt-6 ">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-white">
           Application Pipeline

@@ -45,7 +45,7 @@ export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
 
   if (loading) {
     return (
-      <div className="mt-6 mx-5 rounded-2xl border border-slate-800 bg-[#0f172a] overflow-hidden">
+      <div className="mt-4  rounded-2xl border border-slate-800 bg-[#0f172a] overflow-hidden">
         <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
           <div>
             <div className="h-5 w-40 animate-pulse rounded bg-slate-700/50" />
@@ -67,7 +67,7 @@ export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
   }
 
   return (
-    <div className="mt-6 mx-5 rounded-2xl border border-slate-800 bg-[#0f172a] overflow-hidden">
+    <div className="mt-4  rounded-2xl border border-slate-800 bg-[#0f172a] overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-[#0f172a]/50">
         <div className="flex items-center gap-2.5">
@@ -90,7 +90,7 @@ export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
           <Link
             href={`${
               userType === "student" || userType === "fresher" ? "/student" : "/professional"
-            }/alumni-network`}
+            }/alumani-network`}
             className="group inline-flex items-center gap-1 text-[11px] font-medium text-gray-400 hover:text-white transition-colors duration-200"
           >
             View All
@@ -124,7 +124,7 @@ export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
               openRoles={
                 person.referralMetrics?.totalReferralsPosted || 0
               }
-              onClick={() => router.push(`/${userType}/alumni-network/${person.userId}`)}
+              onClick={() => router.push(`/${userType}/profile/${person.userId}`)}
             />
           ))
         )}

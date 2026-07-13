@@ -17,7 +17,7 @@ export default function AlumniDetailContainer({
       <AlumniDetailHeader profile={profile} />
       <AlumniDetailMetrics profile={profile} />
       <AlumniDetailAbout profile={profile} />
-      <AlumniDetailProfessionalLinks profile={profile} />
+      {/* <AlumniDetailProfessionalLinks profile={profile} /> */}
       <AlumniDetailOpenPositions userProfile={profile} />
     </div>
   );

@@ -54,14 +54,15 @@ export default function Features() {
                     </h3>
 
                     <p className="max-w-sm text-[14px] leading-6 text-[var(--text-primary)]">
-                      Find alumni from your college working at the companies you
-                      want to join. Verified college identity keeps every
-                      conversation warm, relevant, and trusted.
+                      Find alumni — from your college or your past companies —
+                      working where you want to be next. Verified identity keeps
+                      every conversation warm, relevant, and trusted.
                     </p>
                   </div>
 
                   <p className="mt-6 font-mono text-[11px] leading-5 tracking-wide text-[var(--text-primary)]">
-                    Warm introductions from people who walked the same halls.
+                    Warm introductions from people who know you — from campus or
+                    from your last job.
                   </p>
                 </div>
 
@@ -107,7 +108,7 @@ export default function Features() {
 
                   <p className="max-w-md text-[14px] leading-6 text-[var(--text-primary)]">
                     Discover active roles posted by employees willing to refer
-                    candidates from their alma mater.
+                    candidates from their network.
                   </p>
                 </div>
 
@@ -134,17 +135,19 @@ export default function Features() {
               />
 
               <div className="relative z-10 flex h-full flex-col items-center justify-center text-center">
-                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-[rgba(49,170,64,0.26)] bg-[var(--background)]/70 text-[var(--primary)]">
-                  <CheckCircle2 size={24} />
+                <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-2xl border border-[rgba(49,170,64,0.26)] bg-[var(--background)]/70 text-[var(--primary)]">
+                  <CheckCircle2 size={12} />
                 </div>
 
-                <h3 className="mb-3 text-[18px] font-semibold tracking-[-0.03em] text-white">
+                <h3 className="mb-1 text-[12px] font-semibold tracking-[-0.03em] text-white">
                   The Outcome
                 </h3>
 
-                <p className="text-[13px] font-medium leading-6 text-white/82">
-                  From a casual campus connection to a signed official offer
-                  letter.
+                <p className="text-[9px] font-medium leading-6 text-white/82">
+                  The hiring system was built around applications. But careers
+                  are built around relationships. Millions of candidates apply
+                  every day. Most never reach the right person.Referd changes
+                  hiring from: Cold application → Trusted introduction.
                 </p>
               </div>
             </div>
@@ -162,15 +165,16 @@ export default function Features() {
               </h3>
 
               <p className="text-[14px] leading-6 text-[var(--text-primary)]">
-                Request secure referrals from verified seniors and move through
-                vouched internal tracks.
+                Every request is screened by a Referd Expert — a real interview,
+                a rating, a written review. Only vetted candidates reach the
+                referrer.
               </p>
 
               <div className="mt-6 flex flex-1 flex-col justify-end gap-2.5">
                 {[
-                  "Verified Employee Sourced",
-                  "Direct Professional Paths",
-                  "Multi-Company Employee Track",
+                  "Referd Expert Interview",
+                  "Verified Candidature",
+                  "Referrer&#39;s Reputation, Protected",
                 ].map((item) => (
                   <div
                     key={item}

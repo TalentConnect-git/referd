@@ -16,12 +16,15 @@ export default function DashboardAppStatus({
   const displayApplications = applications.slice(0, 3);
   const hasMore = applications.length > 2;
 
+
+
   const handleViewAll = () => {
-    router.push(`/${userType}/applications`);
+    // Navigate to applications page with "Referred By Me" tab active
+    router.push(`/${userType}/applications?tab=Applications%20By%20Me`);
   };
 
   return (
-    <div className="rounded-2xl border border-slate-800 bg-[#0f172a] h-full mr-5 overflow-hidden flex flex-col">
+    <div className="rounded-2xl border border-slate-800 bg-[#0f172a] h-full  overflow-hidden flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-[#0f172a]/50">
         <div className="flex items-center gap-2.5">

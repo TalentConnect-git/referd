@@ -17,7 +17,7 @@ export default function JobTabs() {
   };
 
   return (
-    <div className="mb-4 flex items-center justify-between border-b border-[var(--border)] px-4">
+    <div className="mb-4 mt-4 flex items-center justify-between border-b border-[var(--border)] px-4">
       {/* Left Tabs */}
       <div className="flex gap-8">
         <Link

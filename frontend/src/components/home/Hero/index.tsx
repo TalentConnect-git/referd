@@ -40,8 +40,12 @@ export default function Hero() {
 
         {/* Subheading */}
         <p className="mt-8 max-w-3xl text-[16px] leading-10 text-[var(--text-primary)]">
-          <span> Find alumni working inside companies. Discover referral opportunities.</span>
-          <span> Referred faster — through people who actually know your school.</span>
+          <span>
+            {" "}
+            Find alumni working inside companies. Discover referral
+            opportunities.
+          </span>
+          <span> Referred faster — through people who actually know you.</span>
         </p>
 
         {/* Buttons */}

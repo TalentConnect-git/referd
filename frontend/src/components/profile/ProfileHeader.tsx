@@ -52,7 +52,7 @@ export default function ProfileHeader({
             disabled={switching}
             className="group relative flex items-center gap-2 overflow-hidden rounded-xl border border-[var(--primary)]/30 bg-[var(--primary)]/5 px-4 py-2.5 text-[13px] font-semibold text-[var(--primary)] transition-all duration-300 hover:bg-[var(--primary)]/10 hover:shadow-lg hover:shadow-[var(--primary)]/10 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            <Sparkles className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
+            
             <span className="hidden sm:inline">
               {switching ? 'Switching...' : 'Switch to Professional'}
             </span>

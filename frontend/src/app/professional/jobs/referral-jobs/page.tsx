@@ -45,7 +45,7 @@ export default function ProfessionalReferralJobsPage() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-120px)] flex-col bg-[#0F172A]">
+    <div className="flex min-h-[calc(100vh-120px)] flex-col">
       {/* Header */}
       <div className="mb-0 flex flex-wrap items-center justify-between gap-3 ml-4 mr-4 p-3 px-4">
         <div>

@@ -2,7 +2,14 @@ import { AlumniCardProps } from "@/types/dashboard";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { MessageCircle, Briefcase, GraduationCap, Building2, User, ChevronRight } from "lucide-react";
+import {
+  MessageCircle,
+  Briefcase,
+  GraduationCap,
+  Building2,
+  User,
+  ChevronRight,
+} from "lucide-react";
 
 export default function AlumniCard({
   name,
@@ -29,25 +36,20 @@ export default function AlumniCard({
     router.push(`/${userType}/message/${userId}?userName=${name}`);
   };
 
-  return (
-    <div 
-      className="group relative rounded-xl border border-slate-800 bg-[#0f172a] p-3.5 transition-all duration-200 hover:border-slate-700 hover:shadow-lg hover:shadow-slate-900/30 hover:-translate-y-0.5 cursor-pointer"
-      onClick={onClick}
-    >
-      {/* Status Indicator */}
-      {openRoles > 0 && (
-        <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5">
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
-          </span>
-          <span className="text-[9px] font-medium text-green-400">Hiring</span>
-        </div>
-      )}
+  const handleCardClick = () => {
+    if (onClick) {
+      onClick();
+    }
+  };
 
-      <div className="flex gap-3">
+  return (
+    <div
+      onClick={handleCardClick}
+      className="group rounded-xl border border-[#2a3a52] bg-[#0f172a] p-4 transition-all duration-200 hover:border-green-500/30 hover:bg-[#1a2332] cursor-pointer"
+    >
+      <div className="flex items-start gap-3">
         {/* Profile Image */}
-        <div className="relative h-11 w-11 flex-shrink-0 overflow-hidden rounded-full border border-slate-700/50 group-hover:border-green-500/40 transition-colors duration-200">
+        <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border-2 border-[#2a3a52] group-hover:border-green-500/40 transition-colors">
           {profileImage ? (
             <Image
               src={profileImage}
@@ -57,55 +59,51 @@ export default function AlumniCard({
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-500/20 to-purple-500/20">
-              <span className="text-sm font-semibold text-white">{initials}</span>
+              <span className="text-sm font-semibold text-white">
+                {initials}
+              </span>
             </div>
           )}
         </div>
 
+        {/* Info */}
         <div className="flex-1 min-w-0">
-          <h3 className="text-[13px] font-semibold text-white group-hover:text-green-400 transition-colors duration-200 truncate">
-            {name}
-          </h3>
-
-          <div className="flex items-center gap-1 mt-0.5">
-            <Briefcase className="w-3 h-3 text-gray-500 flex-shrink-0" />
-            <p className="text-[11px] text-gray-400 truncate">
-              {role} <span className="text-gray-600">•</span> {company}
-            </p>
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-sm font-semibold text-white group-hover:text-green-400 transition-colors truncate">
+              {name}
+            </h3>
+            {openRoles > 0 && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-[9px] font-medium text-green-400 flex-shrink-0">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+                {openRoles}
+              </span>
+            )}
           </div>
 
-          <div className="flex items-center gap-1 mt-0.5">
-            <GraduationCap className="w-3 h-3 text-gray-500 flex-shrink-0" />
-            <p className="text-[11px] text-gray-500 truncate">{college}</p>
-          </div>
+          <div className="mt-1 space-y-0.5">
+            <div className="flex items-center gap-1.5">
+              <Briefcase className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
+              <p className="text-xs text-slate-400 truncate">
+                {role} <span className="text-slate-600">•</span> {company}
+              </p>
+            </div>
 
-          {/* Open Roles Badge */}
-          <div className="flex items-center gap-1.5 mt-1.5">
-            <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-medium border ${
-              openRoles > 0 
-                ? 'border-green-500/30 bg-green-500/10 text-green-400' 
-                : 'border-gray-500/20 bg-gray-500/5 text-gray-500'
-            }`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${openRoles > 0 ? 'bg-green-400 animate-pulse' : 'bg-gray-500'}`}></span>
-              {openRoles} open role{openRoles !== 1 ? 's' : ''}
-            </span>
+            <div className="flex items-center gap-1.5">
+              <GraduationCap className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
+              <p className="text-xs text-slate-500 truncate">{college}</p>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Message Button */}
-      <div className="mt-3.5">
-        <button
-          onClick={handleMessageClick}
-          className="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700 bg-[#0f172a] px-3 py-2 text-[11px] font-medium text-white transition-all duration-200 hover:border-green-500/40 hover:bg-green-500/10 hover:text-green-400 group/btn"
-        >
-          <MessageCircle className="w-3.5 h-3.5 group-hover/btn:scale-110 transition-transform" />
-          Message
-        </button>
-      </div>
-
-      {/* Hover gradient overlay */}
-      <div className={`absolute inset-0 rounded-xl bg-gradient-to-r from-green-500/0 via-green-500/0 to-transparent transition-opacity duration-300 pointer-events-none group-hover:opacity-5`} />
+      <button
+        onClick={handleMessageClick}
+        className="mt-3 w-full inline-flex items-center justify-center gap-2 rounded-lg border border-[#2a3a52] bg-[#0f172a] px-3 py-2 text-xs font-medium text-slate-400 transition-all duration-200 hover:border-green-500/40 hover:bg-green-500/10 hover:text-green-400"
+      >
+        <MessageCircle className="w-3.5 h-3.5" />
+        Message
+      </button>
     </div>
   );
 }

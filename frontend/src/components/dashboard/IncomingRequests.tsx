@@ -106,7 +106,7 @@ const IncomingRequests: React.FC<IncomingRequestsProps> = ({ limit = 3 }) => {
   const hasMoreApplications = applications.length > limit;
 
   return (
-    <div className="mt-6 mx-5 rounded-2xl border border-[#1e293b] bg-[#0d1324] overflow-hidden shadow-lg shadow-black/20">
+    <div className="mt-6  rounded-2xl border border-[#1e293b] bg-[#0d1324] overflow-hidden shadow-lg shadow-black/20">
       {/* Header */}
       <div className="px-6 py-4 border-b border-[#1e293b] flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 bg-[#0f172a]/50">
         <div>

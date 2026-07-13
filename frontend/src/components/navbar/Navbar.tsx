@@ -66,6 +66,8 @@ export default function Navbar() {
         h-12
         items-center
         justify-between
+         border-b
+        border-[#2a3a52]
         bg-[var(--background)]
         px-6
       "

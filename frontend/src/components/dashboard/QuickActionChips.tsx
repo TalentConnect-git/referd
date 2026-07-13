@@ -27,7 +27,7 @@ const actions = [
 
 export default function QuickActionChips({ userType }: QuickActionChipsProps) {
   return (
-    <div className="mx-4 mb-4 flex flex-wrap gap-3">
+    <div className="mb-4 flex flex-wrap gap-3">
       {actions.map((action) => {
         const Icon = action.icon;
 

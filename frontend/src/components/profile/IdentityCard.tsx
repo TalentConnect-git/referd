@@ -1,9 +1,11 @@
 // IdentityCard.tsx
-import { ShieldCheck, CheckCircle2, ExternalLink, FileText } from "lucide-react";
+import { ShieldCheck, CheckCircle2, ExternalLink, FileText, Camera, Loader2 } from "lucide-react";
 import Badge from "./Badge";
 import { ProfileData } from "@/types/profile";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import ResumeModal from "./ResumeModal";
+import axiosInstance from "@/lib/axiosInstance";
+import toast from "react-hot-toast";
 
 // LinkedIn SVG Icon
 const LinkedInIcon = ({ className = "h-3.5 w-3.5" }) => (
@@ -34,6 +36,7 @@ interface IdentityCardProps {
   initials?: string;
   headline: string;
   currentRoleLine: string;
+  onProfileUpdate?: (updatedProfile: ProfileData) => void;
 }
 
 const getInitials = (name?: string) => {
@@ -55,8 +58,13 @@ export default function IdentityCard({
   initials,
   headline,
   currentRoleLine,
+  onProfileUpdate,
 }: IdentityCardProps) {
   const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [profileImage, setProfileImage] = useState(profile.profileImage || null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const displayName = profile.fullName || profile.name || "User";
   const profileInitials = initials || getInitials(displayName);
 
@@ -82,16 +90,86 @@ export default function IdentityCard({
     setIsResumeModalOpen(false);
   };
 
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB');
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('profileImage', file);
+
+      const response = await axiosInstance.put('/api/onboarding/update', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      // FIX: Properly handle the response data
+      if (response.data?.success || response.data?.message) {
+        // Get the updated profile data from response
+        const updatedProfile = response.data.data || response.data.message || response.data;
+        
+        // Update local state with new image URL
+        if (updatedProfile?.profileImage) {
+          setProfileImage(updatedProfile.profileImage);
+        } else if (response.data?.profileImage) {
+          setProfileImage(response.data.profileImage);
+        }
+        
+        toast.success('Profile image updated successfully');
+        
+        // Notify parent component about the update
+        if (onProfileUpdate && updatedProfile) {
+          onProfileUpdate(updatedProfile);
+        } else if (onProfileUpdate && response.data) {
+          onProfileUpdate(response.data);
+        }
+      } else {
+        throw new Error(response.data?.msg || 'Failed to update profile image');
+      }
+    } catch (error: any) {
+      console.error('Error uploading profile image:', error);
+      toast.error(error?.response?.data?.msg || 'Failed to update profile image');
+    } finally {
+      setIsUploading(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   return (
     <>
       <div className="group rounded-2xl border border-[var(--border)] bg-[var(--card)] p-8 transition-all duration-300 hover:border-[var(--primary)]/30 hover:shadow-xl hover:shadow-[var(--primary)]/5">
         <div className="flex items-start gap-6 sm:items-center">
-          {/* Avatar with ring effect */}
+          {/* Avatar with ring effect - Clickable for upload */}
           <div className="relative shrink-0">
-            <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-full ring-4 ring-[var(--primary-soft)] ring-offset-2 ring-offset-[var(--card)] transition-all duration-300 group-hover:ring-[var(--primary)]/40">
-              {profile.profileImage ? (
+            <div 
+              className="relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-full ring-4 ring-[var(--primary-soft)] ring-offset-2 ring-offset-[var(--card)] transition-all duration-300 group-hover:ring-[var(--primary)]/40 cursor-pointer"
+              onClick={handleImageClick}
+            >
+              {profileImage ? (
                 <img
-                  src={profile.profileImage}
+                  src={profileImage}
                   alt={displayName}
                   className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
@@ -100,9 +178,28 @@ export default function IdentityCard({
                   {profileInitials}
                 </span>
               )}
+              
+              {/* Upload overlay */}
+              <div className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 transition-opacity duration-300 hover:opacity-100">
+                {isUploading ? (
+                  <Loader2 className="h-8 w-8 text-white animate-spin" />
+                ) : (
+                  <Camera className="h-8 w-8 text-white" />
+                )}
+              </div>
             </div>
+            
             {/* Status dot */}
             <div className="absolute bottom-1 right-1 h-3.5 w-3.5 rounded-full border-2 border-[var(--card)] bg-emerald-400"></div>
+
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
           </div>
 
           <div className="flex-1 min-w-0">
