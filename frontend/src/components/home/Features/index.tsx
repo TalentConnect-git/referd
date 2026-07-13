@@ -8,6 +8,7 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react";
+
 import { RevealItem } from "@/components/ui/RevealSection";
 
 export default function Features() {
@@ -28,14 +29,29 @@ export default function Features() {
           What exactly is Referd?
         </h2>
 
-        <p className="mt-4 text-[15px] font-mono leading-7 text-[var(--text-primary)]">
+        <p className="mt-4 font-mono text-[15px] leading-7 text-[var(--text-primary)]">
           A focused network for one thing: turning your school alumni into
           actual job offers.
         </p>
 
-        <div className="mt-10 grid grid-cols-1 gap-5 lg:grid-cols-4 lg:auto-rows-[215px]">
-          {/* 1st — Alumni Network (top-left, large) */}
-          <RevealItem delay={0} className="lg:col-span-2 lg:row-span-2">
+        <div
+          className="
+            mt-10 grid grid-cols-1 gap-5
+
+            lg:grid-cols-4
+            lg:grid-rows-[185px_245px_215px]
+          "
+        >
+          {/* Alumni Network */}
+          <RevealItem
+            delay={0}
+            className="
+              lg:col-span-2
+              lg:col-start-1
+              lg:row-span-2
+              lg:row-start-1
+            "
+          >
             <div className="relative h-full overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--card)]/70 p-6 sm:p-8">
               <div
                 aria-hidden="true"
@@ -79,6 +95,7 @@ export default function Features() {
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--primary-soft)] text-[var(--primary)]">
                         <GraduationCap size={16} />
                       </div>
+
                       <p className="text-[12px] leading-5 text-white/85">
                         {profile}
                       </p>
@@ -93,30 +110,53 @@ export default function Features() {
             </div>
           </RevealItem>
 
-          {/* 2nd — Referral Jobs (top-right) */}
-          <RevealItem delay={0.12} className="lg:col-span-2">
-            <div className="relative h-full overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--card)]/70 p-6">
-              <div className="grid h-full gap-6 sm:grid-cols-[1fr_auto] sm:items-center">
-                <div>
-                  <div className={iconClass}>
-                    <Briefcase size={24} />
+          {/* Referral Jobs — Smaller card */}
+          <RevealItem
+            delay={0.12}
+            className="
+              lg:col-span-2
+              lg:col-start-3
+              lg:row-start-1
+            "
+          >
+            <div className="relative h-full overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--card)]/70 p-5">
+              <div className="grid h-full gap-5 sm:grid-cols-[minmax(0,1fr)_176px] sm:items-center">
+                <div className="min-w-0">
+                  <div
+                    className="
+                      mb-3 flex h-9 w-9
+                      items-center justify-center
+                      rounded-xl
+                      border border-[rgba(49,170,64,0.20)]
+                      bg-[var(--primary-soft)]
+                      text-[var(--primary)]
+                    "
+                  >
+                    <Briefcase size={20} />
                   </div>
 
-                  <h3 className="mb-2 text-[20px] font-semibold tracking-[-0.03em] text-white">
+                  <h3 className="mb-1.5 text-[18px] font-semibold tracking-[-0.03em] text-white">
                     Referral Jobs
                   </h3>
 
-                  <p className="max-w-md text-[14px] leading-6 text-[var(--text-primary)]">
+                  <p className="max-w-md text-[14px] leading-5 text-[var(--text-primary)]">
                     Discover active roles posted by employees willing to refer
                     candidates from their network.
                   </p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2.5 sm:w-48">
+                <div className="grid grid-cols-3 gap-2 sm:w-44">
                   {["AI", "UX", "BE", "DS", "PM", "QA"].map((label) => (
                     <div
                       key={label}
-                      className="flex aspect-square items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--background-soft)] font-mono text-[11px] font-semibold text-white/80"
+                      className="
+                        flex aspect-square items-center justify-center
+                        rounded-xl
+                        border border-[var(--border)]
+                        bg-[var(--background-soft)]
+                        font-mono text-[10px] font-semibold
+                        text-white/80
+                      "
                     >
                       {label}
                     </div>
@@ -126,35 +166,74 @@ export default function Features() {
             </div>
           </RevealItem>
 
-          {/* 5th — The Outcome (centre green card, last) */}
-          <RevealItem delay={0.55}>
-            <div className="relative h-full overflow-hidden rounded-3xl border border-[rgba(49,170,64,0.32)] bg-[linear-gradient(135deg,rgba(49,170,64,0.20),rgba(13,19,36,0.72))] p-6">
+          {/* The Outcome — Larger card */}
+          <RevealItem
+            delay={0.55}
+            className="
+              lg:col-start-3
+              lg:row-start-2
+            "
+          >
+            <div
+              className="
+                relative h-full w-full overflow-hidden
+                rounded-3xl
+                border border-[rgba(49,170,64,0.32)]
+                bg-[linear-gradient(135deg,rgba(49,170,64,0.20),rgba(13,19,36,0.72))]
+                p-5
+              "
+            >
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute -bottom-14 -right-14 h-44 w-44 rounded-full bg-[var(--primary)]/15 blur-[60px]"
+                className="
+                  pointer-events-none absolute
+                  -bottom-14 -right-14
+                  h-44 w-44 rounded-full
+                  bg-[var(--primary)]/15
+                  blur-[60px]
+                "
               />
 
-              <div className="relative z-10 flex h-full flex-col items-center justify-center text-center">
-                <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-2xl border border-[rgba(49,170,64,0.26)] bg-[var(--background)]/70 text-[var(--primary)]">
-                  <CheckCircle2 size={12} />
+              <div className="relative z-10 flex h-full flex-col justify-center">
+                <div
+                  className="
+                    mb-2 flex h-8 w-8
+                    items-center justify-center
+                    rounded-xl
+                    border border-[rgba(49,170,64,0.26)]
+                    bg-[var(--background)]/70
+                    text-[var(--primary)]
+                  "
+                >
+                  <CheckCircle2 size={15} />
                 </div>
 
-                <h3 className="mb-1 text-[12px] font-semibold tracking-[-0.03em] text-white">
+                <h3 className="mb-2 text-[16px] font-semibold tracking-[-0.03em] text-white">
                   The Outcome
                 </h3>
 
-                <p className="text-[9px] font-medium leading-6 text-white/82">
+                <p className="text-[14px] leading-5 text-[var(--text-primary)]">
                   The hiring system was built around applications. But careers
                   are built around relationships. Millions of candidates apply
-                  every day. Most never reach the right person.Referd changes
-                  hiring from: Cold application → Trusted introduction.
+                  every day. Most never reach the right person. Referd changes
+                  hiring from:{" "}
+                  <strong className="font-bold text-white">
+                    Cold application → Trusted introduction.
+                  </strong>
                 </p>
               </div>
             </div>
           </RevealItem>
 
-          {/* 4th — Trusted Referrals (right column) */}
-          <RevealItem delay={0.36} className="lg:row-span-2">
+          {/* Trusted Referrals */}
+          <RevealItem
+            delay={0.36}
+            className="
+              lg:col-start-4
+              lg:row-span-2
+              lg:row-start-2
+            "
+          >
             <div className="flex h-full flex-col rounded-3xl border border-[var(--border)] bg-[var(--card)]/70 p-6">
               <div className={iconClass}>
                 <ShieldCheck size={24} />
@@ -174,7 +253,7 @@ export default function Features() {
                 {[
                   "Referd Expert Interview",
                   "Verified Candidature",
-                  "Referrer&#39;s Reputation, Protected",
+                  "Referrer's Reputation, Protected",
                 ].map((item) => (
                   <div
                     key={item}
@@ -184,15 +263,25 @@ export default function Features() {
                       size={16}
                       className="shrink-0 text-[var(--primary)]"
                     />
-                    <span className="text-[13px] text-white/82">{item}</span>
+
+                    <span className="text-[13px] text-white/82">
+                      {item}
+                    </span>
                   </div>
                 ))}
               </div>
             </div>
           </RevealItem>
 
-          {/* 3rd — End-to-End Tracking (bottom, wide) */}
-          <RevealItem delay={0.22} className="lg:col-span-3">
+          {/* End-to-End Tracking */}
+          <RevealItem
+            delay={0.22}
+            className="
+              lg:col-span-3
+              lg:col-start-1
+              lg:row-start-3
+            "
+          >
             <div className="flex h-full flex-col justify-between rounded-3xl border border-[var(--border)] bg-[var(--card)]/70 p-6">
               <div className="grid gap-6 lg:grid-cols-[0.9fr_1.2fr] lg:items-center">
                 <div>
@@ -214,7 +303,7 @@ export default function Features() {
                   {[
                     "Profile Completed",
                     "Request Sent",
-                    "Direct Intro Delivered ",
+                    "Direct Intro Delivered",
                   ].map((step, index) => (
                     <div
                       key={step}
@@ -223,6 +312,7 @@ export default function Features() {
                       <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--primary-soft)] font-mono text-[11px] font-semibold text-[var(--primary)]">
                         {index + 1}
                       </div>
+
                       <p className="text-[13px] font-medium leading-5 text-white/85">
                         {step}
                       </p>

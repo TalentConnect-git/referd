@@ -66,7 +66,7 @@ export default function ApplicationDetailsPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
+    <div className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
       {/* Back Button */}
       <button
         onClick={() => router.back()}
@@ -164,7 +164,7 @@ export default function ApplicationDetailsPage() {
 
         {/* Posted By Referrer Section - Compact */}
         {application.job?.receiverProfile && (
-          <div className="mt-4 rounded-xl border border-[#1e293b] bg-[#111827]/50 p-3 hover:border-[#2a3a5a] transition-colors duration-300">
+          <div className="mt-4 rounded-xl   hover:border-[#2a3a5a] transition-colors duration-300">
             <div className="flex items-center gap-2 text-xs text-slate-400 mb-2">
               <User size={12} className="text-slate-500" />
               <span className="font-medium">Referrer Details</span>
@@ -174,8 +174,8 @@ export default function ApplicationDetailsPage() {
         )}
       </div>
 
-      {/* Timeline Section - Compact */}
-      <div className="rounded-2xl border border-slate-800 bg-gradient-to-br from-[#0f172a] to-[#1a2332] p-5 sm:p-6 shadow-lg">
+      {/* Timeline Section - Full Width */}
+      <div className="rounded-2xl border border-slate-800 bg-gradient-to-br from-[#0f172a] to-[#1a2332] p-5 sm:p-6 shadow-lg mb-5">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-semibold text-white flex items-center gap-2">
             <Clock size={15} className="text-slate-400" />
@@ -188,13 +188,16 @@ export default function ApplicationDetailsPage() {
           )}
         </div>
 
-        <ApplicationTimeline
-          currentStatus={application.currentStatus}
-        />
+        {/* Full width timeline */}
+        <div className="w-full">
+          <ApplicationTimeline
+            currentStatus={application.currentStatus}
+          />
+        </div>
       </div>
 
       {/* Additional Info Sections - Compact */}
-      <div className="mt-4 space-y-4">
+      <div className="space-y-4">
         {/* Job Description */}
         {jobDetails?.description && (
           <div className="rounded-2xl border border-slate-800 bg-gradient-to-br from-[#0f172a] to-[#1a2332] p-5 sm:p-6 shadow-lg">

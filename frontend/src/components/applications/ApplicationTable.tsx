@@ -1,25 +1,28 @@
 "use client";
 
-import StageIndicator from "./StageIndicator";
-import { ApplicationTableProps } from "@/types/applications";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
 import {
-  RefreshCw,
-  ChevronDown,
-  Check,
   Building2,
-  Briefcase,
   Calendar,
-  Target,
+  Check,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  RefreshCw,
+  Target,
 } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+
+import type { ApplicationTableProps } from "@/types/applications";
+import { useAuth } from "@/context/AuthContext";
 import { updateApplicationStatus } from "@/services/application.service";
 
-// Status enum for applications
 export enum ApplicationStatus {
   ApplicationSent = "Application Sent",
   AwaitingRecruiterAction = "Awaiting Recruiter Action",
@@ -34,32 +37,67 @@ export enum ApplicationStatus {
   JoinedTheCompany = "Joined the Company",
 }
 
-// Status color mapping
-const statusColors: Record<ApplicationStatus, string> = {
-  [ApplicationStatus.ApplicationSent]:
-    "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
-  [ApplicationStatus.AwaitingRecruiterAction]:
-    "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-  [ApplicationStatus.Shortlisted]:
-    "bg-purple-500/10 text-purple-400 border-purple-500/20",
-  [ApplicationStatus.InterviewScheduled]:
-    "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
-  [ApplicationStatus.OfferExtended]:
-    "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-  [ApplicationStatus.Accepted]:
-    "bg-green-500/10 text-green-400 border-green-500/20",
-  [ApplicationStatus.Rejected]: "bg-red-500/10 text-red-400 border-red-500/20",
-  [ApplicationStatus.ReferredToCompany]:
-    "bg-orange-500/10 text-orange-400 border-orange-500/20",
-  [ApplicationStatus.OfferAccepted]:
-    "bg-green-600/10 text-green-500 border-green-600/20",
-  [ApplicationStatus.OfferRejected]:
-    "bg-red-600/10 text-red-500 border-red-600/20",
-  [ApplicationStatus.JoinedTheCompany]:
-    "bg-teal-500/10 text-teal-400 border-teal-500/20",
+type DropdownPosition = {
+  top: number;
+  left: number;
+  width: number;
+  maxHeight: number;
+  opensUpward: boolean;
 };
 
-// Get match score color
+type RequestError = {
+  response?: {
+    data?: {
+      msg?: string;
+      message?: string;
+    };
+  };
+  message?: string;
+};
+
+const statusColors: Record<ApplicationStatus, string> = {
+  [ApplicationStatus.ApplicationSent]:
+    "border-indigo-500/20 bg-indigo-500/10 text-indigo-400",
+  [ApplicationStatus.AwaitingRecruiterAction]:
+    "border-yellow-500/20 bg-yellow-500/10 text-yellow-400",
+  [ApplicationStatus.Shortlisted]:
+    "border-purple-500/20 bg-purple-500/10 text-purple-400",
+  [ApplicationStatus.InterviewScheduled]:
+    "border-cyan-500/20 bg-cyan-500/10 text-cyan-400",
+  [ApplicationStatus.OfferExtended]:
+    "border-emerald-500/20 bg-emerald-500/10 text-emerald-400",
+  [ApplicationStatus.Accepted]:
+    "border-green-500/20 bg-green-500/10 text-green-400",
+  [ApplicationStatus.Rejected]:
+    "border-red-500/20 bg-red-500/10 text-red-400",
+  [ApplicationStatus.ReferredToCompany]:
+    "border-orange-500/20 bg-orange-500/10 text-orange-400",
+  [ApplicationStatus.OfferAccepted]:
+    "border-green-600/20 bg-green-600/10 text-green-500",
+  [ApplicationStatus.OfferRejected]:
+    "border-red-600/20 bg-red-600/10 text-red-500",
+  [ApplicationStatus.JoinedTheCompany]:
+    "border-teal-500/20 bg-teal-500/10 text-teal-400",
+};
+
+const statusDotColors: Record<ApplicationStatus, string> = {
+  [ApplicationStatus.ApplicationSent]: "bg-indigo-400",
+  [ApplicationStatus.AwaitingRecruiterAction]: "bg-yellow-400",
+  [ApplicationStatus.Shortlisted]: "bg-purple-400",
+  [ApplicationStatus.InterviewScheduled]: "bg-cyan-400",
+  [ApplicationStatus.OfferExtended]: "bg-emerald-400",
+  [ApplicationStatus.Accepted]: "bg-green-400",
+  [ApplicationStatus.Rejected]: "bg-red-400",
+  [ApplicationStatus.ReferredToCompany]: "bg-orange-400",
+  [ApplicationStatus.OfferAccepted]: "bg-green-500",
+  [ApplicationStatus.OfferRejected]: "bg-red-500",
+  [ApplicationStatus.JoinedTheCompany]: "bg-teal-400",
+};
+
+const statusOptions = Object.values(
+  ApplicationStatus,
+) as ApplicationStatus[];
+
 const getMatchScoreColor = (score?: number): string => {
   const numericScore = Number(score) || 0;
   if (numericScore >= 75) return "text-green-400";
@@ -67,20 +105,99 @@ const getMatchScoreColor = (score?: number): string => {
   return "text-red-400";
 };
 
-// Status badge component
+const getMatchBarColor = (score?: number): string => {
+  const numericScore = Number(score) || 0;
+  if (numericScore >= 75) return "bg-green-500";
+  if (numericScore >= 40) return "bg-orange-500";
+  return "bg-red-500";
+};
+
+const getMatchLevel = (score?: number): string => {
+  const numericScore = Number(score) || 0;
+  if (numericScore >= 75) return "High";
+  if (numericScore >= 40) return "Medium";
+  return "Low";
+};
+
 const StatusBadge = ({ status }: { status: string }) => {
   const statusKey = status as ApplicationStatus;
   const colorClass =
     statusColors[statusKey] ||
-    "bg-gray-500/10 text-gray-400 border-gray-500/20";
+    "border-gray-500/20 bg-gray-500/10 text-gray-400";
 
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${colorClass}`}
+      className={`
+        inline-flex max-w-[180px] items-center
+        truncate whitespace-nowrap rounded-full
+        border px-2 py-0.5
+        text-[10px] font-medium
+        ${colorClass}
+      `}
+      title={status}
     >
       {status}
     </span>
   );
+};
+
+const calculateDropdownPosition = (
+  buttonRect: DOMRect,
+): DropdownPosition => {
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  const screenMargin = 12;
+  const dropdownGap = 8;
+  const preferredWidth = 224;
+  const preferredHeight = 320;
+
+  const dropdownWidth = Math.min(
+    preferredWidth,
+    viewportWidth - screenMargin * 2,
+  );
+
+  const spaceBelow =
+    viewportHeight - buttonRect.bottom - screenMargin;
+  const spaceAbove =
+    buttonRect.top - screenMargin;
+
+  const opensUpward =
+    spaceBelow < 240 && spaceAbove > spaceBelow;
+
+  const availableSpace = opensUpward
+    ? spaceAbove - dropdownGap
+    : spaceBelow - dropdownGap;
+
+  const maxHeight = Math.max(
+    100,
+    Math.min(preferredHeight, availableSpace),
+  );
+
+  const left = Math.min(
+    Math.max(
+      screenMargin,
+      buttonRect.right - dropdownWidth,
+    ),
+    viewportWidth - dropdownWidth - screenMargin,
+  );
+
+  const top = opensUpward
+    ? Math.max(
+        screenMargin,
+        buttonRect.top - dropdownGap - maxHeight,
+      )
+    : Math.min(
+        buttonRect.bottom + dropdownGap,
+        viewportHeight - maxHeight - screenMargin,
+      );
+
+  return {
+    top,
+    left,
+    width: dropdownWidth,
+    maxHeight,
+    opensUpward,
+  };
 };
 
 export default function ApplicationTable({
@@ -91,190 +208,310 @@ export default function ApplicationTable({
   onPageChange,
   onStatusUpdate,
   totalPages: propTotalPages,
-}: ApplicationTableProps & { totalPages?: number }) {
+}: ApplicationTableProps & {
+  totalPages?: number;
+}) {
   const { user, role } = useAuth();
-  const userType = role || user?.userType || "professional";
   const router = useRouter();
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
-  const [showSuccessToast, setShowSuccessToast] = useState<string | null>(null);
+
+  const userType =
+    role || user?.userType || "professional";
+
+  const [openDropdown, setOpenDropdown] = useState<
+    string | null
+  >(null);
+
+  const [dropdownPosition, setDropdownPosition] =
+    useState<DropdownPosition | null>(null);
+
+  const [updatingStatus, setUpdatingStatus] = useState<
+    string | null
+  >(null);
+
+  const [showSuccessToast, setShowSuccessToast] =
+    useState<string | null>(null);
+
   const [currentPage, setCurrentPage] = useState(page);
+
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Calculate pagination values
-  const totalItems = meta?.total || applications.length || 0;
-  const totalPages = propTotalPages || meta?.totalPages || 1;
+  const totalItems =
+    meta?.total || applications.length || 0;
+
+  const totalPages =
+    propTotalPages || meta?.totalPages || 1;
+
+  const itemsPerPage = meta?.limit || 10;
+
   const hasPrev = currentPage > 1;
   const hasNext = currentPage < totalPages;
-  const itemsPerPage = meta?.limit || 10;
-  const startIndex = (currentPage - 1) * itemsPerPage + 1;
-  const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
 
-  // Close dropdown when clicking outside
+  const startIndex =
+    totalItems > 0
+      ? (currentPage - 1) * itemsPerPage + 1
+      : 0;
+
+  const endIndex = Math.min(
+    currentPage * itemsPerPage,
+    totalItems,
+  );
+
+  useEffect(() => {
+    setCurrentPage(page);
+  }, [page]);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      const clickedTrigger = target.closest(
+        '[data-status-dropdown-trigger="true"]',
+      );
+
+      if (clickedTrigger) return;
+
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        !dropdownRef.current.contains(target)
       ) {
         setOpenDropdown(null);
+        setDropdownPosition(null);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside,
+    );
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside,
+      );
+    };
   }, []);
 
-  // Auto-hide success toast
   useEffect(() => {
-    if (showSuccessToast) {
-      const timer = setTimeout(() => {
-        setShowSuccessToast(null);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
+    if (!openDropdown) return;
+
+    const closeDropdown = () => {
+      setOpenDropdown(null);
+      setDropdownPosition(null);
+    };
+
+    window.addEventListener("resize", closeDropdown);
+    window.addEventListener("scroll", closeDropdown, true);
+
+    return () => {
+      window.removeEventListener("resize", closeDropdown);
+      window.removeEventListener(
+        "scroll",
+        closeDropdown,
+        true,
+      );
+    };
+  }, [openDropdown]);
+
+  useEffect(() => {
+    if (!showSuccessToast) return;
+
+    const timer = window.setTimeout(() => {
+      setShowSuccessToast(null);
+    }, 3000);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
   }, [showSuccessToast]);
 
-  // Handle page change
-  const handlePageChange = (newPage: number) => {
-    if (newPage < 1 || newPage > totalPages) return;
-    setCurrentPage(newPage);
-    if (onPageChange) {
-      onPageChange(newPage);
-    }
+  const closeDropdown = () => {
+    setOpenDropdown(null);
+    setDropdownPosition(null);
   };
 
-  // Generate page numbers
-  const getPageNumbers = (): (number | string)[] => {
-    const pages: (number | string)[] = [];
-    const maxVisible = 5;
-
-    if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      pages.push(1);
-
-      let startPage = Math.max(2, currentPage - 1);
-      let endPage = Math.min(totalPages - 1, currentPage + 1);
-
-      if (currentPage <= 3) {
-        endPage = Math.min(totalPages - 1, 4);
-      }
-
-      if (currentPage >= totalPages - 2) {
-        startPage = Math.max(2, totalPages - 3);
-      }
-
-      if (startPage > 2) {
-        pages.push("...");
-      }
-
-      for (let i = startPage; i <= endPage; i++) {
-        pages.push(i);
-      }
-
-      if (endPage < totalPages - 1) {
-        pages.push("...");
-      }
-
-      pages.push(totalPages);
+  const handlePageChange = (newPage: number) => {
+    if (
+      newPage < 1 ||
+      newPage > totalPages ||
+      newPage === currentPage
+    ) {
+      return;
     }
+
+    closeDropdown();
+    setCurrentPage(newPage);
+    onPageChange?.(newPage);
+  };
+
+  const getPageNumbers = (): Array<number | string> => {
+    const pages: Array<number | string> = [];
+    const maxVisiblePages = 5;
+
+    if (totalPages <= maxVisiblePages) {
+      for (
+        let pageNumber = 1;
+        pageNumber <= totalPages;
+        pageNumber += 1
+      ) {
+        pages.push(pageNumber);
+      }
+      return pages;
+    }
+
+    pages.push(1);
+
+    let startPage = Math.max(2, currentPage - 1);
+    let endPage = Math.min(
+      totalPages - 1,
+      currentPage + 1,
+    );
+
+    if (currentPage <= 3) {
+      endPage = Math.min(totalPages - 1, 4);
+    }
+
+    if (currentPage >= totalPages - 2) {
+      startPage = Math.max(2, totalPages - 3);
+    }
+
+    if (startPage > 2) {
+      pages.push("...");
+    }
+
+    for (
+      let pageNumber = startPage;
+      pageNumber <= endPage;
+      pageNumber += 1
+    ) {
+      pages.push(pageNumber);
+    }
+
+    if (endPage < totalPages - 1) {
+      pages.push("...");
+    }
+
+    pages.push(totalPages);
 
     return pages;
   };
 
-  // Handle row click - navigate to application details
   const handleRowClick = (applicationId: string) => {
-    router.push(`/${userType}/applications/${applicationId}`);
+    router.push(
+      `/${userType}/applications/${applicationId}`,
+    );
   };
 
-  // Handle profile navigation
-  const handleProfileClick = (e: React.MouseEvent, userId: string) => {
-    e.stopPropagation();
-    if (userId) {
-      router.push(`/${userType}/profile/${userId}`);
-    }
-  };
-
-  // Handle update button click - prevent row navigation
-  const handleUpdateClick = (e: React.MouseEvent, applicationId: string) => {
-    e.stopPropagation();
-    setOpenDropdown(openDropdown === applicationId ? null : applicationId);
-  };
-
-  // Handle status update using the service function
-  const handleStatusUpdate = async (
-    e: React.MouseEvent,
-    applicationId: string,
-    newStatus: string,
+  const handleProfileClick = (
+    event: React.MouseEvent,
+    userId: string,
   ) => {
-    e.stopPropagation();
+    event.stopPropagation();
+    if (!userId) return;
+    router.push(`/${userType}/profile/${userId}`);
+  };
 
-    const allowedStatuses = ["Referred To Company", "Rejected", "Accepted"];
-    if (!allowedStatuses.includes(newStatus)) {
-      console.warn(`Status "${newStatus}" is not allowed for this action`);
+  const handleUpdateClick = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    applicationId: string,
+  ) => {
+    event.stopPropagation();
+
+    if (openDropdown === applicationId) {
+      closeDropdown();
+      return;
     }
+
+    const buttonRect =
+      event.currentTarget.getBoundingClientRect();
+
+    setDropdownPosition(
+      calculateDropdownPosition(buttonRect),
+    );
+
+    setOpenDropdown(applicationId);
+  };
+
+  const handleStatusUpdate = async (
+    event: React.MouseEvent<HTMLButtonElement>,
+    applicationId: string,
+    newStatus: ApplicationStatus,
+  ) => {
+    event.stopPropagation();
 
     try {
       setUpdatingStatus(applicationId);
 
       const response = await updateApplicationStatus(
         applicationId,
-        newStatus as "Referred To Company" | "Rejected" | "Accepted",
+        newStatus as
+          | "Referred To Company"
+          | "Rejected"
+          | "Accepted",
       );
 
-      if (response?.success || response?.status === 200) {
-        setOpenDropdown(null);
-        setShowSuccessToast(`Status updated to "${newStatus}" successfully!`);
-
-        if (onStatusUpdate) {
-          onStatusUpdate();
-        }
-      } else {
-        console.error(
-          "Failed to update status:",
-          response?.msg || "Unknown error",
+      if (!response?.success && response?.status !== 200) {
+        throw new Error(
+          response?.msg || "Failed to update status",
         );
-        alert(`Failed to update status: ${response?.msg || "Unknown error"}`);
       }
-    } catch (error: any) {
-      console.error("Failed to update status:", error);
-      alert(
-        `Failed to update status: ${error?.response?.data?.msg || error?.message || "Unknown error"}`,
+
+      closeDropdown();
+
+      setShowSuccessToast(
+        `Status updated to "${newStatus}" successfully!`,
+      );
+
+      onStatusUpdate?.();
+    } catch (error: unknown) {
+      console.error(
+        "Failed to update status:",
+        error,
+      );
+
+      const requestError = error as RequestError;
+
+      const message =
+        requestError.response?.data?.msg ||
+        requestError.response?.data?.message ||
+        requestError.message ||
+        "Unknown error";
+
+      window.alert(
+        `Failed to update status: ${message}`,
       );
     } finally {
       setUpdatingStatus(null);
     }
   };
 
-  const statusOptions = Object.values(ApplicationStatus);
-
-  // Format date
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
     if (!dateString) return "N/A";
-    try {
-      return new Date(dateString).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      });
-    } catch {
-      return "N/A";
-    }
+
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return "N/A";
+
+    return date.toLocaleDateString("en-IN", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
   };
 
-  // Get initials for avatar
   const getInitials = (name: string) => {
     if (!name) return "?";
     return name.charAt(0).toUpperCase();
   };
 
   return (
-    <div className="rounded-3xl border border-slate-800 overflow-hidden min-h-[420px] flex flex-col ml-5">
+    <div
+      className="
+        rounded-3xl border border-slate-800
+        overflow-hidden min-h-[420px] flex flex-col ml-5
+      "
+    >
       {/* Success Toast */}
       {showSuccessToast && (
-        <div className="fixed top-4 right-4 z-50 bg-green-500/10 border border-green-500/30 text-green-400 px-3.5 py-2.5 rounded-lg shadow-lg max-w-md animate-in slide-in-from-top-2">
+        <div className="fixed top-4 right-4 z-[10000] bg-green-500/10 border border-green-500/30 text-green-400 px-3.5 py-2.5 rounded-lg shadow-lg max-w-md animate-in slide-in-from-top-2">
           <div className="flex items-center gap-2">
             <Check className="h-4 w-4" />
             <span className="text-[12px] font-medium">{showSuccessToast}</span>
@@ -326,30 +563,20 @@ export default function ApplicationTable({
               const isUpdating = updatingStatus === application._id;
               const isOpen = openDropdown === application._id;
 
-              // Get applicant data from the applicant object
               const applicant = application.applicant || {};
               const applicantName = applicant?.name || "Unknown";
               const applicantImage = applicant?.profileImage || null;
               const applicantUserId = applicant?.userId || null;
 
-              // Get job details
-              const jobDetails =
-                application.job || application.jobDetails || {};
-
-              // Get company name
+              const jobDetails = application.job || application.jobDetails || {};
               const referralCompany =
                 jobDetails.companyName ||
                 application.referralCompany ||
                 application.displayCompanyName ||
                 "N/A";
 
-              // Get status
               const currentStatus = application.currentStatus || "Applied";
-
-              // Get match score
               const matchScore = application.matchScore ?? 0;
-
-              // Get applied date
               const appliedDate =
                 application.createdAt || application.statusHistory?.[0]?.date;
 
@@ -478,12 +705,19 @@ export default function ApplicationTable({
                       </button>
 
                       {/* Dropdown Menu - Opens Upward */}
-                      {isOpen && !isUpdating && (
+                      {isOpen && !isUpdating && dropdownPosition && (
                         <div
                           ref={dropdownRef}
-                          className="absolute right-0 bottom-full mb-1 w-56 max-h-80 overflow-y-auto rounded-lg border border-slate-700 bg-[#0F1115] shadow-xl z-50 py-1"
+                          style={{
+                            top: dropdownPosition.top,
+                            left: dropdownPosition.left,
+                            width: dropdownPosition.width,
+                            maxHeight: dropdownPosition.maxHeight,
+                          }}
+                          className="fixed z-[9999] overflow-y-auto rounded-lg border border-slate-700 bg-[#0F1115] shadow-xl py-1"
+                          onClick={(e) => e.stopPropagation()}
                         >
-                          <div className="px-3 py-1.5 text-[10px] text-gray-500 border-b border-slate-700">
+                          <div className="px-3 py-1.5 text-[10px] text-gray-500 border-b border-slate-700 sticky top-0 bg-[#0F1115]">
                             Change Status
                           </div>
                           {statusOptions.map((status) => {
@@ -503,7 +737,9 @@ export default function ApplicationTable({
                               >
                                 <span className="flex items-center gap-2">
                                   <span
-                                    className={`w-1.5 h-1.5 rounded-full ${statusColors[status]?.split(" ")[0] || "bg-gray-500"}`}
+                                    className={`w-1.5 h-1.5 rounded-full ${
+                                      statusDotColors[status] || "bg-gray-500"
+                                    }`}
                                   />
                                   {status}
                                 </span>
@@ -525,13 +761,11 @@ export default function ApplicationTable({
       </table>
 
       {/* Pagination */}
-
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-2.5 border-t border-slate-800 bg-[#0F172A]">
         <div className="text-[11px] text-gray-400 order-2 sm:order-1">
           Showing {startIndex} to {endIndex} of {totalItems} results
         </div>
         <div className="flex items-center gap-1.5 order-1 sm:order-2">
-          {/* Previous Button */}
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={!hasPrev}
@@ -540,7 +774,6 @@ export default function ApplicationTable({
             Previous
           </button>
 
-          {/* Page Numbers */}
           {getPageNumbers().map((pageNum, index) => (
             <button
               key={index}
@@ -551,17 +784,16 @@ export default function ApplicationTable({
               }}
               disabled={typeof pageNum !== "number"}
               className={`
-          min-w-[28px] h-7 rounded-md text-[11px] font-medium transition-colors
-          ${typeof pageNum === "number" ? "hover:bg-slate-700/30 hover:text-white cursor-pointer" : "cursor-default"}
-          ${currentPage === pageNum ? "bg-green-500/20 text-green-400 border border-green-500/30" : "text-gray-400"}
-          ${typeof pageNum !== "number" ? "text-gray-500" : ""}
-        `}
+                min-w-[28px] h-7 rounded-md text-[11px] font-medium transition-colors
+                ${typeof pageNum === "number" ? "hover:bg-slate-700/30 hover:text-white cursor-pointer" : "cursor-default"}
+                ${currentPage === pageNum ? "bg-green-500/20 text-green-400 border border-green-500/30" : "text-gray-400"}
+                ${typeof pageNum !== "number" ? "text-gray-500" : ""}
+              `}
             >
               {pageNum}
             </button>
           ))}
 
-          {/* Next Button */}
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={!hasNext}

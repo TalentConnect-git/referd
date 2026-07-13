@@ -1,4 +1,5 @@
 import { ReferralJob, ReferralCardHeaderProps } from '@/types/referral';
+import { MapPin } from 'lucide-react';
 
 export default function ReferralCardHeader({
   referral,
@@ -12,6 +13,13 @@ export default function ReferralCardHeader({
       .map(word => word[0])
       .join('')
       .toUpperCase();
+  };
+
+  // Get location display
+  const getLocation = () => {
+    if (referral.location?.[0]) return referral.location[0];
+    
+    return 'Remote';
   };
 
   return (
@@ -45,9 +53,9 @@ export default function ReferralCardHeader({
           </h3>
 
           <div className="flex items-center gap-1.5">
-            <p className="text-muted-foreground text-sm flex items-center gap-1">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-600/50" />
-              {referral.location?.[0] || 'Remote'}
+            <MapPin className="h-3.5 w-3.5 text-gray-500" />
+            <p className="text-muted-foreground text-[10px]">
+              {getLocation()}
             </p>
           </div>
         </div>
@@ -68,7 +76,7 @@ export default function ReferralCardHeader({
             }
           `}
         >
-          {/*Status Dot */}
+          {/* Status Dot */}
           <span className={`
             inline-block w-1.5 h-1.5 rounded-full
             ${referral.inactive 
@@ -76,7 +84,7 @@ export default function ReferralCardHeader({
               : 'bg-green-400 animate-pulse'
             }
           `} />
-          {referral.inactive ? 'Closed' : 'Active'}
+          {referral.inactive ? 'Closed' : 'Live'}
         </span>
       </div>
     </div>

@@ -133,6 +133,14 @@ export default function ApplicationByMe({
     }
   };
 
+  // Handle job title click - navigate to application details
+  const handleJobTitleClick = (e: React.MouseEvent, applicationId: string) => {
+    e.stopPropagation();
+    if (applicationId) {
+      router.push(`/${userType}/applications/${applicationId}`);
+    }
+  };
+
   // Handle pagination
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage > totalPages) return;
@@ -209,11 +217,12 @@ export default function ApplicationByMe({
         <thead className="bg-[#111827]">
           <tr className="text-left text-gray-400">
             <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wider">
-              Posted By
-            </th>
-            <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wider">
               Job Title
             </th>
+            <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wider">
+              Posted By
+            </th>
+
             <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wider">
               Company
             </th>
@@ -278,14 +287,22 @@ export default function ApplicationByMe({
                 <tr
                   key={application._id}
                   className="border-t border-slate-800 hover:bg-slate-800/30 transition-colors cursor-pointer"
-                  onClick={() =>
-                    router.push(`/${userType}/applications/${application._id}`)
-                  }
                 >
-                  {/* Posted By Column */}
                   <td className="px-4 py-3">
                     <div
-                      className="flex items-center gap-2.5 cursor-pointer"
+                      className="flex items-center gap-1.5 cursor-pointer group"
+                      onClick={(e) => handleJobTitleClick(e, application._id)}
+                    >
+                      <Briefcase className="w-3.5 h-3.5 text-gray-500 group-hover:text-blue-400 transition-colors" />
+                      <span className="text-white font-medium text-[13px] group-hover:text-blue-400 transition-colors">
+                        {jobTitle}
+                      </span>
+                    </div>
+                  </td>
+                  {/* Posted By Column - Navigates to Profile */}
+                  <td className="px-4 py-3">
+                    <div
+                      className="flex items-center gap-2.5 cursor-pointer group"
                       onClick={(e) => handleProfileClick(e, posterUserId)}
                     >
                       {posterImage ? (
@@ -294,32 +311,24 @@ export default function ApplicationByMe({
                           alt={posterName}
                           width={32}
                           height={32}
-                          className="h-8 w-8 rounded-full object-cover border border-gray-600/30"
+                          className="h-8 w-8 rounded-full object-cover border border-gray-600/30 group-hover:border-blue-400 transition-colors"
                         />
                       ) : (
-                        <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center border border-gray-600/30">
-                          <span className="text-blue-400 font-medium text-[11px]">
+                        <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center border border-gray-600/30 group-hover:border-blue-400 transition-colors">
+                          <span className="text-blue-400 font-medium text-[11px] group-hover:text-blue-300 transition-colors">
                             {getInitials(posterName)}
                           </span>
                         </div>
                       )}
                       <div>
-                        <span className="text-white font-medium text-[13px] hover:text-blue-400 transition-colors">
+                        <span className="text-white font-medium text-[13px] group-hover:text-blue-400 transition-colors">
                           {posterName}
                         </span>
                       </div>
                     </div>
                   </td>
 
-                  {/* Job Title Column */}
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-1.5">
-                      <Briefcase className="w-3.5 h-3.5 text-gray-500" />
-                      <span className="text-white font-medium text-[13px]">
-                        {jobTitle}
-                      </span>
-                    </div>
-                  </td>
+                  {/* Job Title Column - Navigates to Application Details */}
 
                   {/* Company Column */}
                   <td className="px-4 py-3">
