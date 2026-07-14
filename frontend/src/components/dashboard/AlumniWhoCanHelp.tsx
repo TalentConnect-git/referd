@@ -10,6 +10,7 @@ import Image from "next/image";
 export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
   const [alumni, setAlumni] = useState<alumniWhoCanHelp[]>([]);
   const [loading, setLoading] = useState(true);
+  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
   const router = useRouter();
   const { role: userType } = useAuth();
 
@@ -30,14 +31,22 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
     fetchAlumni();
   }, [job]);
 
-  const handleMessage = (e: React.MouseEvent, userId: string, name: string) => {
+  const handleMessage = (e: React.MouseEvent, userId: string, name: string, profileImage?: string) => {
     e.stopPropagation();
     const encodedName = encodeURIComponent(name);
-    router.push(`/${userType}/message/${userId}?userName=${encodedName}`);
+    const encodedImage = profileImage ? encodeURIComponent(profileImage) : "";
+    
+    router.push(
+      `/${userType}/message/${userId}?userName=${encodedName}&profileImage=${encodedImage}`
+    );
   };
 
   const handleProfileClick = (userId: string) => {
     router.push(`/${userType}/profile/${userId}`);
+  };
+
+  const handleImageError = (userId: string) => {
+    setImageErrors((prev) => ({ ...prev, [userId]: true }));
   };
 
   if (loading) {
@@ -88,6 +97,7 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
         {alumni.map((person) => {
           const initials = person.name?.charAt(0)?.toUpperCase() || "A";
           const jobsCount = person.referralJobs?.length || 0;
+          const hasImageError = imageErrors[person.userId];
 
           return (
             <div
@@ -97,11 +107,23 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
             >
               {/* Left Section */}
               <div className="flex items-center gap-3 min-w-0">
-                {/* Avatar */}
-                <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-gradient-to-br from-green-500/20 to-blue-500/20 border-2 border-green-500/30 group-hover:border-green-500/60 transition-all duration-200 flex-shrink-0">
-                  <span className="text-sm sm:text-base font-bold text-green-400">
-                    {initials}
-                  </span>
+                {/* Avatar with Profile Image */}
+                <div className="relative h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
+                  {person.profileImage && !hasImageError ? (
+                    <Image
+                      src={person.profileImage}
+                      alt={person.name}
+                      fill
+                      className="rounded-full object-cover border-2 border-green-500/30 group-hover:border-green-500/60 transition-all duration-200"
+                      onError={() => handleImageError(person.userId)}
+                    />
+                  ) : (
+                    <div className="h-full w-full rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 border-2 border-green-500/30 group-hover:border-green-500/60 transition-all duration-200 flex items-center justify-center">
+                      <span className="text-sm sm:text-base font-bold text-green-400">
+                        {initials}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Info */}
@@ -132,9 +154,6 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
                       </>
                     )}
                   </div>
-
-                  {/* Skills Tags */}
-                  
                 </div>
               </div>
 
@@ -153,7 +172,7 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
 
                 {/* Message Button */}
                 <button
-                  onClick={(e) => handleMessage(e, person.userId, person.name)}
+                  onClick={(e) => handleMessage(e, person.userId, person.name, person.profileImage)}
                   className="flex items-center gap-1.5 rounded-lg bg-green-500 px-3 py-1.5 text-xs font-medium text-black transition-all duration-200 hover:bg-green-400 hover:shadow-lg hover:shadow-green-500/25 group/btn"
                 >
                   <MessageCircle size={13} className="transition-transform duration-200 group-hover/btn:scale-110" />

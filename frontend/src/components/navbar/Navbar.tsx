@@ -8,6 +8,7 @@ import Image from "next/image";
 import NotificationsDropdown from "../notifications/NotificationsDropDown";
 import InterviewCall from "./InterviewCall";
 import logo from "@/assets/icon.png";
+import { useNotification } from "@/context/NotificationContext";
 
 export default function Navbar() {
   const { profile, user } = useAuth();
@@ -17,6 +18,7 @@ export default function Navbar() {
   const calendarRef = useRef<HTMLDivElement>(null);
 
   const { totalUnread } = useGetAllUsers();
+  const { unreadCount: notificationUnreadCount } = useNotification();
 
   const displayName =
     profile?.fullName || profile?.name || user?.name || "User";
@@ -66,7 +68,7 @@ export default function Navbar() {
         h-12
         items-center
         justify-between
-         border-b
+        border-b
         border-[#2a3a52]
         bg-[var(--background)]
         px-6
@@ -138,6 +140,7 @@ export default function Navbar() {
           <button
             onClick={() => setShowNotifications((prev) => !prev)}
             className="
+              relative
               flex
               h-8
               w-8
@@ -150,6 +153,27 @@ export default function Navbar() {
             "
           >
             <Bell size={15} className="text-[var(--text-secondary)]" />
+            
+            {/* Notification Badge - Dot */}
+            {notificationUnreadCount > 0 && (
+              <span
+                className="
+                  absolute
+                  -top-0.5
+                  -right-0.5
+                  flex
+                  h-2.5
+                  w-2.5
+                  rounded-full
+                  bg-red-500
+                  border-2
+                  border-[var(--background)]
+                  shadow-lg
+                  shadow-red-500/30
+                  animate-pulse-dot
+                "
+              />
+            )}
           </button>
 
           {showNotifications && (

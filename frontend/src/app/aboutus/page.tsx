@@ -63,17 +63,17 @@ interface AudienceItem {
 const values: ValueItem[] = [
   {
     icon: <Shield className="w-5 h-5" />,
-    title: 'Verified alumni only',
+    title: 'Real Alumni, Real Referrers',
     description: 'Every identity on Referd is verified, whether that\'s a college or a company. No bots, no fake profiles.',
   },
   {
     icon: <Star className="w-5 h-5" />,
-    title: 'Expert-vetted, not just self-reported',
+    title: 'No Cold Applications',
     description: 'A real interview and review stand behind every referral request. Candidates get judged on substance, not just a resume.',
   },
   {
     icon: <Heart className="w-5 h-5" />,
-    title: 'Free for students and professionals',
+    title: 'Expert-Interviewed Candidates',
     description: 'No fees to create a profile, request a referral, or post a referral job. Building trust shouldn\'t cost a thing.',
   },
 ];

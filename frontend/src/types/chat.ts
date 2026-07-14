@@ -14,6 +14,7 @@ export interface Conversation {
   user?: any;
   receiver?: any;
   sender?: any;
+   profileImage?: string;
 }
 
 export interface Message {

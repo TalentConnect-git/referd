@@ -90,9 +90,9 @@ export const useCreateConversation = () => {
 
         if (redirect) {
           const rolePath = getRolePath(role, pathname);
-          router.push(`/${rolePath}/message/${conversation._id}`, {
-            scroll: false,
-          });
+          const url = `/${rolePath}/message/${conversation._id}?userName=${encodeURIComponent(
+            conversation.name || "User"
+          )}&profileImage=${encodeURIComponent(conversation.profileImage || "")}`;
         }
 
         return conversation;

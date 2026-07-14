@@ -29,6 +29,7 @@ export default function PostedByReferrer({
   const userType = authProfile?.profileType;
   const [profile, setProfile] = useState<Alumni | null>(null);
   const [loading, setLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
 
   console.log("profile", profile);
 
@@ -40,7 +41,12 @@ export default function PostedByReferrer({
   const handleMessage = () => {
     if (!candidateId || !profile) return;
     const userName = encodeURIComponent(profile.name || "User");
-    router.push(`/${userType}/message/${candidateId}?userName=${userName}`);
+    const profileImage = profile.profileImage || "";
+    const encodedImage = encodeURIComponent(profileImage);
+    
+    router.push(
+      `/${userType}/message/${candidateId}?userName=${userName}&profileImage=${encodedImage}`
+    );
   };
 
   useEffect(() => {
@@ -81,7 +87,12 @@ export default function PostedByReferrer({
   // Get initials for avatar
   const getInitials = (name: string) => {
     if (!name) return "?";
-    return name.charAt(0).toUpperCase();
+    return name
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   // Format company and location
@@ -114,24 +125,24 @@ export default function PostedByReferrer({
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Left Section - Profile Info */}
         <div className="flex items-center gap-4 min-w-0">
-          {/* Avatar */}
+          {/* Avatar with Profile Image */}
           <div className="relative flex-shrink-0">
-            {profile.profileImage ? (
+            {profile.profileImage && !imageError ? (
               <Image
                 src={profile.profileImage}
                 alt={profile.name || "User"}
                 width={56}
                 height={56}
                 className="h-14 w-14 rounded-full object-cover border-2 border-green-500/30 hover:border-green-500/60 transition-all duration-300"
+                onError={() => setImageError(true)}
               />
             ) : (
-              <div className="h-14 w-14 rounded-full bg-gradient-to-br from-green-500/20 to-blue-500/20 flex items-center justify-center border-2 border-green-500/30 hover:border-green-500/60 transition-all duration-300">
-                <span className="text-xl font-bold text-green-400">
+              <div className="h-14 w-14 rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center border-2 border-green-500/30 hover:border-green-500/60 transition-all duration-300">
+                <span className="text-lg font-bold text-green-400">
                   {getInitials(profile.name)}
                 </span>
               </div>
             )}
-            {/* Online status indicator */}
           </div>
 
           {/* Profile Details */}
@@ -146,12 +157,10 @@ export default function PostedByReferrer({
             {/* Role and Company */}
             <div className="flex flex-wrap items-center gap-2 mt-1">
               {companyName && companyName !== "Not specified" && (
-                <>
-                  <div className="flex items-center gap-1 text-xs text-gray-400">
-                    <Building2 className="w-3 h-3 text-gray-500" />
-                    <span>{companyName}</span>
-                  </div>
-                </>
+                <div className="flex items-center gap-1 text-xs text-gray-400">
+                  <Building2 className="w-3 h-3 text-gray-500" />
+                  <span>{companyName}</span>
+                </div>
               )}
             </div>
 
