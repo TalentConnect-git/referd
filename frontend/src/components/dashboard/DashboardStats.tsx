@@ -10,7 +10,7 @@ import {
 } from "@/services/stats.services";
 import axiosInstance from "@/lib/axiosInstance";
 import { DashboardStatsProps } from "@/types/dashboard";
-import EmptyStateStepper from "./EmptyStateStepper";
+
 import QuickActionChips from "./QuickActionChips";
 
 type CountResponse = {
@@ -186,16 +186,7 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
             alumniCount={studentAlumniCount}
             userType={userType}
           />
-          <EmptyStateStepper
-            count={applicationsSent}
-            userType={userType}
-            variant="applications"
-          />
-          <EmptyStateStepper
-            count={savedCount}
-            userType={userType}
-            variant="savedJobs"
-          />
+          
         </>
       )}
     </>

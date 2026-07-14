@@ -43,7 +43,7 @@ export default function EmptyStateStepper({
       : "Start your first referral";
 
   return (
-    <div className="mx-4 mt-4 rounded-2xl border border-[#1e293b] bg-[#0f172a] p-4">
+    <div className="mx-4 mt-4 rounded-2xl border border-[#1e293b] bg-[#0f172a] ">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-[var(--primary)]">
