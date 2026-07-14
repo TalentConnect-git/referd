@@ -35,6 +35,14 @@ type MasterStream = {
   isCustom: boolean;
 };
 
+type MasterSkill = {
+  _id: string;
+  value: string;
+  type: string;
+  isActive: boolean;
+  isCustom: boolean;
+};
+
 export default function BasicJobDetails({
   formData,
   setFormData,
@@ -44,10 +52,13 @@ export default function BasicJobDetails({
   const [streamsByDegree, setStreamsByDegree] = useState<
     Record<string, MasterStream[]>
   >({});
+  const [masterSkills, setMasterSkills] = useState<MasterSkill[]>([]);
   const [loadingDegrees, setLoadingDegrees] = useState(false);
   const [loadingStreams, setLoadingStreams] = useState(false);
+  const [loadingSkills, setLoadingSkills] = useState(false);
   const [streamError, setStreamError] = useState("");
   const [isCreatingStream, setIsCreatingStream] = useState(false);
+  const [isCreatingSkill, setIsCreatingSkill] = useState(false);
 
   // Input states for Enter key separation
   const [skillInput, setSkillInput] = useState("");
@@ -75,6 +86,24 @@ export default function BasicJobDetails({
       }
     };
     fetchDegrees();
+  }, []);
+
+  // Fetch skills on mount
+  useEffect(() => {
+    const fetchSkills = async () => {
+      try {
+        setLoadingSkills(true);
+        const response = await getMasterData("SKILL");
+        if (response.success && response.data) {
+          setMasterSkills(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching skills:", error);
+      } finally {
+        setLoadingSkills(false);
+      }
+    };
+    fetchSkills();
   }, []);
 
   // Fetch streams for selected degree using degree ID
@@ -196,6 +225,69 @@ export default function BasicJobDetails({
     handleChange("studentStreams", updatedStreams);
   };
 
+  // Handle skill input change - creates new skill if not exists
+  const handleSkillInputChange = async (value: string) => {
+    const skills = value
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    if (skills.length === 0) return;
+
+    const currentSkills = masterSkills;
+    const skillValues = currentSkills.map((s) => s.value.toLowerCase());
+
+    let updatedSkills = [...(formData.skills || [])];
+
+    for (const skill of skills) {
+      // Check if skill already exists in selected skills
+      if (updatedSkills.includes(skill)) continue;
+
+      // Check if skill exists in master data (case insensitive)
+      const skillExists = skillValues.includes(skill.toLowerCase());
+
+      if (!skillExists) {
+        try {
+          setIsCreatingSkill(true);
+          const response = await createMasterData("SKILL", skill);
+
+          if (response.success) {
+            // Add the new skill to masterSkills
+            const newSkill: MasterSkill = {
+              _id: response.data?._id || `temp-${Date.now()}`,
+              value: skill,
+              type: "SKILL",
+              isActive: true,
+              isCustom: true,
+            };
+            setMasterSkills((prev) => [...prev, newSkill]);
+          }
+        } catch (error) {
+          console.error("Error creating skill:", error);
+        } finally {
+          setIsCreatingSkill(false);
+        }
+      }
+
+      // Add to selected skills if not already there
+      if (!updatedSkills.includes(skill)) {
+        updatedSkills.push(skill);
+      }
+    }
+
+    handleChange("skills", updatedSkills);
+  };
+
+  // Handle skill toggle (for click selection)
+  const toggleSkill = (skillName: string) => {
+    const currentSkills = formData.skills || [];
+    const nextSkills = currentSkills.includes(skillName)
+      ? currentSkills.filter((skill: string) => skill !== skillName)
+      : [...currentSkills, skillName];
+    handleChange("skills", nextSkills);
+    setSkillInput("");
+  };
+
   const handleChange = (field: string, value: unknown) => {
     setFormData({
       ...formData,
@@ -248,7 +340,7 @@ export default function BasicJobDetails({
     handleChange("studentStreams", nextStreams);
   };
 
-  // Generic function to handle Enter key for array fields
+  // Generic function to handle Enter key for array fields (non-master data fields)
   const handleArrayKeyDown = (
     e: KeyboardEvent<HTMLInputElement>,
     inputValue: string,
@@ -355,6 +447,14 @@ export default function BasicJobDetails({
     if (!degreeId) return [];
     return streamsByDegree[degreeId] || [];
   }, [formData.degreeId, streamsByDegree]);
+
+  // Filter skills that are already selected
+  const availableSkills = useMemo(() => {
+    const selectedSkills = formData.skills || [];
+    return masterSkills.filter(
+      (skill) => !selectedSkills.includes(skill.value)
+    );
+  }, [masterSkills, formData.skills]);
 
   return (
     <div className="space-y-6">
@@ -640,54 +740,121 @@ export default function BasicJobDetails({
           )}
         </div>
 
-        {/* Skills - Enter key separated */}
+        {/* Skills - Enhanced with Master Data */}
         <div className="md:col-span-2">
           <label className="mb-1.5 block text-sm font-medium text-gray-300">
             Skills Required <span className="text-red-400">*</span>
-            <span className="text-xs text-gray-500 ml-2">(Press Enter to add)</span>
+            <span className="text-xs text-gray-500 ml-2">(Type or select from suggestions)</span>
           </label>
-          <div className="flex gap-2">
+          
+          {/* Input with suggestions */}
+          <div className="relative">
             <input
               type="text"
               value={skillInput}
-              onChange={(e) => setSkillInput(e.target.value)}
-              onKeyDown={(e) =>
-                handleArrayKeyDown(
-                  e,
-                  skillInput,
-                  setSkillInput,
-                  "skills",
-                  formData.skills || [],
-                )
-              }
-              placeholder="Type and press Enter to add..."
-              className={`flex-1 rounded-lg border ${errors.skills ? 'border-red-500' : 'border-slate-700'} bg-[#0F172A] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500`}
+              onChange={(e) => {
+                setSkillInput(e.target.value);
+                // Clear error when user types
+                if (errors.skills) {
+                  setErrors((prev) => ({ ...prev, skills: "" }));
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && skillInput.trim()) {
+                  e.preventDefault();
+                  handleSkillInputChange(skillInput);
+                  setSkillInput("");
+                }
+              }}
+              placeholder={loadingSkills ? "Loading skills..." : "Type a skill and press Enter, or click suggestions below..."}
+              disabled={loadingSkills || isCreatingSkill}
+              className={`w-full rounded-lg border ${errors.skills ? 'border-red-500' : 'border-slate-700'} bg-[#0F172A] px-4 py-2.5 pr-10 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:cursor-not-allowed disabled:opacity-60`}
             />
+            {(loadingSkills || isCreatingSkill) && (
+              <Loader2 className="absolute right-3 top-3 h-4 w-4 animate-spin text-green-400" />
+            )}
           </div>
+          
           {errors.skills && (
             <p className="mt-1 text-xs text-red-400">{errors.skills}</p>
           )}
-          {formData.skills && formData.skills.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {formData.skills.map((item: string, index: number) => (
-                <span
-                  key={index}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                >
-                  {item}
-                  <button
-                    type="button"
-                    onClick={() => removeArrayItem("skills", item)}
-                    className="hover:text-red-400 transition-colors"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
+
+          {/* Skill Suggestions - Show when there are available skills */}
+          {!loadingSkills && availableSkills.length > 0 && (
+            <div className="mt-2">
+              <p className="text-xs text-gray-500 mb-1.5">Suggested skills:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {availableSkills
+                  .filter((skill) =>
+                    skillInput.length === 0 || 
+                    skill.value.toLowerCase().includes(skillInput.toLowerCase())
+                  )
+                  .slice(0, 15)
+                  .map((skill) => (
+                    <button
+                      key={skill._id}
+                      type="button"
+                      onClick={() => {
+                        toggleSkill(skill.value);
+                        setSkillInput("");
+                      }}
+                      className="rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-xs text-blue-400 transition hover:bg-blue-500/20 hover:border-blue-500/40"
+                    >
+                      {skill.value}
+                    </button>
+                  ))}
+              </div>
+              {availableSkills.length > 15 && (
+                <p className="text-xs text-gray-500 mt-1">
+                  +{availableSkills.length - 15} more skills available
+                </p>
+              )}
             </div>
           )}
-          <p className="mt-1 text-xs text-gray-500">
-            Press Enter after each skill to add it to the list
+
+          {/* Show message when no skills are available */}
+          {!loadingSkills && availableSkills.length === 0 && masterSkills.length > 0 && (
+            <p className="mt-2 text-xs text-amber-400">
+              All skills are selected. You can type new skills and press Enter to add them.
+            </p>
+          )}
+
+          {/* Show loading state for skills */}
+          {loadingSkills && (
+            <p className="mt-2 text-xs text-gray-500 flex items-center gap-1.5">
+              <Loader2 className="h-3 w-3 animate-spin" />
+              Loading skill suggestions...
+            </p>
+          )}
+
+          {/* Selected Skills */}
+          {formData.skills && formData.skills.length > 0 && (
+            <div className="mt-3">
+              <p className="text-xs text-gray-500 mb-1.5">Selected skills:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {formData.skills.map((item: string, index: number) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/15 text-blue-400 border border-blue-500/30"
+                  >
+                    {item}
+                    <button
+                      type="button"
+                      onClick={() => removeArrayItem("skills", item)}
+                      className="hover:text-red-400 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <p className="mt-2 text-xs text-gray-500">
+            {!loadingSkills && masterSkills.length === 0 && !isCreatingSkill
+              ? "No skills found. Type a skill and press Enter to create it."
+              : "Type a skill and press Enter to add it. Click on suggested skills to select them."}
           </p>
         </div>
 
@@ -855,7 +1022,7 @@ export default function BasicJobDetails({
         {/* Package Details */}
         <div className="mt-2 border-t border-slate-800 pt-4 md:col-span-2">
           <h3 className="mb-3 flex items-center gap-2 text-sm font-medium text-gray-300">
-            <DollarSign className="h-4 w-4 text-green-400" />
+           
             Package Details
           </h3>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -919,7 +1086,7 @@ export default function BasicJobDetails({
             </div>
             <div>
               <label className="mb-1 block text-xs text-gray-400">
-                Joining Bonus
+                Variable Pay
               </label>
               <input
                 type="number"

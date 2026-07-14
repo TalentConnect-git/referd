@@ -111,6 +111,7 @@ export type Job = {
   employmentType?: string[];
   workMode?: string[];
   yearsOfExperience?: string;
+  profileImage?:string;
 
   endDate:string;
 
@@ -223,6 +224,7 @@ export interface AlumniWhoCanHelpProps {
 }
 
 export interface alumniWhoCanHelp {
+  profileImage: string ;
   _id: string;
   userId: string;
   name: string;

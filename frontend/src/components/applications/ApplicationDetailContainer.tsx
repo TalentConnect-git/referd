@@ -71,9 +71,9 @@ export default function ApplicationDetailContainer({
 
       
 
-      <ApplicationDetailReferralRequest
+      {/* <ApplicationDetailReferralRequest
         job={application?.job}
-      />
+      /> */}
 
       <ApplicationDetailTimeline
         statusHistory={

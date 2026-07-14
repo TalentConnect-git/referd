@@ -23,6 +23,7 @@ interface ChatAreaProps {
   onSendMessage: () => void;
   isPartnerOnline: boolean;
   getDisplayName: () => string;
+  getProfileImage?: () => string; // Add this
   getAvatarInitial: () => string;
   formatMessageDate: (date: string) => string;
   formatMessageTime: (date: string) => string;
@@ -40,6 +41,7 @@ export const ChatArea = memo(
     onSendMessage,
     isPartnerOnline,
     getDisplayName,
+    getProfileImage,
     getAvatarInitial,
     formatMessageDate,
     formatMessageTime,
@@ -148,6 +150,7 @@ export const ChatArea = memo(
       >
         <ChatHeader
           displayName={getDisplayName()}
+          profileImage={getProfileImage ? getProfileImage() : ""}
           avatarInitial={getAvatarInitial()}
           isOnline={isPartnerOnline}
           onBack={onBack}

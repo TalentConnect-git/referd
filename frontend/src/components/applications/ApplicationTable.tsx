@@ -397,7 +397,7 @@ export default function ApplicationTable({
 
   const handleRowClick = (applicationId: string) => {
     router.push(
-      `/${userType}/applications/${applicationId}`,
+      `/${userType}/applications/to-me/${applicationId}`,
     );
   };
 

@@ -10,6 +10,7 @@ import {
   User,
   ChevronRight,
 } from "lucide-react";
+import { useState } from "react";
 
 export default function AlumniCard({
   name,
@@ -21,6 +22,8 @@ export default function AlumniCard({
   profileImage,
   onClick,
 }: AlumniCardProps) {
+  const [imageError, setImageError] = useState(false);
+
   const initials = name
     .split(" ")
     .map((word) => word[0])
@@ -33,7 +36,11 @@ export default function AlumniCard({
 
   const handleMessageClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    router.push(`/${userType}/message/${userId}?userName=${name}`);
+    // Fix: Correct variable name and properly encode
+    const imageUrl = profileImage || "";
+    router.push(
+      `/${userType}/message/${userId}?userName=${encodeURIComponent(name)}&profileImage=${encodeURIComponent(imageUrl)}`
+    );
   };
 
   const handleCardClick = () => {
@@ -50,15 +57,16 @@ export default function AlumniCard({
       <div className="flex items-start gap-3">
         {/* Profile Image */}
         <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border-2 border-[#2a3a52] group-hover:border-green-500/40 transition-colors">
-          {profileImage ? (
+          {profileImage && !imageError ? (
             <Image
               src={profileImage}
               alt={name}
               fill
               className="object-cover"
+              onError={() => setImageError(true)}
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-500/20 to-purple-500/20">
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-green-500/20 to-emerald-500/20">
               <span className="text-sm font-semibold text-white">
                 {initials}
               </span>
@@ -84,14 +92,16 @@ export default function AlumniCard({
             <div className="flex items-center gap-1.5">
               <Briefcase className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
               <p className="text-xs text-slate-400 truncate">
-                {role} <span className="text-slate-600">•</span> {company}
+                {role} {company && <span className="text-slate-600">•</span>} {company}
               </p>
             </div>
 
-            <div className="flex items-center gap-1.5">
-              <GraduationCap className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
-              <p className="text-xs text-slate-500 truncate">{college}</p>
-            </div>
+            {college && (
+              <div className="flex items-center gap-1.5">
+                <GraduationCap className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
+                <p className="text-xs text-slate-500 truncate">{college}</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

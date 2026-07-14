@@ -170,11 +170,13 @@ export default function AlumniPage() {
     console.log("🟡 Opening chat with user ID:", userId);
     setMessageLoading(userId);
 
+    const profileImage=profile.profileImage || "";
+
     
     router.push(
       `/student/message/${userId}?userName=${encodeURIComponent(
         profile.name || "User"
-      )}`
+      )}&profileImage=${encodeURIComponent(profileImage)}`
     );
   } catch (error) {
     console.error("❌ Error opening chat:", error);

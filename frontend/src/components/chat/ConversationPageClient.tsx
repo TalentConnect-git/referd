@@ -28,11 +28,13 @@ const getRolePathFromPathname = (pathname: string) => {
 
 const createTempConversation = (
   id: string,
-  name: string
+  name: string,
+  profileImage?: string
 ): Conversation => {
   return {
     _id: id,
     name: name || "User",
+    profileImage: profileImage || "",
     lastMessage: "Start a conversation...",
     updatedAt: new Date().toISOString(),
     participants: [id],
@@ -49,6 +51,7 @@ export default function ConversationPageClient({
 
   const rolePath = getRolePathFromPathname(pathname);
   const userNameFromUrl = searchParams.get("userName") || "User";
+  const profileImageFromUrl = searchParams.get("profileImage") || "";
 
   const { user } = useAuth();
   const { socket, onlineUsers } = useSocketContext();
@@ -60,16 +63,27 @@ export default function ConversationPageClient({
   const { sendMessages } = useSendMessage();
 
   const fallbackConversation = useMemo(() => {
-    return createTempConversation(conversationId, userNameFromUrl);
-  }, [conversationId, userNameFromUrl]);
+    return createTempConversation(
+      conversationId, 
+      userNameFromUrl,
+      profileImageFromUrl
+    );
+  }, [conversationId, userNameFromUrl, profileImageFromUrl]);
 
   const activeConversation = useMemo(() => {
     if (selectedConversation?._id === conversationId) {
+      // If selected conversation exists but doesn't have profile image, update it
+      if (!selectedConversation.profileImage && profileImageFromUrl) {
+        return {
+          ...selectedConversation,
+          profileImage: profileImageFromUrl,
+        };
+      }
       return selectedConversation;
     }
 
     return fallbackConversation;
-  }, [selectedConversation, conversationId, fallbackConversation]);
+  }, [selectedConversation, conversationId, fallbackConversation, profileImageFromUrl]);
 
   useEffect(() => {
     if (!activeConversation) return;
@@ -83,6 +97,7 @@ export default function ConversationPageClient({
         detail: {
           chatPartnerId: activeConversation._id,
           chatPartnerName: activeConversation.name,
+          chatPartnerImage: activeConversation.profileImage || "",
         },
       })
     );
@@ -120,6 +135,10 @@ export default function ConversationPageClient({
   const getDisplayName = useCallback(() => {
     return activeConversation?.name || userNameFromUrl || "User";
   }, [activeConversation?.name, userNameFromUrl]);
+
+  const getProfileImage = useCallback(() => {
+    return activeConversation?.profileImage || profileImageFromUrl || "";
+  }, [activeConversation?.profileImage, profileImageFromUrl]);
 
   const getAvatarInitial = useCallback(() => {
     const name = getDisplayName();
@@ -209,6 +228,7 @@ export default function ConversationPageClient({
       onSendMessage={handleSendMessage}
       isPartnerOnline={isPartnerOnline}
       getDisplayName={getDisplayName}
+      getProfileImage={getProfileImage}
       getAvatarInitial={getAvatarInitial}
       formatMessageDate={formatMessageDate}
       formatMessageTime={formatMessageTime}

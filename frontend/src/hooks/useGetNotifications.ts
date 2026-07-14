@@ -13,7 +13,7 @@ interface UseGetNotificationsReturn {
 
 const useGetNotifications = (): UseGetNotificationsReturn => {
   const [loading, setLoading] = useState<boolean>(false);
-  const { notifications, markAsRead, clearUnreadCount } = useNotification();
+  const { setNotifications, clearUnreadCount } = useNotification();
 
   const refreshNotifications = useCallback(async (): Promise<void> => {
     setLoading(true);
@@ -35,25 +35,21 @@ const useGetNotifications = (): UseGetNotificationsReturn => {
         data = [];
       }
 
-      // Since we can't directly set notifications, we need to:
-      // 1. Clear existing notifications by marking all as read? Or we need to handle this differently
-      // 2. Or we can use addNotification for each notification
+      // Set notifications in context
+      setNotifications(data);
       
-      // Option 1: If you want to replace all notifications, you'll need to add a setNotifications method
-      // to your context. I'll show you how to do that below.
-      
-      // For now, let's log the data and you can decide the approach
-      console.log("Fetched notifications:", data);
-      
-      // You might want to clear unread count and then mark notifications as needed
-      // clearUnreadCount(); // This clears unread count but doesn't reset notifications
+      // Clear unread count if no unread notifications
+      const unreadCount = data.filter((n: Notification) => !n.read).length;
+      if (unreadCount === 0) {
+        clearUnreadCount();
+      }
       
     } catch (error) {
       console.log("Error in useGetNotifications:", error);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [setNotifications, clearUnreadCount]);
 
   useEffect(() => {
     refreshNotifications();

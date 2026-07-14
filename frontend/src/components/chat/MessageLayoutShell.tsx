@@ -21,16 +21,13 @@ const getRolePathFromPathname = (pathname: string) => {
 
 const getChatPartnerIdFromPathname = (pathname: string) => {
   const match = pathname.match(
-    /\/(?:professional|student|fresher)\/message\/([^/?#]+)/
+    /\/(?:professional|student|fresher)\/message\/([^/?#]+)/,
   );
 
   return match?.[1] || null;
 };
 
-const createTempConversation = (
-  id: string,
-  name: string
-): Conversation => {
+const createTempConversation = (id: string, name: string): Conversation => {
   return {
     _id: id,
     name: name || "User",
@@ -88,7 +85,12 @@ export default function MessageLayoutShell({
     }
 
     return fallbackConversation;
-  }, [chatPartnerId, conversations, selectedConversation, fallbackConversation]);
+  }, [
+    chatPartnerId,
+    conversations,
+    selectedConversation,
+    fallbackConversation,
+  ]);
 
   const sidebarConversations = useMemo(() => {
     const list = [...conversations];
@@ -103,7 +105,7 @@ export default function MessageLayoutShell({
     return list.sort(
       (a, b) =>
         new Date(b.updatedAt || 0).getTime() -
-        new Date(a.updatedAt || 0).getTime()
+        new Date(a.updatedAt || 0).getTime(),
     );
   }, [conversations, currentConversation]);
 
@@ -123,7 +125,7 @@ export default function MessageLayoutShell({
     window.dispatchEvent(
       new CustomEvent("chat:clear-unread", {
         detail: { chatPartnerId: currentConversation._id },
-      })
+      }),
     );
   }, [
     currentConversation?._id,
@@ -144,24 +146,24 @@ export default function MessageLayoutShell({
       window.dispatchEvent(
         new CustomEvent("chat:clear-unread", {
           detail: { chatPartnerId: conversation._id },
-        })
+        }),
       );
 
       router.push(
         `/${rolePath}/message/${conversation._id}?userName=${encodeURIComponent(
-          conversation.name || "User"
-        )}`,
-        { scroll: false }
+          conversation.name || "User",
+        )}&profileImage=${encodeURIComponent(conversation.profileImage || "")}`,
+        { scroll: false },
       );
     },
-    [router, rolePath, setSelectedConversation, clearUnreadCount]
+    [router, rolePath, setSelectedConversation, clearUnreadCount],
   );
 
   const handleCreateTempConversation = useCallback(
     (conversation: Conversation) => {
       upsertConversation(conversation);
     },
-    [upsertConversation]
+    [upsertConversation],
   );
 
   useEffect(() => {
@@ -170,7 +172,12 @@ export default function MessageLayoutShell({
     handleCreateTempConversation(fallbackConversation);
   }, [fallbackConversation?._id]);
 
-  if (loading && !hasLoaded && conversations.length === 0 && !fallbackConversation) {
+  if (
+    loading &&
+    !hasLoaded &&
+    conversations.length === 0 &&
+    !fallbackConversation
+  ) {
     return (
       <div
         className="flex h-screen items-center justify-center"

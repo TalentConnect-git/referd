@@ -168,11 +168,14 @@ export default function AlumniPage() {
     console.log("🟡 Opening chat with user ID:", userId);
     setMessageLoading(userId);
 
+    // Get profile image URL
+    const profileImage = profile.profileImage||"";
     
+    // Navigate to chat with user details
     router.push(
       `/fresher/message/${userId}?userName=${encodeURIComponent(
         profile.name || "User"
-      )}`
+      )}&profileImage=${encodeURIComponent(profileImage)}`
     );
   } catch (error) {
     console.error("❌ Error opening chat:", error);
