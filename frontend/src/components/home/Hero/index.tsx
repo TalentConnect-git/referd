@@ -70,7 +70,7 @@ export default function Hero() {
             <span className="flex h-5 w-5 items-center justify-center rounded-full border border-[var(--primary)] text-[var(--primary)]">
               <Check size={14} />
             </span>
-            Verified alumni only
+            Real Alumni, Real Referrers
           </div>
 
           <div className="flex items-center gap-3">
@@ -78,6 +78,12 @@ export default function Hero() {
               <Check size={14} />
             </span>
             Free for students
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full border border-[var(--primary)] text-[var(--primary)]">
+              <Check size={14} />
+            </span>
+            No Cold Applications
           </div>
         </div>
       </div>

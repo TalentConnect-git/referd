@@ -9,7 +9,7 @@ const cards = [
   {
     icon: Briefcase,
     title: "Post referral opportunities from your company",
-    description: "Share open roles from your team and get first access to serious candidates.",
+    description: "Share open roles from your company and get first access to serious candidates.",
   },
   {
     icon: Users,
