@@ -77,7 +77,7 @@ export default function Hero() {
             <span className="flex h-5 w-5 items-center justify-center rounded-full border border-[var(--primary)] text-[var(--primary)]">
               <Check size={14} />
             </span>
-            Free for students
+            Expert-Interviewed Candidates
           </div>
           <div className="flex items-center gap-3">
             <span className="flex h-5 w-5 items-center justify-center rounded-full border border-[var(--primary)] text-[var(--primary)]">
