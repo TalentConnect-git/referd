@@ -234,6 +234,7 @@ export default function ApplicationTable({
   const [currentPage, setCurrentPage] = useState(page);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const totalItems =
     meta?.total || applications.length || 0;
@@ -260,19 +261,21 @@ export default function ApplicationTable({
     setCurrentPage(page);
   }, [page]);
 
+  // Fixed: Only close dropdown when clicking outside both trigger and dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
+      
+      // Check if click is on trigger button
       const clickedTrigger = target.closest(
         '[data-status-dropdown-trigger="true"]',
       );
-
-      if (clickedTrigger) return;
-
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(target)
-      ) {
+      
+      // Check if click is inside dropdown
+      const clickedDropdown = dropdownRef.current?.contains(target);
+      
+      // Only close if click is outside both trigger and dropdown
+      if (!clickedTrigger && !clickedDropdown) {
         setOpenDropdown(null);
         setDropdownPosition(null);
       }
@@ -291,6 +294,7 @@ export default function ApplicationTable({
     };
   }, []);
 
+  // Fixed: Removed scroll listener that was closing dropdown
   useEffect(() => {
     if (!openDropdown) return;
 
@@ -300,15 +304,9 @@ export default function ApplicationTable({
     };
 
     window.addEventListener("resize", closeDropdown);
-    window.addEventListener("scroll", closeDropdown, true);
 
     return () => {
       window.removeEventListener("resize", closeDropdown);
-      window.removeEventListener(
-        "scroll",
-        closeDropdown,
-        true,
-      );
     };
   }, [openDropdown]);
 
@@ -684,6 +682,7 @@ export default function ApplicationTable({
                   <td className="px-4 py-3">
                     <div className="relative flex justify-center">
                       <button
+                        data-status-dropdown-trigger="true"
                         onClick={(e) => handleUpdateClick(e, application._id)}
                         disabled={isUpdating}
                         className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-[#0F1115] px-3 py-1.5 text-[12px] font-medium text-white transition-all hover:bg-[#171A20] hover:border-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -716,6 +715,9 @@ export default function ApplicationTable({
                           }}
                           className="fixed z-[9999] overflow-y-auto rounded-lg border border-slate-700 bg-[#0F1115] shadow-xl py-1"
                           onClick={(e) => e.stopPropagation()}
+                          // Allow scroll events to propagate without closing
+                          onWheel={(e) => e.stopPropagation()}
+                          onScroll={(e) => e.stopPropagation()}
                         >
                           <div className="px-3 py-1.5 text-[10px] text-gray-500 border-b border-slate-700 sticky top-0 bg-[#0F1115]">
                             Change Status

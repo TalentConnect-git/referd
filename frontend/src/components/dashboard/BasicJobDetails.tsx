@@ -14,10 +14,15 @@ import {
   Users,
   X,
   Radio,
+  Award,
   Calendar,
+  Plus,
+  Check,
+  Sparkles,
 } from "lucide-react";
 import StateCitySelector from "./StateCitySelector";
 import { getMasterData, createMasterData } from "@/services/masterData.service";
+import axiosInstance from "@/lib/axiosInstance";
 import type { BasicJobDetailsProps } from "@/types/referral";
 
 type MasterDegree = {
@@ -37,11 +42,88 @@ type MasterStream = {
 
 type MasterSkill = {
   _id: string;
+  skills: string;
+  __v?: number;
+};
+
+type MasterJobRole = {
+  _id: string;
   value: string;
   type: string;
   isActive: boolean;
   isCustom: boolean;
+  parent?: string | null;
 };
+
+// Hardcoded certification options
+const certificationOptions = [
+  "AWS Certified Cloud Practitioner",
+  "AWS Certified Solutions Architect",
+  "AWS Certified Developer",
+  "Google Cloud Certified",
+  "Microsoft Azure Certified",
+  "Certified Kubernetes Administrator (CKA)",
+  "Certified Information Systems Security Professional (CISSP)",
+  "Certified Ethical Hacker (CEH)",
+  "Project Management Professional (PMP)",
+  "Certified Scrum Master (CSM)",
+  "ITIL Foundation",
+  "CompTIA Security+",
+  "Cisco Certified Network Associate (CCNA)",
+  "Oracle Certified Professional",
+  "Salesforce Certified Administrator",
+  "HubSpot Marketing Certification",
+  "Google Analytics Individual Qualification",
+  "Lean Six Sigma Green Belt",
+  "Lean Six Sigma Black Belt",
+  "Certified Public Accountant (CPA)",
+  "Chartered Financial Analyst (CFA)",
+  "Financial Risk Manager (FRM)",
+];
+
+// Hardcoded benefit options
+const benefitOptions = [
+  "Health Insurance",
+  "401(k) Retirement Plan",
+  "Paid Time Off (PTO)",
+  "Flexible Schedule",
+  "Dental Insurance",
+  "Vision Insurance",
+  "Remote Work",
+  "Stock Options",
+  "Learning & Development Budget",
+  "Gym Membership",
+  "Mental Health Support",
+  "Parental Leave",
+  "Life Insurance",
+  "Disability Insurance",
+  "Tuition Reimbursement",
+  "Company Car",
+  "Meal Allowance",
+  "Home Office Setup Budget",
+  "Internet Reimbursement",
+  "Employee Assistance Program",
+];
+
+// Hardcoded tag options
+const tagOptions = [
+  "Urgent Hiring",
+  "Freshers Preferred",
+  "Remote Friendly",
+  "Work From Home",
+  "Immediate Joiner",
+  "Women Returners",
+  "Diversity Hiring",
+  "Top Tier Company",
+  "Startup Culture",
+  "Fast Growth",
+  "Global Team",
+  "Flexible Hours",
+  "No Dress Code",
+  "Pet Friendly",
+];
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 export default function BasicJobDetails({
   formData,
@@ -53,19 +135,22 @@ export default function BasicJobDetails({
     Record<string, MasterStream[]>
   >({});
   const [masterSkills, setMasterSkills] = useState<MasterSkill[]>([]);
+  const [masterJobRoles, setMasterJobRoles] = useState<MasterJobRole[]>([]);
   const [loadingDegrees, setLoadingDegrees] = useState(false);
   const [loadingStreams, setLoadingStreams] = useState(false);
   const [loadingSkills, setLoadingSkills] = useState(false);
+  const [loadingJobRoles, setLoadingJobRoles] = useState(false);
   const [streamError, setStreamError] = useState("");
   const [isCreatingStream, setIsCreatingStream] = useState(false);
   const [isCreatingSkill, setIsCreatingSkill] = useState(false);
+  const [isCreatingJobRole, setIsCreatingJobRole] = useState(false);
 
   // Input states for Enter key separation
   const [skillInput, setSkillInput] = useState("");
-  const [certificationInput, setCertificationInput] = useState("");
-  const [benefitInput, setBenefitInput] = useState("");
-  const [tagInput, setTagInput] = useState("");
   const [jobRoleInput, setJobRoleInput] = useState("");
+  const [customCertInput, setCustomCertInput] = useState("");
+  const [customBenefitInput, setCustomBenefitInput] = useState("");
+  const [customTagInput, setCustomTagInput] = useState("");
 
   // Validation states
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -88,14 +173,21 @@ export default function BasicJobDetails({
     fetchDegrees();
   }, []);
 
-  // Fetch skills on mount
+  // Fetch skills using fetch API
   useEffect(() => {
     const fetchSkills = async () => {
       try {
         setLoadingSkills(true);
-        const response = await getMasterData("SKILL");
-        if (response.success && response.data) {
-          setMasterSkills(response.data);
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${API_URL}/api/meta/get-skills`, {
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+        const data = await res.json();
+        if (!res.ok) return;
+        if (data && Array.isArray(data)) {
+          setMasterSkills(data);
         }
       } catch (error) {
         console.error("Error fetching skills:", error);
@@ -104,6 +196,28 @@ export default function BasicJobDetails({
       }
     };
     fetchSkills();
+  }, []);
+
+  // Fetch job roles using axiosInstance
+  useEffect(() => {
+    const fetchJobRoles = async () => {
+      try {
+        setLoadingJobRoles(true);
+        const response = await axiosInstance.get("/api/company-master-data", {
+          params: {
+            type: "JOB_ROLE",
+          },
+        });
+        if (response.data?.success && response.data?.data) {
+          setMasterJobRoles(response.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching job roles:", error);
+      } finally {
+        setLoadingJobRoles(false);
+      }
+    };
+    fetchJobRoles();
   }, []);
 
   // Fetch streams for selected degree using degree ID
@@ -152,13 +266,14 @@ export default function BasicJobDetails({
     }
   };
 
-  // Handle degree change
+  // Handle degree change - FIXED: Store degree value in minEducation
   const handleDegreeChange = async (degreeId: string): Promise<void> => {
     const selectedDegree = masterDegrees.find((d) => d._id === degreeId);
 
     setFormData({
       ...formData,
-      degree: selectedDegree?.value || "",
+      minEducation: selectedDegree?.value || "", // FIXED: Store degree value in minEducation
+      degree: selectedDegree?.value ? [selectedDegree.value] : [], // FIXED: Also store in degree array
       degreeId: degreeId,
       studentStreams: [],
     });
@@ -225,7 +340,7 @@ export default function BasicJobDetails({
     handleChange("studentStreams", updatedStreams);
   };
 
-  // Handle skill input change - creates new skill if not exists
+  // Handle skill input - creates new skill using fetch API
   const handleSkillInputChange = async (value: string) => {
     const skills = value
       .split(",")
@@ -235,32 +350,41 @@ export default function BasicJobDetails({
     if (skills.length === 0) return;
 
     const currentSkills = masterSkills;
-    const skillValues = currentSkills.map((s) => s.value.toLowerCase());
+    const skillValues = currentSkills.map((s) => s.skills.toLowerCase());
 
     let updatedSkills = [...(formData.skills || [])];
 
     for (const skill of skills) {
-      // Check if skill already exists in selected skills
       if (updatedSkills.includes(skill)) continue;
 
-      // Check if skill exists in master data (case insensitive)
       const skillExists = skillValues.includes(skill.toLowerCase());
 
       if (!skillExists) {
         try {
           setIsCreatingSkill(true);
-          const response = await createMasterData("SKILL", skill);
+          const token = localStorage.getItem("token");
+          const res = await fetch(`${API_URL}/api/meta/add-skill`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: JSON.stringify({ skills: skill }),
+          });
 
-          if (response.success) {
-            // Add the new skill to masterSkills
+          const data = await res.json();
+
+          if (res.status === 201 || res.status === 200) {
             const newSkill: MasterSkill = {
-              _id: response.data?._id || `temp-${Date.now()}`,
-              value: skill,
-              type: "SKILL",
-              isActive: true,
-              isCustom: true,
+              _id: data?._id || `temp-${Date.now()}`,
+              skills: data?.skills || skill,
             };
             setMasterSkills((prev) => [...prev, newSkill]);
+          } else if (res.status === 409) {
+            // Skill already exists, just add it to selected
+            console.log("Skill already exists:", skill);
+          } else {
+            console.error("Error creating skill:", data);
           }
         } catch (error) {
           console.error("Error creating skill:", error);
@@ -269,13 +393,78 @@ export default function BasicJobDetails({
         }
       }
 
-      // Add to selected skills if not already there
       if (!updatedSkills.includes(skill)) {
         updatedSkills.push(skill);
       }
     }
 
     handleChange("skills", updatedSkills);
+    setSkillInput("");
+  };
+
+  // Handle job role input - creates new job role using axiosInstance
+  const handleJobRoleInputChange = async (value: string) => {
+    const roles = value
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    if (roles.length === 0) return;
+
+    const currentRoles = masterJobRoles;
+    const roleValues = currentRoles.map((r) => r.value.toLowerCase());
+
+    let updatedRoles = [...(formData.jobTitle || [])];
+
+    for (const role of roles) {
+      if (updatedRoles.includes(role)) continue;
+
+      const roleExists = roleValues.includes(role.toLowerCase());
+
+      if (!roleExists) {
+        try {
+          setIsCreatingJobRole(true);
+          const token = localStorage.getItem("token");
+          const response = await axiosInstance.post(
+            "/api/company-master-data",
+            {
+              type: "JOB_ROLE",
+              value: role,
+              parent: null,
+            },
+            {
+              headers: {
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          if (response.data?.success) {
+            const newRole: MasterJobRole = {
+              _id: response.data.data?._id || `temp-${Date.now()}`,
+              value: response.data.data?.value || role,
+              type: "JOB_ROLE",
+              isActive: true,
+              isCustom: true,
+              parent: null,
+            };
+            setMasterJobRoles((prev) => [...prev, newRole]);
+          }
+        } catch (error) {
+          console.error("Error creating job role:", error);
+        } finally {
+          setIsCreatingJobRole(false);
+        }
+      }
+
+      if (!updatedRoles.includes(role)) {
+        updatedRoles.push(role);
+      }
+    }
+
+    handleChange("jobTitle", updatedRoles);
+    setJobRoleInput("");
   };
 
   // Handle skill toggle (for click selection)
@@ -288,30 +477,50 @@ export default function BasicJobDetails({
     setSkillInput("");
   };
 
+  // Toggle job role
+  const toggleJobRole = (roleName: string) => {
+    const currentRoles = formData.jobTitle || [];
+    const nextRoles = currentRoles.includes(roleName)
+      ? currentRoles.filter((role: string) => role !== roleName)
+      : [...currentRoles, roleName];
+    handleChange("jobTitle", nextRoles);
+    setJobRoleInput("");
+  };
+
   const handleChange = (field: string, value: unknown) => {
     setFormData({
       ...formData,
       [field]: value,
     });
-    // Clear error for this field when user changes it
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
-  const handleStateChange = (_stateId: string, stateName: string) => {
+  // FIXED: Store both state name and code
+  const handleStateChange = (stateCode: string, stateName: string) => {
     setFormData({
       ...formData,
-      state: stateName,
+      state: stateName, // Store state name
+      stateCode: stateCode, // Store state code
       city: "",
+      location: stateName ? [stateName] : [], // Also store in location array
     });
     if (errors.state) {
       setErrors((prev) => ({ ...prev, state: "" }));
     }
   };
 
+  // FIXED: Store city name and update location array
   const handleCityChange = (cityName: string) => {
-    handleChange("city", cityName);
+    setFormData({
+      ...formData,
+      city: cityName,
+      // Update location array with both state and city if available
+      location: cityName 
+        ? [cityName, formData.state || ""].filter(Boolean)
+        : formData.state ? [formData.state] : [],
+    });
     if (errors.city) {
       setErrors((prev) => ({ ...prev, city: "" }));
     }
@@ -340,24 +549,6 @@ export default function BasicJobDetails({
     handleChange("studentStreams", nextStreams);
   };
 
-  // Generic function to handle Enter key for array fields (non-master data fields)
-  const handleArrayKeyDown = (
-    e: KeyboardEvent<HTMLInputElement>,
-    inputValue: string,
-    setInputValue: (value: string) => void,
-    fieldName: string,
-    currentItems: string[],
-  ) => {
-    if (e.key === "Enter" && inputValue.trim()) {
-      e.preventDefault();
-      const newItem = inputValue.trim();
-      if (!currentItems.includes(newItem)) {
-        handleChange(fieldName, [...currentItems, newItem]);
-      }
-      setInputValue("");
-    }
-  };
-
   // Remove item from array
   const removeArrayItem = (fieldName: string, itemToRemove: string) => {
     const currentItems =
@@ -372,29 +563,14 @@ export default function BasicJobDetails({
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    // Required: Job Title
-    if (!formData.jobTitle || formData.jobTitle.length === 0 || !formData.jobTitle[0]?.trim()) {
-      newErrors.jobTitle = "Job title is required";
+    // Required: Job Title (at least one)
+    if (!formData.jobTitle || formData.jobTitle.length === 0) {
+      newErrors.jobTitle = "At least one job title is required";
     }
 
-    // Required: Broadcast Type
-    if (!formData.broadcastType) {
-      newErrors.broadcastType = "Broadcast type is required";
-    }
-
-    // Required: State (if broadcast type is Location)
-    if (formData.broadcastType === "Location" && !formData.state) {
-      newErrors.state = "State is required for location-based broadcast";
-    }
-
-    // Required: Work Mode
-    if (!formData.workMode || formData.workMode.length === 0 || !formData.workMode[0]) {
-      newErrors.workMode = "Work mode is required";
-    }
-
-    // Required: Employment Type
-    if (!formData.employmentType || formData.employmentType.length === 0 || !formData.employmentType[0]) {
-      newErrors.employmentType = "Employment type is required";
+    // Required: Job Description
+    if (!formData.description || formData.description.trim().length < 10) {
+      newErrors.description = "Job description is required (minimum 10 characters)";
     }
 
     // Required: Number of Openings (must be > 0)
@@ -407,14 +583,14 @@ export default function BasicJobDetails({
       newErrors.endDate = "Application deadline is required";
     }
 
-    // Required: Package Details - Total CTC
-    if (!formData.packageDetails?.totalCTC || formData.packageDetails.totalCTC < 0) {
-      newErrors["packageDetails.totalCTC"] = "Total CTC is required";
+    // Required: Work Mode
+    if (!formData.workMode || formData.workMode.length === 0 || !formData.workMode[0]) {
+      newErrors.workMode = "Work mode is required";
     }
 
-    // Required: Package Details - Fixed Pay
-    if (!formData.packageDetails?.fixedPay || formData.packageDetails.fixedPay < 0) {
-      newErrors["packageDetails.fixedPay"] = "Fixed pay is required";
+    // Required: Employment Type
+    if (!formData.employmentType || formData.employmentType.length === 0 || !formData.employmentType[0]) {
+      newErrors.employmentType = "Employment type is required";
     }
 
     // Required: Degree
@@ -430,6 +606,23 @@ export default function BasicJobDetails({
     // Required: Skills (at least one)
     if (!formData.skills || formData.skills.length === 0) {
       newErrors.skills = "At least one skill is required";
+    }
+
+    // Required: Package Details - Total CTC
+    if (!formData.packageDetails?.totalCTC || formData.packageDetails.totalCTC < 0) {
+      newErrors["packageDetails.totalCTC"] = "Total CTC is required";
+    }
+
+    // Required: Package Details - Fixed Pay
+    if (!formData.packageDetails?.fixedPay || formData.packageDetails.fixedPay < 0) {
+      newErrors["packageDetails.fixedPay"] = "Fixed pay is required";
+    }
+
+    // Validate if Location is selected but state not provided
+    if (formData.broadcastType === "Location") {
+      if (!formData.state) {
+        newErrors.state = "State is required when Location broadcast is selected";
+      }
     }
 
     setErrors(newErrors);
@@ -452,9 +645,41 @@ export default function BasicJobDetails({
   const availableSkills = useMemo(() => {
     const selectedSkills = formData.skills || [];
     return masterSkills.filter(
-      (skill) => !selectedSkills.includes(skill.value)
+      (skill) => !selectedSkills.includes(skill.skills)
     );
   }, [masterSkills, formData.skills]);
+
+  // Filter job roles that are already selected
+  const availableJobRoles = useMemo(() => {
+    const selectedRoles = formData.jobTitle || [];
+    return masterJobRoles.filter(
+      (role) => !selectedRoles.includes(role.value)
+    );
+  }, [masterJobRoles, formData.jobTitle]);
+
+  // Filter certifications
+  const availableCertifications = useMemo(() => {
+    const selectedCerts = formData.certifications || [];
+    return certificationOptions.filter(
+      (cert) => !selectedCerts.includes(cert)
+    );
+  }, [formData.certifications]);
+
+  // Filter benefits
+  const availableBenefits = useMemo(() => {
+    const selectedBenefits = formData.benefits || [];
+    return benefitOptions.filter(
+      (benefit) => !selectedBenefits.includes(benefit)
+    );
+  }, [formData.benefits]);
+
+  // Filter tags
+  const availableTags = useMemo(() => {
+    const selectedTags = formData.tags || [];
+    return tagOptions.filter(
+      (tag) => !selectedTags.includes(tag)
+    );
+  }, [formData.tags]);
 
   return (
     <div className="space-y-6">
@@ -465,20 +690,100 @@ export default function BasicJobDetails({
       </div>
 
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-        {/* Job Title */}
+        {/* Job Title - Multi-select with Master Data */}
         <div className="md:col-span-2">
           <label className="mb-1.5 block text-sm font-medium text-gray-300">
             Job Title <span className="text-red-400">*</span>
+            <span className="text-xs text-gray-500 ml-2">(Select from existing or type to create new)</span>
           </label>
-          <input
-            type="text"
-            value={formData.jobTitle?.[0] || ""}
-            onChange={(event) => handleChange("jobTitle", [event.target.value])}
-            placeholder="e.g., Full Stack Developer"
-            className={`w-full rounded-lg border ${errors.jobTitle ? 'border-red-500' : 'border-slate-700'} bg-[#0F172A] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500`}
-          />
+          
+          <div className="relative">
+            <input
+              type="text"
+              value={jobRoleInput}
+              onChange={(e) => {
+                setJobRoleInput(e.target.value);
+                if (errors.jobTitle) {
+                  setErrors((prev) => ({ ...prev, jobTitle: "" }));
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && jobRoleInput.trim()) {
+                  e.preventDefault();
+                  handleJobRoleInputChange(jobRoleInput);
+                }
+              }}
+              placeholder={loadingJobRoles ? "Loading job roles..." : "Type job title and press Enter to create, or select from below..."}
+              disabled={loadingJobRoles || isCreatingJobRole}
+              className={`w-full rounded-lg border ${errors.jobTitle ? 'border-red-500' : 'border-slate-700'} bg-[#0F172A] px-4 py-2.5 pr-10 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500`}
+            />
+            {(loadingJobRoles || isCreatingJobRole) && (
+              <Loader2 className="absolute right-3 top-3 h-4 w-4 animate-spin text-green-400" />
+            )}
+          </div>
+          
           {errors.jobTitle && (
             <p className="mt-1 text-xs text-red-400">{errors.jobTitle}</p>
+          )}
+
+          {/* Job Role Suggestions - Show existing job roles */}
+          {!loadingJobRoles && masterJobRoles.length > 0 && (
+            <div className="mt-2">
+              <p className="text-xs font-medium text-gray-400 mb-1.5">Suggested Job Titles:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {masterJobRoles
+                  .filter((role) =>
+                    jobRoleInput.length === 0 || 
+                    role.value.toLowerCase().includes(jobRoleInput.toLowerCase())
+                  )
+                  .filter((role) => !formData.jobTitle?.includes(role.value))
+                  .slice(0, 15)
+                  .map((role) => (
+                    <button
+                      key={role._id}
+                      type="button"
+                      onClick={() => {
+                        toggleJobRole(role.value);
+                        setJobRoleInput("");
+                      }}
+                      className="rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-xs text-blue-400 transition hover:bg-blue-500/20 hover:border-blue-500/40"
+                    >
+                      {role.value}
+                    </button>
+                  ))}
+              </div>
+              {masterJobRoles.filter((role) => !formData.jobTitle?.includes(role.value)).length === 0 && (
+                <p className="text-xs text-gray-500 mt-1">All job titles are selected. Type a new one and press Enter to create it.</p>
+              )}
+            </div>
+          )}
+          {!loadingJobRoles && masterJobRoles.length === 0 && (
+            <p className="text-xs text-amber-400 mt-1.5">No job titles available. Type one and press Enter to create.</p>
+          )}
+
+          {/* Selected Job Titles */}
+          {formData.jobTitle && formData.jobTitle.length > 0 && (
+            <div className="mt-3">
+              <p className="text-xs font-medium text-gray-400 mb-1.5">Selected Job Titles:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {formData.jobTitle.map((item: string, index: number) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/15 text-blue-400 border border-blue-500/30"
+                  >
+                    <Briefcase className="w-3 h-3" />
+                    {item}
+                    <button
+                      type="button"
+                      onClick={() => removeArrayItem("jobTitle", item)}
+                      className="hover:text-red-400 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
           )}
         </div>
 
@@ -540,46 +845,6 @@ export default function BasicJobDetails({
           </p>
         </div>
 
-        {/* Broadcast Type */}
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-gray-300">
-            <Radio className="mr-1.5 inline h-4 w-4" />
-            Broadcast Type <span className="text-red-400">*</span>
-          </label>
-          <select
-            value={formData.broadcastType || "Everyone"}
-            onChange={(event) =>
-              handleChange("broadcastType", event.target.value)
-            }
-            className={`w-full rounded-lg border ${errors.broadcastType ? 'border-red-500' : 'border-slate-700'} bg-[#0F172A] px-4 py-2.5 text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500`}
-          >
-            <option value="Everyone">Everyone</option>
-            <option value="Location">Location</option>
-          </select>
-          {errors.broadcastType && (
-            <p className="mt-1 text-xs text-red-400">{errors.broadcastType}</p>
-          )}
-          <p className="mt-1 text-xs text-gray-500">
-            {formData.broadcastType === "Location"
-              ? "Job will be visible to users in the selected location only"
-              : "Job will be visible to all users"}
-          </p>
-        </div>
-
-        {/* State and City */}
-        <div className="md:col-span-2">
-          <StateCitySelector
-            selectedState={formData.state || ""}
-            selectedCity={formData.city || ""}
-            onStateChange={handleStateChange}
-            onCityChange={handleCityChange}
-            required={formData.broadcastType === "Location"}
-          />
-          {errors.state && (
-            <p className="mt-1 text-xs text-red-400">{errors.state}</p>
-          )}
-        </div>
-
         {/* Work Mode */}
         <div>
           <label className="mb-1.5 block text-sm font-medium text-gray-300">
@@ -616,6 +881,8 @@ export default function BasicJobDetails({
             <option value="Full-time">Full-time</option>
             <option value="Part-time">Part-time</option>
             <option value="Contract">Contract</option>
+            <option value="Internship">Internship</option>
+            <option value="Freelance">Freelance</option>
           </select>
           {errors.employmentType && (
             <p className="mt-1 text-xs text-red-400">{errors.employmentType}</p>
@@ -640,6 +907,57 @@ export default function BasicJobDetails({
             <option value="5-8 years">5-8 years</option>
             <option value="8+ years">8+ years</option>
           </select>
+        </div>
+
+        {/* Broadcast Type */}
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-gray-300">
+            <Radio className="mr-1.5 inline h-4 w-4" />
+            Broadcast Type
+          </label>
+          <select
+            value={formData.broadcastType || "Everyone"}
+            onChange={(event) =>
+              handleChange("broadcastType", event.target.value)
+            }
+            className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+          >
+            <option value="Everyone">Everyone</option>
+            <option value="Location">Location</option>
+          </select>
+          <p className="mt-1 text-xs text-gray-500">
+            {formData.broadcastType === "Location"
+              ? `📍 Job will be visible to users in ${formData.state || 'selected state'}${formData.city ? `, ${formData.city}` : ''} only`
+              : "🌍 Job will be visible to all users"}
+          </p>
+          {formData.broadcastType === "Location" && !formData.state && (
+            <p className="mt-1 text-xs text-yellow-400">
+              ⚠️ Please select a state for location-based broadcasting
+            </p>
+          )}
+        </div>
+
+        {/* State and City - Always visible, always optional */}
+        <div className="md:col-span-2">
+          <StateCitySelector
+            selectedState={formData.state || ""}
+            selectedCity={formData.city || ""}
+            onStateChange={handleStateChange}
+            onCityChange={handleCityChange}
+            required={false}
+          />
+          {errors.state && (
+            <p className="mt-1 text-xs text-red-400">{errors.state}</p>
+          )}
+          <p className="mt-1 text-xs text-gray-500">
+            {formData.state && formData.city 
+              ? `📍 Location: ${formData.state}, ${formData.city}`
+              : formData.state 
+                ? `📍 State: ${formData.state}`
+                : formData.city 
+                  ? `📍 City: ${formData.city}`
+                  : "📍 No location selected (optional)"}
+          </p>
         </div>
 
         {/* Degree */}
@@ -668,6 +986,12 @@ export default function BasicJobDetails({
             <p className="mt-1.5 flex items-center gap-1.5 text-xs text-gray-500">
               <Loader2 className="h-3 w-3 animate-spin" />
               Loading degrees...
+            </p>
+          )}
+          {/* Show selected degree in minEducation */}
+          {formData.minEducation && (
+            <p className="mt-1 text-xs text-green-400">
+              ✓ Selected: {formData.minEducation}
             </p>
           )}
         </div>
@@ -706,55 +1030,84 @@ export default function BasicJobDetails({
               {errors.studentStreams && (
                 <p className="mt-1 text-xs text-red-400">{errors.studentStreams}</p>
               )}
-              {!loadingStreams && availableStreams.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {availableStreams.map((stream) => {
-                    const isSelected =
-                      formData.studentStreams?.includes(stream.value) ?? false;
-                    return (
-                      <button
-                        key={stream._id}
-                        type="button"
-                        onClick={() => toggleStream(stream.value)}
-                        className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                          isSelected
-                            ? "border-green-500/50 bg-green-500/15 text-green-400"
-                            : "border-slate-700 bg-slate-800/50 text-gray-400 hover:border-green-500/30 hover:text-gray-200"
-                        }`}
+              
+              {/* Selected Streams */}
+              {formData.studentStreams && formData.studentStreams.length > 0 && (
+                <div className="mt-3">
+                  <p className="text-xs font-medium text-gray-400 mb-1.5">Selected Streams:</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {formData.studentStreams.map((item: string, index: number) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/15 text-green-400 border border-green-500/30"
                       >
-                        {stream.value}
-                      </button>
-                    );
-                  })}
+                        <BookOpen className="w-3 h-3" />
+                        {item}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const currentStreams = formData.studentStreams || [];
+                            handleChange(
+                              "studentStreams",
+                              currentStreams.filter((s: string) => s !== item)
+                            );
+                          }}
+                          className="hover:text-red-400 transition-colors"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Suggested Streams */}
+              {!loadingStreams && availableStreams.length > 0 && (
+                <div className="mt-3">
+                  <p className="text-xs font-medium text-gray-400 mb-1.5">Suggested Streams:</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {availableStreams.map((stream) => {
+                      const isSelected =
+                        formData.studentStreams?.includes(stream.value) ?? false;
+                      return (
+                        <button
+                          key={stream._id}
+                          type="button"
+                          onClick={() => toggleStream(stream.value)}
+                          className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                            isSelected
+                              ? "border-green-500/50 bg-green-500/15 text-green-400"
+                              : "border-slate-700 bg-slate-800/50 text-gray-400 hover:border-green-500/30 hover:text-gray-200"
+                          }`}
+                        >
+                          {stream.value}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
               {streamError && (
                 <p className="mt-2 text-xs text-amber-400">{streamError}</p>
               )}
-              <p className="mt-2 text-xs text-gray-500">
-                {loadingStreams
-                  ? "Loading stream suggestions..."
-                  : "Select a suggestion or enter a custom stream. Custom streams will be created automatically."}
-              </p>
             </div>
           )}
         </div>
 
-        {/* Skills - Enhanced with Master Data */}
+        {/* Skills - Using fetch API */}
         <div className="md:col-span-2">
           <label className="mb-1.5 block text-sm font-medium text-gray-300">
             Skills Required <span className="text-red-400">*</span>
-            <span className="text-xs text-gray-500 ml-2">(Type or select from suggestions)</span>
+            <span className="text-xs text-gray-500 ml-2">(Select from existing or type to create new)</span>
           </label>
           
-          {/* Input with suggestions */}
           <div className="relative">
             <input
               type="text"
               value={skillInput}
               onChange={(e) => {
                 setSkillInput(e.target.value);
-                // Clear error when user types
                 if (errors.skills) {
                   setErrors((prev) => ({ ...prev, skills: "" }));
                 }
@@ -763,12 +1116,11 @@ export default function BasicJobDetails({
                 if (e.key === "Enter" && skillInput.trim()) {
                   e.preventDefault();
                   handleSkillInputChange(skillInput);
-                  setSkillInput("");
                 }
               }}
-              placeholder={loadingSkills ? "Loading skills..." : "Type a skill and press Enter, or click suggestions below..."}
+              placeholder={loadingSkills ? "Loading skills..." : "Type a skill and press Enter to create, or select from below..."}
               disabled={loadingSkills || isCreatingSkill}
-              className={`w-full rounded-lg border ${errors.skills ? 'border-red-500' : 'border-slate-700'} bg-[#0F172A] px-4 py-2.5 pr-10 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:cursor-not-allowed disabled:opacity-60`}
+              className={`w-full rounded-lg border ${errors.skills ? 'border-red-500' : 'border-slate-700'} bg-[#0F172A] px-4 py-2.5 pr-10 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500`}
             />
             {(loadingSkills || isCreatingSkill) && (
               <Loader2 className="absolute right-3 top-3 h-4 w-4 animate-spin text-green-400" />
@@ -779,64 +1131,17 @@ export default function BasicJobDetails({
             <p className="mt-1 text-xs text-red-400">{errors.skills}</p>
           )}
 
-          {/* Skill Suggestions - Show when there are available skills */}
-          {!loadingSkills && availableSkills.length > 0 && (
-            <div className="mt-2">
-              <p className="text-xs text-gray-500 mb-1.5">Suggested skills:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {availableSkills
-                  .filter((skill) =>
-                    skillInput.length === 0 || 
-                    skill.value.toLowerCase().includes(skillInput.toLowerCase())
-                  )
-                  .slice(0, 15)
-                  .map((skill) => (
-                    <button
-                      key={skill._id}
-                      type="button"
-                      onClick={() => {
-                        toggleSkill(skill.value);
-                        setSkillInput("");
-                      }}
-                      className="rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-xs text-blue-400 transition hover:bg-blue-500/20 hover:border-blue-500/40"
-                    >
-                      {skill.value}
-                    </button>
-                  ))}
-              </div>
-              {availableSkills.length > 15 && (
-                <p className="text-xs text-gray-500 mt-1">
-                  +{availableSkills.length - 15} more skills available
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Show message when no skills are available */}
-          {!loadingSkills && availableSkills.length === 0 && masterSkills.length > 0 && (
-            <p className="mt-2 text-xs text-amber-400">
-              All skills are selected. You can type new skills and press Enter to add them.
-            </p>
-          )}
-
-          {/* Show loading state for skills */}
-          {loadingSkills && (
-            <p className="mt-2 text-xs text-gray-500 flex items-center gap-1.5">
-              <Loader2 className="h-3 w-3 animate-spin" />
-              Loading skill suggestions...
-            </p>
-          )}
-
           {/* Selected Skills */}
           {formData.skills && formData.skills.length > 0 && (
             <div className="mt-3">
-              <p className="text-xs text-gray-500 mb-1.5">Selected skills:</p>
+              <p className="text-xs font-medium text-gray-400 mb-1.5">Selected Skills:</p>
               <div className="flex flex-wrap gap-1.5">
                 {formData.skills.map((item: string, index: number) => (
                   <span
                     key={index}
                     className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/15 text-blue-400 border border-blue-500/30"
                   >
+                    <Sparkles className="w-3 h-3" />
                     {item}
                     <button
                       type="button"
@@ -851,178 +1156,340 @@ export default function BasicJobDetails({
             </div>
           )}
 
-          <p className="mt-2 text-xs text-gray-500">
-            {!loadingSkills && masterSkills.length === 0 && !isCreatingSkill
-              ? "No skills found. Type a skill and press Enter to create it."
-              : "Type a skill and press Enter to add it. Click on suggested skills to select them."}
-          </p>
+          {/* Suggested Skills */}
+          {!loadingSkills && masterSkills.length > 0 && (
+            <div className="mt-3">
+              <p className="text-xs font-medium text-gray-400 mb-1.5">Suggested Skills:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {masterSkills
+                  .filter((skill) =>
+                    skillInput.length === 0 || 
+                    skill.skills.toLowerCase().includes(skillInput.toLowerCase())
+                  )
+                  .filter((skill) => !formData.skills?.includes(skill.skills))
+                  .slice(0, 15)
+                  .map((skill) => (
+                    <button
+                      key={skill._id}
+                      type="button"
+                      onClick={() => {
+                        toggleSkill(skill.skills);
+                        setSkillInput("");
+                      }}
+                      className="rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-xs text-blue-400 transition hover:bg-blue-500/20 hover:border-blue-500/40"
+                    >
+                      {skill.skills}
+                    </button>
+                  ))}
+              </div>
+              {masterSkills.filter((skill) => !formData.skills?.includes(skill.skills)).length === 0 && (
+                <p className="text-xs text-gray-500 mt-1">All skills are selected. Type a new one and press Enter to create it.</p>
+              )}
+            </div>
+          )}
+          {!loadingSkills && masterSkills.length === 0 && (
+            <p className="text-xs text-amber-400 mt-1.5">No skills available. Type one and press Enter to create.</p>
+          )}
         </div>
 
-        {/* Certifications - Enter key separated */}
+        {/* Certifications - Hardcoded + Custom */}
         <div className="md:col-span-2">
           <label className="mb-1.5 block text-sm font-medium text-gray-300">
+            <Award className="mr-1.5 inline h-4 w-4" />
             Certifications
-            <span className="text-xs text-gray-500 ml-2">(Press Enter to add)</span>
+            <span className="text-xs text-gray-500 ml-2">(Select from options or type custom)</span>
           </label>
-          <div className="flex gap-2">
+          
+          <div className="relative">
             <input
               type="text"
-              value={certificationInput}
-              onChange={(e) => setCertificationInput(e.target.value)}
-              onKeyDown={(e) =>
-                handleArrayKeyDown(
-                  e,
-                  certificationInput,
-                  setCertificationInput,
-                  "certifications",
-                  formData.certifications || [],
-                )
-              }
-              placeholder="Type and press Enter to add..."
-              className="flex-1 rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              value={customCertInput}
+              onChange={(e) => setCustomCertInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && customCertInput.trim()) {
+                  e.preventDefault();
+                  const newCert = customCertInput.trim();
+                  const currentCerts = formData.certifications || [];
+                  if (!currentCerts.includes(newCert)) {
+                    handleChange("certifications", [...currentCerts, newCert]);
+                  }
+                  setCustomCertInput("");
+                }
+              }}
+              placeholder="Type custom certification and press Enter..."
+              className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
             />
           </div>
+
+          {/* Selected Certifications */}
           {formData.certifications && formData.certifications.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {formData.certifications.map((item: string, index: number) => (
-                <span
-                  key={index}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20"
-                >
-                  {item}
-                  <button
-                    type="button"
-                    onClick={() => removeArrayItem("certifications", item)}
-                    className="hover:text-red-400 transition-colors"
+            <div className="mt-3">
+              <p className="text-xs font-medium text-gray-400 mb-1.5">Selected Certifications:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {formData.certifications.map((item: string, index: number) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-500/15 text-purple-400 border border-purple-500/30"
                   >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
+                    <Award className="w-3 h-3" />
+                    {item}
+                    <button
+                      type="button"
+                      onClick={() => removeArrayItem("certifications", item)}
+                      className="hover:text-red-400 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
             </div>
           )}
-          <p className="mt-1 text-xs text-gray-500">
-            Press Enter after each certification to add it to the list
-          </p>
+
+          {/* Suggested Certifications */}
+          {availableCertifications.length > 0 && (
+            <div className="mt-3">
+              <p className="text-xs font-medium text-gray-400 mb-1.5">Suggested Certifications:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {availableCertifications
+                  .filter((cert) =>
+                    customCertInput.length === 0 ||
+                    cert.toLowerCase().includes(customCertInput.toLowerCase())
+                  )
+                  .slice(0, 10)
+                  .map((cert) => (
+                    <button
+                      key={cert}
+                      type="button"
+                      onClick={() => {
+                        const currentCerts = formData.certifications || [];
+                        if (!currentCerts.includes(cert)) {
+                          handleChange("certifications", [...currentCerts, cert]);
+                        }
+                        setCustomCertInput("");
+                      }}
+                      className="rounded-full border border-purple-500/20 bg-purple-500/10 px-3 py-1 text-xs text-purple-400 transition hover:bg-purple-500/20 hover:border-purple-500/40"
+                    >
+                      {cert}
+                    </button>
+                  ))}
+              </div>
+              {availableCertifications.length === 0 && (
+                <p className="text-xs text-gray-500 mt-1">All certifications are selected. Type a new one and press Enter to create it.</p>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Benefits - Enter key separated */}
+        {/* Benefits - Hardcoded + Custom */}
         <div className="md:col-span-2">
           <label className="mb-1.5 block text-sm font-medium text-gray-300">
+            <Sparkles className="mr-1.5 inline h-4 w-4" />
             Benefits
-            <span className="text-xs text-gray-500 ml-2">(Press Enter to add)</span>
+            <span className="text-xs text-gray-500 ml-2">(Select from options or type custom)</span>
           </label>
-          <div className="flex gap-2">
+          
+          <div className="relative">
             <input
               type="text"
-              value={benefitInput}
-              onChange={(e) => setBenefitInput(e.target.value)}
-              onKeyDown={(e) =>
-                handleArrayKeyDown(
-                  e,
-                  benefitInput,
-                  setBenefitInput,
-                  "benefits",
-                  formData.benefits || [],
-                )
-              }
-              placeholder="Type and press Enter to add..."
-              className="flex-1 rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              value={customBenefitInput}
+              onChange={(e) => setCustomBenefitInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && customBenefitInput.trim()) {
+                  e.preventDefault();
+                  const newBenefit = customBenefitInput.trim();
+                  const currentBenefits = formData.benefits || [];
+                  if (!currentBenefits.includes(newBenefit)) {
+                    handleChange("benefits", [...currentBenefits, newBenefit]);
+                  }
+                  setCustomBenefitInput("");
+                }
+              }}
+              placeholder="Type custom benefit and press Enter..."
+              className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
             />
           </div>
+
+          {/* Selected Benefits */}
           {formData.benefits && formData.benefits.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {formData.benefits.map((item: string, index: number) => (
-                <span
-                  key={index}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                >
-                  {item}
-                  <button
-                    type="button"
-                    onClick={() => removeArrayItem("benefits", item)}
-                    className="hover:text-red-400 transition-colors"
+            <div className="mt-3">
+              <p className="text-xs font-medium text-gray-400 mb-1.5">Selected Benefits:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {formData.benefits.map((item: string, index: number) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
                   >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
+                    <Check className="w-3 h-3" />
+                    {item}
+                    <button
+                      type="button"
+                      onClick={() => removeArrayItem("benefits", item)}
+                      className="hover:text-red-400 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
             </div>
           )}
-          <p className="mt-1 text-xs text-gray-500">
-            Press Enter after each benefit to add it to the list
-          </p>
+
+          {/* Suggested Benefits */}
+          {availableBenefits.length > 0 && (
+            <div className="mt-3">
+              <p className="text-xs font-medium text-gray-400 mb-1.5">Suggested Benefits:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {availableBenefits
+                  .filter((benefit) =>
+                    customBenefitInput.length === 0 ||
+                    benefit.toLowerCase().includes(customBenefitInput.toLowerCase())
+                  )
+                  .slice(0, 10)
+                  .map((benefit) => (
+                    <button
+                      key={benefit}
+                      type="button"
+                      onClick={() => {
+                        const currentBenefits = formData.benefits || [];
+                        if (!currentBenefits.includes(benefit)) {
+                          handleChange("benefits", [...currentBenefits, benefit]);
+                        }
+                        setCustomBenefitInput("");
+                      }}
+                      className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-400 transition hover:bg-emerald-500/20 hover:border-emerald-500/40"
+                    >
+                      {benefit}
+                    </button>
+                  ))}
+              </div>
+              {availableBenefits.length === 0 && (
+                <p className="text-xs text-gray-500 mt-1">All benefits are selected. Type a new one and press Enter to create it.</p>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Tags - Enter key separated */}
+        {/* Tags - Hardcoded + Custom */}
         <div className="md:col-span-2">
           <label className="mb-1.5 block text-sm font-medium text-gray-300">
+            <Tag className="mr-1.5 inline h-4 w-4" />
             Tags
-            <span className="text-xs text-gray-500 ml-2">(Press Enter to add)</span>
+            <span className="text-xs text-gray-500 ml-2">(Select from options or type custom)</span>
           </label>
-          <div className="flex gap-2">
+          
+          <div className="relative">
             <input
               type="text"
-              value={tagInput}
-              onChange={(e) => setTagInput(e.target.value)}
-              onKeyDown={(e) =>
-                handleArrayKeyDown(
-                  e,
-                  tagInput,
-                  setTagInput,
-                  "tags",
-                  formData.tags || [],
-                )
-              }
-              placeholder="Type and press Enter to add..."
-              className="flex-1 rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              value={customTagInput}
+              onChange={(e) => setCustomTagInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && customTagInput.trim()) {
+                  e.preventDefault();
+                  const newTag = customTagInput.trim();
+                  const currentTags = formData.tags || [];
+                  if (!currentTags.includes(newTag)) {
+                    handleChange("tags", [...currentTags, newTag]);
+                  }
+                  setCustomTagInput("");
+                }
+              }}
+              placeholder="Type custom tag and press Enter..."
+              className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
             />
           </div>
+
+          {/* Selected Tags */}
           {formData.tags && formData.tags.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {formData.tags.map((item: string, index: number) => (
-                <span
-                  key={index}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                >
-                  {item}
-                  <button
-                    type="button"
-                    onClick={() => removeArrayItem("tags", item)}
-                    className="hover:text-red-400 transition-colors"
+            <div className="mt-3">
+              <p className="text-xs font-medium text-gray-400 mb-1.5">Selected Tags:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {formData.tags.map((item: string, index: number) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500/15 text-amber-400 border border-amber-500/30"
                   >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
+                    <Tag className="w-3 h-3" />
+                    {item}
+                    <button
+                      type="button"
+                      onClick={() => removeArrayItem("tags", item)}
+                      className="hover:text-red-400 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
             </div>
           )}
-          <p className="mt-1 text-xs text-gray-500">
-            Press Enter after each tag to add it to the list
-          </p>
+
+          {/* Suggested Tags */}
+          {availableTags.length > 0 && (
+            <div className="mt-3">
+              <p className="text-xs font-medium text-gray-400 mb-1.5">Suggested Tags:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {availableTags
+                  .filter((tag) =>
+                    customTagInput.length === 0 ||
+                    tag.toLowerCase().includes(customTagInput.toLowerCase())
+                  )
+                  .slice(0, 10)
+                  .map((tag) => (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => {
+                        const currentTags = formData.tags || [];
+                        if (!currentTags.includes(tag)) {
+                          handleChange("tags", [...currentTags, tag]);
+                        }
+                        setCustomTagInput("");
+                      }}
+                      className="rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-xs text-amber-400 transition hover:bg-amber-500/20 hover:border-amber-500/40"
+                    >
+                      {tag}
+                    </button>
+                  ))}
+              </div>
+              {availableTags.length === 0 && (
+                <p className="text-xs text-gray-500 mt-1">All tags are selected. Type a new one and press Enter to create it.</p>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Description */}
+        {/* Job Description */}
         <div className="md:col-span-2">
           <label className="mb-1.5 block text-sm font-medium text-gray-300">
             <FileText className="mr-1.5 inline h-4 w-4" />
-            Job Description
+            Job Description <span className="text-red-400">*</span>
+            <span className="text-xs text-gray-500 ml-2">(Minimum 10 characters)</span>
           </label>
           <textarea
             value={formData.description || ""}
-            onChange={(event) =>
-              handleChange("description", event.target.value)
-            }
+            onChange={(event) => {
+              handleChange("description", event.target.value);
+              if (errors.description) {
+                setErrors((prev) => ({ ...prev, description: "" }));
+              }
+            }}
             placeholder="Describe the job role, responsibilities, and requirements..."
-            rows={4}
-            className="w-full resize-none rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+            rows={5}
+            className={`w-full resize-none rounded-lg border ${errors.description ? 'border-red-500' : 'border-slate-700'} bg-[#0F172A] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500`}
           />
+          {errors.description && (
+            <p className="mt-1 text-xs text-red-400">{errors.description}</p>
+          )}
+          <p className="mt-1 text-xs text-gray-500">
+            {formData.description?.length || 0} characters (minimum 10 required)
+          </p>
         </div>
 
         {/* Package Details */}
         <div className="mt-2 border-t border-slate-800 pt-4 md:col-span-2">
           <h3 className="mb-3 flex items-center gap-2 text-sm font-medium text-gray-300">
-           
+            <DollarSign className="h-4 w-4 text-green-400" />
             Package Details
           </h3>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">

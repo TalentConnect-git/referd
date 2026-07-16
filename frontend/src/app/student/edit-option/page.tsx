@@ -51,7 +51,6 @@ import type {
   Award,
   Publication,
   MasterData,
-  ShiftPreferences,
 } from "@/types/profile";
 
 // ---------- Constants ----------
@@ -70,15 +69,15 @@ const emptyEducation: Education = {
 
 const emptyExperience: Experience = {
   company: "",
-  organization: "",
+  company_canonical_id: "",
+  company_display: "",
+  company_master_id: "",
   role: "",
-  title: "",
   startDate: "",
   endDate: "",
   description: "",
+  experienceCertificate: "",
   isCurrent: false,
-  noticePeriod: "",
-  officialCompanyEmail: "",
 };
 
 const emptyInternationalExperience: InternationalExperience = {
@@ -140,17 +139,21 @@ function authHeaders(): Record<string, string> {
 
 function getResponseData(data: unknown): ProfileData {
   const response = data as {
-    data?: ProfileData;
+    data?: ProfileData | { data?: ProfileData; profile?: ProfileData };
     profile?: ProfileData;
     user?: ProfileData;
   };
-  return (
-    response?.data ||
-    response?.profile ||
-    response?.user ||
-    (data as ProfileData) ||
-    {}
-  );
+
+  if (response?.data && typeof response.data === "object") {
+    const nested = response.data as {
+      data?: ProfileData;
+      profile?: ProfileData;
+    };
+
+    return nested.data || nested.profile || (response.data as ProfileData);
+  }
+
+  return response?.profile || response?.user || (data as ProfileData) || {};
 }
 
 function getErrorMessage(error: unknown, fallback: string): string {
@@ -217,6 +220,7 @@ function profileToForm(profile: ProfileData): EditForm {
     email: profile.email || "",
     phone: profile.phone || "",
     about: profile.about || "",
+    visaStatus: profile.visaStatus || "",
     gender: profile.gender || "",
     dob: profile.dob ? String(profile.dob).slice(0, 10) : "",
     ethnicity: profile.ethnicity || "",
@@ -284,6 +288,7 @@ function buildPayload(form: EditForm) {
     email: form.email,
     phone: form.phone,
     about: form.about,
+    visaStatus: form.visaStatus || "",
     gender: form.gender,
     dob: form.dob,
     ethnicity: form.ethnicity,
@@ -313,11 +318,11 @@ function buildPayload(form: EditForm) {
     industry: form.industry,
     currentCompany: form.currentCompany,
     currentCompany_display: form.currentCompany_display,
-    companyEmail: form.companyEmail,
-    totalYearsOfExperience: form.totalYearsOfExperience,
-    noticePeriod: form.noticePeriod,
+    companyEmail: form.companyEmail?.trim().toLowerCase() || "",
+    totalYearsOfExperience: form.totalYearsOfExperience || "",
+    noticePeriod: form.noticePeriod?.trim() || "",
     noticePeriodStartDate: form.noticePeriodStartDate || "",
-    servingNoticePeriod: form.servingNoticePeriod || false,
+    servingNoticePeriod: Boolean(form.servingNoticePeriod),
     openToShift: form.openToShift || "",
     shiftPreferences: form.shiftPreferences,
     currentSalaryCurrency: form.currentSalaryCurrency || "₹",
@@ -573,10 +578,7 @@ export default function EditProfilePage() {
       if (key === "isCurrent" && value === true) {
         next[index].endDate = "";
       }
-      if (key === "isCurrent" && value === false) {
-        next[index].noticePeriod = "";
-        next[index].officialCompanyEmail = "";
-      }
+
       return {
         ...prev,
         experiences: next,
@@ -739,53 +741,52 @@ export default function EditProfilePage() {
     });
   }
 
- function updateAward<K extends keyof Award>(
-  index: number,
-  key: K,
-  value: Award[K],
-) {
-  setForm((prev: EditForm | null) => {
-    if (!prev) return prev;
+  function updateAward<K extends keyof Award>(
+    index: number,
+    key: K,
+    value: Award[K],
+  ) {
+    setForm((prev: EditForm | null) => {
+      if (!prev) return prev;
 
-    const next = [...prev.award];
+      const next = [...prev.award];
+      next[index] = {
+        ...next[index],
+        [key]: value,
+      };
 
-    next[index] = {
-      ...next[index],
-      [key]: value,
-    };
+      return {
+        ...prev,
+        award: next,
+      };
+    });
+  }
 
-    return {
-      ...prev,
-      award: next,
-    };
-  });
-}
+  function addAward() {
+    setForm((prev: EditForm | null) => {
+      if (!prev) return prev;
 
-function addAward() {
-  setForm((prev: EditForm | null) => {
-    if (!prev) return prev;
+      return {
+        ...prev,
+        award: [...prev.award, { ...emptyAward }],
+      };
+    });
+  }
 
-    return {
-      ...prev,
-      award: [...prev.award, { ...emptyAward }],
-    };
-  });
-}
+  function removeAward(index: number) {
+    setForm((prev: EditForm | null) => {
+      if (!prev) return prev;
 
-function removeAward(index: number) {
-  setForm((prev: EditForm | null) => {
-    if (!prev) return prev;
+      const next = prev.award.filter(
+        (_item: Award, itemIndex: number) => itemIndex !== index,
+      );
 
-    const next = prev.award.filter(
-      (_item: Award, itemIndex: number) => itemIndex !== index,
-    );
-
-    return {
-      ...prev,
-      award: next.length ? next : [{ ...emptyAward }],
-    };
-  });
-}
+      return {
+        ...prev,
+        award: next.length ? next : [{ ...emptyAward }],
+      };
+    });
+  }
 
   function updatePublication<K extends keyof Publication>(
     index: number,
@@ -1100,6 +1101,14 @@ function removeAward(index: number) {
               onUpdate={updateExperience}
               onAdd={addExperience}
               onRemove={removeExperience}
+              companyEmail={form.companyEmail || ""}
+              noticePeriod={form.noticePeriod || ""}
+              onCompanyEmailChange={(value: string) =>
+                updateField("companyEmail", value)
+              }
+              onNoticePeriodChange={(value: string) =>
+                updateField("noticePeriod", value)
+              }
             />
 
             <SectionActions

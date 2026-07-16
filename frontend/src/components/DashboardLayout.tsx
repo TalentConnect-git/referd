@@ -110,8 +110,7 @@ export function DashboardLayout({
   // Auth context
   const { profile, profileLoading, logout } = useAuth();
 
-  // Get unread message counts
-  // Realtime unread message count for navbar/sidebar message badge
+  
   const { messageUnreadCount } = useMessageUnreadCount();
 
   const handleClick = () => {

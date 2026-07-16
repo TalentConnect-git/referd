@@ -8,10 +8,13 @@ import { Country, State, City } from "country-state-city";
 interface StateCitySelectorProps {
   selectedState: string;
   selectedCity: string;
-  onStateChange: (state: string, stateName: string) => void;
+  onStateChange: (stateCode: string, stateName: string) => void;
   onCityChange: (city: string) => void;
   required?: boolean;
   className?: string;
+  disabled?: boolean;
+  showLabel?: boolean;
+  label?: string;
 }
 
 export default function StateCitySelector({
@@ -21,9 +24,12 @@ export default function StateCitySelector({
   onCityChange,
   required = false,
   className = "",
+  disabled = false,
+  showLabel = true,
+  label = "Location",
 }: StateCitySelectorProps) {
-  const [selectedStateCode, setSelectedStateCode] = useState(selectedState || "");
-  const [selectedCityName, setSelectedCityName] = useState(selectedCity || "");
+  const [selectedStateCode, setSelectedStateCode] = useState<string>(selectedState || "");
+  const [selectedCityName, setSelectedCityName] = useState<string>(selectedCity || "");
 
   // Get India country
   const india = useMemo(() => {
@@ -44,20 +50,29 @@ export default function StateCitySelector({
 
   // Update internal state when props change
   useEffect(() => {
-    setSelectedStateCode(selectedState || "");
+    if (selectedState) {
+      setSelectedStateCode(selectedState);
+    }
   }, [selectedState]);
 
   useEffect(() => {
-    setSelectedCityName(selectedCity || "");
+    if (selectedCity) {
+      setSelectedCityName(selectedCity);
+    }
   }, [selectedCity]);
 
   const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const stateCode = e.target.value;
-    const stateName = e.target.options[e.target.selectedIndex]?.text || "";
+    const selectedOption = e.target.options[e.target.selectedIndex];
+    const stateName = selectedOption?.text || "";
+    
+    // Update internal state
     setSelectedStateCode(stateCode);
     setSelectedCityName(""); // Reset city when state changes
-    onCityChange("");
+    
+    // Notify parent
     onStateChange(stateCode, stateName);
+    onCityChange(""); // Reset city in parent as well
   };
 
   const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -70,38 +85,52 @@ export default function StateCitySelector({
     <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${className}`}>
       {/* State Dropdown */}
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1.5">
-          <MapPin className="w-4 h-4 inline mr-1.5" />
-          State {required && <span className="text-red-400">*</span>}
-        </label>
+        {showLabel && (
+          <label className="block text-sm font-medium text-gray-300 mb-1.5">
+            <MapPin className="w-4 h-4 inline mr-1.5" />
+            State {required && <span className="text-red-400">*</span>}
+            <span className="text-xs text-gray-500 ml-1.5">(Optional)</span>
+          </label>
+        )}
         <select
-          value={selectedStateCode}
+          value={selectedStateCode || ""}
           onChange={handleStateChange}
-          className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+          disabled={disabled || indianStates.length === 0}
+          className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <option value="">Select State</option>
+          <option value="">{indianStates.length === 0 ? "Loading..." : "Select State (Optional)"}</option>
           {indianStates.map((state) => (
             <option key={state.isoCode} value={state.isoCode}>
               {state.name}
             </option>
           ))}
         </select>
+        {indianStates.length === 0 && (
+          <p className="mt-1 text-xs text-yellow-400">Loading states...</p>
+        )}
       </div>
 
       {/* City Dropdown */}
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1.5">
-          <MapPin className="w-4 h-4 inline mr-1.5" />
-          City 
-        </label>
+        {showLabel && (
+          <label className="block text-sm font-medium text-gray-300 mb-1.5">
+            <MapPin className="w-4 h-4 inline mr-1.5" />
+            City {required && <span className="text-red-400">*</span>}
+            <span className="text-xs text-gray-500 ml-1.5">(Optional)</span>
+          </label>
+        )}
         <select
-          value={selectedCityName}
+          value={selectedCityName || ""}
           onChange={handleCityChange}
-          disabled={!selectedStateCode}
-          className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:opacity-50"
+          disabled={!selectedStateCode || disabled || stateCities.length === 0}
+          className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <option value="">
-            {!selectedStateCode ? "Select state first" : "Select City"}
+            {!selectedStateCode 
+              ? "Select state first" 
+              : stateCities.length === 0 
+                ? "No cities found" 
+                : "Select City (Optional)"}
           </option>
           {stateCities.map((city) => (
             <option key={city.name} value={city.name}>

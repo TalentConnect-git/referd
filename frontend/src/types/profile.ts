@@ -53,6 +53,8 @@ export type Experience = {
   company_canonical_id?: string;
   company_display?: string;
   company_master_id?: string;
+  companyEmail?:string;
+  experienceCertificate?:string;
 };
 
 export type InternationalExperience = {
@@ -223,6 +225,7 @@ export type EditForm = {
   publications: Publication[];
   maritalStatus: string;
   linkedin: string;
+  visaStatus: string;
   github: string;
   portfolio: string;
   profileImage: string;
