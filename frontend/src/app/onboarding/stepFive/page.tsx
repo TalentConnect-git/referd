@@ -218,12 +218,23 @@ function AutocompleteInput({
       setLoading(true);
 
       if (apiType === "company") {
-        const response = await axiosInstance.get("/dropdown/companiesName");
-        setData(extractItems(response.data));
+        // ✅ Use /api/company for GET
+        const response = await axiosInstance.get("/api/company");
+        const items = extractItems(response.data);
+        
+        // Transform items to have consistent structure
+        const transformedItems = items.map((item) => ({
+          ...item,
+          value: item.name || item.value || "",
+          label: item.name || item.value || "",
+        }));
+        
+        setData(transformedItems);
       } else {
+        // Job Role API
         const response = await axiosInstance.get("/api/company-master-data", {
           params: {
-            type: "COMPANY_DESIGNATION",
+            type: "JOB_ROLE"
           },
         });
 
@@ -283,15 +294,20 @@ function AutocompleteInput({
     try {
       setIsCreating(true);
 
-      const response =
-        apiType === "company"
-          ? await axiosInstance.post("/api/company", {
-              name: valueToCreate,
-            })
-          : await axiosInstance.post("/api/company-master-data", {
-              type: "COMPANY_DESIGNATION",
-              value: valueToCreate,
-            });
+      let response;
+      
+      if (apiType === "company") {
+        // ✅ Use POST /api/company for creating company
+        response = await axiosInstance.post("/api/company", {
+          name: valueToCreate,
+        });
+      } else {
+        // Job Role creation
+        response = await axiosInstance.post("/api/company-master-data", {
+          type: "JOB_ROLE",
+          value: valueToCreate,
+        });
+      }
 
       const responseItems = extractItems(response.data);
       const responseObject =
@@ -332,10 +348,7 @@ function AutocompleteInput({
     } catch (error) {
       console.error(`Error creating ${apiType}:`, error);
 
-      /*
-       * Keep custom values in the signup form even if the optional
-       * master-data creation endpoint fails.
-       */
+      // Keep custom values even if the API fails
       setSearchTerm(valueToCreate);
       onChange(valueToCreate);
       setIsOpen(false);
@@ -653,19 +666,11 @@ export default function StepFivePage() {
       lastUpdated: new Date().toISOString(),
     };
 
-    /*
-     * The confirmation page must read this complete object and spread it
-     * into the final onboarding API payload.
-     */
     localStorage.setItem(
       "onboarding_experiences",
       JSON.stringify(onboardingData),
     );
 
-    /*
-     * Keep the old array key for compatibility with existing code, but do
-     * not rely on it for companyEmail or noticePeriod.
-     */
     localStorage.setItem(
       "experiences_data",
       JSON.stringify(cleanedExperiences),
