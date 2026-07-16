@@ -173,10 +173,11 @@ export const getAlumniDetails = async (
 
 
 export const getAlumniWhoCanHelp = async (
-  jobId: string
+  jobId: string,
+  company:string
 ) => {
   const response = await axiosInstance.get(
-    `/api/candidate/alumni/RawRecruit/${jobId}`
+    `/api/candidate/alumni/${company}/${jobId}`
   );
   return response.data;
 };
