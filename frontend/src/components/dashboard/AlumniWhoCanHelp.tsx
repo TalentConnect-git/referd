@@ -18,7 +18,7 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
     const fetchAlumni = async () => {
       try {
         const company = job.candidatePosted?.currentCompany || job.companyName || "";
-        const response = await getAlumniWhoCanHelp(job._id);
+        const response = await getAlumniWhoCanHelp(job._id,company);
         setAlumni(response.data || []);
       } catch (err) {
         console.error("Error fetching alumni:", err);
