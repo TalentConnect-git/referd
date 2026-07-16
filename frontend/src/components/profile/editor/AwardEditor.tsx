@@ -35,7 +35,67 @@ function normalizeMonthValue(value?: string | null) {
   return "";
 }
 
-// Organization Autocomplete Component
+// Helper function to extract items from API response
+function extractItems(responseData: unknown): any[] {
+  if (Array.isArray(responseData)) {
+    return responseData;
+  }
+
+  if (!responseData || typeof responseData !== "object") {
+    return [];
+  }
+
+  const response = responseData as {
+    data?: unknown;
+    items?: unknown;
+    companies?: unknown;
+    results?: unknown;
+  };
+
+  if (Array.isArray(response.data)) {
+    return response.data;
+  }
+
+  if (
+    response.data &&
+    typeof response.data === "object" &&
+    !Array.isArray(response.data)
+  ) {
+    const nestedData = response.data as {
+      data?: unknown;
+      items?: unknown;
+      companies?: unknown;
+      results?: unknown;
+    };
+
+    if (Array.isArray(nestedData.data)) {
+      return nestedData.data;
+    }
+    if (Array.isArray(nestedData.items)) {
+      return nestedData.items;
+    }
+    if (Array.isArray(nestedData.companies)) {
+      return nestedData.companies;
+    }
+    if (Array.isArray(nestedData.results)) {
+      return nestedData.results;
+    }
+  }
+
+  if (Array.isArray(response.items)) {
+    return response.items;
+  }
+  if (Array.isArray(response.companies)) {
+    return response.companies;
+  }
+  if (Array.isArray(response.results)) {
+    return response.results;
+  }
+
+  return [];
+}
+
+// Organization Autocomplete Component - FIXED: Uses /api/company
 const OrganizationAutocomplete = ({
   value,
   onChange,
@@ -46,26 +106,35 @@ const OrganizationAutocomplete = ({
   placeholder?: string;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [data, setData] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState(value || "");
+  const [data, setData] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const hasFetchedRef = useRef(false);
 
   // Sync searchTerm with value
   useEffect(() => {
-    if (value && !searchTerm) {
-      setSearchTerm(value);
-    }
+    setSearchTerm(value || "");
   }, [value]);
 
-  // Fetch data from API
+  // Fetch data from API - FIXED: Uses /api/company
   const fetchData = async () => {
+    if (hasFetchedRef.current || loading) return;
+
     try {
       setLoading(true);
-      const response = await axiosInstance.get('/dropdown/companiesName');
-      setData(response.data || []);
+      const response = await axiosInstance.get('/api/company');
+      const items = extractItems(response.data);
+      
+      // Extract company names
+      const companyNames = items
+        .map((item) => String(item.name || item.value || item.label || ""))
+        .filter((name) => name && name.trim() !== '');
+      
+      setData([...new Set(companyNames)]);
+      hasFetchedRef.current = true;
     } catch (error) {
       console.error("Error fetching companies:", error);
     } finally {
@@ -86,9 +155,7 @@ const OrganizationAutocomplete = ({
 
   const handleFocus = () => {
     setIsOpen(true);
-    if (data.length === 0) {
-      fetchData();
-    }
+    fetchData();
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,43 +172,57 @@ const OrganizationAutocomplete = ({
     inputRef.current?.blur();
   };
 
-  // Create new company
+  const clearInput = () => {
+    setSearchTerm("");
+    onChange("");
+    setIsOpen(false);
+    inputRef.current?.focus();
+  };
+
+  // Create new company - FIXED: Uses /api/company POST
   const handleCreate = async () => {
-    if (!searchTerm.trim()) return;
+    const valueToCreate = searchTerm.trim();
+    if (!valueToCreate || isCreating) return;
+
     try {
       setIsCreating(true);
-      const response = await axiosInstance.post('/api/company', { 
-        name: searchTerm.trim() 
+      const response = await axiosInstance.post('/api/company', {
+        name: valueToCreate,
       });
-      if (response?.data?.success || response?.status === 201 || response?.status === 200) {
-        const newData = response?.data?.data || response?.data;
-        const newValue = newData?.name || searchTerm.trim();
-        setData(prev => [...prev, newData]);
-        onChange(newValue);
-        setSearchTerm(newValue);
-        setIsOpen(false);
-      }
+
+      const items = extractItems(response.data);
+      const createdItem = items[0] || response.data?.data;
+      const createdValue = String(createdItem?.name || valueToCreate);
+
+      setData(prev => {
+        const exists = prev.some(item => item.toLowerCase() === createdValue.toLowerCase());
+        return exists ? prev : [...prev, createdValue];
+      });
+
+      onChange(createdValue);
+      setSearchTerm(createdValue);
+      setIsOpen(false);
+      inputRef.current?.blur();
     } catch (error) {
       console.error("Error creating company:", error);
+      // Keep the typed value even if API fails
+      onChange(valueToCreate);
+      setSearchTerm(valueToCreate);
+      setIsOpen(false);
     } finally {
       setIsCreating(false);
     }
   };
 
-  const getDisplayValue = (item: any): string => {
-    return item?.label || item?.value || item?.name || "";
-  };
-
-  const filteredData = data.filter(item => {
-    const displayValue = getDisplayValue(item).toLowerCase();
-    return displayValue.includes(searchTerm.toLowerCase());
-  });
-
-  const exactMatchExists = data.some(item => 
-    getDisplayValue(item).toLowerCase() === searchTerm.toLowerCase()
+  const filteredData = data.filter(item =>
+    item.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const showDropdown = isOpen && (searchTerm.length > 0 || data.length > 0);
+  const exactMatchExists = data.some(
+    item => item.toLowerCase() === searchTerm.toLowerCase()
+  );
+
+  const showDropdown = isOpen && (loading || searchTerm.length > 0 || data.length > 0);
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -159,12 +240,7 @@ const OrganizationAutocomplete = ({
         {searchTerm && (
           <button
             type="button"
-            onClick={() => {
-              setSearchTerm("");
-              onChange("");
-              setIsOpen(false);
-              inputRef.current?.focus();
-            }}
+            onClick={clearInput}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
           >
             <X className="h-4 w-4" />
@@ -177,24 +253,20 @@ const OrganizationAutocomplete = ({
           {loading ? (
             <div className="flex items-center justify-center px-4 py-3 text-sm text-gray-400">
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              Loading...
+              Loading companies...
             </div>
           ) : filteredData.length > 0 ? (
             <>
-              {filteredData.slice(0, 15).map((item, index) => (
+              {filteredData.slice(0, 15).map((item) => (
                 <button
-                  key={item._id || index}
+                  key={item}
                   type="button"
-                  onClick={() => handleSelect(getDisplayValue(item))}
-                  className="w-full px-4 py-2.5 text-left text-sm text-white hover:bg-green-500/10 transition-colors flex items-center justify-between group border-b border-[#2a3a52] last:border-0"
+                  onClick={() => handleSelect(item)}
+                  className="w-full px-4 py-2.5 text-left text-sm text-white hover:bg-green-500/10 transition-colors border-b border-[#2a3a52] last:border-0"
                 >
-                  <span>{getDisplayValue(item)}</span>
-                  {item.isCustom && (
-                    <span className="text-[10px] text-gray-500 group-hover:text-green-400">Custom</span>
-                  )}
+                  {item}
                 </button>
               ))}
-              
               {searchTerm.trim() && !exactMatchExists && (
                 <button
                   type="button"
@@ -210,7 +282,7 @@ const OrganizationAutocomplete = ({
                   ) : (
                     <>
                       <Plus className="h-4 w-4" />
-                      Create "{searchTerm}"
+                      Create "{searchTerm.trim()}"
                     </>
                   )}
                 </button>
@@ -233,14 +305,14 @@ const OrganizationAutocomplete = ({
                   ) : (
                     <>
                       <Plus className="h-4 w-4" />
-                      Create "{searchTerm}"
+                      Create "{searchTerm.trim()}"
                     </>
                   )}
                 </button>
               ) : (
                 <div className="text-center">
-                  <p className="text-gray-400">Type to search...</p>
-                  <p className="text-xs text-gray-500 mt-1">No items found</p>
+                  <p className="text-gray-400">Type to search companies...</p>
+                  <p className="text-xs text-gray-500 mt-1">No companies found</p>
                 </div>
               )}
             </div>
@@ -290,9 +362,6 @@ export function AwardEditor({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      
-
       {localAwards.length === 0 && (
         <div className="rounded-xl border border-dashed border-[#2a3a52] bg-[#111827] p-8 text-center hover:border-green-500/30 transition-all duration-300">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-green-500/10 border border-green-500/20">
@@ -340,14 +409,16 @@ export function AwardEditor({
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={() => handleRemove(idx)}
-              className="flex items-center gap-1.5 rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:border-red-500/50 hover:bg-red-500/10"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-              Remove
-            </button>
+            {localAwards.length > 1 && (
+              <button
+                type="button"
+                onClick={() => handleRemove(idx)}
+                className="flex items-center gap-1.5 rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:border-red-500/50 hover:bg-red-500/10"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Remove
+              </button>
+            )}
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -379,7 +450,7 @@ export function AwardEditor({
               />
             </div>
 
-            {/* Start Date - Only start date, removed end date */}
+            {/* Start Date */}
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-gray-300 flex items-center gap-1.5">
                 <Calendar className="h-3.5 w-3.5 text-gray-500" />

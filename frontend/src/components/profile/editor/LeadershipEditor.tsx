@@ -14,7 +14,67 @@ type LeadershipEditorProps = {
   onRemove: (index: number) => void;
 };
 
-// Autocomplete Component for Organization (Company)
+// Helper function to extract items from API response
+function extractItems(responseData: unknown): any[] {
+  if (Array.isArray(responseData)) {
+    return responseData;
+  }
+
+  if (!responseData || typeof responseData !== "object") {
+    return [];
+  }
+
+  const response = responseData as {
+    data?: unknown;
+    items?: unknown;
+    companies?: unknown;
+    results?: unknown;
+  };
+
+  if (Array.isArray(response.data)) {
+    return response.data;
+  }
+
+  if (
+    response.data &&
+    typeof response.data === "object" &&
+    !Array.isArray(response.data)
+  ) {
+    const nestedData = response.data as {
+      data?: unknown;
+      items?: unknown;
+      companies?: unknown;
+      results?: unknown;
+    };
+
+    if (Array.isArray(nestedData.data)) {
+      return nestedData.data;
+    }
+    if (Array.isArray(nestedData.items)) {
+      return nestedData.items;
+    }
+    if (Array.isArray(nestedData.companies)) {
+      return nestedData.companies;
+    }
+    if (Array.isArray(nestedData.results)) {
+      return nestedData.results;
+    }
+  }
+
+  if (Array.isArray(response.items)) {
+    return response.items;
+  }
+  if (Array.isArray(response.companies)) {
+    return response.companies;
+  }
+  if (Array.isArray(response.results)) {
+    return response.results;
+  }
+
+  return [];
+}
+
+// Autocomplete Component for Organization (Company) - FIXED: Uses /api/company
 const OrganizationAutocomplete = ({
   value,
   onChange,
@@ -29,26 +89,35 @@ const OrganizationAutocomplete = ({
   icon?: React.ElementType;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [data, setData] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState(value || "");
+  const [data, setData] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const hasFetchedRef = useRef(false);
 
   // Sync searchTerm with value
   useEffect(() => {
-    if (value && !searchTerm) {
-      setSearchTerm(value);
-    }
+    setSearchTerm(value || "");
   }, [value]);
 
-  // Fetch data from API
+  // Fetch data from API - FIXED: Uses /api/company
   const fetchData = async () => {
+    if (hasFetchedRef.current || loading) return;
+
     try {
       setLoading(true);
-      const response = await axiosInstance.get('/dropdown/companiesName');
-      setData(response.data || []);
+      const response = await axiosInstance.get('/api/company');
+      const items = extractItems(response.data);
+      
+      // Extract company names
+      const companyNames = items
+        .map((item) => String(item.name || item.value || item.label || ""))
+        .filter((name) => name && name.trim() !== '');
+      
+      setData([...new Set(companyNames)]);
+      hasFetchedRef.current = true;
     } catch (error) {
       console.error("Error fetching companies:", error);
     } finally {
@@ -69,9 +138,7 @@ const OrganizationAutocomplete = ({
 
   const handleFocus = () => {
     setIsOpen(true);
-    if (data.length === 0) {
-      fetchData();
-    }
+    fetchData();
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,43 +155,57 @@ const OrganizationAutocomplete = ({
     inputRef.current?.blur();
   };
 
-  // Create new company
+  const clearInput = () => {
+    setSearchTerm("");
+    onChange("");
+    setIsOpen(false);
+    inputRef.current?.focus();
+  };
+
+  // Create new company - FIXED: Uses /api/company POST
   const handleCreate = async () => {
-    if (!searchTerm.trim()) return;
+    const valueToCreate = searchTerm.trim();
+    if (!valueToCreate || isCreating) return;
+
     try {
       setIsCreating(true);
-      const response = await axiosInstance.post('/api/company', { 
-        name: searchTerm.trim() 
+      const response = await axiosInstance.post('/api/company', {
+        name: valueToCreate,
       });
-      if (response?.data?.success || response?.status === 201 || response?.status === 200) {
-        const newData = response?.data?.data || response?.data;
-        const newValue = newData?.name || searchTerm.trim();
-        setData(prev => [...prev, newData]);
-        onChange(newValue);
-        setSearchTerm(newValue);
-        setIsOpen(false);
-      }
+
+      const items = extractItems(response.data);
+      const createdItem = items[0] || response.data?.data;
+      const createdValue = String(createdItem?.name || valueToCreate);
+
+      setData(prev => {
+        const exists = prev.some(item => item.toLowerCase() === createdValue.toLowerCase());
+        return exists ? prev : [...prev, createdValue];
+      });
+
+      onChange(createdValue);
+      setSearchTerm(createdValue);
+      setIsOpen(false);
+      inputRef.current?.blur();
     } catch (error) {
       console.error("Error creating company:", error);
+      // Keep the typed value even if API fails
+      onChange(valueToCreate);
+      setSearchTerm(valueToCreate);
+      setIsOpen(false);
     } finally {
       setIsCreating(false);
     }
   };
 
-  const getDisplayValue = (item: any): string => {
-    return item?.label || item?.value || item?.name || "";
-  };
-
-  const filteredData = data.filter(item => {
-    const displayValue = getDisplayValue(item).toLowerCase();
-    return displayValue.includes(searchTerm.toLowerCase());
-  });
-
-  const exactMatchExists = data.some(item => 
-    getDisplayValue(item).toLowerCase() === searchTerm.toLowerCase()
+  const filteredData = data.filter(item =>
+    item.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const showDropdown = isOpen && (searchTerm.length > 0 || data.length > 0);
+  const exactMatchExists = data.some(
+    item => item.toLowerCase() === searchTerm.toLowerCase()
+  );
+
+  const showDropdown = isOpen && (loading || searchTerm.length > 0 || data.length > 0);
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -147,12 +228,7 @@ const OrganizationAutocomplete = ({
         {searchTerm && (
           <button
             type="button"
-            onClick={() => {
-              setSearchTerm("");
-              onChange("");
-              setIsOpen(false);
-              inputRef.current?.focus();
-            }}
+            onClick={clearInput}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
           >
             <X className="h-4 w-4" />
@@ -165,24 +241,20 @@ const OrganizationAutocomplete = ({
           {loading ? (
             <div className="flex items-center justify-center px-4 py-3 text-sm text-gray-400">
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              Loading...
+              Loading companies...
             </div>
           ) : filteredData.length > 0 ? (
             <>
-              {filteredData.slice(0, 15).map((item, index) => (
+              {filteredData.slice(0, 15).map((item) => (
                 <button
-                  key={item._id || index}
+                  key={item}
                   type="button"
-                  onClick={() => handleSelect(getDisplayValue(item))}
-                  className="w-full px-4 py-2.5 text-left text-sm text-white hover:bg-green-500/10 transition-colors flex items-center justify-between group border-b border-[#2a3a52] last:border-0"
+                  onClick={() => handleSelect(item)}
+                  className="w-full px-4 py-2.5 text-left text-sm text-white hover:bg-green-500/10 transition-colors border-b border-[#2a3a52] last:border-0"
                 >
-                  <span>{getDisplayValue(item)}</span>
-                  {item.isCustom && (
-                    <span className="text-[10px] text-gray-500 group-hover:text-green-400">Custom</span>
-                  )}
+                  {item}
                 </button>
               ))}
-              
               {searchTerm.trim() && !exactMatchExists && (
                 <button
                   type="button"
@@ -198,7 +270,7 @@ const OrganizationAutocomplete = ({
                   ) : (
                     <>
                       <Plus className="h-4 w-4" />
-                      Create "{searchTerm}"
+                      Create "{searchTerm.trim()}"
                     </>
                   )}
                 </button>
@@ -221,14 +293,14 @@ const OrganizationAutocomplete = ({
                   ) : (
                     <>
                       <Plus className="h-4 w-4" />
-                      Create "{searchTerm}"
+                      Create "{searchTerm.trim()}"
                     </>
                   )}
                 </button>
               ) : (
                 <div className="text-center">
-                  <p className="text-gray-400">Type to search...</p>
-                  <p className="text-xs text-gray-500 mt-1">No items found</p>
+                  <p className="text-gray-400">Type to search companies...</p>
+                  <p className="text-xs text-gray-500 mt-1">No companies found</p>
                 </div>
               )}
             </div>
@@ -239,7 +311,7 @@ const OrganizationAutocomplete = ({
   );
 };
 
-// Autocomplete Component for Role using Company Master Data API
+// Autocomplete Component for Role using Company Master Data API - FIXED: Uses JOB_ROLE
 const RoleAutocomplete = ({
   value,
   onChange,
@@ -254,30 +326,34 @@ const RoleAutocomplete = ({
   icon?: React.ElementType;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [data, setData] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState(value || "");
+  const [data, setData] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const hasFetchedRef = useRef(false);
 
   // Sync searchTerm with value
   useEffect(() => {
-    if (value && !searchTerm) {
-      setSearchTerm(value);
-    }
+    setSearchTerm(value || "");
   }, [value]);
 
-  // Fetch data from API
+  // Fetch data from API - FIXED: Uses JOB_ROLE instead of COMPANY_DESIGNATION
   const fetchData = async () => {
+    if (hasFetchedRef.current || loading) return;
+
     try {
       setLoading(true);
       const response = await axiosInstance.get('/api/company-master-data', {
-        params: { type: "COMPANY_DESIGNATION" }
+        params: { type: "JOB_ROLE" }
       });
-      const data = response.data?.data || [];
-      const values = data.map((item: any) => String(item.value)).filter(Boolean);
-      setData(values.map((value: string) => ({ value, label: value })));
+      const items = extractItems(response.data);
+      const values = items
+        .map((item: any) => String(item.value || item.label || ""))
+        .filter((value: string) => value && value.trim() !== '');
+      setData([...new Set(values)]);
+      hasFetchedRef.current = true;
     } catch (error) {
       console.error("Error fetching roles:", error);
     } finally {
@@ -298,9 +374,7 @@ const RoleAutocomplete = ({
 
   const handleFocus = () => {
     setIsOpen(true);
-    if (data.length === 0) {
-      fetchData();
-    }
+    fetchData();
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -317,45 +391,71 @@ const RoleAutocomplete = ({
     inputRef.current?.blur();
   };
 
-  // Create new role
+  const clearInput = () => {
+    setSearchTerm("");
+    onChange("");
+    setIsOpen(false);
+    inputRef.current?.focus();
+  };
+
+  // Create new role - FIXED: Uses JOB_ROLE
   const handleCreate = async () => {
-    if (!searchTerm.trim()) return;
+    const valueToCreate = searchTerm.trim();
+    if (!valueToCreate || isCreating) return;
+
     try {
       setIsCreating(true);
       const response = await axiosInstance.post('/api/company-master-data', {
-        type: "COMPANY_DESIGNATION",
-        value: searchTerm.trim()
+        type: "JOB_ROLE",
+        value: valueToCreate
       });
 
       if (response?.data?.success) {
-        const newData = response.data.data;
-        const newValue = String(newData?.value || searchTerm.trim());
-        setData(prev => [...prev, { value: newValue, label: newValue }]);
-        onChange(newValue);
-        setSearchTerm(newValue);
+        const items = extractItems(response.data);
+        const createdItem = items[0] || response.data?.data;
+        const createdValue = String(createdItem?.value || valueToCreate);
+        
+        setData(prev => {
+          const exists = prev.some(item => item.toLowerCase() === createdValue.toLowerCase());
+          return exists ? prev : [...prev, createdValue];
+        });
+        
+        onChange(createdValue);
+        setSearchTerm(createdValue);
+        setIsOpen(false);
+        inputRef.current?.blur();
+      } else {
+        // Fallback: add to local options even if API fails
+        if (!data.includes(valueToCreate)) {
+          setData(prev => [...prev, valueToCreate]);
+        }
+        onChange(valueToCreate);
+        setSearchTerm(valueToCreate);
         setIsOpen(false);
       }
     } catch (error) {
       console.error("Error creating role:", error);
+      // Fallback: add to local options even if API fails
+      if (!data.includes(valueToCreate)) {
+        setData(prev => [...prev, valueToCreate]);
+      }
+      onChange(valueToCreate);
+      setSearchTerm(valueToCreate);
+      setIsOpen(false);
     } finally {
       setIsCreating(false);
     }
   };
 
-  const getDisplayValue = (item: any): string => {
-    return item?.label || item?.value || "";
-  };
-
-  const filteredData = data.filter(item => {
-    const displayValue = getDisplayValue(item).toLowerCase();
-    return displayValue.includes(searchTerm.toLowerCase());
-  });
-
-  const exactMatchExists = data.some(item => 
-    getDisplayValue(item).toLowerCase() === searchTerm.toLowerCase()
+  const filteredData = data.filter(item =>
+    item.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const showDropdown = isOpen && (searchTerm.length > 0 || data.length > 0);
+  const exactMatchExists = data.some(
+    item => item.toLowerCase() === searchTerm.toLowerCase()
+  );
+
+  const showDropdown = isOpen && (loading || searchTerm.length > 0 || data.length > 0);
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -378,12 +478,7 @@ const RoleAutocomplete = ({
         {searchTerm && (
           <button
             type="button"
-            onClick={() => {
-              setSearchTerm("");
-              onChange("");
-              setIsOpen(false);
-              inputRef.current?.focus();
-            }}
+            onClick={clearInput}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
           >
             <X className="h-4 w-4" />
@@ -396,24 +491,20 @@ const RoleAutocomplete = ({
           {loading ? (
             <div className="flex items-center justify-center px-4 py-3 text-sm text-gray-400">
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              Loading...
+              Loading roles...
             </div>
           ) : filteredData.length > 0 ? (
             <>
-              {filteredData.slice(0, 15).map((item, index) => (
+              {filteredData.slice(0, 15).map((item) => (
                 <button
-                  key={item.value || index}
+                  key={item}
                   type="button"
-                  onClick={() => handleSelect(getDisplayValue(item))}
-                  className="w-full px-4 py-2.5 text-left text-sm text-white hover:bg-green-500/10 transition-colors flex items-center justify-between group border-b border-[#2a3a52] last:border-0"
+                  onClick={() => handleSelect(item)}
+                  className="w-full px-4 py-2.5 text-left text-sm text-white hover:bg-green-500/10 transition-colors border-b border-[#2a3a52] last:border-0"
                 >
-                  <span>{getDisplayValue(item)}</span>
-                  {item.isCustom && (
-                    <span className="text-[10px] text-gray-500 group-hover:text-green-400">Custom</span>
-                  )}
+                  {item}
                 </button>
               ))}
-              
               {searchTerm.trim() && !exactMatchExists && (
                 <button
                   type="button"
@@ -429,7 +520,7 @@ const RoleAutocomplete = ({
                   ) : (
                     <>
                       <Plus className="h-4 w-4" />
-                      Create "{searchTerm}"
+                      Create "{searchTerm.trim()}"
                     </>
                   )}
                 </button>
@@ -452,14 +543,14 @@ const RoleAutocomplete = ({
                   ) : (
                     <>
                       <Plus className="h-4 w-4" />
-                      Create "{searchTerm}"
+                      Create "{searchTerm.trim()}"
                     </>
                   )}
                 </button>
               ) : (
                 <div className="text-center">
-                  <p className="text-gray-400">Type to search...</p>
-                  <p className="text-xs text-gray-500 mt-1">No items found</p>
+                  <p className="text-gray-400">Type to search roles...</p>
+                  <p className="text-xs text-gray-500 mt-1">No roles found</p>
                 </div>
               )}
             </div>
@@ -478,20 +569,6 @@ export function LeadershipEditor({
 }: LeadershipEditorProps) {
   return (
     <div className="space-y-6">
-      {/* Header */}
-      {/* <div className="flex items-center gap-3 mb-2">
-        <div className="p-2 rounded-xl bg-green-500/10 border border-green-500/20">
-          <Award className="h-5 w-5 text-green-400" />
-        </div>
-        <div>
-          <h3 className="text-sm font-semibold text-white">Leadership Experience</h3>
-          <p className="text-xs text-gray-400">Add your leadership roles and experiences</p>
-        </div>
-        <span className="ml-auto text-xs text-gray-500">
-          {items.length} {items.length === 1 ? 'entry' : 'entries'}
-        </span>
-      </div> */}
-
       {items.map((item, idx) => (
         <div
           key={item._id || idx}
@@ -511,14 +588,16 @@ export function LeadershipEditor({
               )}
             </div>
 
-            <button
-              type="button"
-              onClick={() => onRemove(idx)}
-              className="flex items-center gap-1.5 rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:border-red-500/50 hover:bg-red-500/10"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-              Remove
-            </button>
+            {items.length > 1 && (
+              <button
+                type="button"
+                onClick={() => onRemove(idx)}
+                className="flex items-center gap-1.5 rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:border-red-500/50 hover:bg-red-500/10"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Remove
+              </button>
+            )}
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -536,7 +615,7 @@ export function LeadershipEditor({
               />
             </div>
 
-            {/* Role - Using Company Master Data API (COMPANY_DESIGNATION) */}
+            {/* Role - Using Company Master Data API (JOB_ROLE) */}
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-gray-300 flex items-center gap-1.5">
                 <User className="h-3.5 w-3.5 text-gray-500" />

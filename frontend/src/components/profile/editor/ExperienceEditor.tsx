@@ -198,16 +198,44 @@ function AutocompleteInput({
     try {
       setLoading(true);
 
-      const response =
-        apiType === "company"
-          ? await axiosInstance.get("/dropdown/companiesName")
-          : await axiosInstance.get("/api/company-master-data", {
-              params: {
-                type: "COMPANY_DESIGNATION",
-              },
-            });
+      let response;
+      
+      if (apiType === "company") {
+        // ✅ FIXED: Use /api/company for GET
+        response = await axiosInstance.get("/api/company");
+        
+        // Transform the response to extract company names
+        const items = extractItems(response.data);
+        
+        // Map the items to have consistent structure
+        const transformedItems = items.map((item) => ({
+          ...item,
+          value: item.name || item.value || "",
+          label: item.name || item.value || "",
+        }));
+        
+        setData(transformedItems);
+      } else {
+        // Job Role API
+        response = await axiosInstance.get("/api/company-master-data", {
+          params: {
+            type: "JOB_ROLE",
+          },
+        });
 
-      setData(extractItems(response.data));
+        const items = extractItems(response.data).map((item) => {
+          const displayValue = getDisplayValue(item);
+
+          return {
+            ...item,
+            value: displayValue,
+            label: displayValue,
+          };
+        });
+
+        setData(items);
+      }
+
       hasFetchedRef.current = true;
     } catch (error) {
       console.error(`Error fetching ${apiType} options:`, error);
@@ -251,15 +279,20 @@ function AutocompleteInput({
     try {
       setIsCreating(true);
 
-      const response =
-        apiType === "company"
-          ? await axiosInstance.post("/api/company", {
-              name: valueToCreate,
-            })
-          : await axiosInstance.post("/api/company-master-data", {
-              type: "COMPANY_DESIGNATION",
-              value: valueToCreate,
-            });
+      let response;
+      
+      if (apiType === "company") {
+        // ✅ FIXED: Use /api/company for POST
+        response = await axiosInstance.post("/api/company", {
+          name: valueToCreate,
+        });
+      } else {
+        // Job Role creation
+        response = await axiosInstance.post("/api/company-master-data", {
+          type: "JOB_ROLE",
+          value: valueToCreate,
+        });
+      }
 
       const responseItems = extractItems(response.data);
       const responseObject =
@@ -496,8 +529,6 @@ export function ExperienceEditor({
 
   return (
     <div className="space-y-6">
-      
-
       {experiences.map((experience, index) => (
         <div
           key={experience._id || `experience-${index}`}
