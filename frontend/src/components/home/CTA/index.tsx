@@ -52,7 +52,8 @@ export default function CTA() {
               </button>
 
               <button
-                onClick={handleTalkToFounders}
+                // onClick={handleTalkToFounders}
+                onClick={() => (window.location.href = "https://www.linkedin.com/in/alok-kamat-10046646/")}
                 className="flex h-12 items-center rounded-xl border border-[var(--border)] bg-[var(--card)]/50 px-6 text-[14px] font-semibold text-white transition hover:bg-[var(--card-hover)]"
               >
                 Talk to founders
