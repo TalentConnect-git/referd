@@ -13,8 +13,33 @@ import {
   ShieldCheck,
   X,
   AlertCircle,
+  Plus,
 } from "lucide-react";
 import { useState, KeyboardEvent } from "react";
+
+// Predefined round options
+const PREDEFINED_ROUNDS = [
+  "Round 1",
+  "Round 2",
+  "Round 3",
+  "Round 4",
+  "Round 5",
+  "Round 6",
+];
+
+// Predefined selection process options
+const PREDEFINED_SELECTION = [
+  "Aptitude Test",
+  "Technical Round 1",
+  "Technical Round 2",
+  "HR Round 1",
+  "HR Round 2",
+  "Coding Round 1",
+  "Coding Round 2",
+  "Group Discussion",
+  "Managerial Round",
+  "Presentation",
+];
 
 export default function SelectionCriteriaSection({
   formData,
@@ -27,6 +52,9 @@ export default function SelectionCriteriaSection({
   const [roundsInput, setRoundsInput] = useState("");
   const [roundsError, setRoundsError] = useState("");
   const [selectionError, setSelectionError] = useState("");
+  const [showCustomRoundInput, setShowCustomRoundInput] = useState(false);
+  const [showCustomSelectionInput, setShowCustomSelectionInput] =
+    useState(false);
 
   const handleChange = (field: string, value: any) => {
     setFormData({
@@ -46,19 +74,57 @@ export default function SelectionCriteriaSection({
 
   const totalRoundsCount = getTotalRounds();
 
-  // Handle Enter key for selection process with validation
-  const handleSelectionKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && selectionInput.trim()) {
-      e.preventDefault();
+  // Handle adding predefined round
+  const handleAddPredefinedRound = (round: string) => {
+    const currentItems = formData.rounds || [];
+    if (!currentItems.includes(round)) {
+      handleChange("rounds", [...currentItems, round]);
+      setRoundsError("");
+    }
+  };
 
-      // Check if rounds are defined
-      if (totalRoundsCount === 0) {
-        setSelectionError(
-          "Please add rounds first before adding selection process.",
-        );
+  // Handle adding custom round
+  const handleAddCustomRound = () => {
+    if (roundsInput.trim()) {
+      const currentItems = formData.rounds || [];
+      const newItem = roundsInput.trim();
+
+      // Check if adding this round would exceed 10 total rounds (safety limit)
+      if (currentItems.length >= 10) {
+        setRoundsError("Maximum 10 rounds allowed.");
         return;
       }
 
+      if (!currentItems.includes(newItem)) {
+        handleChange("rounds", [...currentItems, newItem]);
+        setRoundsError("");
+      }
+      setRoundsInput("");
+      setShowCustomRoundInput(false);
+    }
+  };
+
+  // Handle adding predefined selection process
+  const handleAddPredefinedSelection = (item: string) => {
+    const currentItems = formData.selectionProcess || [];
+
+    // Check if user has exceeded the number of rounds
+    if (currentItems.length >= totalRoundsCount) {
+      setSelectionError(
+        `You have ${totalRoundsCount} round${totalRoundsCount > 1 ? "s" : ""}. You cannot add more than ${totalRoundsCount} selection process items.`,
+      );
+      return;
+    }
+
+    if (!currentItems.includes(item)) {
+      handleChange("selectionProcess", [...currentItems, item]);
+      setSelectionError("");
+    }
+  };
+
+  // Handle adding custom selection process
+  const handleAddCustomSelection = () => {
+    if (selectionInput.trim()) {
       const currentItems = formData.selectionProcess || [];
 
       // Check if user has exceeded the number of rounds
@@ -75,61 +141,7 @@ export default function SelectionCriteriaSection({
         setSelectionError("");
       }
       setSelectionInput("");
-    }
-  };
-
-  // Handle Enter key for rounds
-  const handleRoundsKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && roundsInput.trim()) {
-      e.preventDefault();
-      const currentItems = formData.rounds || [];
-      const newItem = roundsInput.trim();
-
-      // Check if adding this round would exceed 10 total rounds (safety limit)
-      if (currentItems.length >= 10) {
-        setRoundsError("Maximum 10 rounds allowed.");
-        return;
-      }
-
-      // Extract number from the input (e.g., "3 Rounds" -> 3)
-      const roundNumberMatch = newItem.match(/(\d+)/);
-      const requestedRounds = roundNumberMatch
-        ? parseInt(roundNumberMatch[0])
-        : 0;
-
-      // Check if user is trying to add more than 10 rounds in a single entry
-      if (requestedRounds > 10) {
-        setRoundsError("Cannot add more than 10 rounds at once.");
-        return;
-      }
-
-      // Check if user is trying to add more than what they specified
-      if (requestedRounds > 0 && currentItems.length + requestedRounds > 10) {
-        setRoundsError(
-          `Cannot add ${requestedRounds} rounds. Maximum limit is 10.`,
-        );
-        return;
-      }
-
-      // Clear error and add the item
-      setRoundsError("");
-      if (!currentItems.includes(newItem)) {
-        handleChange("rounds", [...currentItems, newItem]);
-
-        // If selection process has more items than rounds, clear excess
-        const currentSelection = formData.selectionProcess || [];
-        const newTotalRounds = getTotalRounds() + (requestedRounds || 1);
-        if (currentSelection.length > newTotalRounds) {
-          handleChange(
-            "selectionProcess",
-            currentSelection.slice(0, newTotalRounds),
-          );
-          setSelectionError(
-            `Selection process trimmed to ${newTotalRounds} item${newTotalRounds > 1 ? "s" : ""} to match rounds.`,
-          );
-        }
-      }
-      setRoundsInput("");
+      setShowCustomSelectionInput(false);
     }
   };
 
@@ -253,25 +265,83 @@ export default function SelectionCriteriaSection({
           </p>
         </div>
 
-        {/* Rounds - Enter key separated */}
+        {/* Rounds - Predefined + Custom */}
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-300 mb-1.5">
             <Users className="w-4 h-4 inline mr-1.5" />
-            Rounds{" "}
-            <span className="text-xs text-gray-500">(Press Enter to add)</span>
+            Rounds
+            <span className="text-xs text-gray-500 ml-2">
+              (Select from options or add custom)
+            </span>
           </label>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={roundsInput}
-              onChange={(e) => setRoundsInput(e.target.value)}
-              onKeyDown={handleRoundsKeyDown}
-              placeholder="e.g., 3 Rounds, 2 Rounds, 4 Rounds..."
-              className={`flex-1 rounded-lg border ${
-                roundsError ? "border-red-500/50" : "border-slate-700"
-              } bg-[#0F172A] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500`}
-            />
+
+          {/* Predefined Round Buttons */}
+          <div className="flex flex-wrap gap-2 mb-3">
+            {PREDEFINED_ROUNDS.map((round) => (
+              <button
+                key={round}
+                type="button"
+                onClick={() => handleAddPredefinedRound(round)}
+                disabled={
+                  (formData.rounds || []).includes(round) ||
+                  (formData.rounds || []).length >= 10
+                }
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  (formData.rounds || []).includes(round)
+                    ? "bg-green-500/20 text-green-400 border border-green-500/30 cursor-not-allowed"
+                    : (formData.rounds || []).length >= 10
+                    ? "bg-slate-700/30 text-gray-500 border border-slate-700 cursor-not-allowed"
+                    : "bg-slate-700/50 text-gray-300 border border-slate-600 hover:bg-slate-600/50 hover:border-slate-500"
+                }`}
+              >
+                {round}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setShowCustomRoundInput(!showCustomRoundInput)}
+              className="px-3 py-1.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 transition-colors flex items-center gap-1"
+            >
+              <Plus className="w-3 h-3" />
+              Custom
+            </button>
           </div>
+
+          {/* Custom Round Input */}
+          {showCustomRoundInput && (
+            <div className="flex gap-2 mb-3">
+              <input
+                type="text"
+                value={roundsInput}
+                onChange={(e) => setRoundsInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddCustomRound();
+                  }
+                }}
+                placeholder="Enter custom round name..."
+                className="flex-1 rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              />
+              <button
+                type="button"
+                onClick={handleAddCustomRound}
+                className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg border border-green-500/30 hover:bg-green-500/30 transition-colors"
+              >
+                Add
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCustomRoundInput(false);
+                  setRoundsInput("");
+                }}
+                className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg border border-red-500/30 hover:bg-red-500/30 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
 
           {/* Rounds Tags */}
           {formData.rounds && formData.rounds.length > 0 && (
@@ -302,35 +372,93 @@ export default function SelectionCriteriaSection({
           )}
 
           <p className="mt-1 text-xs text-gray-500">
-            Press Enter after each round to add it to the list. Maximum 10
-            rounds total.
+            Select predefined rounds or add custom ones. Maximum 10 rounds total.
           </p>
         </div>
 
-        {/* Selection Process - Enter key separated with validation */}
+        {/* Selection Process - Predefined + Custom */}
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-300 mb-1.5">
             <Award className="w-4 h-4 inline mr-1.5" />
-            Selection Process{" "}
-            <span className="text-xs text-gray-500">(Press Enter to add)</span>
+            Selection Process
+            <span className="text-xs text-gray-500 ml-2">
+              (Select from options or add custom)
+            </span>
           </label>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={selectionInput}
-              onChange={(e) => setSelectionInput(e.target.value)}
-              onKeyDown={handleSelectionKeyDown}
-              placeholder={
-                totalRounds === 0
-                  ? "Add rounds first..."
-                  : "Type and press Enter to add..."
-              }
-              disabled={totalRounds === 0}
-              className={`flex-1 rounded-lg border ${
-                selectionError ? "border-red-500/50" : "border-slate-700"
-              } bg-[#0F172A] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed`}
-            />
+
+          {/* Predefined Selection Buttons */}
+          <div className="flex flex-wrap gap-2 mb-3">
+            {PREDEFINED_SELECTION.map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => handleAddPredefinedSelection(item)}
+                disabled={
+                  (formData.selectionProcess || []).includes(item) ||
+                  (formData.selectionProcess || []).length >= totalRoundsCount ||
+                  totalRoundsCount === 0
+                }
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  (formData.selectionProcess || []).includes(item)
+                    ? "bg-green-500/20 text-green-400 border border-green-500/30 cursor-not-allowed"
+                    : (formData.selectionProcess || []).length >= totalRoundsCount || totalRoundsCount === 0
+                    ? "bg-slate-700/30 text-gray-500 border border-slate-700 cursor-not-allowed"
+                    : "bg-slate-700/50 text-gray-300 border border-slate-600 hover:bg-slate-600/50 hover:border-slate-500"
+                }`}
+              >
+                {item}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setShowCustomSelectionInput(!showCustomSelectionInput)}
+              disabled={totalRoundsCount === 0}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center gap-1 ${
+                totalRoundsCount === 0
+                  ? "bg-slate-700/30 text-gray-500 border border-slate-700 cursor-not-allowed"
+                  : "bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20"
+              }`}
+            >
+              <Plus className="w-3 h-3" />
+              Custom
+            </button>
           </div>
+
+          {/* Custom Selection Input */}
+          {showCustomSelectionInput && totalRoundsCount > 0 && (
+            <div className="flex gap-2 mb-3">
+              <input
+                type="text"
+                value={selectionInput}
+                onChange={(e) => setSelectionInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddCustomSelection();
+                  }
+                }}
+                placeholder="Enter custom selection process..."
+                className="flex-1 rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              />
+              <button
+                type="button"
+                onClick={handleAddCustomSelection}
+                className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg border border-green-500/30 hover:bg-green-500/30 transition-colors"
+              >
+                Add
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCustomSelectionInput(false);
+                  setSelectionInput("");
+                }}
+                className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg border border-red-500/30 hover:bg-red-500/30 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
 
           {/* Selection Process Count Info */}
           {totalRounds > 0 && (
@@ -390,7 +518,7 @@ export default function SelectionCriteriaSection({
           <p className="mt-1 text-xs text-gray-500">
             {totalRounds === 0
               ? "Please add rounds first. Selection process items must match the number of rounds."
-              : `You can add up to ${totalRounds} selection process item${totalRounds > 1 ? "s" : ""}. Press Enter to add.`}
+              : `Select predefined items or add custom ones. You can add up to ${totalRounds} selection process item${totalRounds > 1 ? "s" : ""}.`}
           </p>
         </div>
       </div>

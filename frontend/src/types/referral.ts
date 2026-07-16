@@ -178,7 +178,7 @@ export interface ReferralPostingPayload {
   workMode: string[];
   employmentType: string[];
   description?: string;
-
+  degree?:string[];
   packageDetails: PackageDetails;
   skills: string[];
   experience?: string;
@@ -217,7 +217,7 @@ export interface ReferralPostingPayload {
   expireAt?: Date;
   inactive?: boolean;
   contactPerson?: ContactPerson;
-  degree?: string;
+  
   stream?: string;
   [key: string]: any;
 }

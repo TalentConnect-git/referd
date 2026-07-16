@@ -598,12 +598,11 @@ export default function Sidebar({
           </div>
         ) : (
           <div className="space-y-3">
-            <Empty>
-              <div className="py-2 text-center">
-                <FileText className="mx-auto h-8 w-8 text-[#64748b]/30 mb-2" />
-                <p className="text-[#94a3b8]">No resume uploaded</p>
-              </div>
-            </Empty>
+            {/* FIXED: Removed nested p/div structure */}
+            <div className="flex flex-col items-center justify-center rounded-xl border border-[#242d3a] bg-[#0a0f16] py-6 text-center">
+              <FileText className="h-8 w-8 text-[#64748b]/30 mb-2" />
+              <p className="text-[#94a3b8]">No resume uploaded</p>
+            </div>
             
             <button
               type="button"

@@ -1,12 +1,12 @@
-// components/profile/editors/AwardEditor.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { Award as AwardIcon, Calendar, Plus, Trash2 } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { Award as AwardIcon, Calendar, Plus, Trash2, Building2, Search, X, Loader2 } from "lucide-react";
 
 import { TextInput } from "../shared/TextInput";
 import { TextArea } from "../shared/TextArea";
 import type { Award } from "@/types/profile";
+import axiosInstance from "@/lib/axiosInstance";
 
 type AwardEditorProps = {
   awards: Award[];
@@ -34,6 +34,222 @@ function normalizeMonthValue(value?: string | null) {
 
   return "";
 }
+
+// Organization Autocomplete Component
+const OrganizationAutocomplete = ({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Sync searchTerm with value
+  useEffect(() => {
+    if (value && !searchTerm) {
+      setSearchTerm(value);
+    }
+  }, [value]);
+
+  // Fetch data from API
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const response = await axiosInstance.get('/dropdown/companiesName');
+      setData(response.data || []);
+    } catch (error) {
+      console.error("Error fetching companies:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleFocus = () => {
+    setIsOpen(true);
+    if (data.length === 0) {
+      fetchData();
+    }
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setSearchTerm(val);
+    onChange(val);
+    setIsOpen(true);
+  };
+
+  const handleSelect = (selectedValue: string) => {
+    onChange(selectedValue);
+    setSearchTerm(selectedValue);
+    setIsOpen(false);
+    inputRef.current?.blur();
+  };
+
+  // Create new company
+  const handleCreate = async () => {
+    if (!searchTerm.trim()) return;
+    try {
+      setIsCreating(true);
+      const response = await axiosInstance.post('/api/company', { 
+        name: searchTerm.trim() 
+      });
+      if (response?.data?.success || response?.status === 201 || response?.status === 200) {
+        const newData = response?.data?.data || response?.data;
+        const newValue = newData?.name || searchTerm.trim();
+        setData(prev => [...prev, newData]);
+        onChange(newValue);
+        setSearchTerm(newValue);
+        setIsOpen(false);
+      }
+    } catch (error) {
+      console.error("Error creating company:", error);
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const getDisplayValue = (item: any): string => {
+    return item?.label || item?.value || item?.name || "";
+  };
+
+  const filteredData = data.filter(item => {
+    const displayValue = getDisplayValue(item).toLowerCase();
+    return displayValue.includes(searchTerm.toLowerCase());
+  });
+
+  const exactMatchExists = data.some(item => 
+    getDisplayValue(item).toLowerCase() === searchTerm.toLowerCase()
+  );
+
+  const showDropdown = isOpen && (searchTerm.length > 0 || data.length > 0);
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <div className="relative">
+        <input
+          ref={inputRef}
+          type="text"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          onFocus={handleFocus}
+          placeholder={placeholder}
+          className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 pl-10 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 text-sm"
+        />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+        {searchTerm && (
+          <button
+            type="button"
+            onClick={() => {
+              setSearchTerm("");
+              onChange("");
+              setIsOpen(false);
+              inputRef.current?.focus();
+            }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+
+      {showDropdown && (
+        <div className="absolute z-50 mt-1 w-full max-h-52 overflow-y-auto rounded-lg border border-[#2a3a52] bg-[#111827] shadow-xl">
+          {loading ? (
+            <div className="flex items-center justify-center px-4 py-3 text-sm text-gray-400">
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              Loading...
+            </div>
+          ) : filteredData.length > 0 ? (
+            <>
+              {filteredData.slice(0, 15).map((item, index) => (
+                <button
+                  key={item._id || index}
+                  type="button"
+                  onClick={() => handleSelect(getDisplayValue(item))}
+                  className="w-full px-4 py-2.5 text-left text-sm text-white hover:bg-green-500/10 transition-colors flex items-center justify-between group border-b border-[#2a3a52] last:border-0"
+                >
+                  <span>{getDisplayValue(item)}</span>
+                  {item.isCustom && (
+                    <span className="text-[10px] text-gray-500 group-hover:text-green-400">Custom</span>
+                  )}
+                </button>
+              ))}
+              
+              {searchTerm.trim() && !exactMatchExists && (
+                <button
+                  type="button"
+                  onClick={handleCreate}
+                  disabled={isCreating}
+                  className="w-full px-4 py-2.5 text-left text-sm text-green-400 hover:bg-green-500/10 transition-colors flex items-center gap-2 border-t border-[#2a3a52]"
+                >
+                  {isCreating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-4 w-4" />
+                      Create "{searchTerm}"
+                    </>
+                  )}
+                </button>
+              )}
+            </>
+          ) : (
+            <div className="px-4 py-3 text-sm text-gray-400">
+              {searchTerm.length > 0 ? (
+                <button
+                  type="button"
+                  onClick={handleCreate}
+                  disabled={isCreating}
+                  className="text-green-400 hover:text-green-300 flex items-center gap-2 w-full"
+                >
+                  {isCreating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-4 w-4" />
+                      Create "{searchTerm}"
+                    </>
+                  )}
+                </button>
+              ) : (
+                <div className="text-center">
+                  <p className="text-gray-400">Type to search...</p>
+                  <p className="text-xs text-gray-500 mt-1">No items found</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export function AwardEditor({
   awards,
@@ -73,114 +289,132 @@ export function AwardEditor({
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
+      {/* Header */}
+      
+
       {localAwards.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-[#12381f] bg-[#071018] p-6 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-[#12381f]">
-            <AwardIcon className="h-6 w-6 text-[#38e878]" />
+        <div className="rounded-xl border border-dashed border-[#2a3a52] bg-[#111827] p-8 text-center hover:border-green-500/30 transition-all duration-300">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-green-500/10 border border-green-500/20">
+            <AwardIcon className="h-7 w-7 text-green-400" />
           </div>
 
-          <h3 className="text-base font-bold text-white">
+          <h3 className="text-base font-semibold text-white">
             No awards added yet
           </h3>
 
-          <p className="mt-1 text-sm text-[#94a3b8]">
-            Add your achievements, recognitions, certificates, or competition
-            awards here.
+          <p className="mt-1 text-sm text-gray-400 max-w-sm mx-auto">
+            Add your achievements, recognitions, certificates, or competition awards here.
           </p>
+
+          <button
+            type="button"
+            onClick={handleAdd}
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-green-500/10 border border-green-500/30 px-4 py-2 text-sm font-medium text-green-400 hover:bg-green-500/20 hover:border-green-500/50 transition-all"
+          >
+            <Plus className="h-4 w-4" />
+            Add Award
+          </button>
         </div>
       )}
 
       {localAwards.map((item, idx) => (
         <div
           key={item._id || `award-${idx}`}
-          className="rounded-2xl border border-[#12381f]/70 bg-[#071018] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.25)]"
+          className="group rounded-xl border border-[#2a3a52] bg-[#111827] p-5 hover:border-green-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-green-500/5"
         >
+          {/* Card Header */}
           <div className="mb-5 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#12381f]">
-                <AwardIcon className="h-5 w-5 text-[#38e878]" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/10 border border-green-500/20">
+                <AwardIcon className="h-5 w-5 text-green-400" />
               </div>
 
               <div>
-                <h3 className="text-sm font-bold text-white">
+                <h4 className="text-sm font-semibold text-white">
                   Award {idx + 1}
-                </h3>
-                <p className="text-xs text-[#94a3b8]">
-                  Title, organization, duration and description
-                </p>
+                </h4>
+                {!item.title && !item.organization && (
+                  <span className="text-[10px] text-gray-500 bg-gray-800/50 px-2 py-0.5 rounded-full">Optional</span>
+                )}
               </div>
             </div>
 
             <button
               type="button"
               onClick={() => handleRemove(idx)}
-              className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-300 transition hover:border-red-400/60 hover:bg-red-500/20"
+              className="flex items-center gap-1.5 rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:border-red-500/50 hover:bg-red-500/10"
             >
               <Trash2 className="h-3.5 w-3.5" />
               Remove
             </button>
           </div>
 
-          <div className="rounded-2xl border border-[#12381f]/50 bg-[#0b1621] p-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <TextInput
-                label="Title"
+          <div className="grid gap-4 md:grid-cols-2">
+            {/* Title */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-gray-300 flex items-center gap-1.5">
+                <AwardIcon className="h-3.5 w-3.5 text-gray-500" />
+                Title
+              </label>
+              <input
+                type="text"
                 value={item.title ?? ""}
-                onChange={(value: string) => handleUpdate(idx, "title", value)}
+                onChange={(e) => handleUpdate(idx, "title", e.target.value)}
+                placeholder="Enter award title"
+                className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 text-sm"
               />
+            </div>
 
-              <TextInput
-                label="Organization"
+            {/* Organization - Using Company API */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-gray-300 flex items-center gap-1.5">
+                <Building2 className="h-3.5 w-3.5 text-gray-500" />
+                Organization
+              </label>
+              <OrganizationAutocomplete
                 value={item.organization ?? ""}
-                onChange={(value: string) =>
-                  handleUpdate(idx, "organization", value)
-                }
+                onChange={(value: string) => handleUpdate(idx, "organization", value)}
+                placeholder="Search or type organization..."
               />
+            </div>
 
-              <div className="relative">
-                <TextInput
-                  label="Start Date"
-                  type="month"
-                  value={normalizeMonthValue(item.startDate)}
-                  onChange={(value: string) =>
-                    handleUpdate(idx, "startDate", value)
-                  }
-                />
+            {/* Start Date - Only start date, removed end date */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-gray-300 flex items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5 text-gray-500" />
+                Start Date
+              </label>
+              <input
+                type="month"
+                value={normalizeMonthValue(item.startDate)}
+                onChange={(e) => handleUpdate(idx, "startDate", e.target.value)}
+                className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 text-sm"
+              />
+            </div>
 
-                <Calendar className="pointer-events-none absolute bottom-3 right-3 h-4 w-4 text-[#94a3b8]" />
-              </div>
-
-              <div className="relative">
-                <TextInput
-                  label="End Date"
-                  type="month"
-                  value={normalizeMonthValue(item.endDate)}
-                  onChange={(value: string) =>
-                    handleUpdate(idx, "endDate", value)
-                  }
-                />
-
-                <Calendar className="pointer-events-none absolute bottom-3 right-3 h-4 w-4 text-[#94a3b8]" />
-              </div>
-
-              <TextArea
-                label="Description"
+            {/* Description - Full width */}
+            <div className="md:col-span-2">
+              <label className="text-xs font-medium text-gray-300">
+                Description
+              </label>
+              <textarea
                 value={item.description ?? ""}
-                className="md:col-span-2"
-                onChange={(value: string) =>
-                  handleUpdate(idx, "description", value)
-                }
+                onChange={(e) => handleUpdate(idx, "description", e.target.value)}
+                placeholder="Describe your achievement..."
+                rows={3}
+                className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 resize-none text-sm"
               />
             </div>
           </div>
         </div>
       ))}
 
+      {/* Add Button */}
       <button
         type="button"
         onClick={handleAdd}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-[#38e878]/40 bg-[#071018] py-4 text-sm font-bold text-[#38e878] transition hover:border-[#38e878] hover:bg-[#12381f]/40"
+        className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[#2a3a52] bg-[#111827] py-4 text-sm font-medium text-gray-400 transition hover:border-green-500/50 hover:text-green-400 hover:bg-green-500/5"
       >
         <Plus className="h-4 w-4" />
         Add Award

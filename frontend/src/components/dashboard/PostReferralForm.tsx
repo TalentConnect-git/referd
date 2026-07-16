@@ -1,4 +1,3 @@
-// components/referral/PostReferralForm.tsx
 "use client";
 
 import { useState } from "react";
@@ -57,7 +56,7 @@ export default function PostReferralForm() {
     workLocation: [],
     expireAt: undefined,
     inactive: false,
-    degree: "",
+    degree: [],
     degreeId: "",
     workAuthorization: "",
     endDate: undefined,
@@ -120,7 +119,7 @@ export default function PostReferralForm() {
       workLocation: [],
       expireAt: undefined,
       inactive: false,
-      degree: "",
+      degree: [],
       degreeId: "",
       workAuthorization: "",
       endDate: undefined,
@@ -143,14 +142,18 @@ export default function PostReferralForm() {
         toast.error("Please select an employment type");
         return;
       }
-      if (!formData.state) {
-        toast.error("Please select a state");
-        return;
-      }
-     
+      
       if (!formData.broadcastType) {
         toast.error("Please select a broadcast type");
         return;
+      }
+      
+      // Validate location if broadcast type is Location
+      if (formData.broadcastType === "Location") {
+        if (!formData.city || !formData.state) {
+          toast.error("Please enter city and state for location-based broadcast");
+          return;
+        }
       }
     }
     
@@ -186,14 +189,48 @@ export default function PostReferralForm() {
       return;
     }
     
-    
+    // if (selectionCount !== totalRounds) {
+    //   toast.error(`Selection process items (${selectionCount}) must match the number of rounds (${totalRounds})`);
+    //   return;
+    // }
 
     setIsLoading(true);
     try {
+      // Prepare location array - combine city, state, country
+      const locationArray = [];
+      if (formData.city && formData.city.trim()) {
+        locationArray.push(formData.city.trim());
+      }
+      if (formData.state && formData.state.trim()) {
+        locationArray.push(formData.state.trim());
+      }
+      if (formData.country && formData.country.trim()) {
+        locationArray.push(formData.country.trim());
+      }
+
+      // Prepare workLocation array
+      const workLocationArray = [];
+      if (formData.city && formData.city.trim()) {
+        workLocationArray.push(formData.city.trim());
+      }
+      if (formData.state && formData.state.trim()) {
+        workLocationArray.push(formData.state.trim());
+      }
+
+      // Handle degree - store as array of strings
+      const degreeArray = formData.degree && formData.degree.length > 0 
+        ? formData.degree 
+        : [];
+
+      // Handle minEducation - use the first degree or empty string
+      const minEducationValue = degreeArray.length > 0 
+        ? degreeArray[0] 
+        : formData.minEducation || "";
+
       const payload = {
         ...formData,
         jobTitle: formData.jobTitle || [],
-        location: [formData.city || ""],
+        location: locationArray.length > 0 ? locationArray : ["India"],
         workMode: formData.workMode || [],
         employmentType: formData.employmentType || [],
         jobRoles: formData.jobRoles || [],
@@ -205,8 +242,13 @@ export default function PostReferralForm() {
         batchYear: formData.batchYear || [],
         selectionProcess: formData.selectionProcess || [],
         rounds: formData.rounds || [],
-        workLocation: [formData.city || ""],
+        workLocation: workLocationArray.length > 0 ? workLocationArray : [],
+        degree: degreeArray,
+        minEducation: minEducationValue,
         endDate: formData.endDate || undefined,
+        state: formData.state || "",
+        city: formData.city || "",
+        country: formData.country || "India",
       };
 
       const response = await createReferralPosting(payload);
@@ -217,9 +259,7 @@ export default function PostReferralForm() {
           icon: '✅',
         });
         
-        
         resetForm();
-        
         
         setTimeout(() => {
           router.push("/professional/referrals");

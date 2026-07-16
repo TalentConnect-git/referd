@@ -9,11 +9,15 @@ import NotificationsDropdown from "../notifications/NotificationsDropDown";
 import InterviewCall from "./InterviewCall";
 import logo from "@/assets/icon.png";
 import { useNotification } from "@/context/NotificationContext";
+import { getInterviews } from "@/services/navbar.service";
+import { Interview } from "@/types/navbar";
 
 export default function Navbar() {
   const { profile, user } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [upcomingInterviews, setUpcomingInterviews] = useState<Interview[]>([]);
+  const [interviewLoading, setInterviewLoading] = useState(true);
   const notificationRef = useRef<HTMLDivElement>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
 
@@ -32,9 +36,44 @@ export default function Navbar() {
     .toUpperCase();
 
   const userType = profile?.profileType || user?.userType || "student";
-
-  // Use profile.profileImage directly
   const profileImageUrl = profile?.profileImage || null;
+
+  // Fetch interviews for badge count
+  useEffect(() => {
+    const fetchInterviews = async () => {
+      try {
+        const res = await getInterviews();
+        // Filter only scheduled interviews
+        const scheduled = res.data.filter(
+          (interview: Interview) => interview.status === "Scheduled"
+        );
+        setUpcomingInterviews(scheduled);
+      } catch (err) {
+        console.log("Error fetching interviews:", err);
+      } finally {
+        setInterviewLoading(false);
+      }
+    };
+    fetchInterviews();
+  }, []);
+
+  // Refresh interviews when calendar is opened
+  useEffect(() => {
+    if (showCalendar) {
+      const fetchInterviews = async () => {
+        try {
+          const res = await getInterviews();
+          const scheduled = res.data.filter(
+            (interview: Interview) => interview.status === "Scheduled"
+          );
+          setUpcomingInterviews(scheduled);
+        } catch (err) {
+          console.log("Error fetching interviews:", err);
+        }
+      };
+      fetchInterviews();
+    }
+  }, [showCalendar]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -54,11 +93,12 @@ export default function Navbar() {
     }
 
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const interviewCount = upcomingInterviews.length;
 
   return (
     <header
@@ -76,7 +116,6 @@ export default function Navbar() {
     >
       {/* Logo */}
       <Link href="/" className="flex items-center gap-0.5 group">
-        {/* Logo Image */}
         <div className="relative h-6 w-6 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
           <Image
             src={logo}
@@ -86,8 +125,6 @@ export default function Navbar() {
             priority
           />
         </div>
-
-        {/* Text with dot */}
         <span className="text-sm font-medium tracking-tight text-white transition-colors duration-200 group-hover:text-[var(--primary)]">
           referd
           <span className="text-[var(--primary)]">.</span>
@@ -96,11 +133,12 @@ export default function Navbar() {
 
       {/* Right side icons */}
       <div className="flex items-center gap-3">
-        {/* Calendar */}
+        {/* Calendar with Interview Badge */}
         <div className="relative" ref={calendarRef}>
           <button
             onClick={() => setShowCalendar((prev) => !prev)}
             className="
+              relative
               flex
               h-8
               w-8
@@ -113,7 +151,35 @@ export default function Navbar() {
             "
           >
             <CalendarDays size={15} className="text-[var(--text-secondary)]" />
+            
+            {/* ✅ INTERVIEW BADGE - DISPLAYS HERE */}
+            {interviewCount > 0 && (
+              <span
+                className="
+                  absolute
+                  -top-0.5
+                  -right-0.5
+                  flex
+                  h-4
+                  min-w-[16px]
+                  items-center
+                  justify-center
+                  rounded-full
+                  bg-green-500
+                  px-1
+                  text-[9px]
+                  font-bold
+                  text-white
+                  shadow-lg
+                  shadow-green-500/30
+                  animate-pulse-dot
+                "
+              >
+                {interviewCount > 99 ? "99+" : interviewCount}
+              </span>
+            )}
           </button>
+
           {showCalendar && (
             <div
               style={{
@@ -245,7 +311,7 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Profile - using profile.profileImage */}
+        {/* Profile */}
         <Link
           href={`/${userType}/profile`}
           className="

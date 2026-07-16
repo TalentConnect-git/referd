@@ -1,672 +1,1006 @@
 "use client";
 
-import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type ElementType,
+  type FormEvent,
+} from "react";
 import { useRouter } from "next/navigation";
 import {
-  Award,
-  ChevronLeft,
-  ChevronRight,
-  FileCode,
-  Link,
-  UploadIcon,
-  Wrench,
-  XIcon,
+  Briefcase,
+  Building2,
+  Calendar,
+  Loader2,
+  Plus,
+  Search,
+  Trash2,
+  User,
+  X,
 } from "lucide-react";
 
-type SkillsFormData = {
-  skills: string[];
-  certifications: string;
-  linkedin: string;
-  github: string;
-  portfolio: string;
-  project: File | null;
-  toolsAndPlatforms: string[];
-  referralSource: string;
+import axiosInstance from "@/lib/axiosInstance";
+import type { Experience } from "@/types/profile";
+
+type ApiType = "company" | "jobRole";
+
+type AutocompleteItem = {
+  _id?: string;
+  id?: string;
+  value?: string;
+  label?: string;
+  name?: string;
+  title?: string;
+  company?: string;
+  companyName?: string;
+  displayName?: string;
+  isCustom?: boolean | string;
 };
 
-type FormErrors = Partial<Record<"linkedin" | "github" | "portfolio", string>>;
-
-type ParsedResume = {
-  skills?: string[];
-  certifications?: string[] | string;
-  linkedin?: string;
-  linkedin_url?: string;
-  github?: string;
-  github_url?: string;
-  portfolio?: string;
-  portfolio_url?: string;
+type AutocompleteInputProps = {
+  value: string;
+  onChange: (value: string) => void;
+  apiType: ApiType;
+  placeholder?: string;
+  label?: string;
+  icon?: ElementType;
 };
 
-const toolsAndPlatforms = [
-  "VS Code",
-  "Figma",
-  "JIRA",
-  "Slack",
-  "Trello",
-  "Postman",
-  "AWS Console",
-  "Google Cloud Platform",
-  "Azure Portal",
-  "Docker",
-  "Kubernetes",
-  "Jenkins",
-  "GitHub",
-  "GitLab",
-  "Bitbucket",
-  "Notion",
-  "Confluence",
-];
-
-const isValidLinkedIn = (url: string) => {
-  if (!url.trim()) return true;
-
-  const cleanUrl = url
-    .trim()
-    .toLowerCase()
-    .replace(/^https?:\/\//, "")
-    .replace(/^www\./, "")
-    .replace(/^\/+|\/+$/g, "");
-
-  if (!cleanUrl.includes("linkedin.com")) return false;
-
-  return /^linkedin\.com\/[a-z0-9-_/]+\/?$/.test(cleanUrl);
+type StoredExperienceStep = {
+  experiences: Experience[];
+  companyEmail: string;
+  noticePeriod: string;
+  currentCompany: string;
+  currentCompany_display: string;
+  lastUpdated: string;
 };
 
-const isValidGithub = (url: string) => {
-  if (!url.trim()) return true;
+const generateId = (): string => {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
 
-  const cleanUrl = url
-    .trim()
-    .toLowerCase()
-    .replace(/^https?:\/\//, "")
-    .replace(/^www\./, "")
-    .replace(/^\/+|\/+$/g, "");
-
-  if (!cleanUrl.includes("github.com")) return false;
-
-  return /^github\.com\/[a-z0-9-_]+\/?$/.test(cleanUrl);
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 };
 
-const isValidPortfolio = (url: string) => {
-  if (!url.trim()) return true;
+const createEmptyExperience = (): Experience => ({
+  _id: generateId(),
+  company: "",
+  company_canonical_id: "",
+  company_display: "",
+  company_master_id: "",
+  role: "",
+  startDate: "",
+  endDate: "",
+  description: "",
+  experienceCertificate: "",
+  isCurrent: false,
+});
+
+function safeJsonParse<T>(value: string | null, fallback: T): T {
+  if (!value) return fallback;
 
   try {
-    const parsedUrl = new URL(url);
-    const lowerUrl = parsedUrl.href.toLowerCase();
+    return (JSON.parse(value) as T) || fallback;
+  } catch {
+    return fallback;
+  }
+}
 
-    if (lowerUrl.includes("linkedin.com") || lowerUrl.includes("github.com")) {
-      return false;
+function extractItems(responseData: unknown): AutocompleteItem[] {
+  if (Array.isArray(responseData)) {
+    return responseData as AutocompleteItem[];
+  }
+
+  if (!responseData || typeof responseData !== "object") {
+    return [];
+  }
+
+  const response = responseData as {
+    data?: unknown;
+    items?: unknown;
+    companies?: unknown;
+    results?: unknown;
+  };
+
+  const candidates = [
+    response.data,
+    response.items,
+    response.companies,
+    response.results,
+  ];
+
+  for (const candidate of candidates) {
+    if (Array.isArray(candidate)) {
+      return candidate as AutocompleteItem[];
     }
 
-    return true;
-  } catch {
-    return false;
+    if (candidate && typeof candidate === "object") {
+      const nested = candidate as {
+        data?: unknown;
+        items?: unknown;
+        companies?: unknown;
+        results?: unknown;
+      };
+
+      const nestedCandidates = [
+        nested.data,
+        nested.items,
+        nested.companies,
+        nested.results,
+      ];
+
+      for (const nestedCandidate of nestedCandidates) {
+        if (Array.isArray(nestedCandidate)) {
+          return nestedCandidate as AutocompleteItem[];
+        }
+      }
+    }
   }
-};
 
-export default function SkillsAchievementsForm() {
-  const router = useRouter();
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+  return [];
+}
 
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
+function getDisplayValue(item: AutocompleteItem): string {
+  return String(
+    item.label ||
+      item.displayName ||
+      item.value ||
+      item.name ||
+      item.companyName ||
+      item.company ||
+      item.title ||
+      "",
+  ).trim();
+}
 
-  const [skillOptions, setSkillOptions] = useState<string[]>([]);
-  const [customSkillSearch, setCustomSkillSearch] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [loadingSkills, setLoadingSkills] = useState(false);
+function getItemKey(item: AutocompleteItem, index: number): string {
+  return String(
+    item._id ||
+      item.id ||
+      item.value ||
+      item.name ||
+      item.label ||
+      `option-${index}`,
+  );
+}
 
-  const [formData, setFormData] = useState<SkillsFormData>({
-    skills: [],
-    certifications: "",
-    linkedin: "",
-    github: "",
-    portfolio: "",
-    project: null,
-    toolsAndPlatforms: [],
-    referralSource: "",
-  });
+function isCustomItem(item: AutocompleteItem): boolean {
+  return item.isCustom === true || item.isCustom === "true";
+}
+
+function AutocompleteInput({
+  value,
+  onChange,
+  apiType,
+  placeholder,
+  label,
+  icon: Icon,
+}: AutocompleteInputProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(value || "");
+  const [data, setData] = useState<AutocompleteItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const hasFetchedRef = useRef(false);
 
   useEffect(() => {
-    const parsedResume = localStorage.getItem("parsedResume");
-    const savedSkills = localStorage.getItem("skillsAchievements");
+    setSearchTerm(value || "");
+  }, [value]);
 
-    if (savedSkills) {
-      setFormData(JSON.parse(savedSkills));
-      return;
-    }
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
 
-    if (!parsedResume) return;
+    document.addEventListener("mousedown", handleClickOutside);
 
-    const parsedData: ParsedResume = JSON.parse(parsedResume);
-
-    setFormData((prev) => ({
-      ...prev,
-      skills: parsedData.skills || [],
-      certifications: Array.isArray(parsedData.certifications)
-        ? parsedData.certifications.join("\n")
-        : parsedData.certifications || "",
-      linkedin: parsedData.linkedin || parsedData.linkedin_url || "",
-      github: parsedData.github || parsedData.github_url || "",
-      portfolio: parsedData.portfolio || parsedData.portfolio_url || "",
-    }));
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
-  useEffect(() => {
-    const fetchSkills = async () => {
-      try {
-        setLoadingSkills(true);
+  const fetchData = async () => {
+    if (loading || hasFetchedRef.current) return;
 
-        const token = localStorage.getItem("token");
+    try {
+      setLoading(true);
 
-        const res = await fetch(`${API_URL}/api/meta/get-skills`, {
-          headers: {
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      if (apiType === "company") {
+        const response = await axiosInstance.get("/dropdown/companiesName");
+        setData(extractItems(response.data));
+      } else {
+        const response = await axiosInstance.get("/api/company-master-data", {
+          params: {
+            type: "COMPANY_DESIGNATION",
           },
         });
 
-        const data = await res.json();
+        const items = extractItems(response.data).map((item) => {
+          const displayValue = getDisplayValue(item);
 
-        if (!res.ok) return;
+          return {
+            ...item,
+            value: displayValue,
+            label: displayValue,
+          };
+        });
 
-        const skills = Array.isArray(data)
-          ? data
-              .map((item) => {
-                if (typeof item === "string") return item;
-                return item.skills || item.value || item.name;
-              })
-              .filter(Boolean)
-          : [];
-
-        setSkillOptions([...new Set(skills)]);
-      } catch (error) {
-        console.error("Skill fetch error:", error);
-      } finally {
-        setLoadingSkills(false);
+        setData(items);
       }
-    };
 
-    fetchSkills();
-  }, [API_URL]);
+      hasFetchedRef.current = true;
+    } catch (error) {
+      console.error(`Error fetching ${apiType} options:`, error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  useEffect(() => {
-    const closeDropdown = (e: MouseEvent) => {
-      if (!dropdownRef.current?.contains(e.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-    };
+  const handleFocus = () => {
+    setIsOpen(true);
+    void fetchData();
+  };
 
-    document.addEventListener("mousedown", closeDropdown);
+  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const nextValue = event.target.value;
 
-    return () => document.removeEventListener("mousedown", closeDropdown);
-  }, []);
+    setSearchTerm(nextValue);
+    onChange(nextValue);
+    setIsOpen(true);
+  };
 
-  const filteredSkillOptions = useMemo(() => {
-    return skillOptions
-      .filter((skill) =>
-        skill.toLowerCase().includes(customSkillSearch.toLowerCase())
-      )
-      .filter(
-        (skill) =>
-          !formData.skills.some(
-            (selected) => selected.toLowerCase() === skill.toLowerCase()
-          )
-      )
-      .sort();
-  }, [skillOptions, customSkillSearch, formData.skills]);
+  const handleSelect = (selectedValue: string) => {
+    setSearchTerm(selectedValue);
+    onChange(selectedValue);
+    setIsOpen(false);
+    inputRef.current?.blur();
+  };
 
-  const handleAddNewSkill = async (skillName: string) => {
-    const trimmedSkill = skillName.trim();
+  const clearInput = () => {
+    setSearchTerm("");
+    onChange("");
+    setIsOpen(false);
+    inputRef.current?.focus();
+  };
 
-    if (!trimmedSkill) return;
+  const handleCreate = async () => {
+    const valueToCreate = searchTerm.trim();
+
+    if (!valueToCreate || isCreating) return;
 
     try {
-      const token = localStorage.getItem("token");
+      setIsCreating(true);
 
-      const res = await fetch(`${API_URL}/api/meta/add-skill`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({
-          skills: trimmedSkill,
-        }),
+      const response =
+        apiType === "company"
+          ? await axiosInstance.post("/api/company", {
+              name: valueToCreate,
+            })
+          : await axiosInstance.post("/api/company-master-data", {
+              type: "COMPANY_DESIGNATION",
+              value: valueToCreate,
+            });
+
+      const responseItems = extractItems(response.data);
+      const responseObject =
+        response.data &&
+        typeof response.data === "object" &&
+        !Array.isArray(response.data)
+          ? (response.data as {
+              data?: AutocompleteItem;
+              item?: AutocompleteItem;
+            })
+          : undefined;
+
+      const createdItem =
+        responseItems[0] ||
+        responseObject?.data ||
+        responseObject?.item || {
+          value: valueToCreate,
+          label: valueToCreate,
+          name: valueToCreate,
+          isCustom: true,
+        };
+
+      const createdValue = getDisplayValue(createdItem) || valueToCreate;
+
+      setData((previous) => {
+        const exists = previous.some(
+          (item) =>
+            getDisplayValue(item).toLowerCase() === createdValue.toLowerCase(),
+        );
+
+        return exists ? previous : [...previous, createdItem];
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || data.error || "Error adding skill");
-      }
-
-      const createdSkill = data.skills || trimmedSkill;
-
-      setSkillOptions((prev) => [...new Set([...prev, createdSkill])]);
-
-      setFormData((prev) => ({
-        ...prev,
-        skills: [...new Set([...prev.skills, createdSkill])],
-      }));
+      setSearchTerm(createdValue);
+      onChange(createdValue);
+      setIsOpen(false);
+      inputRef.current?.blur();
     } catch (error) {
-      console.error("Add skill error:", error);
+      console.error(`Error creating ${apiType}:`, error);
 
-      setFormData((prev) => ({
-        ...prev,
-        skills: [...new Set([...prev.skills, trimmedSkill])],
-      }));
+      /*
+       * Keep custom values in the signup form even if the optional
+       * master-data creation endpoint fails.
+       */
+      setSearchTerm(valueToCreate);
+      onChange(valueToCreate);
+      setIsOpen(false);
+    } finally {
+      setIsCreating(false);
     }
   };
 
-  const handleSelectOrAddSkill = async (skillName: string) => {
-    const trimmedSkill = skillName.trim();
+  const filteredData = useMemo(() => {
+    const normalizedSearch = searchTerm.trim().toLowerCase();
 
-    if (!trimmedSkill) return;
+    if (!normalizedSearch) {
+      return data;
+    }
 
-    const alreadySelected = formData.skills.some(
-      (skill) => skill.toLowerCase() === trimmedSkill.toLowerCase()
+    return data.filter((item) =>
+      getDisplayValue(item).toLowerCase().includes(normalizedSearch),
     );
+  }, [data, searchTerm]);
 
-    if (alreadySelected) {
-      setCustomSkillSearch("");
-      setIsDropdownOpen(false);
-      return;
-    }
+  const exactMatchExists = useMemo(() => {
+    const normalizedSearch = searchTerm.trim().toLowerCase();
 
-    const existsInGlobalList = skillOptions.some(
-      (skill) => skill.toLowerCase() === trimmedSkill.toLowerCase()
+    if (!normalizedSearch) return false;
+
+    return data.some(
+      (item) => getDisplayValue(item).toLowerCase() === normalizedSearch,
     );
+  }, [data, searchTerm]);
 
-    if (existsInGlobalList) {
-      setFormData((prev) => ({
-        ...prev,
-        skills: [...prev.skills, trimmedSkill],
-      }));
-    } else {
-      await handleAddNewSkill(trimmedSkill);
-    }
-
-    setCustomSkillSearch("");
-    setIsDropdownOpen(false);
-  };
-
-  const removeSkill = (skillToRemove: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      skills: prev.skills.filter((skill) => skill !== skillToRemove),
-    }));
-  };
-
-  const removeTool = (toolToRemove: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      toolsAndPlatforms: prev.toolsAndPlatforms.filter(
-        (tool) => tool !== toolToRemove
-      ),
-    }));
-  };
-
-  const handleToolsSelect = (e: ChangeEvent<HTMLSelectElement>) => {
-    const tool = e.target.value;
-
-    if (!tool) return;
-
-    setFormData((prev) => ({
-      ...prev,
-      toolsAndPlatforms: prev.toolsAndPlatforms.includes(tool)
-        ? prev.toolsAndPlatforms
-        : [...prev.toolsAndPlatforms, tool],
-    }));
-  };
-
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    setErrors((prev) => ({
-      ...prev,
-      [name]: "",
-    }));
-  };
-
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-
-    if (!file) return;
-
-    setFormData((prev) => ({
-      ...prev,
-      project: file,
-    }));
-  };
-
-  const handleNext = () => {
-    const newErrors: FormErrors = {};
-
-    if (!isValidLinkedIn(formData.linkedin)) {
-      newErrors.linkedin = "Enter valid LinkedIn URL like linkedin.com/in/username";
-    }
-
-    if (!isValidGithub(formData.github)) {
-      newErrors.github = "Enter valid GitHub URL like github.com/username";
-    }
-
-    if (formData.portfolio) {
-      const lowerPortfolio = formData.portfolio.toLowerCase();
-
-      if (lowerPortfolio.includes("linkedin.com")) {
-        newErrors.portfolio = "LinkedIn URL should be entered in LinkedIn field";
-      } else if (lowerPortfolio.includes("github.com")) {
-        newErrors.portfolio = "GitHub URL should be entered in GitHub field";
-      } else if (!isValidPortfolio(formData.portfolio)) {
-        newErrors.portfolio = "Enter a valid portfolio URL";
-      }
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    localStorage.setItem(
-      "skillsAchievements",
-      JSON.stringify({
-        ...formData,
-        project: formData.project ? formData.project.name : null,
-      })
-    );
-
-    router.push("/onboarding/complete-profile");
-  };
+  const showDropdown =
+    isOpen && (loading || searchTerm.trim().length > 0 || data.length > 0);
 
   return (
-    <div className="min-h-screen bg-black px-5 py-8 text-white">
-      <div className="mx-auto flex min-h-[calc(100vh-64px)] max-w-3xl items-center justify-center">
-        <div className="w-full rounded-3xl border border-[var(--border)] bg-[var(--background)] p-7 shadow-2xl lg:p-10">
-          <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--primary-soft)]">
-              <Award className="h-8 w-8 text-[var(--primary)]" />
+    <div ref={dropdownRef} className="relative">
+      {label ? (
+        <label className="mb-1.5 block text-xs font-medium text-gray-300">
+          {label}
+        </label>
+      ) : null}
+
+      <div className="relative">
+        <input
+          ref={inputRef}
+          type="text"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          onFocus={handleFocus}
+          placeholder={placeholder}
+          autoComplete="off"
+          className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-10 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+        />
+
+        {Icon ? (
+          <Icon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+        ) : null}
+
+        {searchTerm ? (
+          <button
+            type="button"
+            onClick={clearInput}
+            aria-label="Clear input"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition-colors hover:text-white"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        ) : null}
+      </div>
+
+      {showDropdown ? (
+        <div className="absolute z-50 mt-1 max-h-52 w-full overflow-y-auto rounded-lg border border-[#2a3a52] bg-[#111827] shadow-xl">
+          {loading ? (
+            <div className="flex items-center justify-center px-4 py-3 text-sm text-gray-400">
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Loading...
             </div>
+          ) : filteredData.length > 0 ? (
+            <>
+              {filteredData.slice(0, 15).map((item, index) => {
+                const displayValue = getDisplayValue(item);
 
-            <h1 className="text-[26px] font-bold tracking-[-0.04em] text-white">
-              Skills & Achievements
-            </h1>
+                if (!displayValue) return null;
 
-            <p className="mt-2 text-[13px] text-[var(--text-primary)]">
-              Highlight your skills and achievements to stand out to employers.
-            </p>
-          </div>
+                return (
+                  <button
+                    key={getItemKey(item, index)}
+                    type="button"
+                    onClick={() => handleSelect(displayValue)}
+                    className="group flex w-full items-center justify-between border-b border-[#2a3a52] px-4 py-2.5 text-left text-sm text-white transition-colors last:border-0 hover:bg-green-500/10"
+                  >
+                    <span>{displayValue}</span>
 
-          <div className="space-y-5">
-            <div ref={dropdownRef}>
-              <label className="mb-2 block text-[13px] font-medium text-white">
-                Skills
-              </label>
+                    {isCustomItem(item) ? (
+                      <span className="text-[10px] text-gray-500 group-hover:text-green-400">
+                        Custom
+                      </span>
+                    ) : null}
+                  </button>
+                );
+              })}
 
-              <div className="relative">
-                <div className="flex min-h-12 flex-wrap gap-2 rounded-lg border border-white/10 bg-white/[0.03] p-3 transition focus-within:border-[var(--primary)] focus-within:ring-2 focus-within:ring-[var(--primary)]/15">
-                  {formData.skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="flex items-center gap-1 rounded-full border border-[var(--primary)]/30 bg-[var(--primary-soft)] px-3 py-1 text-[12px] font-medium text-white"
-                    >
-                      {skill}
+              {searchTerm.trim() && !exactMatchExists ? (
+                <button
+                  type="button"
+                  onClick={() => void handleCreate()}
+                  disabled={isCreating}
+                  className="flex w-full items-center gap-2 border-t border-[#2a3a52] px-4 py-2.5 text-left text-sm text-green-400 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isCreating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-4 w-4" />
+                      Create &quot;{searchTerm.trim()}&quot;
+                    </>
+                  )}
+                </button>
+              ) : null}
+            </>
+          ) : searchTerm.trim() ? (
+            <button
+              type="button"
+              onClick={() => void handleCreate()}
+              disabled={isCreating}
+              className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-green-400 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isCreating ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Plus className="h-4 w-4" />
+                  Create &quot;{searchTerm.trim()}&quot;
+                </>
+              )}
+            </button>
+          ) : (
+            <div className="px-4 py-3 text-center">
+              <p className="text-sm text-gray-400">No options found</p>
+              <p className="mt-1 text-xs text-gray-500">
+                Type a value to create one
+              </p>
+            </div>
+          )}
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
-                      <button type="button" onClick={() => removeSkill(skill)}>
-                        <XIcon className="h-3 w-3" />
-                      </button>
-                    </span>
-                  ))}
+export default function StepFivePage() {
+  const router = useRouter();
 
-                  <input
-                    type="text"
-                    value={customSkillSearch}
-                    onFocus={() => setIsDropdownOpen(true)}
-                    onChange={(e) => {
-                      setCustomSkillSearch(e.target.value);
-                      setIsDropdownOpen(true);
-                    }}
-                    placeholder={
-                      loadingSkills
-                        ? "Loading skills..."
-                        : "Search skills like React, Node.js"
-                    }
-                    className="min-w-[160px] flex-1 bg-transparent text-[13px] text-white outline-none placeholder:text-[var(--text-muted)]"
-                  />
+  const [experiences, setExperiences] = useState<Experience[]>([
+    createEmptyExperience(),
+  ]);
+  const [companyEmail, setCompanyEmail] = useState("");
+  const [noticePeriod, setNoticePeriod] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedStep = safeJsonParse<Partial<StoredExperienceStep>>(
+      localStorage.getItem("onboarding_experiences"),
+      {},
+    );
+
+    const legacyExperiences = safeJsonParse<Experience[]>(
+      localStorage.getItem("experiences_data"),
+      [],
+    );
+
+    const savedExperiences =
+      Array.isArray(storedStep.experiences) &&
+      storedStep.experiences.length > 0
+        ? storedStep.experiences
+        : legacyExperiences;
+
+    if (savedExperiences.length > 0) {
+      setExperiences(
+        savedExperiences.map((experience) => ({
+          ...createEmptyExperience(),
+          ...experience,
+          _id: experience._id || generateId(),
+          isCurrent: Boolean(experience.isCurrent),
+        })),
+      );
+    }
+
+    setCompanyEmail(storedStep.companyEmail || "");
+    setNoticePeriod(storedStep.noticePeriod || "");
+  }, []);
+
+  const handleUpdate = <K extends keyof Experience>(
+    index: number,
+    key: K,
+    value: Experience[K],
+  ) => {
+    setExperiences((previous) =>
+      previous.map((experience, experienceIndex) =>
+        experienceIndex === index
+          ? {
+              ...experience,
+              [key]: value,
+            }
+          : experience,
+      ),
+    );
+  };
+
+  const handleAdd = () => {
+    setExperiences((previous) => [
+      ...previous,
+      createEmptyExperience(),
+    ]);
+  };
+
+  const handleRemove = (index: number) => {
+    setExperiences((previous) => {
+      if (previous.length <= 1) {
+        return previous;
+      }
+
+      return previous.filter(
+        (_experience, experienceIndex) => experienceIndex !== index,
+      );
+    });
+  };
+
+  const handleCurrentlyWorkingChange = (
+    index: number,
+    checked: boolean,
+  ) => {
+    setExperiences((previous) =>
+      previous.map((experience, experienceIndex) => {
+        if (experienceIndex === index) {
+          return {
+            ...experience,
+            isCurrent: checked,
+            endDate: checked ? "" : experience.endDate,
+          };
+        }
+
+        if (checked && experience.isCurrent) {
+          return {
+            ...experience,
+            isCurrent: false,
+          };
+        }
+
+        return experience;
+      }),
+    );
+  };
+
+  const getCleanedExperiences = (): Experience[] => {
+    return experiences
+      .filter(
+        (experience) =>
+          Boolean(experience.company?.trim()) ||
+          Boolean(experience.role?.trim()) ||
+          Boolean(experience.startDate),
+      )
+      .map((experience) => {
+        const { _id: _temporaryId, ...rest } = experience;
+
+        return {
+          ...rest,
+          company: rest.company?.trim() || "",
+          company_display:
+            rest.company_display?.trim() ||
+            rest.company?.trim() ||
+            "",
+          role: rest.role?.trim() || "",
+          startDate: rest.startDate || "",
+          endDate: rest.isCurrent ? "" : rest.endDate || "",
+          description: Array.isArray(rest.description)
+            ? rest.description.join("\n")
+            : rest.description || "",
+          experienceCertificate: rest.experienceCertificate || "",
+          isCurrent: Boolean(rest.isCurrent),
+        } as Experience;
+      });
+  };
+
+  const persistExperienceStep = (
+    cleanedExperiences: Experience[],
+  ): StoredExperienceStep => {
+    const currentExperience = cleanedExperiences.find(
+      (experience) => experience.isCurrent,
+    );
+
+    const normalizedEmail = currentExperience
+      ? companyEmail.trim().toLowerCase()
+      : "";
+
+    const normalizedNoticePeriod = currentExperience
+      ? noticePeriod.trim()
+      : "";
+
+    const onboardingData: StoredExperienceStep = {
+      experiences: cleanedExperiences,
+      companyEmail: normalizedEmail,
+      noticePeriod: normalizedNoticePeriod,
+      currentCompany: currentExperience?.company?.trim() || "",
+      currentCompany_display:
+        currentExperience?.company_display?.trim() ||
+        currentExperience?.company?.trim() ||
+        "",
+      lastUpdated: new Date().toISOString(),
+    };
+
+    /*
+     * The confirmation page must read this complete object and spread it
+     * into the final onboarding API payload.
+     */
+    localStorage.setItem(
+      "onboarding_experiences",
+      JSON.stringify(onboardingData),
+    );
+
+    /*
+     * Keep the old array key for compatibility with existing code, but do
+     * not rely on it for companyEmail or noticePeriod.
+     */
+    localStorage.setItem(
+      "experiences_data",
+      JSON.stringify(cleanedExperiences),
+    );
+
+    return onboardingData;
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    try {
+      setError(null);
+      setIsLoading(true);
+
+      const cleanedExperiences = getCleanedExperiences();
+      const currentExperience = cleanedExperiences.find(
+        (experience) => experience.isCurrent,
+      );
+
+      if (currentExperience && companyEmail.trim()) {
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!emailPattern.test(companyEmail.trim())) {
+          setError("Please enter a valid official company email.");
+          return;
+        }
+      }
+
+      persistExperienceStep(cleanedExperiences);
+
+      router.push("/onboarding/stepSix");
+    } catch (submissionError) {
+      console.error("Error saving signup experience data:", submissionError);
+      setError("Failed to save experience details. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleBack = () => {
+    const cleanedExperiences = getCleanedExperiences();
+
+    persistExperienceStep(
+      cleanedExperiences.length > 0
+        ? cleanedExperiences
+        : experiences,
+    );
+
+    router.push("/onboarding/stepFour");
+  };
+
+  const hasCurrentExperience = experiences.some(
+    (experience) => Boolean(experience.isCurrent),
+  );
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="mx-auto max-w-4xl space-y-6 p-6"
+    >
+      <div className="mb-6 flex items-center gap-3">
+        <div className="rounded-xl border border-green-500/20 bg-green-500/10 p-2">
+          <Briefcase className="h-5 w-5 text-green-400" />
+        </div>
+
+        <div>
+          <h2 className="text-xl font-bold text-white">Work Experience</h2>
+          <p className="text-sm text-gray-400">
+            Add your work experience details
+          </p>
+        </div>
+
+        <span className="ml-auto text-sm text-gray-500">Step 5 of 6</span>
+      </div>
+
+      {error ? (
+        <div className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
+          <X className="h-4 w-4" />
+          {error}
+        </div>
+      ) : null}
+
+      <div className="space-y-5">
+        {experiences.map((experience, index) => (
+          <div
+            key={experience._id || `experience-${index}`}
+            className="rounded-xl border border-[#2a3a52] bg-[#111827] p-5 transition-all duration-300 hover:border-green-500/30"
+          >
+            <div className="mb-5 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-green-500/20 bg-green-500/10 text-green-400">
+                  <Briefcase className="h-4 w-4" />
                 </div>
 
-                {isDropdownOpen && (
-                  <div className="absolute z-50 mt-2 max-h-60 w-full overflow-y-auto rounded-xl border border-white/10 bg-[var(--background)] shadow-2xl">
-                    {filteredSkillOptions.map((skill) => (
-                      <button
-                        key={skill}
-                        type="button"
-                        onClick={() => handleSelectOrAddSkill(skill)}
-                        className="block w-full border-b border-white/5 px-4 py-3 text-left text-[13px] text-white transition last:border-none hover:bg-[var(--primary-soft)]"
-                      >
-                        {skill}
-                      </button>
-                    ))}
+                <h3 className="text-sm font-semibold text-white">
+                  Experience {index + 1}
+                </h3>
 
-                    {customSkillSearch &&
-                      !skillOptions.some(
-                        (skill) =>
-                          skill.toLowerCase() ===
-                          customSkillSearch.toLowerCase()
-                      ) && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleSelectOrAddSkill(customSkillSearch)
-                          }
-                          className="block w-full px-4 py-3 text-left text-[13px] font-medium text-[var(--primary)] transition hover:bg-[var(--primary-soft)]"
-                        >
-                          Add "{customSkillSearch}"
-                        </button>
-                      )}
-
-                    {!loadingSkills &&
-                      !customSkillSearch &&
-                      filteredSkillOptions.length === 0 && (
-                        <p className="px-4 py-3 text-[13px] text-[var(--text-primary)]">
-                          No skills available.
-                        </p>
-                      )}
-                  </div>
-                )}
+                {!experience.company &&
+                !experience.role &&
+                !experience.startDate ? (
+                  <span className="rounded-full bg-gray-800/50 px-2 py-0.5 text-[10px] text-gray-500">
+                    Optional
+                  </span>
+                ) : null}
               </div>
+
+              {experiences.length > 1 ? (
+                <button
+                  type="button"
+                  onClick={() => handleRemove(index)}
+                  className="flex items-center gap-1.5 rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:border-red-500/50 hover:bg-red-500/10"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  Remove
+                </button>
+              ) : null}
             </div>
 
-            <div>
-              <label className="mb-2 block text-[13px] font-medium text-white">
-                Certifications
-              </label>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-1.5 text-xs font-medium text-gray-300">
+                  <Building2 className="h-3.5 w-3.5 text-gray-500" />
+                  Company
+                </label>
 
-              <div className="flex items-start">
-                <Award className="mr-3 mt-3 h-5 w-5 text-[var(--text-primary)]" />
+                <AutocompleteInput
+                  apiType="company"
+                  value={experience.company || ""}
+                  onChange={(value) =>
+                    handleUpdate(index, "company", value)
+                  }
+                  placeholder="Search or type company name..."
+                  icon={Search}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-1.5 text-xs font-medium text-gray-300">
+                  <User className="h-3.5 w-3.5 text-gray-500" />
+                  Role / Title
+                </label>
+
+                <AutocompleteInput
+                  apiType="jobRole"
+                  value={experience.role || ""}
+                  onChange={(value) =>
+                    handleUpdate(index, "role", value)
+                  }
+                  placeholder="Search or type job role..."
+                  icon={Search}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-1.5 text-xs font-medium text-gray-300">
+                  <Calendar className="h-3.5 w-3.5 text-gray-500" />
+                  Start Date
+                </label>
+
+                <input
+                  type="date"
+                  value={experience.startDate || ""}
+                  onChange={(event) =>
+                    handleUpdate(
+                      index,
+                      "startDate",
+                      event.target.value,
+                    )
+                  }
+                  className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-1.5 text-xs font-medium text-gray-300">
+                  <Calendar className="h-3.5 w-3.5 text-gray-500" />
+                  End Date
+                </label>
+
+                <input
+                  type="date"
+                  value={experience.endDate || ""}
+                  disabled={Boolean(experience.isCurrent)}
+                  min={experience.startDate || undefined}
+                  onChange={(event) =>
+                    handleUpdate(
+                      index,
+                      "endDate",
+                      event.target.value,
+                    )
+                  }
+                  className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="group flex cursor-pointer items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(experience.isCurrent)}
+                    onChange={(event) =>
+                      handleCurrentlyWorkingChange(
+                        index,
+                        event.target.checked,
+                      )
+                    }
+                    className="h-4 w-4 rounded border-[#2a3a52] bg-[#0f172a] text-green-500 focus:ring-2 focus:ring-green-500/20 focus:ring-offset-0"
+                  />
+
+                  <span className="text-sm font-medium text-gray-300 transition-colors group-hover:text-white">
+                    Currently working here
+                  </span>
+                </label>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="text-xs font-medium text-gray-300">
+                  Description
+                </label>
 
                 <textarea
-                  name="certifications"
+                  value={
+                    Array.isArray(experience.description)
+                      ? experience.description.join("\n")
+                      : experience.description || ""
+                  }
+                  onChange={(event) =>
+                    handleUpdate(
+                      index,
+                      "description",
+                      event.target.value,
+                    )
+                  }
+                  placeholder="Describe your responsibilities and achievements..."
                   rows={3}
-                  value={formData.certifications}
-                  onChange={handleChange}
-                  placeholder="e.g. AWS Certified Developer, Google Cloud Certified"
-                  className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-[13px] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15"
+                  className="w-full resize-none rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 />
               </div>
             </div>
+          </div>
+        ))}
 
-            <div>
-              <label className="mb-2 block text-[13px] font-medium text-white">
-                Tools & Platforms Known
-              </label>
+        <button
+          type="button"
+          onClick={handleAdd}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[#2a3a52] bg-[#111827] py-4 text-sm font-medium text-gray-400 transition hover:border-green-500/50 hover:bg-green-500/5 hover:text-green-400"
+        >
+          <Plus className="h-4 w-4" />
+          Add more experience
+        </button>
+      </div>
 
-              {formData.toolsAndPlatforms.length > 0 && (
-                <div className="mb-3 flex flex-wrap gap-2">
-                  {formData.toolsAndPlatforms.map((tool) => (
-                    <span
-                      key={tool}
-                      className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-[12px] text-white"
-                    >
-                      {tool}
+      {hasCurrentExperience ? (
+        <div className="space-y-4 rounded-xl border border-green-500/20 bg-green-500/5 p-5">
+          <div className="flex items-center gap-2">
+            <Briefcase className="h-4 w-4 text-green-400" />
 
-                      <button type="button" onClick={() => removeTool(tool)}>
-                        <XIcon className="h-3 w-3" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              <div className="flex items-center">
-                <Wrench className="mr-3 h-5 w-5 text-[var(--text-primary)]" />
-
-                <select
-                  onChange={handleToolsSelect}
-                  value=""
-                  className="h-11 w-full rounded-lg border border-white/10 bg-[var(--background)] px-4 text-[13px] text-white outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15"
-                >
-                  <option value="">Select a tool or platform</option>
-
-                  {toolsAndPlatforms.map((tool) => (
-                    <option key={tool} value={tool}>
-                      {tool}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="grid gap-5 md:grid-cols-2">
-              <div>
-                <label className="mb-2 block text-[13px] font-medium text-white">
-                  LinkedIn Profile
-                </label>
-
-                <div className="flex items-center">
-                  <Link className="mr-3 h-5 w-5 text-[var(--text-primary)]" />
-
-                  <div className="w-full">
-                    <input
-                      name="linkedin"
-                      type="url"
-                      value={formData.linkedin}
-                      onChange={handleChange}
-                      placeholder="linkedin.com/in/username"
-                      className="h-11 w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 text-[13px] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15"
-                    />
-
-                    {errors.linkedin && (
-                      <p className="mt-1 text-[12px] text-red-400">
-                        {errors.linkedin}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="mb-2 block text-[13px] font-medium text-white">
-                  GitHub Profile
-                </label>
-
-                <div className="flex items-center">
-                  <FileCode className="mr-3 h-5 w-5 text-[var(--text-primary)]" />
-
-                  <div className="w-full">
-                    <input
-                      name="github"
-                      type="url"
-                      value={formData.github}
-                      onChange={handleChange}
-                      placeholder="github.com/username"
-                      className="h-11 w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 text-[13px] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15"
-                    />
-
-                    {errors.github && (
-                      <p className="mt-1 text-[12px] text-red-400">
-                        {errors.github}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label className="mb-2 block text-[13px] font-medium text-white">
-                Portfolio Website
-              </label>
-
-              <div className="flex items-center">
-                <Link className="mr-3 h-5 w-5 text-[var(--text-primary)]" />
-
-                <div className="w-full">
-                  <input
-                    name="portfolio"
-                    type="url"
-                    value={formData.portfolio}
-                    onChange={handleChange}
-                    placeholder="https://yourportfolio.com"
-                    className="h-11 w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 text-[13px] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15"
-                  />
-
-                  {errors.portfolio && (
-                    <p className="mt-1 text-[12px] text-red-400">
-                      {errors.portfolio}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label className="mb-2 block text-[13px] font-medium text-white">
-                Upload a Project{" "}
-                <span className="text-[var(--text-primary)]">(Optional)</span>
-              </label>
-
-              <label className="flex h-14 cursor-pointer items-center rounded-lg border-2 border-dashed border-white/10 bg-white/[0.03] px-4 transition hover:border-[var(--primary)] hover:bg-[var(--primary-soft)]">
-                <UploadIcon className="mr-3 h-5 w-5 text-[var(--text-primary)]" />
-
-                <span className="truncate text-[13px] text-[var(--text-primary)]">
-                  {formData.project
-                    ? formData.project.name
-                    : "Click to upload project file PDF, ZIP, etc."}
-                </span>
-
-                <input type="file" onChange={handleFileChange} className="hidden" />
-              </label>
-            </div>
+            <h3 className="text-sm font-semibold text-white">
+              Current Employment Details
+            </h3>
           </div>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="flex h-10 flex-1 items-center justify-center rounded-lg border border-white/10 text-[13px] font-semibold text-white transition hover:bg-white/10"
-            >
-              <ChevronLeft className="mr-2 h-4 w-4" />
-              Back
-            </button>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-1.5">
+              <label
+                htmlFor="noticePeriod"
+                className="text-xs font-medium text-gray-300"
+              >
+                Notice Period (days)
+              </label>
 
-            <button
-              type="button"
-              onClick={handleNext}
-              className="button-color flex h-10 flex-1 items-center justify-center rounded-lg text-[13px] font-semibold text-black transition-all duration-300 hover:brightness-110 active:scale-[0.99]"
-            >
-              Next
-              <ChevronRight className="ml-2 h-4 w-4" />
-            </button>
+              <input
+                id="noticePeriod"
+                type="number"
+                min="0"
+                step="1"
+                inputMode="numeric"
+                value={noticePeriod}
+                onChange={(event) =>
+                  setNoticePeriod(event.target.value)
+                }
+                placeholder="e.g., 30, 60, 90"
+                className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label
+                htmlFor="companyEmail"
+                className="text-xs font-medium text-gray-300"
+              >
+                Official Company Email
+              </label>
+
+              <input
+                id="companyEmail"
+                type="email"
+                value={companyEmail}
+                onChange={(event) =>
+                  setCompanyEmail(event.target.value)
+                }
+                onBlur={(event) =>
+                  setCompanyEmail(
+                    event.target.value.trim().toLowerCase(),
+                  )
+                }
+                placeholder="yourname@company.com"
+                autoComplete="email"
+                className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              />
+            </div>
           </div>
         </div>
+      ) : null}
+
+      <div className="flex gap-4 border-t border-[#2a3a52] pt-4">
+        <button
+          type="button"
+          onClick={handleBack}
+          disabled={isLoading}
+          className="flex-1 rounded-lg border border-[#2a3a52] bg-[#0f172a] py-2.5 text-sm font-medium text-gray-300 transition-all hover:border-green-500/30 hover:bg-green-500/5 hover:text-white disabled:opacity-50"
+        >
+          Back
+        </button>
+
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="flex-1 rounded-lg bg-green-500 py-2.5 text-sm font-medium text-black transition-all hover:bg-green-400 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {isLoading ? "Saving..." : "Continue →"}
+        </button>
       </div>
-    </div>
+    </form>
   );
 }
