@@ -7,7 +7,6 @@ import {
   CalendarDays,
   GraduationCap,
   Plus,
-  School,
   Trash2,
   Clock,
 } from "lucide-react";
@@ -16,16 +15,7 @@ import { TextInput } from "../shared/TextInput";
 import { SelectInput } from "../shared/SelectInput";
 import { CheckboxInput } from "../shared/CheckboxInput";
 import type { Education, MasterData } from "@/types/profile";
-
-const educationTypes = [
-  { value: "school", label: "School" },
-  { value: "diploma", label: "Diploma" },
-  { value: "bachelors", label: "Bachelors" },
-  { value: "masters", label: "Masters" },
-  { value: "phd", label: "PhD" },
-  { value: "certification", label: "Certification" },
-  { value: "other", label: "Other" },
-];
+import axiosInstance from "@/lib/axiosInstance";
 
 type EducationEditorProps = {
   educations: Education[];
@@ -35,10 +25,10 @@ type EducationEditorProps = {
   onAdd: () => void;
   onRemove: (index: number) => void;
   onLoadStreams: (degree: string) => void;
+  onMasterDataUpdate?: () => void;
 };
 
 const emptyEducation: Education = {
-  educationType: undefined,
   college: "",
   degree: "",
   specialization: "",
@@ -62,13 +52,6 @@ function normalizeDateValue(value?: string | null) {
   return value;
 }
 
-function getEducationLabel(value?: string) {
-  return (
-    educationTypes.find((item) => item.value === value)?.label ||
-    "Education Details"
-  );
-}
-
 export function EducationEditor({
   educations,
   masterData,
@@ -77,10 +60,12 @@ export function EducationEditor({
   onAdd,
   onRemove,
   onLoadStreams,
+  onMasterDataUpdate,
 }: EducationEditorProps) {
   const [localEducations, setLocalEducations] = useState<Education[]>(
     educations || [],
   );
+  const [isCreating, setIsCreating] = useState(false);
 
   const showSemester = userType === "student";
 
@@ -145,11 +130,159 @@ export function EducationEditor({
     onRemove(index);
   };
 
+  // ✅ API function to create new master data item
+  const createMasterDataItem = async (type: string, value: string, parent?: string) => {
+    try {
+      setIsCreating(true);
+      const payload: any = { type, value };
+      if (parent) {
+        payload.parent = parent;
+      }
+      
+      const response = await axiosInstance.post('/api/master-data', payload);
+
+      if (response?.data?.success) {
+        if (onMasterDataUpdate) {
+          onMasterDataUpdate();
+        }
+        return response.data.data;
+      }
+      return null;
+    } catch (error) {
+      console.error(`Error creating ${type}:`, error);
+      return null;
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  // ✅ Handle college creation using /api/colleges/register
+  const handleCollegeCreate = async (value: string) => {
+    try {
+      setIsCreating(true);
+      const response = await axiosInstance.post('/api/colleges/register', {
+        name: value
+      });
+
+      if (response?.data?.value) {
+        if (onMasterDataUpdate) {
+          onMasterDataUpdate();
+        }
+        return response.data;
+      }
+      return null;
+    } catch (error: any) {
+      console.error('Error creating college:', error);
+      if (error?.response?.data?.message) {
+        alert(error.response.data.message);
+      }
+      return null;
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  // ✅ Handle degree creation
+  const handleDegreeCreate = async (value: string) => {
+    return await createMasterDataItem('DEGREE', value);
+  };
+
+  // ✅ FIXED: Handle stream creation with proper degree ID
+  const handleStreamCreate = async (value: string, degree: string) => {
+    try {
+      setIsCreating(true);
+      
+      // 🔍 Debug: Log what we're looking for
+      console.log('Looking for degree:', degree);
+      console.log('Available degrees:', safeMasterData.degrees);
+      
+      // Find the degree ID - check both label and value
+      const degreeItem = safeMasterData.degrees.find(
+        d => {
+          const matchesLabel = d.label === degree;
+          const matchesValue = d.value === degree;
+          const matchesLabelCaseInsensitive = d.label?.toLowerCase() === degree?.toLowerCase();
+          const matchesValueCaseInsensitive = d.value?.toLowerCase() === degree?.toLowerCase();
+          
+          return matchesLabel || matchesValue || matchesLabelCaseInsensitive || matchesValueCaseInsensitive;
+        }
+      );
+      
+      console.log('Found degree item:', degreeItem);
+      
+      if (!degreeItem) {
+        console.error('Degree not found for stream creation. Degree value:', degree);
+        alert('Please select a valid degree first before adding a specialization.');
+        return null;
+      }
+
+      // Get the actual degree ID from the item
+      const degreeId = degreeItem.value || "";
+      
+      console.log('Using degree ID:', degreeId);
+      
+      if (!degreeId) {
+        console.error('No degree ID found for:', degreeItem);
+        alert('Invalid degree selected. Please try again.');
+        return null;
+      }
+
+      const response = await axiosInstance.post('/api/master-data', {
+        type: 'STREAM',
+        value: value,
+        parent: degreeId // Pass degree ID as parent
+      });
+
+      console.log('Stream creation response:', response.data);
+
+      if (response?.data?.success) {
+        if (onMasterDataUpdate) {
+          onMasterDataUpdate();
+        }
+        return response.data.data;
+      }
+      return null;
+    } catch (error: any) {
+      console.error('Error creating stream:', error);
+      if (error?.response?.data?.message) {
+        alert(error.response.data.message);
+      }
+      return null;
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  // ✅ Helper function to get college options
+  const collegeOptions = useMemo(() => {
+    return safeMasterData.colleges.map((college) => ({
+      value: college.label,
+      label: college.label,
+      id: college.value,
+    }));
+  }, [safeMasterData.colleges]);
+
+  // ✅ Helper function to get degree options
+  const degreeOptions = useMemo(() => {
+    return safeMasterData.degrees.map((degree) => ({
+      value: degree.label,
+      label: degree.label,
+      id: degree.value,
+    }));
+  }, [safeMasterData.degrees]);
+
+  // ✅ Helper function to get stream options
+  const getStreamOptions = (degreeId: string) => {
+    const streams = safeMasterData.streamsByDegree[degreeId] || [];
+    return streams.map((stream) => ({
+      value: stream.label || stream.value,
+      label: stream.label || stream.value,
+      id: stream.value,
+    }));
+  };
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      
-
       {localEducations.length === 0 && (
         <div className="rounded-xl border border-dashed border-[#2a3a52] bg-[#111827] p-8 text-center hover:border-green-500/30 transition-all duration-300">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-green-500/10 border border-green-500/20">
@@ -183,9 +316,7 @@ export function EducationEditor({
               degree.label === edu.degree || degree.value === edu.degree,
           )?.value || edu.degree || "";
 
-        const streamOpts = safeMasterData.streamsByDegree[degreeId] || [];
-
-        const isSchool = edu.educationType === "school";
+        const streamOptions = getStreamOptions(degreeId);
 
         return (
           <div
@@ -196,11 +327,7 @@ export function EducationEditor({
             <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/10 border border-green-500/20">
-                  {isSchool ? (
-                    <School className="h-5 w-5 text-green-400" />
-                  ) : (
-                    <GraduationCap className="h-5 w-5 text-green-400" />
-                  )}
+                  <GraduationCap className="h-5 w-5 text-green-400" />
                 </div>
 
                 <div>
@@ -209,8 +336,7 @@ export function EducationEditor({
                   </h4>
 
                   <p className="text-xs text-gray-400">
-                    {getEducationLabel(edu.educationType)}
-                    {edu.college ? ` • ${edu.college}` : ""}
+                    {edu.college ? edu.college : "No college selected"}
                   </p>
                 </div>
               </div>
@@ -238,40 +364,42 @@ export function EducationEditor({
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <SelectInput
-                    label="Education Type"
-                    value={edu.educationType || ""}
-                    options={educationTypes}
-                    onChange={(value: string) =>
-                      handleUpdate(idx, "educationType", value)
-                    }
-                  />
-
+                  {/* College / School */}
                   <SelectInput
                     label="College / School"
                     value={edu.college || ""}
-                    options={safeMasterData.colleges}
+                    options={collegeOptions}
                     allowCustom
+                    onCreate={handleCollegeCreate}
+                    loading={isCreating}
                     onChange={(value: string) =>
                       handleUpdate(idx, "college", value)
                     }
                   />
 
+                  {/* Degree */}
                   <SelectInput
-                    label={isSchool ? "Class / Board" : "Degree"}
+                    label="Degree"
                     value={edu.degree || ""}
-                    options={safeMasterData.degrees}
+                    options={degreeOptions}
                     allowCustom
+                    onCreate={handleDegreeCreate}
+                    loading={isCreating}
                     onChange={(value: string) =>
                       handleUpdate(idx, "degree", value)
                     }
                   />
 
+                  {/* Specialization / Stream */}
                   <SelectInput
-                    label={isSchool ? "Stream" : "Specialization / Stream"}
+                    label="Specialization / Stream"
                     value={edu.specialization || ""}
-                    options={streamOpts}
+                    options={streamOptions}
                     allowCustom
+                    onCreate={(value: string) => 
+                      handleStreamCreate(value, edu.degree || "")
+                    }
+                    loading={isCreating}
                     onFocus={() => {
                       if (edu.degree) onLoadStreams(edu.degree);
                     }}
@@ -280,7 +408,7 @@ export function EducationEditor({
                     }
                   />
 
-                  {showSemester && !isSchool && (
+                  {showSemester && (
                     <TextInput
                       label="Current Semester"
                       value={edu.semester || ""}

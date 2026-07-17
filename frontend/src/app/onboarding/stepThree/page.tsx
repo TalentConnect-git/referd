@@ -11,6 +11,7 @@ import {
   UploadIcon,
   Plus,
   Trash2,
+  Clock,
 } from "lucide-react";
 
 const CreatableSelect = dynamic(() => import("react-select/creatable"), {
@@ -24,15 +25,6 @@ type OptionType = {
 
 type CandidateRole = "student" | "fresher" | "professional";
 
-type EducationType =
-  | "school"
-  | "diploma"
-  | "bachelors"
-  | "masters"
-  | "phd"
-  | "certification"
-  | "other";
-
 type EducationFormData = {
   college: string;
   degree: string;
@@ -43,7 +35,6 @@ type EducationFormData = {
   degreeCertificate: File | null;
   startDate: string;
   endDate: string;
-  educationType: EducationType;
   isCurrent: boolean;
 };
 
@@ -57,7 +48,6 @@ type EducationPayload = {
   degreeCertificate: string;
   startDate?: string;
   endDate: string;
-  educationType: EducationType;
   isCurrent: boolean;
 };
 
@@ -87,7 +77,6 @@ const emptyEducation: EducationFormData = {
   degreeCertificate: null,
   startDate: "",
   endDate: "",
-  educationType: "bachelors",
   isCurrent: false,
 };
 
@@ -120,7 +109,9 @@ export default function EducationForm() {
     return Array.from({ length: 76 }, (_, i) => currentYear + 5 - i);
   }, []);
 
-  const isStudent = selectedRole === "student";
+  // ✅ Show semester for student and fresher roles
+  const showSemesterField = selectedRole === "student" || selectedRole === "fresher";
+  const showStartDate = selectedRole === "student" || selectedRole === "fresher";
 
   const updateEducation = (
     index: number,
@@ -136,10 +127,7 @@ export default function EducationForm() {
           [key]: value,
         };
 
-        if (key === "educationType" && value === "school") {
-          updated.semester = "";
-        }
-
+        // When isCurrent is true, clear end date
         if (key === "isCurrent" && value === true) {
           updated.endDate = "";
         }
@@ -198,6 +186,7 @@ export default function EducationForm() {
     setEducationList(formattedEducation);
   }, []);
 
+  // ✅ Fetch colleges from /api/colleges/all
   useEffect(() => {
     const fetchColleges = async () => {
       try {
@@ -230,6 +219,7 @@ export default function EducationForm() {
     fetchColleges();
   }, [API_URL]);
 
+  // ✅ Fetch degrees from /api/master-data?type=DEGREE
   useEffect(() => {
     const fetchDegrees = async () => {
       try {
@@ -267,6 +257,7 @@ export default function EducationForm() {
     fetchDegrees();
   }, [API_URL]);
 
+  // ✅ Fetch streams from /api/master-data?type=STREAM&parent={degreeId}
   const fetchStreams = async (index: number, degreeId: string) => {
     try {
       setLoadingStreams((prev) => ({ ...prev, [index]: true }));
@@ -306,6 +297,7 @@ export default function EducationForm() {
     }
   };
 
+  // ✅ Create college using /api/colleges/register
   const createCollege = async (index: number, name: string) => {
     try {
       setLoadingColleges(true);
@@ -342,6 +334,7 @@ export default function EducationForm() {
     }
   };
 
+  // ✅ Create master data (DEGREE or STREAM)
   const createMasterData = async (
     type: "DEGREE" | "STREAM",
     value: string,
@@ -371,6 +364,7 @@ export default function EducationForm() {
     return data.data || data;
   };
 
+  // ✅ Handle degree creation
   const handleDegreeCreate = async (index: number, value: string) => {
     try {
       const created = await createMasterData("DEGREE", value);
@@ -392,6 +386,7 @@ export default function EducationForm() {
     }
   };
 
+  // ✅ Handle stream creation
   const handleStreamCreate = async (index: number, value: string) => {
     try {
       const degreeId = selectedDegreeIds[index];
@@ -431,24 +426,24 @@ export default function EducationForm() {
 
   const handleNext = () => {
     const educationPayload: EducationPayload[] = educationList.map((item) => {
-      const shouldSendSemester = isStudent && item.educationType !== "school";
-      const shouldSendStartDate = isStudent;
+      // ✅ Only include semester if user is student/fresher AND isCurrent is true
+      const shouldIncludeSemester = showSemesterField && item.isCurrent;
+      const shouldIncludeStartDate = showStartDate;
 
       return {
         college: item.college,
         degree: item.degree,
         specialization: item.specialization,
-        ...(shouldSendSemester && item.semester
+        ...(shouldIncludeSemester && item.semester
           ? { semester: item.semester }
           : {}),
         cgpa: item.cgpa,
         yearOfGraduation: item.yearOfGraduation,
         degreeCertificate: item.degreeCertificate?.name || "",
-        ...(shouldSendStartDate && item.startDate
+        ...(shouldIncludeStartDate && item.startDate
           ? { startDate: item.startDate }
           : {}),
         endDate: item.isCurrent ? "" : item.endDate,
-        educationType: item.educationType,
         isCurrent: item.isCurrent,
       };
     });
@@ -478,9 +473,9 @@ export default function EducationForm() {
 
           <div className="space-y-6">
             {educationList.map((education, index) => {
-              const showSemester =
-                isStudent && education.educationType !== "school";
-              const showStartDate = isStudent;
+              // ✅ Only show semester if user is student/fresher AND isCurrent is true
+              const showSemester = showSemesterField && education.isCurrent;
+              const showStartDateField = showStartDate;
 
               return (
                 <div
@@ -505,32 +500,9 @@ export default function EducationForm() {
                   </div>
 
                   <div className="space-y-5">
-                    <div>
-                      <label className="mb-2 block text-[13px] font-medium text-white">
-                        Education Type
-                      </label>
+                    {/* ✅ REMOVED: Education Type dropdown */}
 
-                      <select
-                        value={education.educationType}
-                        onChange={(e) =>
-                          updateEducation(
-                            index,
-                            "educationType",
-                            e.target.value as EducationType
-                          )
-                        }
-                        className="h-11 w-full rounded-lg border border-white/10 bg-[var(--background)] px-4 text-[13px] text-white outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15"
-                      >
-                        <option value="school">School</option>
-                        <option value="diploma">Diploma</option>
-                        <option value="bachelors">Bachelors</option>
-                        <option value="masters">Masters</option>
-                        <option value="phd">PhD</option>
-                        <option value="certification">Certification</option>
-                        <option value="other">Other</option>
-                      </select>
-                    </div>
-
+                    {/* College / University / School */}
                     <div>
                       <label className="mb-2 block text-[13px] font-medium text-white">
                         College / University / School
@@ -562,6 +534,7 @@ export default function EducationForm() {
                     </div>
 
                     <div className="grid gap-5 md:grid-cols-2">
+                      {/* Degree */}
                       <div>
                         <label className="mb-2 block text-[13px] font-medium text-white">
                           Degree / Class
@@ -614,6 +587,7 @@ export default function EducationForm() {
                         />
                       </div>
 
+                      {/* Stream / Specialization */}
                       <div>
                         <label className="mb-2 block text-[13px] font-medium text-white">
                           Stream / Specialization
@@ -650,6 +624,7 @@ export default function EducationForm() {
                     </div>
 
                     <div className="grid gap-5 md:grid-cols-2">
+                      {/* ✅ Semester - Only show when isCurrent is true for student/fresher */}
                       {showSemester && (
                         <div>
                           <label className="mb-2 block text-[13px] font-medium text-white">
@@ -674,6 +649,7 @@ export default function EducationForm() {
                         </div>
                       )}
 
+                      {/* CGPA / Percentage */}
                       <div>
                         <label className="mb-2 block text-[13px] font-medium text-white">
                           CGPA / Percentage
@@ -691,7 +667,8 @@ export default function EducationForm() {
                     </div>
 
                     <div className="grid gap-5 md:grid-cols-2">
-                      {showStartDate && (
+                      {/* Start Date - Only for student/fresher */}
+                      {showStartDateField && (
                         <div>
                           <label className="mb-2 block text-[13px] font-medium text-white">
                             Start Date
@@ -708,6 +685,7 @@ export default function EducationForm() {
                         </div>
                       )}
 
+                      {/* End Date */}
                       <div>
                         <label className="mb-2 block text-[13px] font-medium text-white">
                           End Date
@@ -725,6 +703,7 @@ export default function EducationForm() {
                       </div>
                     </div>
 
+                    {/* ✅ Currently studying checkbox */}
                     <label className="flex items-center gap-3 text-[13px] text-[var(--text-primary)]">
                       <input
                         type="checkbox"
@@ -738,6 +717,14 @@ export default function EducationForm() {
                       I am currently studying here
                     </label>
 
+                    {/* ✅ Show semester info when checked */}
+                    {showSemesterField && education.isCurrent && !education.semester && (
+                      <p className="text-xs text-yellow-400 flex items-center gap-1.5">
+                        <Clock className="h-3 w-3" />
+                        Please select your current semester
+                      </p>
+                    )}
+
                     <GraduationYearSelect
                       value={education.yearOfGraduation}
                       years={yearOptions}
@@ -746,6 +733,7 @@ export default function EducationForm() {
                       }
                     />
 
+                    {/* Degree Certificate Upload */}
                     <div>
                       <label className="mb-2 block text-[13px] font-medium text-white">
                         Degree Certificate{" "}
