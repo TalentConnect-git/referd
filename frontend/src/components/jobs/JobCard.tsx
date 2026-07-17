@@ -100,6 +100,7 @@ export default function JobCard({
 
   console.log("posted", postedBy);
   console.log("matchscore",matchScore);
+  console.log("alumni count",alumniCount);
 
   useEffect(() => {
     setSaved(isSaved);
