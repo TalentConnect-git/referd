@@ -38,11 +38,6 @@ type PaginationMeta = {
   hasPrev?: boolean;
 };
 
-type AlumniResponse = {
-  success?: boolean;
-  data?: unknown[];
-};
-
 export default function ProfessionalReferralJobsPage() {
   const router = useRouter();
 
@@ -50,46 +45,6 @@ export default function ProfessionalReferralJobsPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [page, setPage] = useState<number>(1);
   const [meta, setMeta] = useState<PaginationMeta | null>(null);
-  const [alumnicount,setalumnicount]=useState(0);
-  /**
-   * Calls:
-   * GET /api/candidate/company-alumni/:companyName/:userId
-   *
-   * Alumni count is response.data.data.length.
-   */
-  const getAlumniWhoCanHelp = useCallback(
-    async (companyName: string, userId: string): Promise<number> => {
-      const normalizedCompanyName = companyName?.trim();
-      const normalizedUserId = userId?.trim();
-
-      if (!normalizedCompanyName || !normalizedUserId) {
-        return 0;
-      }
-
-      try {
-        const encodedCompanyName = encodeURIComponent(normalizedCompanyName);
-        const encodedUserId = encodeURIComponent(normalizedUserId);
-
-        const response = await axiosInstance.get<AlumniResponse>(
-          `/api/candidate/company-alumni/${encodedCompanyName}/${encodedUserId}`,
-        );
-
-        const alumni = Array.isArray(response.data?.data)
-          ? response.data.data
-          : [];
-
-        return alumni.length;
-      } catch (error) {
-        console.error(
-          `Failed to fetch alumni for ${normalizedCompanyName}`,
-          error,
-        );
-
-        return 0;
-      }
-    },
-    [],
-  );
 
   const fetchReferralJobs = useCallback(
     async (pageNumber: number) => {
@@ -110,43 +65,7 @@ export default function ProfessionalReferralJobsPage() {
           ? response.data.data
           : [];
 
-        const jobsWithAlumniCount = await Promise.all(
-          fetchedJobs.map(async (job) => {
-            /*
-             * Company name comes from:
-             * job.candidatePosted.currentCompany
-             *
-             * User ID comes from:
-             * job.candidatePosted.userId
-             */
-            const companyName =
-              job.candidatePosted?.currentCompany?.trim() || "";
-
-            const userId =
-              job.candidatePosted?.userId?.trim() ||
-              job.postedByUser?.trim() ||
-              "";
-
-            if (!companyName || !userId) {
-              return {
-                ...job,
-                alumniCount: 0,
-              };
-            }
-
-            const alumniCount = await getAlumniWhoCanHelp(
-              companyName,
-              userId,
-            );
-
-            return {
-              ...job,
-              alumniCount,
-            };
-          }),
-        );
-
-        setJobs(jobsWithAlumniCount);
+        setJobs(fetchedJobs);
         setMeta(response.data?.meta || null);
       } catch (error) {
         console.error("Failed to fetch referral jobs", error);
@@ -157,7 +76,7 @@ export default function ProfessionalReferralJobsPage() {
         setLoading(false);
       }
     },
-    [getAlumniWhoCanHelp],
+    [],
   );
 
   useEffect(() => {
