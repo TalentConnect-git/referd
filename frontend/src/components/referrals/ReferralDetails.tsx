@@ -47,8 +47,13 @@ export default function ReferralDetails({
             <X size={18} />
           </button>
 
-          <ReferralDetailsHeader referral={referral} />
+          {/* ✅ Pass setActiveTab to header */}
+          <ReferralDetailsHeader 
+            referral={referral} 
+            setActiveTab={setActiveTab}
+          />
 
+          {/* ✅ Tab Buttons */}
           <div className="mb-4 flex w-fit rounded-lg bg-[#1e293b] p-1">
             <button
               type="button"
@@ -75,6 +80,7 @@ export default function ReferralDetails({
             </button>
           </div>
 
+          {/* ✅ Tab Content */}
           {activeTab === "overview" && (
             <ReferralDetailsOverview referral={referral} />
           )}
