@@ -1,3 +1,5 @@
+"use client";
+
 import {
   useEffect,
   useMemo,
@@ -26,19 +28,27 @@ type ApiType = "company" | "jobRole";
 type AutocompleteItem = {
   _id?: string;
   id?: string;
+
   label?: string;
   value?: string;
   name?: string;
   title?: string;
+
   company?: string;
   companyName?: string;
   displayName?: string;
+
+  canonicalId?: string;
+  canonical_id?: string;
+  companyCanonicalId?: string;
+  company_canonical_id?: string;
+
   isCustom?: boolean | string;
 };
 
 type AutocompleteInputProps = {
   value: string;
-  onChange: (value: string) => void;
+  onChange: (value: string, item?: AutocompleteItem) => void;
   apiType: ApiType;
   placeholder?: string;
   label?: string;
@@ -55,6 +65,7 @@ type ExperienceEditorProps = {
   ) => void;
   onAdd: () => void;
   onRemove: (index: number) => void;
+
   companyEmail: string;
   noticePeriod: string;
   onCompanyEmailChange: (value: string) => void;
@@ -72,13 +83,23 @@ function extractItems(responseData: unknown): AutocompleteItem[] {
 
   const response = responseData as {
     data?: unknown;
+    item?: unknown;
     items?: unknown;
     companies?: unknown;
     results?: unknown;
   };
 
-  if (Array.isArray(response.data)) {
-    return response.data as AutocompleteItem[];
+  const directCollections = [
+    response.data,
+    response.items,
+    response.companies,
+    response.results,
+  ];
+
+  for (const collection of directCollections) {
+    if (Array.isArray(collection)) {
+      return collection as AutocompleteItem[];
+    }
   }
 
   if (
@@ -86,40 +107,36 @@ function extractItems(responseData: unknown): AutocompleteItem[] {
     typeof response.data === "object" &&
     !Array.isArray(response.data)
   ) {
-    const nestedData = response.data as {
+    const nested = response.data as {
       data?: unknown;
+      item?: unknown;
       items?: unknown;
       companies?: unknown;
       results?: unknown;
     };
 
-    if (Array.isArray(nestedData.data)) {
-      return nestedData.data as AutocompleteItem[];
+    const nestedCollections = [
+      nested.data,
+      nested.items,
+      nested.companies,
+      nested.results,
+    ];
+
+    for (const collection of nestedCollections) {
+      if (Array.isArray(collection)) {
+        return collection as AutocompleteItem[];
+      }
     }
 
-    if (Array.isArray(nestedData.items)) {
-      return nestedData.items as AutocompleteItem[];
+    if (nested.item && typeof nested.item === "object") {
+      return [nested.item as AutocompleteItem];
     }
 
-    if (Array.isArray(nestedData.companies)) {
-      return nestedData.companies as AutocompleteItem[];
-    }
-
-    if (Array.isArray(nestedData.results)) {
-      return nestedData.results as AutocompleteItem[];
-    }
+    return [response.data as AutocompleteItem];
   }
 
-  if (Array.isArray(response.items)) {
-    return response.items as AutocompleteItem[];
-  }
-
-  if (Array.isArray(response.companies)) {
-    return response.companies as AutocompleteItem[];
-  }
-
-  if (Array.isArray(response.results)) {
-    return response.results as AutocompleteItem[];
+  if (response.item && typeof response.item === "object") {
+    return [response.item as AutocompleteItem];
   }
 
   return [];
@@ -127,30 +144,77 @@ function extractItems(responseData: unknown): AutocompleteItem[] {
 
 function getDisplayValue(item: AutocompleteItem): string {
   return String(
-    item.label ||
-      item.displayName ||
-      item.value ||
-      item.name ||
-      item.companyName ||
-      item.company ||
-      item.title ||
+    item.label ??
+      item.displayName ??
+      item.name ??
+      item.value ??
+      item.companyName ??
+      item.company ??
+      item.title ??
       "",
   ).trim();
 }
 
 function getItemKey(item: AutocompleteItem, index: number): string {
   return String(
-    item._id ||
-      item.id ||
-      item.value ||
-      item.name ||
-      item.label ||
+    item._id ??
+      item.id ??
+      item.value ??
+      item.name ??
+      item.label ??
       `autocomplete-item-${index}`,
   );
 }
 
 function isCustomItem(item: AutocompleteItem): boolean {
   return item.isCustom === true || item.isCustom === "true";
+}
+
+function getMasterId(item?: AutocompleteItem): string | undefined {
+  const id = String(item?._id ?? item?.id ?? "").trim();
+  return id || undefined;
+}
+
+function getCanonicalId(item?: AutocompleteItem): string | undefined {
+  const canonicalId = String(
+    item?.company_canonical_id ??
+      item?.companyCanonicalId ??
+      item?.canonicalId ??
+      item?.canonical_id ??
+      "",
+  ).trim();
+
+  return canonicalId || undefined;
+}
+
+function getCompanyDisplayName(
+  item: AutocompleteItem | undefined,
+  fallback: string,
+): string {
+  return String(
+    item?.displayName ??
+      item?.label ??
+      item?.name ??
+      item?.companyName ??
+      item?.company ??
+      fallback,
+  ).trim();
+}
+
+function getCreatedItem(responseData: unknown, fallback: string) {
+  const items = extractItems(responseData);
+
+  if (items.length > 0) {
+    return items[0];
+  }
+
+  return {
+    name: fallback,
+    value: fallback,
+    label: fallback,
+    displayName: fallback,
+    isCustom: true,
+  } satisfies AutocompleteItem;
 }
 
 function AutocompleteInput({
@@ -193,43 +257,45 @@ function AutocompleteInput({
   }, []);
 
   async function fetchData() {
-    if (hasFetchedRef.current || loading) return;
+    if (hasFetchedRef.current || loading) {
+      return;
+    }
 
     try {
       setLoading(true);
 
-      let response;
-      
       if (apiType === "company") {
-        // ✅ FIXED: Use /api/company for GET
-        response = await axiosInstance.get("/api/company");
-        
-        // Transform the response to extract company names
-        const items = extractItems(response.data);
-        
-        // Map the items to have consistent structure
-        const transformedItems = items.map((item) => ({
-          ...item,
-          value: item.name || item.value || "",
-          label: item.name || item.value || "",
-        }));
-        
-        setData(transformedItems);
-      } else {
-        // Job Role API
-        response = await axiosInstance.get("/api/company-master-data", {
-          params: {
-            type: "JOB_ROLE",
-          },
+        const response = await axiosInstance.get("/api/company");
+        const items = extractItems(response.data).map((item) => {
+          const displayValue = getDisplayValue(item);
+
+          return {
+            ...item,
+            label: displayValue,
+            value: item.value || displayValue,
+            name: item.name || displayValue,
+            displayName: item.displayName || displayValue,
+          };
         });
+
+        setData(items);
+      } else {
+        const response = await axiosInstance.get(
+          "/api/company-master-data",
+          {
+            params: {
+              type: "JOB_ROLE",
+            },
+          },
+        );
 
         const items = extractItems(response.data).map((item) => {
           const displayValue = getDisplayValue(item);
 
           return {
             ...item,
-            value: displayValue,
             label: displayValue,
+            value: displayValue,
           };
         });
 
@@ -253,20 +319,31 @@ function AutocompleteInput({
     const nextValue = event.target.value;
 
     setSearchTerm(nextValue);
-    onChange(nextValue);
+
+    /*
+     * item is undefined during manual typing.
+     * The parent uses this to clear old company ObjectId/canonical metadata.
+     */
+    onChange(nextValue, undefined);
     setIsOpen(true);
   }
 
-  function handleSelect(selectedValue: string) {
+  function handleSelect(item: AutocompleteItem) {
+    const selectedValue = getDisplayValue(item);
+
+    if (!selectedValue) {
+      return;
+    }
+
     setSearchTerm(selectedValue);
-    onChange(selectedValue);
+    onChange(selectedValue, item);
     setIsOpen(false);
     inputRef.current?.blur();
   }
 
   function clearInput() {
     setSearchTerm("");
-    onChange("");
+    onChange("", undefined);
     setIsOpen(false);
     inputRef.current?.focus();
   }
@@ -274,71 +351,59 @@ function AutocompleteInput({
   async function handleCreate() {
     const valueToCreate = searchTerm.trim();
 
-    if (!valueToCreate || isCreating) return;
+    if (!valueToCreate || isCreating) {
+      return;
+    }
 
     try {
       setIsCreating(true);
 
-      let response;
-      
-      if (apiType === "company") {
-        // ✅ FIXED: Use /api/company for POST
-        response = await axiosInstance.post("/api/company", {
-          name: valueToCreate,
-        });
-      } else {
-        // Job Role creation
-        response = await axiosInstance.post("/api/company-master-data", {
-          type: "JOB_ROLE",
-          value: valueToCreate,
-        });
-      }
-
-      const responseItems = extractItems(response.data);
-      const responseObject =
-        response.data &&
-        typeof response.data === "object" &&
-        !Array.isArray(response.data)
-          ? (response.data as {
-              data?: AutocompleteItem;
-              item?: AutocompleteItem;
+      const response =
+        apiType === "company"
+          ? await axiosInstance.post("/api/company", {
+              name: valueToCreate,
             })
-          : undefined;
+          : await axiosInstance.post("/api/company-master-data", {
+              type: "JOB_ROLE",
+              value: valueToCreate,
+            });
 
-      const createdItem =
-        responseItems[0] ||
-        responseObject?.data ||
-        responseObject?.item || {
-          value: valueToCreate,
-          name: valueToCreate,
-          label: valueToCreate,
-          isCustom: true,
-        };
-
+      const createdItem = getCreatedItem(response.data, valueToCreate);
       const createdValue = getDisplayValue(createdItem) || valueToCreate;
+
+      const normalizedCreatedItem: AutocompleteItem = {
+        ...createdItem,
+        label: createdValue,
+        value: createdItem.value || createdValue,
+        name: createdItem.name || createdValue,
+        displayName: createdItem.displayName || createdValue,
+      };
 
       setData((previous) => {
         const alreadyExists = previous.some(
           (item) =>
-            getDisplayValue(item).toLowerCase() === createdValue.toLowerCase(),
+            getDisplayValue(item).toLowerCase() ===
+            createdValue.toLowerCase(),
         );
 
-        return alreadyExists ? previous : [...previous, createdItem];
+        return alreadyExists
+          ? previous
+          : [...previous, normalizedCreatedItem];
       });
 
       setSearchTerm(createdValue);
-      onChange(createdValue);
+      onChange(createdValue, normalizedCreatedItem);
       setIsOpen(false);
       inputRef.current?.blur();
     } catch (error) {
       console.error(`Error creating ${apiType}:`, error);
 
       /*
-       * Keep manually entered text in the form even when the optional
-       * master-data creation endpoint fails.
+       * Keep manually entered text when optional master-data creation fails.
+       * No invalid master ID is retained.
        */
-      onChange(valueToCreate);
       setSearchTerm(valueToCreate);
+      onChange(valueToCreate, undefined);
       setIsOpen(false);
     } finally {
       setIsCreating(false);
@@ -360,15 +425,19 @@ function AutocompleteInput({
   const exactMatchExists = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
-    if (!normalizedSearch) return false;
+    if (!normalizedSearch) {
+      return false;
+    }
 
     return data.some(
-      (item) => getDisplayValue(item).toLowerCase() === normalizedSearch,
+      (item) =>
+        getDisplayValue(item).toLowerCase() === normalizedSearch,
     );
   }, [data, searchTerm]);
 
   const showDropdown =
-    isOpen && (loading || searchTerm.trim().length > 0 || data.length > 0);
+    isOpen &&
+    (loading || searchTerm.trim().length > 0 || data.length > 0);
 
   return (
     <div ref={dropdownRef} className="relative">
@@ -418,13 +487,15 @@ function AutocompleteInput({
               {filteredData.slice(0, 15).map((item, index) => {
                 const displayValue = getDisplayValue(item);
 
-                if (!displayValue) return null;
+                if (!displayValue) {
+                  return null;
+                }
 
                 return (
                   <button
                     key={getItemKey(item, index)}
                     type="button"
-                    onClick={() => handleSelect(displayValue)}
+                    onClick={() => handleSelect(item)}
                     className="group flex w-full items-center justify-between border-b border-[#2a3a52] px-4 py-2.5 text-left text-sm text-white transition-colors last:border-0 hover:bg-green-500/10"
                   >
                     <span>{displayValue}</span>
@@ -502,29 +573,103 @@ export function ExperienceEditor({
   onCompanyEmailChange,
   onNoticePeriodChange,
 }: ExperienceEditorProps) {
-  function handleCurrentlyWorkingChange(index: number, checked: boolean) {
-    onUpdate(index, "isCurrent", checked);
+  /*
+   * Stores undefined in React state for optional ObjectId fields.
+   * JSON.stringify omits undefined, preventing Mongoose from receiving "".
+   */
+  function clearOptionalExperienceField(
+    index: number,
+    key: keyof Experience,
+  ) {
+    onUpdate(
+      index,
+      key,
+      undefined as Experience[keyof Experience],
+    );
+  }
 
-    if (!checked) {
+  function handleCompanyChange(
+    index: number,
+    value: string,
+    item?: AutocompleteItem,
+  ) {
+    const normalizedCompany = value.trimStart();
+
+    onUpdate(index, "company", normalizedCompany);
+
+    if (!item) {
+      /*
+       * Manual typing: clear metadata from a previously selected company.
+       * Most importantly, company_master_id becomes undefined instead of "".
+       */
+      clearOptionalExperienceField(index, "company_master_id");
+      clearOptionalExperienceField(index, "company_canonical_id");
+
+      onUpdate(
+        index,
+        "company_display",
+        normalizedCompany as Experience[keyof Experience],
+      );
+
       return;
     }
 
-    onUpdate(index, "endDate", "");
+    const masterId = getMasterId(item);
+    const canonicalId = getCanonicalId(item);
+    const displayName = getCompanyDisplayName(
+      item,
+      normalizedCompany,
+    );
 
-    /*
-     * Only one experience can be marked as current.
-     * Do not clear companyEmail or noticePeriod here because they are
-     * top-level onboarding fields and should only change through their inputs.
-     */
-    experiences.forEach((experience, experienceIndex) => {
-      if (experienceIndex !== index && experience.isCurrent) {
-        onUpdate(experienceIndex, "isCurrent", false);
-      }
-    });
+    if (masterId) {
+      onUpdate(
+        index,
+        "company_master_id",
+        masterId as Experience[keyof Experience],
+      );
+    } else {
+      clearOptionalExperienceField(index, "company_master_id");
+    }
+
+    if (canonicalId) {
+      onUpdate(
+        index,
+        "company_canonical_id",
+        canonicalId as Experience[keyof Experience],
+      );
+    } else {
+      clearOptionalExperienceField(index, "company_canonical_id");
+    }
+
+    onUpdate(
+      index,
+      "company_display",
+      displayName as Experience[keyof Experience],
+    );
   }
 
-  const hasCurrentExperience = experiences.some(
-    (experience) => Boolean(experience.isCurrent),
+  function handleCurrentlyWorkingChange(
+    index: number,
+    checked: boolean,
+  ) {
+    onUpdate(index, "isCurrent", checked);
+
+    if (checked) {
+      clearOptionalExperienceField(index, "endDate");
+
+      experiences.forEach((experience, experienceIndex) => {
+        if (
+          experienceIndex !== index &&
+          Boolean(experience.isCurrent)
+        ) {
+          onUpdate(experienceIndex, "isCurrent", false);
+        }
+      });
+    }
+  }
+
+  const hasCurrentExperience = experiences.some((experience) =>
+    Boolean(experience.isCurrent),
   );
 
   return (
@@ -575,7 +720,9 @@ export function ExperienceEditor({
               <AutocompleteInput
                 apiType="company"
                 value={experience.company || ""}
-                onChange={(value) => onUpdate(index, "company", value)}
+                onChange={(value, item) =>
+                  handleCompanyChange(index, value, item)
+                }
                 placeholder="Search or type company name..."
                 icon={Search}
               />
@@ -590,7 +737,9 @@ export function ExperienceEditor({
               <AutocompleteInput
                 apiType="jobRole"
                 value={experience.role || ""}
-                onChange={(value) => onUpdate(index, "role", value)}
+                onChange={(value) =>
+                  onUpdate(index, "role", value)
+                }
                 placeholder="Search or type job role..."
                 icon={Search}
               />
@@ -606,7 +755,11 @@ export function ExperienceEditor({
                 type="date"
                 value={experience.startDate || ""}
                 onChange={(event) =>
-                  onUpdate(index, "startDate", event.target.value)
+                  onUpdate(
+                    index,
+                    "startDate",
+                    event.target.value,
+                  )
                 }
                 className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
               />
@@ -623,9 +776,15 @@ export function ExperienceEditor({
                 value={experience.endDate || ""}
                 disabled={Boolean(experience.isCurrent)}
                 min={experience.startDate || undefined}
-                onChange={(event) =>
-                  onUpdate(index, "endDate", event.target.value)
-                }
+                onChange={(event) => {
+                  const nextEndDate = event.target.value;
+
+                  if (nextEndDate) {
+                    onUpdate(index, "endDate", nextEndDate);
+                  } else {
+                    clearOptionalExperienceField(index, "endDate");
+                  }
+                }}
                 className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
@@ -636,7 +795,10 @@ export function ExperienceEditor({
                   type="checkbox"
                   checked={Boolean(experience.isCurrent)}
                   onChange={(event) =>
-                    handleCurrentlyWorkingChange(index, event.target.checked)
+                    handleCurrentlyWorkingChange(
+                      index,
+                      event.target.checked,
+                    )
                   }
                   className="h-4 w-4 rounded border-[#2a3a52] bg-[#0f172a] text-green-500 focus:ring-2 focus:ring-green-500/20 focus:ring-offset-0"
                 />
@@ -659,7 +821,11 @@ export function ExperienceEditor({
                     : experience.description || ""
                 }
                 onChange={(event) =>
-                  onUpdate(index, "description", event.target.value)
+                  onUpdate(
+                    index,
+                    "description",
+                    event.target.value,
+                  )
                 }
                 placeholder="Describe your responsibilities and achievements..."
                 rows={3}
