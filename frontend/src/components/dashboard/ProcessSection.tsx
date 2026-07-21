@@ -19,6 +19,28 @@ export default function ProcessSection({ job }: ProcessSectionProps) {
     [progress, circumference]
   );
 
+  // Get color based on match score
+  const getScoreColor = (score: number) => {
+    if (score >= 75) return "#22c55e"; // Green
+    if (score >= 50) return "#eab308"; // Yellow
+    if (score >= 30) return "#f97316"; // Orange
+    return "#ef4444"; // Red
+  };
+
+  const getScoreLabel = (score: number) => {
+    if (score >= 75) return "Excellent";
+    if (score >= 50) return "Good";
+    if (score >= 30) return "Average";
+    return "Low";
+  };
+
+  const getScoreTextColor = (score: number) => {
+    if (score >= 75) return "text-green-400";
+    if (score >= 50) return "text-yellow-400";
+    if (score >= 30) return "text-orange-400";
+    return "text-red-400";
+  };
+
   return (
     <div className="space-y-4">
       {/* Match & Referral Insights */}
@@ -46,22 +68,33 @@ export default function ProcessSection({ job }: ProcessSectionProps) {
             </div>
           </div>
 
-          <div className="relative flex h-[80px] w-[80px] items-center justify-center">
-            <svg width="80" height="80" className="-rotate-90 absolute">
+          <div className="relative flex h-[100px] w-[100px] items-center justify-center">
+            {/* Glow effect behind circle */}
+            <div 
+              className="absolute inset-0 rounded-full blur-xl opacity-20"
+              style={{ 
+                background: `radial-gradient(circle, ${getScoreColor(job.matchScore ?? 0)}33 0%, transparent 70%)`,
+                transform: 'scale(0.8)'
+              }}
+            />
+            
+            <svg width="100" height="100" className="-rotate-90 relative z-10">
+              {/* Background circle */}
               <circle
-                cx="40"
-                cy="40"
+                cx="50"
+                cy="50"
                 r={radius}
-                stroke="#2b3446"
-                strokeWidth="6"
+                stroke="#1e293b"
+                strokeWidth="7"
                 fill="none"
               />
+              {/* Progress circle */}
               <circle
-                cx="40"
-                cy="40"
+                cx="50"
+                cy="50"
                 r={radius}
-                stroke="#22c55e"
-                strokeWidth="6"
+                stroke={getScoreColor(job.matchScore ?? 0)}
+                strokeWidth="7"
                 fill="none"
                 strokeLinecap="round"
                 strokeDasharray={circumference}
@@ -70,11 +103,13 @@ export default function ProcessSection({ job }: ProcessSectionProps) {
               />
             </svg>
 
-            <div className="z-10 flex flex-col items-center">
-              <div className="text-[18px] font-bold text-white">
+            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center">
+              <div className={`text-[22px] font-bold ${getScoreTextColor(job.matchScore ?? 0)}`}>
                 {job.matchScore ?? 0}%
               </div>
-              <div className="text-[8px] text-green-500">Match Score</div>
+              <div className={`text-[9px] font-medium ${getScoreTextColor(job.matchScore ?? 0)}`}>
+                {getScoreLabel(job.matchScore ?? 0)}
+              </div>
             </div>
           </div>
         </div>
@@ -87,7 +122,7 @@ export default function ProcessSection({ job }: ProcessSectionProps) {
         </h3>
 
         {job.selectionProcess?.length ? (
-          <div className="rounded-lg border border-[#334155] bg-[#161f2f] p-3">
+          <div className="p-3">
             {job.selectionProcess.map((step: string, index: number) => (
               <p key={index} className="text-sm text-gray-300">
                 {index + 1}. {step}

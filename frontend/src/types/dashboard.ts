@@ -95,7 +95,7 @@ export type Job = {
   title?: string;
   minEducation:string;
 
-
+  views:string;
   companyName?: string;
   currentCompany?: string;
   company?: string;

@@ -139,7 +139,7 @@ export default function ApplicationDetailHeader({
           {/* Details */}
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-4">
-              {/* Left side - Name and Details */}
+              {/* Left side - Name and Details with View Profile Button */}
               <div className="flex-1 min-w-0">
                 {/* Name */}
                 <h1 className="text-xl font-bold text-white tracking-tight">
@@ -186,39 +186,41 @@ export default function ApplicationDetailHeader({
                     </span>
                   </div>
                 )}
+
+                {/* View Profile Button - Now on the left side */}
+                <button
+                  onClick={handleViewProfile}
+                  className="
+                    inline-flex
+                    items-center
+                    gap-1.5
+                    px-3
+                    py-1.5
+                    mt-3
+                    text-xs
+                    font-semibold
+                    rounded-lg
+                    border
+                    border-blue-500/30
+                    text-blue-400
+                    bg-blue-500/5
+                    transition-all
+                    hover:bg-blue-500/20
+                    hover:border-blue-500/50
+                    hover:scale-105
+                    active:scale-95
+                    whitespace-nowrap
+                  "
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  View Profile
+                </button>
               </div>
 
               {/* Right side - Action Buttons + Social Links */}
               <div className="flex flex-col items-end gap-2 flex-shrink-0">
                 {/* Action Buttons Row */}
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleViewProfile}
-                    className="
-                      inline-flex
-                      items-center
-                      gap-1.5
-                      px-3
-                      py-1.5
-                      text-xs
-                      font-semibold
-                      rounded-lg
-                      border
-                      border-blue-500/30
-                      text-blue-400
-                      bg-blue-500/5
-                      transition-all
-                      hover:bg-blue-500/20
-                      hover:border-blue-500/50
-                      hover:scale-105
-                      active:scale-95
-                      whitespace-nowrap
-                    "
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                    View Profile
-                  </button>
-
                   <button
                     onClick={() => handleStatusUpdate("Rejected")}
                     className="

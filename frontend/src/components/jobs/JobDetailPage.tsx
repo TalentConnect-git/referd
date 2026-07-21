@@ -199,7 +199,7 @@ export default function JobDetailPage({ job }: LeftPanelProps) {
           {job.workMode && (
             <div className="flex items-center gap-1.5 bg-slate-800/30 rounded-lg px-2.5 py-1">
               <Eye size={12} className="text-purple-400" />
-              <span className="text-white font-medium">{job.workMode}</span>
+              <span className="text-white font-medium">{job.views}</span>
             </div>
           )}
         </div>
