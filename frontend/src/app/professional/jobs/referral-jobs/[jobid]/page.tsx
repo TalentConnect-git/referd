@@ -31,7 +31,7 @@ export default function JobDetailsRoutePage() {
         console.log("Fetching job:", jobId);
         const response = await getJobById(jobId);
         console.log("API Response:", response);
-      setJob({...response.data?.data, matchScore:matchScore});
+      setJob({...response.data, matchScore:matchScore});
     } catch (error) {
       console.error("Failed to fetch job details:", error);
       setJob(null);

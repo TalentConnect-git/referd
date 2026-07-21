@@ -144,6 +144,9 @@ export default function BasicJobDetails({
   const [isCreatingStream, setIsCreatingStream] = useState(false);
   const [isCreatingSkill, setIsCreatingSkill] = useState(false);
   const [isCreatingJobRole, setIsCreatingJobRole] = useState(false);
+  const [isCreatingDegree, setIsCreatingDegree] = useState(false);
+  const [degreeInput, setDegreeInput] = useState("");
+  const [streamInput, setStreamInput] = useState("");
 
   // Input states for Enter key separation
   const [skillInput, setSkillInput] = useState("");
@@ -266,78 +269,153 @@ export default function BasicJobDetails({
     }
   };
 
-  // Handle degree change - FIXED: Store degree value in minEducation
+  // Handle degree creation
+  const handleCreateDegree = async (degreeValue: string) => {
+    if (!degreeValue.trim()) return;
+
+    try {
+      setIsCreatingDegree(true);
+      const response = await createMasterData("DEGREE", degreeValue.trim());
+
+      if (response.success && response.data) {
+        const newDegree: MasterDegree = {
+          _id: response.data._id || `temp-${Date.now()}`,
+          value: response.data.value || degreeValue.trim(),
+          type: "DEGREE",
+        };
+
+        setMasterDegrees((prev) => [...prev, newDegree]);
+
+        // Auto-select the newly created degree
+        setFormData({
+          ...formData,
+          minEducation: newDegree.value,
+          degree: [newDegree.value],
+          degreeId: newDegree._id,
+          studentStreams: [],
+        });
+
+        // Load streams for the new degree
+        await loadStreamsForDegree(newDegree._id);
+        setDegreeInput("");
+        setErrors((prev) => ({ ...prev, degreeId: "" }));
+      }
+    } catch (error) {
+      console.error("Error creating degree:", error);
+      setErrors((prev) => ({ ...prev, degreeId: "Failed to create degree. Please try again." }));
+    } finally {
+      setIsCreatingDegree(false);
+    }
+  };
+
+  // Handle degree change
   const handleDegreeChange = async (degreeId: string): Promise<void> => {
-    const selectedDegree = masterDegrees.find((d) => d._id === degreeId);
-
-    setFormData({
-      ...formData,
-      minEducation: selectedDegree?.value || "", // FIXED: Store degree value in minEducation
-      degree: selectedDegree?.value ? [selectedDegree.value] : [], // FIXED: Also store in degree array
-      degreeId: degreeId,
-      studentStreams: [],
-    });
-
     if (!degreeId) {
+      setFormData({
+        ...formData,
+        minEducation: "",
+        degree: [],
+        degreeId: "",
+        studentStreams: [],
+      });
       setStreamError("");
       return;
+    }
+
+    const selectedDegree = masterDegrees.find((d) => d._id === degreeId);
+    
+    if (selectedDegree) {
+      setFormData({
+        ...formData,
+        minEducation: selectedDegree.value,
+        degree: [selectedDegree.value],
+        degreeId: degreeId,
+        studentStreams: [],
+      });
     }
 
     await loadStreamsForDegree(degreeId);
   };
 
-  // Handle stream input change - creates new stream if not exists
-  const handleStreamInputChange = async (value: string) => {
-    const streams = value
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean);
-    const degreeId = formData.degreeId || "";
+  // Handle stream creation on Enter key
+  const handleStreamCreate = async () => {
+    const value = streamInput.trim();
+    if (!value) return;
 
+    const degreeId = formData.degreeId || "";
+    
     if (!degreeId) {
-      handleChange("studentStreams", streams);
+      setStreamError("Please select a degree first before adding a stream.");
       return;
     }
 
+    // Check if stream already exists in the list
     const currentStreams = streamsByDegree[degreeId] || [];
     const streamValues = currentStreams.map((s) => s.value.toLowerCase());
-
-    let updatedStreams = [...streams];
-
-    for (const stream of streams) {
-      if (!streamValues.includes(stream.toLowerCase())) {
-        try {
-          setIsCreatingStream(true);
-          const response = await createMasterData("STREAM", stream, degreeId);
-
-          if (response.success) {
-            setStreamsByDegree((prev) => {
-              const existingStreams = prev[degreeId] || [];
-              const newStream: MasterStream = {
-                _id: response.data?._id || `temp-${Date.now()}`,
-                value: stream,
-                type: "STREAM",
-                parent: degreeId,
-                isActive: true,
-                isCustom: true,
-              };
-              return {
-                ...prev,
-                [degreeId]: [...existingStreams, newStream],
-              };
-            });
-
-            setStreamError("");
-          }
-        } catch (error) {
-          console.error("Error creating stream:", error);
-        } finally {
-          setIsCreatingStream(false);
-        }
-      }
+    
+    // Check if already selected
+    const selectedStreams = formData.studentStreams || [];
+    if (selectedStreams.includes(value)) {
+      setStreamInput("");
+      return;
     }
 
-    handleChange("studentStreams", updatedStreams);
+    // If stream exists in master data, just add it to selected
+    if (streamValues.includes(value.toLowerCase())) {
+      const existingStream = currentStreams.find(
+        (s) => s.value.toLowerCase() === value.toLowerCase()
+      );
+      if (existingStream && !selectedStreams.includes(existingStream.value)) {
+        handleChange("studentStreams", [...selectedStreams, existingStream.value]);
+      }
+      setStreamInput("");
+      return;
+    }
+
+    // Create new stream
+    try {
+      setIsCreatingStream(true);
+      const response = await createMasterData("STREAM", value, degreeId);
+
+      if (response.success && response.data) {
+        const newStream: MasterStream = {
+          _id: response.data._id || `temp-${Date.now()}`,
+          value: response.data.value || value,
+          type: "STREAM",
+          parent: degreeId,
+          isActive: true,
+          isCustom: true,
+        };
+
+        // Update streams cache
+        setStreamsByDegree((prev) => ({
+          ...prev,
+          [degreeId]: [...(prev[degreeId] || []), newStream],
+        }));
+
+        // Add to selected streams
+        const currentSelected = formData.studentStreams || [];
+        if (!currentSelected.includes(newStream.value)) {
+          handleChange("studentStreams", [...currentSelected, newStream.value]);
+        }
+
+        setStreamError("");
+        setStreamInput("");
+      }
+    } catch (error) {
+      console.error("Error creating stream:", error);
+      setStreamError("Failed to create stream. Please try again.");
+    } finally {
+      setIsCreatingStream(false);
+    }
+  };
+
+  // Handle stream input change - just updates the input value without creating
+  const handleStreamInputChange = (value: string) => {
+    setStreamInput(value);
+    if (errors.studentStreams) {
+      setErrors((prev) => ({ ...prev, studentStreams: "" }));
+    }
   };
 
   // Handle skill input - creates new skill using fetch API
@@ -501,10 +579,10 @@ export default function BasicJobDetails({
   const handleStateChange = (stateCode: string, stateName: string) => {
     setFormData({
       ...formData,
-      state: stateName, // Store state name
-      stateCode: stateCode, // Store state code
+      state: stateName,
+      stateCode: stateCode,
       city: "",
-      location: stateName ? [stateName] : [], // Also store in location array
+      location: stateName ? [stateName] : [],
     });
     if (errors.state) {
       setErrors((prev) => ({ ...prev, state: "" }));
@@ -516,7 +594,6 @@ export default function BasicJobDetails({
     setFormData({
       ...formData,
       city: cityName,
-      // Update location array with both state and city if available
       location: cityName 
         ? [cityName, formData.state || ""].filter(Boolean)
         : formData.state ? [formData.state] : [],
@@ -960,47 +1037,98 @@ export default function BasicJobDetails({
           </p>
         </div>
 
-        {/* Degree */}
+        {/* Degree - Now supports custom creation */}
         <div>
           <label className="mb-1.5 block text-sm font-medium text-gray-300">
             <BookOpen className="mr-1.5 inline h-4 w-4" />
             Degree <span className="text-red-400">*</span>
+            <span className="text-xs text-gray-500 ml-2">(Select or type to create)</span>
           </label>
-          <select
-            value={formData.degreeId || ""}
-            onChange={(event) => void handleDegreeChange(event.target.value)}
-            disabled={loadingDegrees}
-            className={`w-full rounded-lg border ${errors.degreeId ? 'border-red-500' : 'border-slate-700'} bg-[#0F172A] px-4 py-2.5 text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:opacity-50`}
-          >
-            <option value="">Select Degree</option>
-            {masterDegrees.map((degree) => (
-              <option key={degree._id} value={degree._id}>
-                {degree.value}
-              </option>
-            ))}
-          </select>
+          
+          <div className="relative">
+            <input
+              type="text"
+              value={degreeInput}
+              onChange={(e) => {
+                setDegreeInput(e.target.value);
+                if (errors.degreeId) {
+                  setErrors((prev) => ({ ...prev, degreeId: "" }));
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && degreeInput.trim()) {
+                  e.preventDefault();
+                  // Check if degree already exists
+                  const existingDegree = masterDegrees.find(
+                    (d) => d.value.toLowerCase() === degreeInput.trim().toLowerCase()
+                  );
+                  if (existingDegree) {
+                    handleDegreeChange(existingDegree._id);
+                    setDegreeInput("");
+                  } else {
+                    handleCreateDegree(degreeInput);
+                  }
+                }
+              }}
+              placeholder={loadingDegrees ? "Loading degrees..." : "Type degree and press Enter to create, or select from dropdown..."}
+              disabled={loadingDegrees || isCreatingDegree}
+              className={`w-full rounded-lg border ${errors.degreeId ? 'border-red-500' : 'border-slate-700'} bg-[#0F172A] px-4 py-2.5 pr-10 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:opacity-50`}
+            />
+            {(loadingDegrees || isCreatingDegree) && (
+              <Loader2 className="absolute right-3 top-3 h-4 w-4 animate-spin text-green-400" />
+            )}
+          </div>
+          
           {errors.degreeId && (
             <p className="mt-1 text-xs text-red-400">{errors.degreeId}</p>
           )}
-          {loadingDegrees && (
-            <p className="mt-1.5 flex items-center gap-1.5 text-xs text-gray-500">
-              <Loader2 className="h-3 w-3 animate-spin" />
-              Loading degrees...
-            </p>
+
+          {/* Degree Suggestions - Show existing degrees */}
+          {!loadingDegrees && masterDegrees.length > 0 && (
+            <div className="mt-2">
+              <p className="text-xs font-medium text-gray-400 mb-1.5">Suggested Degrees:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {masterDegrees
+                  .filter((degree) =>
+                    degreeInput.length === 0 || 
+                    degree.value.toLowerCase().includes(degreeInput.toLowerCase())
+                  )
+                  .filter((degree) => degree._id !== formData.degreeId)
+                  .slice(0, 10)
+                  .map((degree) => (
+                    <button
+                      key={degree._id}
+                      type="button"
+                      onClick={() => {
+                        handleDegreeChange(degree._id);
+                        setDegreeInput("");
+                      }}
+                      className="rounded-full border border-green-500/20 bg-green-500/10 px-3 py-1 text-xs text-green-400 transition hover:bg-green-500/20 hover:border-green-500/40"
+                    >
+                      {degree.value}
+                    </button>
+                  ))}
+              </div>
+            </div>
           )}
-          {/* Show selected degree in minEducation */}
+          
+          {/* Show selected degree */}
           {formData.minEducation && (
-            <p className="mt-1 text-xs text-green-400">
-              ✓ Selected: {formData.minEducation}
-            </p>
+            <div className="mt-3">
+              <p className="text-xs font-medium text-green-400 flex items-center gap-1.5">
+                <Check className="w-3 h-3" />
+                Selected Degree: {formData.minEducation}
+              </p>
+            </div>
           )}
         </div>
 
-        {/* Specialization / Stream */}
+        {/* Specialization / Stream - Now supports custom creation */}
         <div>
           <label className="mb-1.5 block text-sm font-medium text-gray-300">
             <BookOpen className="mr-1.5 inline h-4 w-4" />
             Specialization / Stream <span className="text-red-400">*</span>
+            <span className="text-xs text-gray-500 ml-2">(Select or type to create)</span>
           </label>
           {!formData.degreeId ? (
             <div className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-sm text-gray-500">
@@ -1011,14 +1139,20 @@ export default function BasicJobDetails({
               <div className="relative">
                 <input
                   type="text"
-                  value={formData.studentStreams?.join(", ") || ""}
-                  onChange={(event) =>
-                    handleStreamInputChange(event.target.value)
-                  }
+                  value={streamInput}
+                  onChange={(e) => {
+                    handleStreamInputChange(e.target.value);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && streamInput.trim()) {
+                      e.preventDefault();
+                      handleStreamCreate();
+                    }
+                  }}
                   placeholder={
                     loadingStreams
                       ? "Loading streams..."
-                      : "Enter or select streams"
+                      : "Type stream and press Enter to create, or select from below"
                   }
                   disabled={loadingStreams || isCreatingStream}
                   className={`w-full rounded-lg border ${errors.studentStreams ? 'border-red-500' : 'border-slate-700'} bg-[#0F172A] px-4 py-2.5 pr-10 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:cursor-not-allowed disabled:opacity-60`}
@@ -1067,29 +1201,45 @@ export default function BasicJobDetails({
                 <div className="mt-3">
                   <p className="text-xs font-medium text-gray-400 mb-1.5">Suggested Streams:</p>
                   <div className="flex flex-wrap gap-1.5">
-                    {availableStreams.map((stream) => {
-                      const isSelected =
-                        formData.studentStreams?.includes(stream.value) ?? false;
-                      return (
-                        <button
-                          key={stream._id}
-                          type="button"
-                          onClick={() => toggleStream(stream.value)}
-                          className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                            isSelected
-                              ? "border-green-500/50 bg-green-500/15 text-green-400"
-                              : "border-slate-700 bg-slate-800/50 text-gray-400 hover:border-green-500/30 hover:text-gray-200"
-                          }`}
-                        >
-                          {stream.value}
-                        </button>
-                      );
-                    })}
+                    {availableStreams
+                      .filter((stream) =>
+                        streamInput.length === 0 || 
+                        stream.value.toLowerCase().includes(streamInput.toLowerCase())
+                      )
+                      .slice(0, 15)
+                      .map((stream) => {
+                        const isSelected =
+                          formData.studentStreams?.includes(stream.value) ?? false;
+                        return (
+                          <button
+                            key={stream._id}
+                            type="button"
+                            onClick={() => toggleStream(stream.value)}
+                            className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                              isSelected
+                                ? "border-green-500/50 bg-green-500/15 text-green-400"
+                                : "border-slate-700 bg-slate-800/50 text-gray-400 hover:border-green-500/30 hover:text-gray-200"
+                            }`}
+                          >
+                            {stream.value}
+                          </button>
+                        );
+                      })}
                   </div>
                 </div>
               )}
+              
+              {!loadingStreams && availableStreams.length === 0 && (
+                <div className="mt-3">
+                  <p className="text-xs text-amber-400 flex items-center gap-1.5">
+                    <span>⚠️</span>
+                    No streams available for this degree. Type a stream name and press Enter to create one.
+                  </p>
+                </div>
+              )}
+              
               {streamError && (
-                <p className="mt-2 text-xs text-amber-400">{streamError}</p>
+                <p className="mt-2 text-xs text-red-400">{streamError}</p>
               )}
             </div>
           )}

@@ -136,7 +136,7 @@ export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
           <Link
             href={`${
               userType === "student" || userType === "fresher" ? "/student" : "/professional"
-            }/alumni-network`}
+            }/alumani-network`}
             className="w-full inline-flex items-center justify-center gap-2 text-[11px] font-medium text-gray-400 hover:text-pink-400 transition-colors duration-200 group"
           >
             <span>View all {alumni.length} alumni</span>
