@@ -21,7 +21,7 @@ interface AskReferralModalProps {
   onAlumniFound: (
     alumni: AlumniProfile[],
     companyName: string,
-    careerPageUrl: string
+    careerPageUrl: string,
   ) => void;
 }
 
@@ -73,7 +73,7 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
       const response = await axiosInstance.post(
         "/api/company-jobs/career-page-referral",
         { careerPageUrl: normalizedUrl },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       if (response.data.success) {
@@ -89,13 +89,15 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
         setError("");
         onClose();
       } else {
-        setError(response.data.message || "Failed to find alumni.");
+        const errorMessage = `No alumni or current employee found for ${response.data.data.companyName}`;
+
+        setError(errorMessage);
       }
     } catch (err: any) {
       setError(
         err?.response?.data?.message ||
           err?.response?.data?.error ||
-          "Failed to find alumni. Please try again with a valid job URL."
+          "Failed to find alumni. Please try again with a valid job URL.",
       );
     } finally {
       setLoading(false);
@@ -119,8 +121,9 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
                   </h2>
                 </div>
                 <p className="text-sm text-[var(--text-primary)] max-w-md">
-                  Paste the URL of a job posting to discover alumni working at that company. 
-                  They can refer you and boost your chances of landing an interview.
+                  Paste the URL of a job posting to discover alumni working at
+                  that company. They can refer you and boost your chances of
+                  landing an interview.
                 </p>
               </div>
               <button
@@ -138,7 +141,10 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
           <div className="p-6 space-y-6">
             {/* Input */}
             <div>
-              <label htmlFor="job-url" className="block text-sm font-semibold text-[var(--text-secondary)] mb-2">
+              <label
+                htmlFor="job-url"
+                className="block text-sm font-semibold text-[var(--text-secondary)] mb-2"
+              >
                 Job Posting URL <span className="text-red-400">*</span>
               </label>
               <div className="relative">
@@ -164,7 +170,9 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
 
               {/* Examples & tips */}
               <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[var(--text-muted)]">
-                <span className="font-medium text-[var(--text-primary)]">Supported:</span>
+                <span className="font-medium text-[var(--text-primary)]">
+                  Supported:
+                </span>
                 <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]">
                   LinkedIn
                 </span>
@@ -192,9 +200,7 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
                 <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]">
                   Ashby
                 </span>
-                <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]">
-                  
-                </span>
+                <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]"></span>
               </div>
             </div>
 
@@ -244,7 +250,8 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
             {/* Footer note */}
             <div className="pt-2 border-t border-[var(--border)]">
               <p className="text-xs text-[var(--text-muted)] text-center">
-                💡 We’ll match the URL to the company and show you alumni who can refer you.
+                💡 We’ll match the URL to the company and show you alumni who
+                can refer you.
               </p>
             </div>
           </div>
