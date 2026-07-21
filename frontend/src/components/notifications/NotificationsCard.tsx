@@ -16,8 +16,6 @@ export default function NotificationsCard({
       onMouseLeave={() => setIsHovered(false)}
       className={`
         relative
-        mr-5
-        mb-4
         rounded-2xl
         bg-[var(--card)]
         p-4

@@ -112,6 +112,7 @@ interface UserDetails {
   name: string;
   profileImage?: string | null;
   email?: string;
+  currentCompany?: string;
   phone?: string;
 }
 
@@ -212,6 +213,7 @@ export default function ApplicationsList({
             profileImage: userData.profileImage || null,
             email: userData.email,
             phone: userData.phone,
+            currentCompany: userData.currentCompany,
           },
         }));
       }
@@ -400,6 +402,7 @@ export default function ApplicationsList({
                 // For Referral type: Get postedByUser from jobDetails
                 let referralUserId = null;
                 let referralUserName = "";
+                let referralUserCompany = "";
                 let referralUserImage = null;
 
                 if (jobType === "Referral") {
@@ -408,6 +411,7 @@ export default function ApplicationsList({
                     ? userDetailsMap[referralUserId]
                     : null;
                   referralUserName = userDetails?.name || "Unknown";
+                  referralUserCompany = userDetails?.currentCompany || "";
                   referralUserImage = userDetails?.profileImage || null;
                 }
 
@@ -437,6 +441,11 @@ export default function ApplicationsList({
                 const displayName = isReferral ? referralUserName : posterName;
                 const displayImage = isReferral ? referralUserImage : null;
                 const displayDesignation = isReferral ? "" : posterDesignation;
+
+                // Determine which company name to display in Company column
+                const displayCompanyName = isReferral && referralUserCompany 
+                  ? referralUserCompany 
+                  : companyName;
 
                 return (
                   <tr
@@ -483,7 +492,7 @@ export default function ApplicationsList({
                       </div>
                     </td>
 
-                    {/* Company Column */}
+                    {/* Company Column - Now displays referral's company for referral applications */}
                     <td className="px-4 py-3">
                       <div
                         className="flex items-center gap-1.5 cursor-pointer group-hover:text-green-400 transition-colors"
@@ -491,8 +500,9 @@ export default function ApplicationsList({
                       >
                         <Store className="w-3.5 h-3.5 text-gray-500 group-hover:text-green-400 transition-colors" />
                         <span className="text-white text-[13px]">
-                          {companyName}
+                          {displayCompanyName}
                         </span>
+                        
                       </div>
                     </td>
 

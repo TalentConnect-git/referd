@@ -1,8 +1,7 @@
 // services/alumni.service.ts
 
 // 👇 Replace this import path with your actual axios instance location
-import axiosInstance  from "@/lib/axiosInstance"; // or wherever your axios instance lives
-
+import axiosInstance from "@/lib/axiosInstance"; // or wherever your axios instance lives
 
 // ---------- Types ----------
 type Education = {
@@ -134,12 +133,18 @@ type CompanyApiResponse = {
   };
 };
 
-export type ApiResponse = CollegeApiResponse | CompanyApiResponse | HiringApiResponse;
+export type ApiResponse =
+  | CollegeApiResponse
+  | CompanyApiResponse
+  | HiringApiResponse;
 
 // ---------- URL builder ----------
 const DEFAULT_LIMIT = 10;
 
-const getApiUrl = (tab: "hiring" | "college" | "company", page: number): string => {
+const getApiUrl = (
+  tab: "hiring" | "college" | "company",
+  page: number,
+): string => {
   if (tab === "hiring") {
     return `/api/candidate/hiring-network?jobPostedOnly=true&page=${page}&limit=${DEFAULT_LIMIT}`;
   }
@@ -160,26 +165,17 @@ export async function fetchAlumniData(
   return data;
 }
 
-
-export const getAlumniDetails = async (
-  alumniId: string
-) => {
+export const getAlumniDetails = async (alumniId: string) => {
   const { data } = await axiosInstance.get(
-    `/api/onboarding/get-details/${alumniId}`
+    `/api/onboarding/get-details/${alumniId}`,
   );
 
   return data;
 };
 
-
-export const getAlumniWhoCanHelp = async (
-  jobId: string,
-  company:string
-) => {
+export const getAlumniWhoCanHelp = async (jobId: string, company: string) => {
   const response = await axiosInstance.get(
-    `/api/candidate/alumni/${company}/${jobId}`
+    `/api/candidate/alumni/${company}/${jobId}`,
   );
   return response.data;
 };
-
-

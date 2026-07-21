@@ -148,8 +148,8 @@ export default function NotificationsDropdown() {
         </span>
       </div>
 
-      {/* Notification List */}
-      <div className="max-h-[400px] overflow-y-auto">
+      {/* Notification List - REMOVED max-h and overflow-y-auto */}
+      <div>
         {notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
             <div className="mb-3 rounded-full bg-[var(--card-hover)] p-4">
