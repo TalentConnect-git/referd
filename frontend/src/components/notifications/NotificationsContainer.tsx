@@ -30,7 +30,7 @@ export default function NotificationsContainer() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
+    <div className="max-w-4xl mx-auto px-4 py-6 h-full overflow-y-auto">
       {/* Header Section */}
       <div className="mb-8">
         <div className="flex items-start justify-between">
@@ -114,8 +114,8 @@ export default function NotificationsContainer() {
         </span>
       </div>
 
-      {/* Notifications List */}
-      <div className="mt-6">
+      {/* Notifications List - REMOVED duplicate margin/padding that could cause scroll issues */}
+      <div>
         {notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
             <div className="relative mb-6">
