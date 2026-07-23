@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import SignupForm from "./SignupForm";
@@ -9,25 +9,36 @@ import SignupInfoPanel from "./SignupInfoPanel";
 import { useAuth } from "@/context/AuthContext";
 import type { AuthUser, UserType } from "@/services/auth.service";
 
+const isUserType = (value: string | null): value is UserType => {
+  return (
+    value === "student" ||
+    value === "fresher" ||
+    value === "professional"
+  );
+};
+
 export default function SignupCallback() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { login } = useAuth();
+  const processedRef = useRef(false);
 
-  const hasLinkedinCallback = searchParams.has("token");
+  const token = searchParams.get("token");
+  const hasOAuthCallback = Boolean(token);
 
   useEffect(() => {
-    if (!hasLinkedinCallback) return;
+    if (!token || processedRef.current) return;
 
-    const token = searchParams.get("token");
+    processedRef.current = true;
+
     const userId = searchParams.get("userId");
     const email = searchParams.get("email");
     const name = searchParams.get("name");
-    const userType = searchParams.get("userType") as UserType | null;
+    const returnedUserType = searchParams.get("userType");
     const onboardingCompleted =
-      searchParams.get("onboardingCompleted");
+      searchParams.get("onboardingCompleted") === "true";
 
-    if (!token || !userId || !userType) {
+    if (!userId || !isUserType(returnedUserType)) {
       router.replace("/signup");
       return;
     }
@@ -36,32 +47,28 @@ export default function SignupCallback() {
       _id: userId,
       email: email || "",
       name: name || "",
-      userType,
-      onboardingCompleted:
-      onboardingCompleted === "true",
+      userType: returnedUserType,
+      onboardingCompleted,
     };
-    console.log("User is ",user);
-    console.log("ONboarding ",user.onboardingCompleted);
 
-    // login(user, token);
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
-    localStorage.setItem("selectedRole", userType);
-    
+    login(user, token);
+
+    localStorage.setItem("selectedRole", returnedUserType);
+    sessionStorage.removeItem("oauthSignupRole");
+
     router.replace("/onboarding/resume-upload");
-    
-  }, [hasLinkedinCallback, searchParams, login, router]);
+  }, [token, searchParams, login, router]);
 
-  // While processing LinkedIn callback, don't show signup form
-  if (hasLinkedinCallback) {
+  if (hasOAuthCallback) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[var(--background)]">
         <div className="text-center">
           <h2 className="text-2xl font-semibold text-white">
             Signing you in...
           </h2>
+
           <p className="mt-2 text-gray-400">
-            Please wait while we complete your LinkedIn signup.
+            Please wait while we complete your signup.
           </p>
         </div>
       </main>

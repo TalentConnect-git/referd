@@ -1,33 +1,79 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import {
+  useEffect,
+  useRef,
+} from "react";
+import {
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 
 import LoginForm from "@/components/auth/LoginForm";
 import LoginInfoPanel from "@/components/auth/LoginInfoPanel";
 
 import { useAuth } from "@/context/AuthContext";
-import type { AuthUser, UserType } from "@/services/auth.service";
+import type {
+  AuthUser,
+  UserType,
+} from "@/services/auth.service";
+
+const dashboardMap: Record<UserType, string> = {
+  student: "/student/dashboard",
+  fresher: "/fresher/dashboard",
+  professional: "/professional/dashboard",
+};
+
+const isUserType = (
+  value: string | null,
+): value is UserType => {
+  return (
+    value === "student" ||
+    value === "fresher" ||
+    value === "professional"
+  );
+};
 
 export default function LoginCallback() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { login } = useAuth();
 
-  const hasLinkedInCallback = searchParams.has("token");
+  const processedRef = useRef(false);
+
+  const token =
+    searchParams.get("token");
+  const userId =
+    searchParams.get("userId");
+  const email =
+    searchParams.get("email");
+  const name =
+    searchParams.get("name");
+  const returnedUserType =
+    searchParams.get("userType");
+  const onboardingCompleted =
+    searchParams.get(
+      "onboardingCompleted",
+    ) === "true";
+
+  const hasLinkedInCallback =
+    Boolean(token);
 
   useEffect(() => {
-    if (!hasLinkedInCallback) return;
+    if (
+      !hasLinkedInCallback ||
+      processedRef.current
+    ) {
+      return;
+    }
 
-    const token = searchParams.get("token");
-    const userId = searchParams.get("userId");
-    const email = searchParams.get("email");
-    const name = searchParams.get("name");
-    const userType = searchParams.get("userType") as UserType | null;
-    const onboardingCompleted =
-      searchParams.get("onboardingCompleted");
+    processedRef.current = true;
 
-    if (!token || !userId || !userType) {
+    if (
+      !token ||
+      !userId ||
+      !isUserType(returnedUserType)
+    ) {
       router.replace("/login");
       return;
     }
@@ -36,14 +82,46 @@ export default function LoginCallback() {
       _id: userId,
       email: email || "",
       name: name || "",
-      userType,
-      onboardingCompleted:
-        onboardingCompleted === "true",
+      userType: returnedUserType,
+      onboardingCompleted,
     };
+
+    /*
+     * Call AuthContext login. Do not update
+     * only localStorage.
+     */
     login(user, token);
-    localStorage.setItem("selectedRole", userType);
-    router.replace(`/${userType}/dashboard`);
-  }, [hasLinkedInCallback, searchParams, login, router]);
+
+    localStorage.setItem(
+      "selectedRole",
+      returnedUserType,
+    );
+
+    sessionStorage.removeItem(
+      "oauthSelectedRole",
+    );
+
+    if (!onboardingCompleted) {
+      router.replace(
+        "/onboarding/resume-upload",
+      );
+      return;
+    }
+
+    router.replace(
+      dashboardMap[returnedUserType],
+    );
+  }, [
+    hasLinkedInCallback,
+    token,
+    userId,
+    email,
+    name,
+    returnedUserType,
+    onboardingCompleted,
+    login,
+    router,
+  ]);
 
   if (hasLinkedInCallback) {
     return (
@@ -52,8 +130,10 @@ export default function LoginCallback() {
           <h2 className="text-2xl font-semibold text-white">
             Signing you in...
           </h2>
+
           <p className="mt-2 text-gray-400">
-            Please wait while we complete your LinkedIn login.
+            Please wait while we complete
+            your LinkedIn login.
           </p>
         </div>
       </main>

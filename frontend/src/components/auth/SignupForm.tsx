@@ -1,104 +1,243 @@
 "use client";
 
-import { FormEvent, useState, useEffect } from "react";
+import {
+  FormEvent,
+  useEffect,
+  useState,
+} from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
+
 import { useAuth } from "@/context/AuthContext";
-import { sendSignupOtp, signupUser, UserType } from "@/services/auth.service";
+import {
+  sendSignupOtp,
+  signupUser,
+  type UserType,
+} from "@/services/auth.service";
 
 import GoogleOAuthButton from "./GoogleOAuthButton";
 import LinkedinLoginButton from "./LinkedinLoginButton";
 
-const roles: UserType[] = ["student", "fresher", "professional"];
+const roles: UserType[] = [
+  "student",
+  "fresher",
+  "professional",
+];
+
+const isUserType = (
+  value: string | null,
+): value is UserType => {
+  return (
+    value === "student" ||
+    value === "fresher" ||
+    value === "professional"
+  );
+};
+
+const persistSelectedRole = (
+  selectedRole: UserType,
+) => {
+  if (typeof window === "undefined") return;
+
+  localStorage.setItem(
+    "selectedRole",
+    selectedRole,
+  );
+
+  sessionStorage.setItem(
+    "oauthSignupRole",
+    selectedRole,
+  );
+};
 
 export default function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuth();
 
-  const [role, setRole] = useState<UserType>("student");
+  const queryRole = searchParams.get("role");
 
-  // Pre-select role from ?role= query param (e.g. from "Become a Referrer" CTA)
-  useEffect(() => {
-    const queryRole = searchParams.get("role") as UserType | null;
-    if (queryRole && roles.includes(queryRole)) {
-      setRole(queryRole);
-    }
-  }, [searchParams]);
+  const [role, setRole] = useState<UserType>(() => {
+    return isUserType(queryRole)
+      ? queryRole
+      : "student";
+  });
 
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [password, setPassword] =
+    useState("");
+  const [
+    confirmPassword,
+    setConfirmPassword,
+  ] = useState("");
 
-  const [showOtpField, setShowOtpField] = useState(false);
+  const [showPassword, setShowPassword] =
+    useState(false);
+
+  const [
+    showConfirmPassword,
+    setShowConfirmPassword,
+  ] = useState(false);
+
+  const [showOtpField, setShowOtpField] =
+    useState(false);
+
   const [otp, setOtp] = useState("");
-  const [otpError, setOtpError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [otpError, setOtpError] =
+    useState("");
+  const [loading, setLoading] =
+    useState(false);
 
-  const getNextRoute = () => {
-    return "/onboarding/resume-upload";
+  /*
+   * Handle role received through query parameter.
+   * Example: /signup?role=professional
+   */
+  useEffect(() => {
+    if (isUserType(queryRole)) {
+      setRole(queryRole);
+      persistSelectedRole(queryRole);
+    }
+  }, [queryRole]);
+
+  const handleRoleChange = (
+    selectedRole: UserType,
+  ) => {
+    if (showOtpField || loading) return;
+
+    setRole(selectedRole);
+    setOtpError("");
+    persistSelectedRole(selectedRole);
   };
 
   const handleLinkedInSignup = () => {
-    console.log("LinkedIn signup clicked for role:", role);
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL;
+    const backendUrl =
+      process.env.NEXT_PUBLIC_API_URL;
 
-  if (!backendUrl) {
-    console.error("Backend URL is not defined in environment variables");
-    return;
-  }
+    if (!backendUrl) {
+      setOtpError(
+        "Backend URL is not configured.",
+      );
 
-  window.location.href = `${backendUrl}/api/auth/linkedin?userType=${role}`;
-};
+      console.error(
+        "NEXT_PUBLIC_API_URL is not defined",
+      );
 
-  const handleSignup = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+      return;
+    }
+
+    // Store the role before leaving the website.
+    persistSelectedRole(role);
+
+    window.location.href =
+      `${backendUrl}/api/auth/linkedin` +
+      `?userType=${encodeURIComponent(role)}`;
+  };
+
+  const handleSignup = async (
+    event: FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
     setOtpError("");
 
     try {
       setLoading(true);
 
+      /*
+       * First step: validate details and send OTP.
+       */
       if (!showOtpField) {
-        if (!email) {
-          setOtpError("Please enter your email");
+        const cleanedEmail = email
+          .trim()
+          .toLowerCase();
+
+        if (!cleanedEmail) {
+          setOtpError(
+            "Please enter your email.",
+          );
           return;
         }
+
         if (!password) {
-          setOtpError("Please enter a password");
+          setOtpError(
+            "Please enter a password.",
+          );
           return;
         }
+
+        if (password.length < 6) {
+          setOtpError(
+            "Password must contain at least 6 characters.",
+          );
+          return;
+        }
+
+        if (!confirmPassword) {
+          setOtpError(
+            "Please confirm your password.",
+          );
+          return;
+        }
+
         if (password !== confirmPassword) {
-          setOtpError("Passwords do not match");
+          setOtpError(
+            "Passwords do not match.",
+          );
           return;
         }
 
-        await sendSignupOtp(email);
+        setEmail(cleanedEmail);
+
+        await sendSignupOtp(cleanedEmail);
+
         setShowOtpField(true);
+        setOtp("");
         return;
       }
 
-      if (otp.length !== 6) {
-        setOtpError("Please enter a valid 6-digit OTP");
+      /*
+       * Second step: verify OTP and create account.
+       */
+      if (!/^\d{6}$/.test(otp)) {
+        setOtpError(
+          "Please enter a valid 6-digit OTP.",
+        );
         return;
       }
+
+      // Store it immediately before signup.
+      persistSelectedRole(role);
 
       const data = await signupUser({
-        email,
+        email: email.trim().toLowerCase(),
         password,
         userType: role,
         otp,
       });
 
-      login(data.user, data.token);
-      localStorage.setItem("selectedRole", role);
+      /*
+       * Use the role returned by the backend as
+       * the final source of truth.
+       */
+      const authenticatedRole =
+        data.user.userType;
 
-      router.push(getNextRoute());
+      login(data.user, data.token);
+
+      persistSelectedRole(
+        authenticatedRole,
+      );
+
+      router.replace(
+        "/onboarding/resume-upload",
+      );
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Something went wrong";
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again.";
 
       setOtpError(message);
-      alert(message);
     } finally {
       setLoading(false);
     }
@@ -114,92 +253,214 @@ export default function SignupForm() {
         Choose your role and continue.
       </p>
 
+      {/* Role selection */}
       <div className="mt-6 grid grid-cols-3 gap-3">
-        {roles.map((item) => (
-          <button
-            key={item}
-            type="button"
-            onClick={() => setRole(item)}
-            disabled={showOtpField || loading}
-            className={`h-10 rounded-lg border font-mono text-[10px] font-semibold uppercase tracking-[0.16em] transition disabled:cursor-not-allowed disabled:opacity-60 ${
-              role === item
-                ? "border-[var(--primary)] bg-[var(--primary-soft)] text-white"
-                : "border-[var(--border)] bg-transparent text-[var(--text-primary)] hover:border-white/25 hover:text-white"
-            }`}
-          >
-            {item}
-          </button>
-        ))}
+        {roles.map((item) => {
+          const isSelected = role === item;
+
+          return (
+            <button
+              key={item}
+              type="button"
+              disabled={
+                showOtpField || loading
+              }
+              aria-pressed={isSelected}
+              onClick={() =>
+                handleRoleChange(item)
+              }
+              className={`h-10 rounded-lg border font-mono text-[10px] font-semibold uppercase tracking-[0.16em] transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                isSelected
+                  ? "border-[var(--primary)] bg-[var(--primary-soft)] text-white"
+                  : "border-[var(--border)] bg-transparent text-[var(--text-primary)] hover:border-white/25 hover:text-white"
+              }`}
+            >
+              {item}
+            </button>
+          );
+        })}
       </div>
 
+      {/* Social signup */}
       <div className="mt-6 space-y-3">
-        <LinkedinLoginButton onClick={handleLinkedInSignup} />
-        <GoogleOAuthButton userType={role} />
+        <LinkedinLoginButton
+          onClick={handleLinkedInSignup}
+        />
+
+        {/*
+         * key={role} remounts the Google component
+         * when the selected role changes.
+         *
+         * onClickCapture saves the role before the
+         * Google button's own click handler executes.
+         */}
+        <div
+          onClickCapture={() =>
+            persistSelectedRole(role)
+          }
+        >
+          <GoogleOAuthButton
+            key={role}
+            userType={role}
+          />
+        </div>
       </div>
 
       <div className="my-6 flex items-center gap-3">
         <div className="h-px flex-1 bg-[var(--border)]" />
+
         <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--text-primary)]">
           Or manual entry
         </span>
+
         <div className="h-px flex-1 bg-[var(--border)]" />
       </div>
 
-      <form onSubmit={handleSignup} className="space-y-3">
+      <form
+        onSubmit={handleSignup}
+        className="space-y-3"
+      >
         {!showOtpField ? (
           <>
+            {/* Email */}
             <input
               type="email"
+              name="email"
+              autoComplete="email"
               placeholder="Email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
               disabled={loading}
+              onChange={(event) => {
+                setEmail(event.target.value);
+                setOtpError("");
+              }}
               className="h-10 w-full rounded-lg border border-white/10 bg-[var(--background)] px-4 text-[13px] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15 disabled:opacity-60"
             />
 
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              disabled={loading}
-              className="h-10 w-full rounded-lg border border-white/10 bg-[var(--background)] px-4 text-[13px] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15 disabled:opacity-60"
-            />
+            {/* Password */}
+            <div className="relative">
+              <input
+                type={
+                  showPassword
+                    ? "text"
+                    : "password"
+                }
+                name="password"
+                autoComplete="new-password"
+                placeholder="Password"
+                value={password}
+                disabled={loading}
+                onChange={(event) => {
+                  setPassword(
+                    event.target.value,
+                  );
+                  setOtpError("");
+                }}
+                className="h-10 w-full rounded-lg border border-white/10 bg-[var(--background)] px-4 pr-12 text-[13px] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15 disabled:opacity-60"
+              />
 
-            <input
-              type="password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              disabled={loading}
-              className="h-10 w-full rounded-lg border border-white/10 bg-[var(--background)] px-4 text-[13px] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15 disabled:opacity-60"
-            />
+              <button
+                type="button"
+                disabled={loading}
+                aria-label={
+                  showPassword
+                    ? "Hide password"
+                    : "Show password"
+                }
+                aria-pressed={showPassword}
+                onClick={() =>
+                  setShowPassword(
+                    (current) => !current,
+                  )
+                }
+                className="absolute right-0 top-0 flex h-10 w-11 items-center justify-center text-[var(--text-muted)] transition hover:text-white focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {showPassword ? (
+                  <EyeOff size={17} />
+                ) : (
+                  <Eye size={17} />
+                )}
+              </button>
+            </div>
+
+            {/* Confirm password */}
+            <div className="relative">
+              <input
+                type={
+                  showConfirmPassword
+                    ? "text"
+                    : "password"
+                }
+                name="confirmPassword"
+                autoComplete="new-password"
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                disabled={loading}
+                onChange={(event) => {
+                  setConfirmPassword(
+                    event.target.value,
+                  );
+                  setOtpError("");
+                }}
+                className="h-10 w-full rounded-lg border border-white/10 bg-[var(--background)] px-4 pr-12 text-[13px] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15 disabled:opacity-60"
+              />
+
+              <button
+                type="button"
+                disabled={loading}
+                aria-label={
+                  showConfirmPassword
+                    ? "Hide confirm password"
+                    : "Show confirm password"
+                }
+                aria-pressed={
+                  showConfirmPassword
+                }
+                onClick={() =>
+                  setShowConfirmPassword(
+                    (current) => !current,
+                  )
+                }
+                className="absolute right-0 top-0 flex h-10 w-11 items-center justify-center text-[var(--text-muted)] transition hover:text-white focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {showConfirmPassword ? (
+                  <EyeOff size={17} />
+                ) : (
+                  <Eye size={17} />
+                )}
+              </button>
+            </div>
           </>
         ) : (
           <>
             <p className="text-[12px] leading-5 text-[var(--text-primary)]">
-              We sent a verification OTP to{" "}
-              <span className="font-semibold text-white">{email}</span>
+              We sent a verification OTP
+              to{" "}
+              <span className="font-semibold text-white">
+                {email}
+              </span>
             </p>
 
             <input
               type="text"
+              name="otp"
+              inputMode="numeric"
+              autoComplete="one-time-code"
               placeholder="123456"
               value={otp}
-              onChange={(e) => {
-                setOtp(e.target.value.replace(/\D/g, ""));
-                setOtpError("");
-              }}
-              required
               maxLength={6}
               disabled={loading}
+              onChange={(event) => {
+                const numericValue =
+                  event.target.value
+                    .replace(/\D/g, "")
+                    .slice(0, 6);
+
+                setOtp(numericValue);
+                setOtpError("");
+              }}
               className="h-10 w-full rounded-lg border border-white/10 bg-[var(--background)] px-4 text-center font-mono text-[14px] tracking-[0.35em] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15 disabled:opacity-60"
             />
-
-            {otpError && <p className="text-[12px] text-red-400">{otpError}</p>}
 
             <button
               type="button"
@@ -209,11 +470,21 @@ export default function SignupForm() {
                 setOtp("");
                 setOtpError("");
               }}
-              className="text-[12px] text-[var(--text-primary)] transition hover:text-[var(--primary)] disabled:opacity-60"
+              className="text-[12px] text-[var(--text-primary)] transition hover:text-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Change email
+              Change email or password
             </button>
           </>
+        )}
+
+        {/* Validation/API error */}
+        {otpError && (
+          <p
+            role="alert"
+            className="text-[12px] text-red-400"
+          >
+            {otpError}
+          </p>
         )}
 
         <button
