@@ -10,6 +10,8 @@ import {
   CheckCircle,
   Loader2,
   Lock,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import {
   resetPassword,
@@ -30,6 +32,10 @@ export default function ResetPasswordPage() {
   const [validating, setValidating] = useState(true);
   const [validToken, setValidToken] = useState(false);
   const [loading, setLoading] = useState(false);
+  
+  // New state for password visibility
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     const checkToken = async () => {
@@ -226,29 +232,59 @@ export default function ResetPasswordPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="password"
-              value={password}
-              disabled={loading}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                setPasswordError("");
-              }}
-              placeholder="Enter new password"
-              className="h-11 w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 text-[13px] outline-none"
-            />
+            {/* Password input with eye icon */}
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                disabled={loading}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setPasswordError("");
+                }}
+                placeholder="Enter new password"
+                className="h-11 w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 pr-11 text-[13px] outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-primary)] transition hover:text-white"
+                disabled={loading}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
 
-            <input
-              type="password"
-              value={confirmPassword}
-              disabled={loading}
-              onChange={(e) => {
-                setConfirmPassword(e.target.value);
-                setPasswordError("");
-              }}
-              placeholder="Confirm new password"
-              className="h-11 w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 text-[13px] outline-none"
-            />
+            {/* Confirm password input with eye icon */}
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                value={confirmPassword}
+                disabled={loading}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  setPasswordError("");
+                }}
+                placeholder="Confirm new password"
+                className="h-11 w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 pr-11 text-[13px] outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-primary)] transition hover:text-white"
+                disabled={loading}
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
 
             {passwordError && (
               <p className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-xs text-red-400">
