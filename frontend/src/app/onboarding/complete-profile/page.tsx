@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import { submitOnboardingProfile } from "@/services/onboardingService";
+import axiosInstance from "@/lib/axiosInstance";
 import { useAuth } from "@/context/AuthContext";
 import TermsModal from "@/components/common/TermsModal/TermsModal";
 import PrivacyModal from "@/components/common/PrivacyModal/PrivacyModal";
@@ -50,6 +51,13 @@ type ExperienceInfo = {
   isCurrent?: boolean;
 };
 
+type StatusData = {
+  type: string;
+  since: string;
+  note: string;
+  expectedReturn: string | null;
+};
+
 type ExperienceStepData = {
   experiences?: ExperienceInfo[];
   companyEmail?: string;
@@ -57,6 +65,7 @@ type ExperienceStepData = {
   currentCompany?: string;
   currentCompany_display?: string;
   lastUpdated?: string;
+  status?: StatusData | string;
 };
 
 function safeJsonParse<T>(key: string, fallback: T): T {
@@ -228,6 +237,46 @@ function appendValueToFormData(
   formData.append(key, String(value));
 }
 
+function normalizeStatusForUpdate(
+  status: StatusData | null,
+): StatusData | null {
+  if (!status?.type || status.type === "employed") {
+    return null;
+  }
+
+  return {
+    type: status.type,
+    since: status.since || new Date().toISOString(),
+    note: status.note?.trim() || "",
+    expectedReturn:
+      status.type === "career_break"
+        ? status.expectedReturn || null
+        : null,
+  };
+}
+
+async function syncStatusAfterOnboarding(
+  status: StatusData | null,
+  token?: string,
+): Promise<void> {
+  const normalizedStatus = normalizeStatusForUpdate(status);
+
+  // Current-company users are handled automatically by the backend.
+  if (!normalizedStatus) return;
+
+  await axiosInstance.put(
+    "/api/onboarding/update",
+    { status: normalizedStatus },
+    token
+      ? {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      : undefined,
+  );
+}
+
 export default function ConfirmationPage() {
   const router = useRouter();
   const { refreshUser, login } = useAuth();
@@ -279,20 +328,12 @@ export default function ConfirmationPage() {
       {},
     );
 
-    /*
-     * Step Five stores experiences, companyEmail and noticePeriod together
-     * in this object.
-     */
     const experienceStepData =
       safeJsonParse<ExperienceStepData>(
         "onboarding_experiences",
         {},
       );
 
-    /*
-     * Backward compatibility for an older Step Five implementation that
-     * only saved the experiences array.
-     */
     const legacyExperiences =
       safeJsonParse<ExperienceInfo[]>(
         "experiences_data",
@@ -335,11 +376,27 @@ export default function ConfirmationPage() {
         hasUsefulEducationData,
       );
 
-    /*
-     * Experience-step values are assigned after the other objects are spread.
-     * This prevents empty or stale careerPreferences fields from overwriting
-     * companyEmail, noticePeriod and currentCompany.
-     */
+    // ✅ Extract and parse status from experienceStepData
+    let statusData: StatusData | null = null;
+    
+    if (experienceStepData.status) {
+      // If status is already an object, use it directly
+      if (typeof experienceStepData.status === 'object' && !Array.isArray(experienceStepData.status)) {
+        statusData = experienceStepData.status as StatusData;
+      } 
+      // If status is a string, try to parse it
+      else if (typeof experienceStepData.status === 'string') {
+        try {
+          const parsed = JSON.parse(experienceStepData.status);
+          if (typeof parsed === 'object' && parsed !== null) {
+            statusData = parsed as StatusData;
+          }
+        } catch {
+          console.warn('Failed to parse status from localStorage');
+        }
+      }
+    }
+
     const finalData: AnyObject = {
       ...parsedResume,
       ...basicInfo,
@@ -370,6 +427,11 @@ export default function ConfirmationPage() {
         "",
     };
 
+    // ✅ Add status data as an object if it exists
+    if (statusData && typeof statusData === 'object') {
+      finalData.status = statusData;
+    }
+
     if (filteredEducations.length > 0) {
       finalData.educations = filteredEducations;
     }
@@ -383,10 +445,6 @@ export default function ConfirmationPage() {
       finalData.leadership = leadership;
     }
 
-    /*
-     * Verification state must be controlled by the backend after OTP or
-     * company-email verification. Do not force emailVerified=true here.
-     */
     delete finalData.emailVerified;
     delete finalData.lastUpdated;
 
@@ -402,6 +460,7 @@ export default function ConfirmationPage() {
       currentCompany: finalData.currentCompany,
       currentCompany_display:
         finalData.currentCompany_display,
+      status: finalData.status,
     });
 
     Object.entries(finalData).forEach(
@@ -411,6 +470,37 @@ export default function ConfirmationPage() {
     );
 
     return formData;
+  }
+
+  function getStoredStatus(): StatusData | null {
+    const experienceStepData = safeJsonParse<ExperienceStepData>(
+      "onboarding_experiences",
+      {},
+    );
+
+    if (!experienceStepData.status) return null;
+
+    if (
+      typeof experienceStepData.status === "object" &&
+      !Array.isArray(experienceStepData.status)
+    ) {
+      return normalizeStatusForUpdate(
+        experienceStepData.status as StatusData,
+      );
+    }
+
+    if (typeof experienceStepData.status === "string") {
+      try {
+        const parsed = JSON.parse(experienceStepData.status) as unknown;
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+          return normalizeStatusForUpdate(parsed as StatusData);
+        }
+      } catch (error) {
+        console.error("Unable to parse stored candidate status:", error);
+      }
+    }
+
+    return null;
   }
 
   function clearOnboardingStorage(): void {
@@ -444,12 +534,9 @@ export default function ConfirmationPage() {
       setLoading(true);
       setError("");
 
+      const statusToSync = getStoredStatus();
       const formData = buildOnboardingFormData();
 
-      /*
-       * Useful while testing signup:
-       * browser console will show every field actually submitted.
-       */
       console.log("FormData entries:");
       for (const [key, value] of formData.entries()) {
         console.log(key, value);
@@ -477,10 +564,12 @@ export default function ConfirmationPage() {
         login(response.user, response.token);
       }
 
-      /*
-       * Refresh before clearing so the authentication/profile request has
-       * already completed successfully.
-       */
+      // Frontend-only status synchronization using the existing JSON update API.
+      await syncStatusAfterOnboarding(
+        statusToSync,
+        response?.token,
+      );
+
       await refreshUser();
 
       clearOnboardingStorage();

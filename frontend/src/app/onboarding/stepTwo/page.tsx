@@ -61,9 +61,10 @@ export default function BasicInfoForm() {
       }
     }
 
+    // ✅ Phone validation removed - no longer required
     if (name === "phone") {
-      if (!value.trim()) error = "Phone number is required";
-      else if (!/^\+?[0-9\s\-()]{10,}$/.test(value)) {
+      // Only validate if a value is entered
+      if (value.trim() && !/^\+?[0-9\s\-()]{10,}$/.test(value)) {
         error = "Please enter a valid phone number";
       }
     }
@@ -215,7 +216,7 @@ export default function BasicInfoForm() {
 
               <div>
                 <label className="mb-2 block text-[13px] font-medium text-white">
-                  Phone Number <span className="text-red-400">*</span>
+                  Phone Number <span className="text-gray-400 text-[11px]"></span>
                 </label>
 
                 <div

@@ -110,7 +110,9 @@ export type Project = {
 export type ProfileData = {
   _id?: string;
   userId?: string;
+  
   profileType?: "student" | "fresher" | "professional" | string;
+  status?: Status | null;
   
   // Basic Info
   name?: string;
@@ -212,6 +214,13 @@ export type ProfileData = {
   
 };
 
+export interface Status {
+  type: string;
+  since: string;
+  note: string;
+  expectedReturn: string | null;
+}
+
 export type EditForm = {
   fullName: string;
   name: string;
@@ -228,6 +237,7 @@ export type EditForm = {
   visaStatus: string;
   github: string;
   portfolio: string;
+  status: Status | null;
   profileImage: string;
   resume: string;
   educations: Education[];
