@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getInterviews } from "@/services/navbar.service";
+import { getInterviews, getUnreadInterviews } from "@/services/navbar.service";
 import { Interview } from "@/types/navbar";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -16,17 +16,20 @@ import {
   Loader2,
   CalendarDays,
   MessageSquare,
-  AlertCircle,
   CheckCircle2,
   XCircle,
   ExternalLink,
-  Users,
-  MapPin,
   Bell,
+  Eye,
 } from "lucide-react";
 
-export default function InterviewCall() {
+interface InterviewCallProps {
+  onClose?: () => void;
+}
+
+export default function InterviewCall({ onClose }: InterviewCallProps) {
   const [interviews, setInterviews] = useState<Interview[]>([]);
+  const [unreadInterviews, setUnreadInterviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"upcoming" | "past">("upcoming");
   const router = useRouter();
@@ -36,8 +39,12 @@ export default function InterviewCall() {
   useEffect(() => {
     const fetchInterviews = async () => {
       try {
-        const res = await getInterviews();
-        setInterviews(res.data);
+        const [allRes, unreadRes] = await Promise.all([
+          getInterviews(),
+          getUnreadInterviews(),
+        ]);
+        setInterviews(allRes.data);
+        setUnreadInterviews(unreadRes.data.map((item: any) => item._id));
       } catch (err) {
         console.log(err);
       } finally {
@@ -55,17 +62,14 @@ export default function InterviewCall() {
     (interview) => interview.status === "Completed" || interview.status === "Missed"
   );
 
-  // Sort upcoming interviews by date (nearest first)
   const sortedUpcoming = [...upcomingInterviews].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
-  // Sort completed interviews by date (most recent first)
   const sortedCompleted = [...completedInterviews].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
-  // Format date for display
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const today = new Date();
@@ -86,7 +90,6 @@ export default function InterviewCall() {
     }
   };
 
-  // Get status color
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Scheduled":
@@ -100,7 +103,6 @@ export default function InterviewCall() {
     }
   };
 
-  // Get status icon
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "Scheduled":
@@ -114,7 +116,6 @@ export default function InterviewCall() {
     }
   };
 
-  // Get time remaining
   const getTimeRemaining = (dateString: string, timeString: string) => {
     const interviewDateTime = new Date(`${dateString}T${timeString}`);
     const now = new Date();
@@ -134,15 +135,25 @@ export default function InterviewCall() {
     return "Starting soon!";
   };
 
+  const handleInterviewClick = (interviewId: string) => {
+    if (onClose) onClose();
+    router.push(`/${userType}/applications/interview/${interviewId}`);
+  };
+
+  const handleViewAll = () => {
+    if (onClose) onClose();
+    router.push(`/${userType}/applications/interview`);
+  };
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex min-h-52 w-full items-center justify-center rounded-2xl border border-slate-800 bg-[#071018] px-4 py-10">
         <div className="flex flex-col items-center gap-3">
           <div className="relative">
-            <Loader2 className="w-8 h-8 animate-spin text-green-400" />
-            <div className="absolute inset-0 w-8 h-8 rounded-full border-2 border-green-400/20 animate-ping" />
+            <Loader2 className="h-6 w-6 animate-spin text-green-400" />
+            <div className="absolute inset-0 h-6 w-6 rounded-full border-2 border-green-400/20 animate-ping" />
           </div>
-          <p className="text-gray-400 text-sm">Loading your interviews...</p>
+          <p className="text-xs text-gray-400">Loading interviews...</p>
         </div>
       </div>
     );
@@ -150,146 +161,180 @@ export default function InterviewCall() {
 
   if (interviews.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 bg-gradient-to-b from-slate-800/30 to-transparent rounded-xl border border-slate-800">
-        <div className="relative">
-          <div className="w-20 h-20 rounded-full bg-slate-800/50 flex items-center justify-center">
-            <CalendarDays className="w-10 h-10 text-gray-600" />
+      <div className="w-full overflow-hidden rounded-2xl border border-slate-800 bg-[#071018] shadow-2xl">
+        <div className="flex min-h-56 flex-col items-center justify-center px-5 py-8 text-center">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl border border-green-500/20 bg-[#12381f]">
+            <CalendarDays className="h-5 w-5 text-green-400" />
           </div>
+
+          <h3 className="text-sm font-semibold text-white">
+            No interviews yet
+          </h3>
+
+          <p className="mt-1 max-w-xs text-xs leading-5 text-[#94a3b8]">
+            Your scheduled and completed interviews will appear here.
+          </p>
         </div>
-        <h3 className="text-lg font-semibold text-white mt-4">No Interviews Scheduled</h3>
-        <p className="text-gray-400 text-sm text-center max-w-sm mt-1">
-          You don't have any upcoming interviews at the moment. Check back later for updates.
-        </p>
-        <div className="mt-4 px-3 py-1.5 bg-slate-800/50 rounded-full border border-slate-700">
-          <span className="text-xs text-gray-500">💡 Stay tuned for interview invites</span>
+
+        <div className="border-t border-slate-800 bg-[#0b1621] p-3">
+          <button
+            type="button"
+            onClick={handleViewAll}
+            className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 text-sm font-semibold text-green-400 transition hover:bg-green-500/20"
+          >
+            View All Interviews
+            <ChevronRight className="h-4 w-4" />
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4 overflow-y-auto h-full max-h-[calc(100vh-200px)] pr-1">
-      {/* Header with Tabs */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sticky top-0 bg-[#0F172A] z-10 pb-3">
-        <div>
-          <h2 className="text-base sm:text-lg font-semibold text-white flex items-center gap-2">
-            <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
-            Interviews
-          </h2>
-          <p className="text-xs text-gray-400 mt-0.5">
-            {upcomingInterviews.length} upcoming • {completedInterviews.length} completed
-          </p>
-        </div>
-        <div className="flex items-center gap-1 bg-slate-800/50 p-0.5 rounded-lg border border-slate-700/50 w-full sm:w-auto">
-          <button
-            onClick={() => setActiveTab("upcoming")}
-            className={`flex-1 sm:flex-none px-2 sm:px-3 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all ${
-              activeTab === "upcoming"
-                ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                : "text-gray-400 hover:text-gray-300"
-            }`}
-          >
-            Upcoming
-            {upcomingInterviews.length > 0 && (
-              <span className="ml-1.5 px-1.5 py-0.5 bg-green-500/30 text-green-400 rounded-full text-[10px]">
-                {upcomingInterviews.length}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab("past")}
-            className={`flex-1 sm:flex-none px-2 sm:px-3 py-1 rounded-md text-[10px] sm:text-xs font-medium transition-all ${
-              activeTab === "past"
-                ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                : "text-gray-400 hover:text-gray-300"
-            }`}
-          >
-            Past
-            {completedInterviews.length > 0 && (
-              <span className="ml-1.5 px-1.5 py-0.5 bg-blue-500/30 text-blue-400 rounded-full text-[10px]">
-                {completedInterviews.length}
-              </span>
-            )}
-          </button>
+    <div className="flex w-full max-w-[420px] flex-col overflow-hidden rounded-2xl border border-slate-800 bg-[#071018] shadow-2xl">
+      {/* Header */}
+      <div className="border-b border-slate-800 bg-[#0b1621] px-4 py-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-green-500/20 bg-[#12381f]">
+              <Calendar className="h-4 w-4 text-green-400" />
+            </div>
+
+            <div className="min-w-0">
+              <h2 className="truncate text-sm font-semibold text-white">
+                Interviews
+              </h2>
+              <p className="truncate text-[11px] text-[#94a3b8]">
+                {upcomingInterviews.length} upcoming · {completedInterviews.length} completed
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-shrink-0 rounded-lg border border-slate-700/60 bg-[#071018] p-1">
+            <button
+              type="button"
+              onClick={() => setActiveTab("upcoming")}
+              className={`rounded-md px-2.5 py-1.5 text-[10px] font-semibold transition ${
+                activeTab === "upcoming"
+                  ? "bg-green-500/15 text-green-400"
+                  : "text-[#94a3b8] hover:text-white"
+              }`}
+            >
+              Upcoming
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("past")}
+              className={`rounded-md px-2.5 py-1.5 text-[10px] font-semibold transition ${
+                activeTab === "past"
+                  ? "bg-blue-500/15 text-blue-400"
+                  : "text-[#94a3b8] hover:text-white"
+              }`}
+            >
+              Past
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Current Date Display */}
-      <div className="flex items-center gap-2 bg-slate-800/30 px-3 py-1.5 rounded-full border border-slate-700/50 self-start">
-        <Bell className="w-3.5 h-3.5 text-yellow-400" />
-        <span className="text-xs text-gray-300">
-          {new Date().toLocaleDateString("en-US", {
-            weekday: "long",
-            month: "long",
-            day: "numeric",
-          })}
-        </span>
-      </div>
+      {/* Content with dividers instead of borders */}
+      <div 
+        className="max-h-[min(62vh,520px)] overflow-y-auto"
+        style={{
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+        }}
+      >
+        <style jsx>{`
+          div::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
 
-      {/* Content Area - Single scrollable container */}
-      <div className="overflow-y-auto">
-        {/* Upcoming Interviews */}
-        {activeTab === "upcoming" && (
-          <div>
-            {sortedUpcoming.length > 0 ? (
-              <div className="space-y-3 pb-2">
-                {sortedUpcoming.map((interview) => (
+        {activeTab === "upcoming" ? (
+          sortedUpcoming.length > 0 ? (
+            <div>
+              {sortedUpcoming.map((interview, index) => (
+                <div key={interview._id}>
                   <InterviewCard
-                    key={interview._id}
                     interview={interview}
                     userType={userType}
                     formatDate={formatDate}
                     getStatusColor={getStatusColor}
                     getStatusIcon={getStatusIcon}
                     getTimeRemaining={getTimeRemaining}
-                    router={router}
+                    onInterviewClick={handleInterviewClick}
+                    isUnread={unreadInterviews.includes(interview._id)}
                   />
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-8 bg-slate-800/20 rounded-xl border border-slate-800">
-                <CheckCircle2 className="w-8 h-8 text-green-400/50 mb-2" />
-                <p className="text-sm text-gray-400">No upcoming interviews</p>
-                <p className="text-xs text-gray-500 mt-1">All caught up! 🎉</p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Past Interviews */}
-        {activeTab === "past" && (
+                  {/* Divider between interviews */}
+                  {index < sortedUpcoming.length - 1 && (
+                    <div className="mx-4 h-px bg-slate-800/60" />
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex min-h-40 flex-col items-center justify-center px-4 text-center">
+              <CheckCircle2 className="mb-2 h-6 w-6 text-green-400/60" />
+              <p className="text-xs font-medium text-white">
+                No upcoming interviews
+              </p>
+              <p className="mt-1 text-[11px] text-[#94a3b8]">
+                You are all caught up.
+              </p>
+            </div>
+          )
+        ) : sortedCompleted.length > 0 ? (
           <div>
-            {sortedCompleted.length > 0 ? (
-              <div className="space-y-3 pb-2">
-                {sortedCompleted.map((interview) => (
-                  <InterviewCard
-                    key={interview._id}
-                    interview={interview}
-                    userType={userType}
-                    formatDate={formatDate}
-                    getStatusColor={getStatusColor}
-                    getStatusIcon={getStatusIcon}
-                    getTimeRemaining={getTimeRemaining}
-                    router={router}
-                    isPast={true}
-                  />
-                ))}
+            {sortedCompleted.map((interview, index) => (
+              <div key={interview._id}>
+                <InterviewCard
+                  interview={interview}
+                  userType={userType}
+                  formatDate={formatDate}
+                  getStatusColor={getStatusColor}
+                  getStatusIcon={getStatusIcon}
+                  getTimeRemaining={getTimeRemaining}
+                  onInterviewClick={handleInterviewClick}
+                  isPast
+                />
+                {/* Divider between interviews */}
+                {index < sortedCompleted.length - 1 && (
+                  <div className="mx-4 h-px bg-slate-800/60" />
+                )}
               </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-8 bg-slate-800/20 rounded-xl border border-slate-800">
-                <CalendarDays className="w-8 h-8 text-gray-600 mb-2" />
-                <p className="text-sm text-gray-400">No past interviews</p>
-                <p className="text-xs text-gray-500 mt-1">Your interview history will appear here</p>
-              </div>
-            )}
+            ))}
+          </div>
+        ) : (
+          <div className="flex min-h-40 flex-col items-center justify-center px-4 text-center">
+            <CalendarDays className="mb-2 h-6 w-6 text-slate-500" />
+            <p className="text-xs font-medium text-white">
+              No past interviews
+            </p>
+            <p className="mt-1 text-[11px] text-[#94a3b8]">
+              Interview history will appear here.
+            </p>
           </div>
         )}
+      </div>
+
+      {/* Footer */}
+      <div className="border-t border-slate-800 bg-[#0b1621] p-3">
+        <button
+          type="button"
+          onClick={handleViewAll}
+          className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 text-sm font-semibold text-green-400 transition hover:bg-green-500/20 active:scale-[0.99]"
+        >
+          View All Interviews
+          <ChevronRight className="h-4 w-4" />
+        </button>
       </div>
     </div>
   );
 }
 
-// Interview Card Component
+// Interview Card Component - No border, just content
 const InterviewCard = ({
   interview,
   userType,
@@ -297,8 +342,9 @@ const InterviewCard = ({
   getStatusColor,
   getStatusIcon,
   getTimeRemaining,
-  router,
+  onInterviewClick,
   isPast = false,
+  isUnread = false,
 }: {
   interview: Interview;
   userType: string;
@@ -306,68 +352,72 @@ const InterviewCard = ({
   getStatusColor: (status: string) => string;
   getStatusIcon: (status: string) => React.ReactNode;
   getTimeRemaining: (date: string, time: string) => string;
-  router: any;
+  onInterviewClick: (id: string) => void;
   isPast?: boolean;
+  isUnread?: boolean;
 }) => {
   const isUpcoming = interview.status === "Scheduled";
   const [isHovered, setIsHovered] = useState(false);
 
   return (
     <div
-      className={`group bg-slate-800/30 hover:bg-slate-800/50 rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden ${
-        isUpcoming
-          ? "border-slate-700/50 hover:border-green-500/30 hover:shadow-lg hover:shadow-green-500/5"
-          : "border-slate-700/30 hover:border-slate-600 opacity-80 hover:opacity-100"
+      className={`group cursor-pointer transition-all duration-200 hover:bg-slate-800/50 ${
+        isUpcoming && isUnread ? "border-l-4 border-l-yellow-400" : ""
       }`}
-      onClick={() => router.push(`/${userType}/applications/${interview._id}`)}
+      onClick={() => onInterviewClick(interview._id)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="p-3 sm:p-4">
-        <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
+      <div className="px-4 py-3">
+        <div className="flex min-w-0 items-start gap-3">
           {/* Left - Icon */}
-          <div className="flex-shrink-0 self-start sm:self-auto">
+          <div className="flex-shrink-0 self-start sm:self-auto relative">
             <div
-              className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center transition-all duration-300 ${
+              className={`flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-200 ${
                 isUpcoming
                   ? "bg-gradient-to-br from-green-500/20 to-emerald-500/10 border border-green-500/20 group-hover:scale-105"
                   : "bg-slate-700/30 border border-slate-600/20"
               }`}
             >
               {isUpcoming ? (
-                <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+                <Briefcase className="h-4 w-4 text-green-400" />
               ) : (
-                <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
+                <CheckCircle2 className="h-4 w-4 text-gray-500" />
               )}
             </div>
+            {isUnread && isUpcoming && (
+              <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-yellow-400 rounded-full animate-pulse" />
+            )}
           </div>
 
-          {/* Middle - Content */}
+          {/* Content */}
           <div className="flex-1 min-w-0">
-            {/* Job Title & Company */}
-            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+            <div className="flex min-w-0 items-start justify-between gap-2">
               <div className="min-w-0">
-                <h4 className="text-sm font-semibold text-white truncate group-hover:text-green-400 transition-colors">
-                  {interview.jobId.jobTitle}
+                <h4 className="truncate text-xs font-semibold text-white transition-colors group-hover:text-green-400">
+                  {interview.jobId?.jobTitle || "Interview"}
                 </h4>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <Building2 className="w-3 h-3 text-gray-400 flex-shrink-0" />
                   <p className="text-xs text-gray-400 truncate">
-                    {interview.companySnapshot.companyName}
+                    {interview.companySnapshot?.companyName || "Company"}
                   </p>
                 </div>
               </div>
               {isUpcoming && (
-                <div className="flex-shrink-0 self-start sm:self-auto">
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-[10px] text-green-400 font-medium">
-                    Upcoming
-                  </span>
+                <div className="flex-shrink-0 self-start sm:self-auto flex items-center gap-2">
+                  {isUnread && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-[10px] text-yellow-400 font-medium">
+                      <Eye className="w-2.5 h-2.5" />
+                      New
+                    </span>
+                  )}
                 </div>
               )}
             </div>
 
-            {/* Details Grid - Responsive */}
-            <div className="grid grid-cols-1 xs:grid-cols-2 gap-1.5 mt-2.5">
+            {/* Details */}
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
               <div className="flex items-center gap-1.5">
                 <Calendar className="w-3 h-3 text-gray-400 flex-shrink-0" />
                 <span className="text-xs text-gray-300 truncate">
@@ -380,35 +430,34 @@ const InterviewCard = ({
               </div>
             </div>
 
-            {/* Meeting Link & Message */}
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-2">
-              {interview.meetLink && (
+            <div className="mt-2.5 flex flex-col gap-2 border-t border-slate-700/40 pt-2.5">
+              {interview.message ? (
+                <div className="flex min-w-0 items-start gap-1.5">
+                  <MessageSquare className="mt-0.5 h-3 w-3 flex-shrink-0 text-slate-500" />
+                  <p className="line-clamp-1 text-[11px] text-[#94a3b8]">
+                    {interview.message}
+                  </p>
+                </div>
+              ) : null}
+
+              {interview.meetLink && isUpcoming && !isPast ? (
                 <a
                   href={interview.meetLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 hover:underline transition-colors"
-                  onClick={(e) => e.stopPropagation()}
+                  className="inline-flex h-8 w-full items-center justify-center gap-1.5 rounded-md border border-green-500/30 bg-green-500 text-[11px] font-semibold text-black transition hover:bg-green-400"
+                  onClick={(event) => event.stopPropagation()}
                 >
-                  <Video className="w-3 h-3" />
-                  <span className="hidden xs:inline">Join Meeting</span>
-                  <span className="xs:hidden">Join</span>
-                  <ExternalLink className="w-2.5 h-2.5" />
+                  <Video className="h-3.5 w-3.5" />
+                  Join Interview
+                  <ExternalLink className="h-3 w-3" />
                 </a>
-              )}
-              {interview.message && (
-                <div className="flex items-start gap-1.5 min-w-0 flex-1">
-                  <MessageSquare className="w-3 h-3 text-gray-500 mt-0.5 flex-shrink-0" />
-                  <p className="text-xs text-gray-400 truncate">
-                    {interview.message}
-                  </p>
-                </div>
-              )}
+              ) : null}
             </div>
           </div>
 
           {/* Right - Status & Time */}
-          <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2 sm:gap-1.5 flex-shrink-0 w-full sm:w-auto">
+          <div className="flex flex-shrink-0 flex-col items-end gap-1">
             <span
               className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium border ${getStatusColor(
                 interview.status
@@ -426,16 +475,16 @@ const InterviewCard = ({
               </span>
             )}
             <ChevronRight
-              className={`w-4 h-4 text-gray-500 transition-all duration-300 hidden sm:block ${
+              className={`h-3.5 w-3.5 text-gray-500 transition-all duration-200 ${
                 isHovered ? "translate-x-1 text-gray-300" : ""
               }`}
             />
           </div>
         </div>
 
-        {/* Progress bar for upcoming interviews */}
+        {/* Progress bar */}
         {isUpcoming && (
-          <div className="mt-3 h-0.5 w-full bg-slate-700/30 rounded-full overflow-hidden">
+          <div className="mt-2 h-0.5 w-full overflow-hidden rounded-full bg-slate-700/30">
             <div
               className="h-full bg-gradient-to-r from-green-400 to-emerald-300 rounded-full transition-all duration-1000"
               style={{
@@ -452,4 +501,4 @@ const InterviewCard = ({
       </div>
     </div>
   );
-}
+};

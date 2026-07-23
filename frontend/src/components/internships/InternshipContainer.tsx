@@ -160,7 +160,7 @@ export default function InternshipContainer({
             matchScore={matchScore}
             postedBy={postedBy}
             secondaryInfo={internship?.employmentType?.[0] || "Internship"}
-            route={`/${role}/internships/${internship._id}`}
+            route={`/${role}/jobs/internships/${internship._id}`}
             jobId={internship._id}
             jobType="internship"
             isSaved={isSaved}

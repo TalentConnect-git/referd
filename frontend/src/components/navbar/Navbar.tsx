@@ -9,7 +9,7 @@ import NotificationsDropdown from "../notifications/NotificationsDropDown";
 import InterviewCall from "./InterviewCall";
 import logo from "@/assets/icon.png";
 import { useNotification } from "@/context/NotificationContext";
-import { getInterviews } from "@/services/navbar.service";
+import { getInterviews, getUnreadInterviews } from "@/services/navbar.service";
 import { Interview } from "@/types/navbar";
 import { useRouter } from "next/navigation";
 
@@ -19,7 +19,7 @@ export default function Navbar() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [upcomingInterviews, setUpcomingInterviews] = useState<Interview[]>([]);
-  const [interviewLoading, setInterviewLoading] = useState(true);
+  const [unreadInterviewCount, setUnreadInterviewCount] = useState(0);
   const notificationRef = useRef<HTMLDivElement>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
 
@@ -27,7 +27,6 @@ export default function Navbar() {
   const { 
     unreadCount: notificationUnreadCount, 
     markAllAsRead,
-    clearUnreadCount: clearNotificationUnread // ✅ Get the clear function
   } = useNotification();
 
   const displayName =
@@ -44,7 +43,20 @@ export default function Navbar() {
   const userType = profile?.profileType || user?.userType || "student";
   const profileImageUrl = profile?.profileImage || null;
 
-  // Fetch interviews for badge count
+  // ✅ Fetch unread interviews count for badge
+  useEffect(() => {
+    const fetchUnreadInterviews = async () => {
+      try {
+        const res = await getUnreadInterviews();
+        setUnreadInterviewCount(res.data?.length || 0);
+      } catch (err) {
+        console.log("Error fetching unread interviews:", err);
+      }
+    };
+    fetchUnreadInterviews();
+  }, []);
+
+  // ✅ Fetch interviews for calendar dropdown
   useEffect(() => {
     const fetchInterviews = async () => {
       try {
@@ -55,8 +67,6 @@ export default function Navbar() {
         setUpcomingInterviews(scheduled);
       } catch (err) {
         console.log("Error fetching interviews:", err);
-      } finally {
-        setInterviewLoading(false);
       }
     };
     fetchInterviews();
@@ -105,26 +115,35 @@ export default function Navbar() {
 
   const interviewCount = upcomingInterviews.length;
 
-  // ✅ Handle message click - clear message unread
   const handleMessageClick = () => {
-    
     router.push(`/${userType}/message`);
   };
 
-  // ✅ Handle notification bell click
   const handleNotificationClick = () => {
-    // If there are unread notifications, mark all as read
     if (notificationUnreadCount > 0) {
-      markAllAsRead(); // This will update the unreadCount in context
+      markAllAsRead();
     }
     setShowNotifications((prev) => !prev);
   };
 
-  // ✅ Listen for notification updates to keep badge in sync
-  useEffect(() => {
-    // The unreadCount from useNotification will automatically update
-    // when markAllAsRead or markAsRead is called
-  }, [notificationUnreadCount]);
+  // ✅ Handle calendar click - mark interviews as read
+  const handleCalendarClick = () => {
+    setShowCalendar((prev) => !prev);
+    // Reset unread count when opening calendar
+    if (unreadInterviewCount > 0) {
+      setUnreadInterviewCount(0);
+    }
+  };
+
+  // ✅ Function to close calendar modal
+  const handleCloseCalendar = () => {
+    setShowCalendar(false);
+  };
+
+  // ✅ Function to close notifications modal
+  const handleCloseNotifications = () => {
+    setShowNotifications(false);
+  };
 
   return (
     <header
@@ -159,10 +178,10 @@ export default function Navbar() {
 
       {/* Right side icons */}
       <div className="flex items-center gap-3">
-        {/* Calendar with Interview Badge */}
+        {/* ✅ Calendar with Interview Badge */}
         <div className="relative" ref={calendarRef}>
           <button
-            onClick={() => setShowCalendar((prev) => !prev)}
+            onClick={handleCalendarClick}
             className="
               relative
               flex
@@ -178,7 +197,8 @@ export default function Navbar() {
           >
             <CalendarDays size={15} className="text-[var(--text-secondary)]" />
             
-            {interviewCount > 0 && (
+            {/* ✅ Show unread interview count badge */}
+            {unreadInterviewCount > 0 && (
               <span
                 className="
                   absolute
@@ -190,17 +210,17 @@ export default function Navbar() {
                   items-center
                   justify-center
                   rounded-full
-                  bg-green-500
+                  bg-red-500
                   px-1
                   text-[9px]
                   font-bold
                   text-white
                   shadow-lg
-                  shadow-green-500/30
+                  shadow-red-500/30
                   animate-pulse-dot
                 "
               >
-                {interviewCount > 99 ? "99+" : interviewCount}
+                {unreadInterviewCount > 99 ? "99+" : unreadInterviewCount}
               </span>
             )}
           </button>
@@ -221,12 +241,13 @@ export default function Navbar() {
                 zIndex: 9999,
               }}
             >
-              <InterviewCall />
+              {/* ✅ Pass onClose prop to InterviewCall */}
+              <InterviewCall onClose={handleCloseCalendar} />
             </div>
           )}
         </div>
 
-        {/* ✅ Notifications */}
+        {/* Notifications */}
         <div className="relative" ref={notificationRef}>
           <button
             onClick={handleNotificationClick}
@@ -245,7 +266,6 @@ export default function Navbar() {
           >
             <Bell size={15} className="text-[var(--text-secondary)]" />
             
-            {/* ✅ Notification badge - shows unread count */}
             {notificationUnreadCount > 0 && (
               <span
                 className="
@@ -289,7 +309,8 @@ export default function Navbar() {
                 shadow-2xl
               "
             >
-              <NotificationsDropdown />
+              {/* ✅ Pass onClose prop to NotificationsDropdown */}
+              <NotificationsDropdown onClick={handleCloseNotifications} />
             </div>
           )}
         </div>
