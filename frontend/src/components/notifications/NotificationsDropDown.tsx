@@ -7,8 +7,12 @@ import { useAuth } from "@/context/AuthContext";
 import { Bell, Clock, ChevronRight, Briefcase, Users, MessageCircle, Calendar, UserPlus, FileText } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
-export default function NotificationsDropdown() {
-  const { notifications, markAsRead } = useNotification();
+interface NotificationsDropdownProps {
+  onClick?: () => void;
+}
+
+export default function NotificationsDropdown({ onClick }: NotificationsDropdownProps) {
+  const { notifications, markAsRead, markAllAsRead } = useNotification();
   const router = useRouter();
   const { profile, user } = useAuth();
 
@@ -53,6 +57,9 @@ export default function NotificationsDropdown() {
   };
 
   const handleNotificationClick = async (notification: Notification) => {
+    // ✅ Close dropdown when notification is clicked
+    if (onClick) onClick();
+
     // Mark as read
     await markAsRead(notification._id);
 
@@ -130,6 +137,15 @@ export default function NotificationsDropdown() {
     }
   };
 
+  // ✅ Handle "Mark all as read" with onClick
+  const handleMarkAllAsRead = async () => {
+    await markAllAsRead();
+    // ✅ Close dropdown after marking all as read
+    if (onClick) onClick();
+  };
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
   return (
     <div className="w-full">
       {/* Header with count */}
@@ -137,9 +153,9 @@ export default function NotificationsDropdown() {
         <div className="flex items-center gap-2">
           <Bell className="h-4 w-4 text-[var(--text-secondary)]" />
           <h3 className="text-sm font-semibold text-white">Notifications</h3>
-          {notifications.filter(n => !n.read).length > 0 && (
+          {unreadCount > 0 && (
             <span className="rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white">
-              {notifications.filter(n => !n.read).length}
+              {unreadCount}
             </span>
           )}
         </div>
@@ -230,12 +246,10 @@ export default function NotificationsDropdown() {
       </div>
 
       {/* Footer */}
-      {notifications.length > 0 && (
+      {notifications.length > 0 && unreadCount > 0 && (
         <div className="border-t border-[var(--border)] px-4 py-2 text-center">
           <button
-            onClick={() => {
-              notifications.forEach(n => markAsRead(n._id));
-            }}
+            onClick={handleMarkAllAsRead}
             className="text-xs text-[var(--text-muted)] transition-colors hover:text-[var(--primary)]"
           >
             Mark all as read

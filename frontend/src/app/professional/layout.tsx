@@ -2,7 +2,7 @@
 
 import { DashboardLayout } from "@/components/DashboardLayout";
 import Navbar from "@/components/navbar/Navbar";
-import { fresherNavItems } from "@/constants/navigation";
+import { professionalNavItems } from "@/constants/navigation";
 import type { CandidateRole } from "@/components/DashboardLayout";
 import { Toaster } from "react-hot-toast";
 import useGetSocketMessage from "@/hooks/useGetSocketMessage";
@@ -12,7 +12,7 @@ export default function ProfessionalLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const role: CandidateRole = "fresher";
+  const role: CandidateRole = "professional";
 
   // Start socket listener globally
   useGetSocketMessage();
@@ -21,7 +21,7 @@ export default function ProfessionalLayout({
     <>
       <Navbar />
 
-      <DashboardLayout navItems={fresherNavItems} role={role}>
+      <DashboardLayout navItems={professionalNavItems} role={role}>
         {children}
       </DashboardLayout>
 

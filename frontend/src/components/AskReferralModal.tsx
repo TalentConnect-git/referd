@@ -1,4 +1,3 @@
-// components/AskReferralModal.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -22,6 +21,8 @@ interface AskReferralModalProps {
     alumni: AlumniProfile[],
     companyName: string,
     careerPageUrl: string,
+    alumniFound: boolean,
+    totalAlumniFound: number,
   ) => void;
 }
 
@@ -83,14 +84,23 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
           response.data.data?.careerPageUrl ||
           response.data.data?.userJobUrl ||
           normalizedUrl;
+        
+        const alumniFound = Boolean(response.data.data?.alumniFound);
+        const totalAlumniFound =
+          Number(response.data.data?.totalAlumniFound) || alumniData.length;
 
-        onAlumniFound(alumniData, companyName, returnedUrl);
+        onAlumniFound(
+          alumniData,
+          companyName,
+          returnedUrl,
+          alumniFound,
+          totalAlumniFound,
+        );
         setCareerPageUrl("");
         setError("");
         onClose();
       } else {
-        const errorMessage = `No alumni or current employee found for ${response.data.data.companyName}`;
-
+        const errorMessage = response.data.message || "Failed to find alumni. Please try again.";
         setError(errorMessage);
       }
     } catch (err: any) {
@@ -200,7 +210,6 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
                 <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]">
                   Ashby
                 </span>
-                <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]"></span>
               </div>
             </div>
 
@@ -250,7 +259,7 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
             {/* Footer note */}
             <div className="pt-2 border-t border-[var(--border)]">
               <p className="text-xs text-[var(--text-muted)] text-center">
-                💡 We’ll match the URL to the company and show you alumni who
+                💡 We'll match the URL to the company and show you alumni who
                 can refer you.
               </p>
             </div>
