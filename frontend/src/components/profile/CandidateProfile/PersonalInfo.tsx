@@ -44,7 +44,8 @@ const getLanguages = (languages: unknown) => {
 };
 
 export default function PersonalInformation({ profile }: PersonalInfoProps) {
-  const personalInfo = [
+  // Left column items (3 items)
+  const leftColumnItems = [
     {
       label: "ETHNICITY",
       value: getValue(profile.ethnicity),
@@ -57,6 +58,10 @@ export default function PersonalInformation({ profile }: PersonalInfoProps) {
       label: "GENDER",
       value: getValue(profile.gender),
     },
+  ];
+
+  // Right column items (3 items)
+  const rightColumnItems = [
     {
       label: "DATE OF BIRTH",
       value: formatDate(profile.dob),
@@ -85,18 +90,36 @@ export default function PersonalInformation({ profile }: PersonalInfoProps) {
 
       <div className="mt-[18px] border-t border-white/10" />
 
-      <div className="mt-[17px] grid grid-cols-1 gap-x-10 gap-y-[18px] sm:grid-cols-2 lg:grid-cols-4">
-        {personalInfo.map((item) => (
-          <div key={item.label} className="min-w-0">
-            <p className="text-[9px] font-normal uppercase tracking-[0.08em] text-[#7891c7]">
-              {item.label}
-            </p>
+      <div className="mt-[17px] grid grid-cols-1 gap-x-10 gap-y-[18px] sm:grid-cols-2">
+        {/* Left Column */}
+        <div className="space-y-[18px]">
+          {leftColumnItems.map((item) => (
+            <div key={item.label} className="min-w-0">
+              <p className="text-[9px] font-normal uppercase tracking-[0.08em] text-[#7891c7]">
+                {item.label}
+              </p>
 
-            <p className="mt-1 truncate text-[12px] font-medium leading-5 text-white">
-              {item.value}
-            </p>
-          </div>
-        ))}
+              <p className="mt-1 truncate text-[12px] font-medium leading-5 text-white">
+                {item.value}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Right Column */}
+        <div className="space-y-[18px]">
+          {rightColumnItems.map((item) => (
+            <div key={item.label} className="min-w-0">
+              <p className="text-[9px] font-normal uppercase tracking-[0.08em] text-[#7891c7]">
+                {item.label}
+              </p>
+
+              <p className="mt-1 truncate text-[12px] font-medium leading-5 text-white">
+                {item.value}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

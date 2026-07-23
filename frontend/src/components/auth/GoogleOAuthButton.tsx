@@ -36,6 +36,8 @@ export default function GoogleOAuthButton({ userType }: GoogleOAuthButtonProps) 
           return;
         }
 
+        localStorage.setItem("selectedRole", userType || "student");
+
         login(data.user, data.token);
         toast.success("Login successful!");
 

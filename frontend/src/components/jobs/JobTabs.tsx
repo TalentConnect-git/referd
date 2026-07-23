@@ -41,6 +41,18 @@ export default function JobTabs() {
         >
           Referral
         </Link>
+
+
+        <Link
+          href={`/${role}/jobs/internships`}
+          className={`pb-2 text-sm font-medium transition-colors ${
+            pathname.includes("internships")
+              ? "border-b-2 border-green-500 text-green-500"
+              : "text-gray-400 hover:text-white"
+          }`}
+        >
+          Internship
+        </Link>
       </div>
 
       {/* Right Button */}

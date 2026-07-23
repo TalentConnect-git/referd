@@ -11,9 +11,11 @@ import logo from "@/assets/icon.png";
 import { useNotification } from "@/context/NotificationContext";
 import { getInterviews } from "@/services/navbar.service";
 import { Interview } from "@/types/navbar";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const { profile, user } = useAuth();
+  const router = useRouter();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [upcomingInterviews, setUpcomingInterviews] = useState<Interview[]>([]);
@@ -21,8 +23,12 @@ export default function Navbar() {
   const notificationRef = useRef<HTMLDivElement>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
 
-  const { totalUnread } = useGetAllUsers();
-  const { unreadCount: notificationUnreadCount } = useNotification();
+  const { totalUnread, clearUnreadCount } = useGetAllUsers();
+  const { 
+    unreadCount: notificationUnreadCount, 
+    markAllAsRead,
+    clearUnreadCount: clearNotificationUnread // ✅ Get the clear function
+  } = useNotification();
 
   const displayName =
     profile?.fullName || profile?.name || user?.name || "User";
@@ -43,7 +49,6 @@ export default function Navbar() {
     const fetchInterviews = async () => {
       try {
         const res = await getInterviews();
-        // Filter only scheduled interviews
         const scheduled = res.data.filter(
           (interview: Interview) => interview.status === "Scheduled"
         );
@@ -100,6 +105,27 @@ export default function Navbar() {
 
   const interviewCount = upcomingInterviews.length;
 
+  // ✅ Handle message click - clear message unread
+  const handleMessageClick = () => {
+    
+    router.push(`/${userType}/message`);
+  };
+
+  // ✅ Handle notification bell click
+  const handleNotificationClick = () => {
+    // If there are unread notifications, mark all as read
+    if (notificationUnreadCount > 0) {
+      markAllAsRead(); // This will update the unreadCount in context
+    }
+    setShowNotifications((prev) => !prev);
+  };
+
+  // ✅ Listen for notification updates to keep badge in sync
+  useEffect(() => {
+    // The unreadCount from useNotification will automatically update
+    // when markAllAsRead or markAsRead is called
+  }, [notificationUnreadCount]);
+
   return (
     <header
       className="
@@ -152,7 +178,6 @@ export default function Navbar() {
           >
             <CalendarDays size={15} className="text-[var(--text-secondary)]" />
             
-            {/* ✅ INTERVIEW BADGE - DISPLAYS HERE */}
             {interviewCount > 0 && (
               <span
                 className="
@@ -201,10 +226,10 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Notifications */}
+        {/* ✅ Notifications */}
         <div className="relative" ref={notificationRef}>
           <button
-            onClick={() => setShowNotifications((prev) => !prev)}
+            onClick={handleNotificationClick}
             className="
               relative
               flex
@@ -220,7 +245,7 @@ export default function Navbar() {
           >
             <Bell size={15} className="text-[var(--text-secondary)]" />
             
-            {/* Notification Badge - Dot */}
+            {/* ✅ Notification badge - shows unread count */}
             {notificationUnreadCount > 0 && (
               <span
                 className="
@@ -228,29 +253,34 @@ export default function Navbar() {
                   -top-0.5
                   -right-0.5
                   flex
-                  h-2.5
-                  w-2.5
+                  h-4
+                  min-w-[16px]
+                  items-center
+                  justify-center
                   rounded-full
                   bg-red-500
-                  border-2
-                  border-[var(--background)]
+                  px-1
+                  text-[9px]
+                  font-bold
+                  text-white
                   shadow-lg
                   shadow-red-500/30
                   animate-pulse-dot
                 "
-              />
+              >
+                {notificationUnreadCount > 99 ? "99+" : notificationUnreadCount}
+              </span>
             )}
           </button>
 
           {showNotifications && (
             <div
-              style={{ width: "280px", maxHeight: "300px" }}
+              style={{ width: "380px", maxHeight: "500px" }}
               className="
                 absolute
                 right-0
                 top-[calc(100%+10px)]
                 z-50
-                max-h-[600px]
                 overflow-y-auto
                 rounded-lg
                 border
@@ -266,8 +296,8 @@ export default function Navbar() {
 
         {/* Messages */}
         <div className="relative">
-          <Link
-            href={`/${userType}/message`}
+          <button
+            onClick={handleMessageClick}
             className="
               relative
               flex
@@ -279,6 +309,7 @@ export default function Navbar() {
               bg-[var(--card-bg)]
               hover:bg-[var(--primary-hover)]
               transition-colors
+              cursor-pointer
             "
           >
             <MessageCircle size={15} className="text-[var(--text-secondary)]" />
@@ -308,7 +339,7 @@ export default function Navbar() {
                 {totalUnread > 99 ? "99+" : totalUnread}
               </span>
             )}
-          </Link>
+          </button>
         </div>
 
         {/* Profile */}

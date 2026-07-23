@@ -50,7 +50,7 @@ export const professionalNavItems: DashboardNavItem[] = [
 // Student Navigation Items
 export const studentNavItems: DashboardNavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
-  { to: "/internships", label: "Internships", icon: "briefcase" },
+  // { to: "/internships", label: "Internships", icon: "briefcase" },
   { to: "/jobs", label: "Jobs", icon: "building" },
   { to: "/applications", label: "Applications", icon: "file" },
   { to: "/saved-jobs", label: "Saved Jobs", icon: "bookmark" },
@@ -64,7 +64,7 @@ export const studentNavItems: DashboardNavItem[] = [
 // Fresher Navigation Items
 export const fresherNavItems: DashboardNavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: "dashboard" },
-  { to: "/internships", label: "Internships", icon: "briefcase" },
+  // { to: "/internships", label: "Internships", icon: "briefcase" },
   { to: "/jobs", label: "Jobs", icon: "building" },
   { to: "/applications", label: "Applications", icon: "file" },
   { to: "/saved-jobs", label: "Saved Jobs", icon: "bookmark" },

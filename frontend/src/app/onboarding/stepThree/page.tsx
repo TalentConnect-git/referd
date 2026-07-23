@@ -41,15 +41,20 @@ type EducationFormData = {
 type EducationPayload = {
   college: string;
   degree: string;
-  specialization: string;
+  specialization?: string;
   semester?: string;
-  cgpa: string;
-  yearOfGraduation: string;
-  degreeCertificate: string;
+  cgpa?: string;
+  yearOfGraduation?: string;
+  degreeCertificate?: string;
   startDate?: string;
-  endDate: string;
+  endDate?: string;
   isCurrent: boolean;
 };
+
+type ToastState = {
+  type: "success" | "error";
+  message: string;
+} | null;
 
 type ParsedResume = {
   education?: {
@@ -80,6 +85,25 @@ const emptyEducation: EducationFormData = {
   isCurrent: false,
 };
 
+function cleanText(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function hasMeaningfulEducationData(item: EducationFormData): boolean {
+  return Boolean(
+    cleanText(item.college) ||
+      cleanText(item.degree) ||
+      cleanText(item.specialization) ||
+      cleanText(item.semester) ||
+      cleanText(item.cgpa) ||
+      cleanText(item.yearOfGraduation) ||
+      item.degreeCertificate ||
+      cleanText(item.startDate) ||
+      cleanText(item.endDate) ||
+      item.isCurrent,
+  );
+}
+
 export default function EducationForm() {
   const router = useRouter();
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -103,15 +127,28 @@ export default function EducationForm() {
   const [loadingStreams, setLoadingStreams] = useState<Record<number, boolean>>(
     {}
   );
+  const [toast, setToast] = useState<ToastState>(null);
 
   const yearOptions = useMemo(() => {
     const currentYear = new Date().getFullYear();
     return Array.from({ length: 76 }, (_, i) => currentYear + 5 - i);
   }, []);
 
-  // ✅ Show semester for student and fresher roles
-  const showSemesterField = selectedRole === "student" || selectedRole === "fresher";
-  const showStartDate = selectedRole === "student" || selectedRole === "fresher";
+  const showSemesterField =
+    selectedRole === "student" || selectedRole === "fresher";
+  const showCgpaField = selectedRole !== "professional";
+  const showStartDate =
+    selectedRole === "student" || selectedRole === "fresher";
+
+  const showToast = (type: "success" | "error", message: string) => {
+    setToast({ type, message });
+
+    window.setTimeout(() => {
+      setToast((current) =>
+        current?.type === type && current.message === message ? null : current,
+      );
+    }, 3500);
+  };
 
   const updateEducation = (
     index: number,
@@ -316,7 +353,7 @@ export default function EducationForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.message || "Could not register college");
+        showToast("error", data.message || "Could not register college");
         return;
       }
 
@@ -327,14 +364,17 @@ export default function EducationForm() {
 
       setCollegeOptions((prev) => [...prev, newCollege]);
       updateEducation(index, "college", newCollege.label);
+      
+      showToast("success", "College added successfully");
     } catch (error) {
       console.error("College create error:", error);
+      showToast("error", "Failed to create college");
     } finally {
       setLoadingColleges(false);
     }
   };
 
-  // ✅ Create master data (DEGREE or STREAM)
+  // ✅ Create master data (DEGREE or STREAM) using /api/master-data POST
   const createMasterData = async (
     type: "DEGREE" | "STREAM",
     value: string,
@@ -364,7 +404,7 @@ export default function EducationForm() {
     return data.data || data;
   };
 
-  // ✅ Handle degree creation
+  // ✅ Handle degree creation using master data API
   const handleDegreeCreate = async (index: number, value: string) => {
     try {
       const created = await createMasterData("DEGREE", value);
@@ -381,18 +421,21 @@ export default function EducationForm() {
       updateEducation(index, "specialization", "");
 
       await fetchStreams(index, newOption.value);
+      
+      showToast("success", "Degree added successfully");
     } catch (error) {
       console.error("Degree create error:", error);
+      showToast("error", "Failed to create degree");
     }
   };
 
-  // ✅ Handle stream creation
+  // ✅ Handle stream creation using master data API
   const handleStreamCreate = async (index: number, value: string) => {
     try {
       const degreeId = selectedDegreeIds[index];
 
       if (!degreeId) {
-        alert("Please select degree first");
+        showToast("error", "Please select a degree first");
         return;
       }
 
@@ -409,8 +452,11 @@ export default function EducationForm() {
       }));
 
       updateEducation(index, "specialization", newOption.label);
+      
+      showToast("success", "Specialization added successfully");
     } catch (error) {
       console.error("Stream create error:", error);
+      showToast("error", "Failed to create specialization");
     }
   };
 
@@ -425,36 +471,101 @@ export default function EducationForm() {
   };
 
   const handleNext = () => {
-    const educationPayload: EducationPayload[] = educationList.map((item) => {
-      // ✅ Only include semester if user is student/fresher AND isCurrent is true
-      const shouldIncludeSemester = showSemesterField && item.isCurrent;
-      const shouldIncludeStartDate = showStartDate;
+    const enteredEducation = educationList.filter(hasMeaningfulEducationData);
 
-      return {
-        college: item.college,
-        degree: item.degree,
-        specialization: item.specialization,
-        ...(shouldIncludeSemester && item.semester
-          ? { semester: item.semester }
-          : {}),
-        cgpa: item.cgpa,
-        yearOfGraduation: item.yearOfGraduation,
-        degreeCertificate: item.degreeCertificate?.name || "",
-        ...(shouldIncludeStartDate && item.startDate
-          ? { startDate: item.startDate }
-          : {}),
-        endDate: item.isCurrent ? "" : item.endDate,
-        isCurrent: item.isCurrent,
+    for (let index = 0; index < enteredEducation.length; index += 1) {
+      const item = enteredEducation[index];
+      const college = cleanText(item.college);
+      const degree = cleanText(item.degree);
+
+      if (!college && !degree) {
+        showToast(
+          "error",
+          `Education ${index + 1}: college name and degree are required.`,
+        );
+        return;
+      }
+
+      if (!college) {
+        showToast(
+          "error",
+          `Education ${index + 1}: college name is required.`,
+        );
+        return;
+      }
+
+      if (!degree) {
+        showToast(
+          "error",
+          `Education ${index + 1}: degree is required.`,
+        );
+        return;
+      }
+    }
+
+    const educationPayload: EducationPayload[] = enteredEducation.map((item) => {
+      const payload: EducationPayload = {
+        college: cleanText(item.college),
+        degree: cleanText(item.degree),
+        isCurrent: Boolean(item.isCurrent),
       };
+
+      const specialization = cleanText(item.specialization);
+      const semester = cleanText(item.semester);
+      const cgpa = cleanText(item.cgpa);
+      const graduationYear = cleanText(item.yearOfGraduation);
+      const startDate = cleanText(item.startDate);
+      const endDate = cleanText(item.endDate);
+      const certificateName = item.degreeCertificate?.name || "";
+
+      if (specialization) payload.specialization = specialization;
+
+      if (showSemesterField && item.isCurrent && semester) {
+        payload.semester = semester;
+      }
+
+      if (showCgpaField && cgpa) {
+        payload.cgpa = cgpa;
+      }
+
+      if (graduationYear) {
+        payload.yearOfGraduation = graduationYear;
+      }
+
+      if (certificateName) {
+        payload.degreeCertificate = certificateName;
+      }
+
+      if (showStartDate && startDate) {
+        payload.startDate = startDate;
+      }
+
+      if (!item.isCurrent && endDate) {
+        payload.endDate = endDate;
+      }
+
+      return payload;
     });
 
     localStorage.setItem("educationInfo", JSON.stringify(educationPayload));
-
     router.push("/onboarding/stepFour");
   };
 
   return (
     <div className="min-h-screen bg-black px-5 py-8 text-white">
+      {toast ? (
+        <div
+          role="alert"
+          aria-live="assertive"
+          className={`fixed right-4 top-4 z-[100] max-w-sm rounded-xl border px-4 py-3 text-sm font-medium shadow-2xl backdrop-blur ${
+            toast.type === "success"
+              ? "border-emerald-500/40 bg-emerald-950/95 text-emerald-200"
+              : "border-red-500/40 bg-red-950/95 text-red-200"
+          }`}
+        >
+          {toast.message}
+        </div>
+      ) : null}
       <div className="mx-auto flex min-h-[calc(100vh-64px)] max-w-3xl items-center justify-center">
         <div className="w-full rounded-3xl border border-[var(--border)] bg-[var(--background)] p-7 shadow-2xl lg:p-10">
           <div className="mb-8 text-center">
@@ -473,9 +584,7 @@ export default function EducationForm() {
 
           <div className="space-y-6">
             {educationList.map((education, index) => {
-              // ✅ Only show semester if user is student/fresher AND isCurrent is true
               const showSemester = showSemesterField && education.isCurrent;
-              const showStartDateField = showStartDate;
 
               return (
                 <div
@@ -500,8 +609,6 @@ export default function EducationForm() {
                   </div>
 
                   <div className="space-y-5">
-                    {/* ✅ REMOVED: Education Type dropdown */}
-
                     {/* College / University / School */}
                     <div>
                       <label className="mb-2 block text-[13px] font-medium text-white">
@@ -624,7 +731,6 @@ export default function EducationForm() {
                     </div>
 
                     <div className="grid gap-5 md:grid-cols-2">
-                      {/* ✅ Semester - Only show when isCurrent is true for student/fresher */}
                       {showSemester && (
                         <div>
                           <label className="mb-2 block text-[13px] font-medium text-white">
@@ -649,26 +755,26 @@ export default function EducationForm() {
                         </div>
                       )}
 
-                      {/* CGPA / Percentage */}
-                      <div>
-                        <label className="mb-2 block text-[13px] font-medium text-white">
-                          CGPA / Percentage
-                        </label>
+                      {showCgpaField ? (
+                        <div>
+                          <label className="mb-2 block text-[13px] font-medium text-white">
+                            CGPA / Percentage
+                          </label>
 
-                        <input
-                          value={education.cgpa}
-                          onChange={(e) =>
-                            updateEducation(index, "cgpa", e.target.value)
-                          }
-                          placeholder="e.g. 8.5 or 85%"
-                          className="h-11 w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 text-[13px] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15"
-                        />
-                      </div>
+                          <input
+                            value={education.cgpa}
+                            onChange={(e) =>
+                              updateEducation(index, "cgpa", e.target.value)
+                            }
+                            placeholder="e.g. 8.5 or 85%"
+                            className="h-11 w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 text-[13px] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15"
+                          />
+                        </div>
+                      ) : null}
                     </div>
 
                     <div className="grid gap-5 md:grid-cols-2">
-                      {/* Start Date - Only for student/fresher */}
-                      {showStartDateField && (
+                      {showStartDate && (
                         <div>
                           <label className="mb-2 block text-[13px] font-medium text-white">
                             Start Date
@@ -703,7 +809,7 @@ export default function EducationForm() {
                       </div>
                     </div>
 
-                    {/* ✅ Currently studying checkbox */}
+                    {/* Currently studying checkbox */}
                     <label className="flex items-center gap-3 text-[13px] text-[var(--text-primary)]">
                       <input
                         type="checkbox"
@@ -717,7 +823,6 @@ export default function EducationForm() {
                       I am currently studying here
                     </label>
 
-                    {/* ✅ Show semester info when checked */}
                     {showSemesterField && education.isCurrent && !education.semester && (
                       <p className="text-xs text-yellow-400 flex items-center gap-1.5">
                         <Clock className="h-3 w-3" />

@@ -9,7 +9,7 @@ export default function AlumniDetailPage() {
   const params = useParams();
   
   const alumniId = params.alumniId as string;
-  console.log("GUNIK ",alumniId);
+  
   const [alumni, setAlumni] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -22,7 +22,7 @@ export default function AlumniDetailPage() {
       const response =
         await getAlumniDetails(alumniId);
 
-      console.log("Alumni Details", response);
+      
 
       setAlumni(response.data);
     } catch (error) {
