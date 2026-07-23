@@ -52,7 +52,7 @@ export type Experience = {
   location?: string;
   company_canonical_id?: string;
   company_display?: string;
-  company_master_id?: string;
+  // company_master_id?: string;
   companyEmail?:string;
   experienceCertificate?:string;
 };

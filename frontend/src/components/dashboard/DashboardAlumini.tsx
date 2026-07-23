@@ -39,9 +39,12 @@ export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
 
   console.log("Alumni list is ", alumni);
 
-  // Get only the first 3 alumni for display
-  const displayedAlumni = alumni.slice(0, 3);
-  const hasMore = alumni.length > 3;
+  const uniqueAlumni = Array.from(
+    new Map(alumni.map((item) => [item._id, item])).values(),
+  );
+
+  const displayedAlumni = uniqueAlumni.slice(0, 3);
+  const hasMore = uniqueAlumni.length > 3;
 
   if (loading) {
     return (
@@ -71,11 +74,10 @@ export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-[#0f172a]/50">
         <div className="flex items-center gap-2.5">
-
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/10 border border-blue-500/20">
             <UserCheck className="h-3.5 w-3.5 text-blue-400" />
           </div>
-          
+
           <div>
             <h2 className="text-[13px] font-semibold text-white">
               Alumni Hiring Network
@@ -89,7 +91,9 @@ export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
         {hasMore && (
           <Link
             href={`${
-              userType === "student" || userType === "fresher" ? "/student" : "/professional"
+              userType === "student" || userType === "fresher"
+                ? "/student"
+                : "/professional"
             }/alumani-network`}
             className="group inline-flex items-center gap-1 text-[11px] font-medium text-gray-400 hover:text-white transition-colors duration-200"
           >
@@ -121,10 +125,10 @@ export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
               profileImage={person.profileImage}
               college={person.colleges?.[0] || "College"}
               userId={person.userId}
-              openRoles={
-                person.referralMetrics?.totalReferralsPosted || 0
+              openRoles={person.referralMetrics?.totalReferralsPosted || 0}
+              onClick={() =>
+                router.push(`/${userType}/profile/${person.userId}`)
               }
-              onClick={() => router.push(`/${userType}/profile/${person.userId}`)}
             />
           ))
         )}
@@ -135,7 +139,9 @@ export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
         <div className="px-4 py-2.5 border-t border-slate-800 bg-slate-800/10">
           <Link
             href={`${
-              userType === "student" || userType === "fresher" ? "/student" : "/professional"
+              userType === "student" || userType === "fresher"
+                ? "/student"
+                : "/professional"
             }/alumani-network`}
             className="w-full inline-flex items-center justify-center gap-2 text-[11px] font-medium text-gray-400 hover:text-pink-400 transition-colors duration-200 group"
           >

@@ -105,17 +105,16 @@ export default function SkillsCard({ profile }: SkillsCardProps) {
       <div className="mt-[18px] border-t border-white/10" />
 
       <div className="mt-[17px] grid grid-cols-1 gap-x-14 gap-y-6 lg:grid-cols-2">
+        {/* Left Column */}
         <div className="space-y-[18px]">
           <SkillSection title="TECHNICAL SKILLS" items={technicalSkills} />
-
-          <SkillSection title="DOMAIN KNOWLEDGE" items={domainKnowledge} />
-
           <SkillSection title="INDUSTRIES" items={industries} />
+          {/* <SkillSection title="LANGUAGES" items={languages} /> */}
         </div>
 
+        {/* Right Column */}
         <div className="space-y-[18px]">
-          
-
+          <SkillSection title="DOMAIN KNOWLEDGE" items={domainKnowledge} />
           <SkillSection title="TOOLS & PLATFORMS" items={toolsAndPlatforms} />
         </div>
       </div>

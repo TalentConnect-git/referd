@@ -54,9 +54,13 @@ type StoredExperienceStep = {
   companyEmail: string;
   noticePeriod: string;
   currentCompany: string;
-  currentCompany_display: string;
   lastUpdated: string;
 };
+
+type ToastState = {
+  type: "success" | "error";
+  message: string;
+} | null;
 
 const generateId = (): string => {
   if (typeof crypto !== "undefined" && crypto.randomUUID) {
@@ -71,7 +75,7 @@ const createEmptyExperience = (): Experience => ({
   company: "",
   company_canonical_id: "",
   company_display: "",
-  company_master_id: "",
+  // company_master_id: "",
   role: "",
   startDate: "",
   endDate: "",
@@ -79,6 +83,26 @@ const createEmptyExperience = (): Experience => ({
   experienceCertificate: "",
   isCurrent: false,
 });
+
+function cleanText(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function hasMeaningfulExperienceData(experience: Experience): boolean {
+  const description = Array.isArray(experience.description)
+    ? experience.description.join("\n").trim()
+    : cleanText(experience.description);
+
+  return Boolean(
+    cleanText(experience.company) ||
+      cleanText(experience.role) ||
+      cleanText(experience.startDate) ||
+      cleanText(experience.endDate) ||
+      description ||
+      cleanText(experience.experienceCertificate) ||
+      experience.isCurrent === true,
+  );
+}
 
 function safeJsonParse<T>(value: string | null, fallback: T): T {
   if (!value) return fallback;
@@ -514,6 +538,17 @@ export default function StepFivePage() {
   const [noticePeriod, setNoticePeriod] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<ToastState>(null);
+
+  const showToast = (type: "success" | "error", message: string) => {
+    setToast({ type, message });
+
+    window.setTimeout(() => {
+      setToast((current) =>
+        current?.type === type && current.message === message ? null : current,
+      );
+    }, 3500);
+  };
 
   useEffect(() => {
     const storedStep = safeJsonParse<Partial<StoredExperienceStep>>(
@@ -611,32 +646,58 @@ export default function StepFivePage() {
 
   const getCleanedExperiences = (): Experience[] => {
     return experiences
-      .filter(
-        (experience) =>
-          Boolean(experience.company?.trim()) ||
-          Boolean(experience.role?.trim()) ||
-          Boolean(experience.startDate),
-      )
+      .filter(hasMeaningfulExperienceData)
       .map((experience) => {
-        const { _id: _temporaryId, ...rest } = experience;
+        const rawExperience = experience as Experience &
+          Record<string, unknown>;
+
+        const {
+          _id: _temporaryId,
+          company_canonical_id: _companyCanonicalId,
+          company_display: _companyDisplay,
+          company_master_id: _companyMasterId,
+          canonicalId: _canonicalId,
+          displayName: _displayName,
+          masterId: _masterId,
+          ...allowedFields
+        } = rawExperience;
 
         return {
-          ...rest,
-          company: rest.company?.trim() || "",
-          company_display:
-            rest.company_display?.trim() ||
-            rest.company?.trim() ||
-            "",
-          role: rest.role?.trim() || "",
-          startDate: rest.startDate || "",
-          endDate: rest.isCurrent ? "" : rest.endDate || "",
-          description: Array.isArray(rest.description)
-            ? rest.description.join("\n")
-            : rest.description || "",
-          experienceCertificate: rest.experienceCertificate || "",
-          isCurrent: Boolean(rest.isCurrent),
+          company: cleanText(allowedFields.company),
+          role: cleanText(allowedFields.role),
+          startDate: cleanText(allowedFields.startDate),
+          endDate:
+            allowedFields.isCurrent === true
+              ? ""
+              : cleanText(allowedFields.endDate),
+          description: Array.isArray(allowedFields.description)
+            ? allowedFields.description.join("").trim()
+            : cleanText(allowedFields.description),
+          experienceCertificate: cleanText(
+            allowedFields.experienceCertificate,
+          ),
+          isCurrent: allowedFields.isCurrent === true,
         } as Experience;
       });
+  };
+
+  const validateExperiences = (): string | null => {
+    const enteredExperiences = experiences.filter(hasMeaningfulExperienceData);
+
+    for (let index = 0; index < enteredExperiences.length; index += 1) {
+      const experience = enteredExperiences[index];
+      const companyName = cleanText(experience.company);
+
+      if (!companyName) {
+        if (experience.isCurrent === true) {
+          return `Experience ${index + 1}: please enter the company name before saving Currently Working.`;
+        }
+
+        return `Experience ${index + 1}: company name is required.`;
+      }
+    }
+
+    return null;
   };
 
   const persistExperienceStep = (
@@ -658,11 +719,7 @@ export default function StepFivePage() {
       experiences: cleanedExperiences,
       companyEmail: normalizedEmail,
       noticePeriod: normalizedNoticePeriod,
-      currentCompany: currentExperience?.company?.trim() || "",
-      currentCompany_display:
-        currentExperience?.company_display?.trim() ||
-        currentExperience?.company?.trim() ||
-        "",
+      currentCompany: cleanText(currentExperience?.company),
       lastUpdated: new Date().toISOString(),
     };
 
@@ -682,6 +739,14 @@ export default function StepFivePage() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    const validationError = validateExperiences();
+
+    if (validationError) {
+      setError(validationError);
+      showToast("error", validationError);
+      return;
+    }
+
     try {
       setError(null);
       setIsLoading(true);
@@ -695,7 +760,9 @@ export default function StepFivePage() {
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!emailPattern.test(companyEmail.trim())) {
-          setError("Please enter a valid official company email.");
+          const message = "Please enter a valid official company email.";
+          setError(message);
+          showToast("error", message);
           return;
         }
       }
@@ -705,7 +772,9 @@ export default function StepFivePage() {
       router.push("/onboarding/stepSix");
     } catch (submissionError) {
       console.error("Error saving signup experience data:", submissionError);
-      setError("Failed to save experience details. Please try again.");
+      const message = "Failed to save experience details. Please try again.";
+      setError(message);
+      showToast("error", message);
     } finally {
       setIsLoading(false);
     }
@@ -714,11 +783,7 @@ export default function StepFivePage() {
   const handleBack = () => {
     const cleanedExperiences = getCleanedExperiences();
 
-    persistExperienceStep(
-      cleanedExperiences.length > 0
-        ? cleanedExperiences
-        : experiences,
-    );
+    persistExperienceStep(cleanedExperiences);
 
     router.push("/onboarding/stepFour");
   };
@@ -732,6 +797,19 @@ export default function StepFivePage() {
       onSubmit={handleSubmit}
       className="mx-auto max-w-4xl space-y-6 p-6"
     >
+      {toast ? (
+        <div
+          role="alert"
+          aria-live="assertive"
+          className={`fixed right-4 top-4 z-[100] max-w-sm rounded-xl border px-4 py-3 text-sm font-medium shadow-2xl backdrop-blur ${
+            toast.type === "success"
+              ? "border-emerald-500/40 bg-emerald-950/95 text-emerald-200"
+              : "border-red-500/40 bg-red-950/95 text-red-200"
+          }`}
+        >
+          {toast.message}
+        </div>
+      ) : null}
       <div className="mb-6 flex items-center gap-3">
         <div className="rounded-xl border border-green-500/20 bg-green-500/10 p-2">
           <Briefcase className="h-5 w-5 text-green-400" />

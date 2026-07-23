@@ -11,7 +11,8 @@ import {
   User,
   BadgeCheck,
   FileText,
-  ExternalLink,
+  UserCheck,
+  UserX,
 } from "lucide-react";
 import defaultUser from "@/../public/images/default-user.png";
 import { useAuth } from "@/context/AuthContext";
@@ -65,6 +66,9 @@ export default function AlumniDetailHeader({
     profile.educations?.[0]?.college ||
     "College not available";
 
+  const openJobs = profile.referralJobs?.length || 0;
+  const isHiring = profile.isHiring || false;
+
   const handleOpenResume = () => {
     if (profile?.resume) {
       setIsResumeModalOpen(true);
@@ -80,6 +84,7 @@ export default function AlumniDetailHeader({
   return (
     <>
       <div className="rounded-2xl border border-[#2a3a52] bg-gradient-to-r from-[#111827] to-[#1a2332] p-4 shadow-xl shadow-black/20 backdrop-blur-sm">
+        {/* Profile Section */}
         <div className="flex items-start gap-4">
           {/* Profile Image */}
           <Image
@@ -137,11 +142,37 @@ export default function AlumniDetailHeader({
                       {profile.totalYearsOfExperience || 0} years experience
                     </span>
                   </div>
+
+                  {/* Open Jobs - Displayed below experience */}
+                  <div className="flex items-center gap-2">
+                    <Briefcase
+                      size={14}
+                      className="text-green-400 flex-shrink-0"
+                    />
+                    <span className="text-xs text-slate-300">
+                      {openJobs} open job{openJobs !== 1 ? 's' : ''}
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* Social Links - Top Right */}
+              {/* Status Badge - Top Right Corner */}
               <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                {/* Status Badge */}
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[10px] font-semibold uppercase tracking-wide ${
+                  isHiring 
+                    ? "border-green-500/30 bg-green-500/10 text-green-400" 
+                    : "border-gray-500/30 bg-gray-500/10 text-gray-400"
+                }`}>
+                  {isHiring ? (
+                    <UserCheck size={12} className="text-green-400" />
+                  ) : (
+                    <UserX size={12} className="text-gray-400" />
+                  )}
+                  {isHiring ? "Hiring" : "Not Hiring"}
+                </div>
+
+                {/* Social Links */}
                 <div className="flex items-center gap-1.5">
                   {/* Resume */}
                   {profile?.resume && (

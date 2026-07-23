@@ -71,7 +71,7 @@ const emptyExperience: Experience = {
   company: "",
   company_canonical_id: "",
   company_display: "",
-  company_master_id: "",
+  // company_master_id: "",
   role: "",
   startDate: "",
   endDate: "",
@@ -281,55 +281,379 @@ function profileToForm(profile: ProfileData): EditForm {
   };
 }
 
-function buildPayload(form: EditForm) {
-  return {
-    name: form.name || form.fullName,
-    fullName: form.fullName || form.name,
-    email: form.email,
-    phone: form.phone,
-    about: form.about,
-    visaStatus: form.visaStatus || "",
-    gender: form.gender,
-    dob: form.dob,
-    ethnicity: form.ethnicity,
-    maritalStatus: form.maritalStatus,
-    linkedin: form.linkedin,
-    github: form.github,
-    portfolio: form.portfolio,
-    profileImage: form.profileImage,
-    resume: form.resume,
-    educations: form.educations,
-    // education: form.educations,
-    experiences: form.experiences,
-    // experience: form.experiences,
-    internationalExperience: form.internationalExperience,
-    leadership: form.leadership,
-    achievements: form.achievements,
-    awards: form.award,
-    publications: form.publications,
-    skills: form.skills,
-    toolsAndPlatforms: form.toolsAndPlatforms,
-    languagesKnown: form.languagesKnown,
-    domainKnowledge: form.domainKnowledge,
-    jobRoles: form.jobRoles,
-    locations: form.locations,
-    employmentType: form.employmentType,
-    lookingFor: form.lookingFor,
-    industry: form.industry,
-    currentCompany: form.currentCompany,
-    currentCompany_display: form.currentCompany_display,
-    companyEmail: form.companyEmail?.trim().toLowerCase() || "",
-    totalYearsOfExperience: form.totalYearsOfExperience || "",
-    noticePeriod: form.noticePeriod?.trim() || "",
-    noticePeriodStartDate: form.noticePeriodStartDate || "",
-    servingNoticePeriod: Boolean(form.servingNoticePeriod),
-    openToShift: form.openToShift || "",
-    shiftPreferences: form.shiftPreferences,
-    currentSalaryCurrency: form.currentSalaryCurrency || "₹",
-    currentSalaryAmount: form.currentSalaryAmount || "",
-    expectedSalaryCurrency: form.expectedSalaryCurrency || "₹",
-    expectedSalaryAmount: form.expectedSalaryAmount || "",
-  };
+type PayloadRecord = Record<string, unknown>;
+
+type ToastState = {
+  type: "success" | "error";
+  message: string;
+} | null;
+
+function cleanText(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function hasMeaningfulValue(value: unknown): boolean {
+  if (typeof value === "string") return value.trim().length > 0;
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return true;
+  if (Array.isArray(value)) return value.some(hasMeaningfulValue);
+
+  if (value && typeof value === "object") {
+    return Object.values(value as Record<string, unknown>).some(
+      hasMeaningfulValue,
+    );
+  }
+
+  return false;
+}
+
+function hasMeaningfulRow(
+  row: Record<string, unknown>,
+  ignoredKeys: string[] = ["_id", "__v"],
+): boolean {
+  return Object.entries(row).some(
+    ([key, value]) => !ignoredKeys.includes(key) && hasMeaningfulValue(value),
+  );
+}
+
+function cleanStringArray(values: unknown): string[] {
+  if (!Array.isArray(values)) return [];
+
+  return Array.from(
+    new Set(
+      values
+        .map((value) => cleanText(value))
+        .filter((value) => value.length > 0),
+    ),
+  );
+}
+
+function cleanObjectArray<T extends Record<string, unknown>>(
+  values: T[] | undefined,
+): T[] {
+  if (!Array.isArray(values)) return [];
+
+  return values
+    .filter((item) => item && typeof item === "object")
+    .filter((item) => hasMeaningfulRow(item))
+    .map((item) => {
+      const cleaned = { ...item };
+
+      Object.entries(cleaned).forEach(([key, value]) => {
+        if (typeof value === "string") {
+          (cleaned as Record<string, unknown>)[key] = value.trim();
+        }
+      });
+
+      return cleaned;
+    });
+}
+
+function getEnteredEducationRows(
+  educations: Education[],
+): Record<string, unknown>[] {
+  if (!Array.isArray(educations)) return [];
+
+  return (educations as unknown as Record<string, unknown>[]).filter((item) =>
+    hasMeaningfulRow(item, ["_id", "__v", "educationType", "isCurrent"]),
+  );
+}
+
+function cleanEducations(educations: Education[]): Education[] {
+  return getEnteredEducationRows(educations)
+    .filter(
+      (item) => cleanText(item.college).length > 0 && cleanText(item.degree).length > 0,
+    )
+    .map((item) => {
+      const cleaned = { ...item };
+
+      Object.entries(cleaned).forEach(([key, value]) => {
+        if (typeof value === "string") {
+          cleaned[key] = value.trim();
+        }
+      });
+
+      return cleaned as unknown as Education;
+    });
+}
+
+function getEnteredExperienceRows(
+  experiences: Experience[],
+): Record<string, unknown>[] {
+  if (!Array.isArray(experiences)) return [];
+
+  return (experiences as unknown as Record<string, unknown>[]).filter((item) =>
+    hasMeaningfulRow(item, [
+      "_id",
+      "__v",
+      "company_canonical_id",
+      "company_display",
+      "company_master_id",
+      "isCurrent",
+    ]),
+  );
+}
+
+function cleanExperiences(experiences: Experience[]): Experience[] {
+  return getEnteredExperienceRows(experiences)
+    .filter((item) => cleanText(item.company).length > 0)
+    .map((item) => {
+      const {
+        company_canonical_id: _companyCanonicalId,
+        company_display: _companyDisplay,
+        company_master_id: _companyMasterId,
+        ...experience
+      } = item;
+
+      Object.entries(experience).forEach(([key, value]) => {
+        if (typeof value === "string") {
+          experience[key] = value.trim();
+        }
+      });
+
+      return experience as unknown as Experience;
+    });
+}
+
+function validateSection(
+  sectionName: string,
+  form: EditForm,
+): string | null {
+  if (sectionName === "Basic Information") {
+    if (!cleanText(form.name || form.fullName)) {
+      return "Please enter your name.";
+    }
+
+    if (!cleanText(form.email)) {
+      return "Please enter your email address.";
+    }
+
+    if (!cleanText(form.phone)) {
+      return "Please enter your phone number.";
+    }
+  }
+
+  if (sectionName === "Education") {
+    const allRows = Array.isArray(form.educations)
+      ? (form.educations as unknown as Record<string, unknown>[])
+      : [];
+
+    for (let index = 0; index < allRows.length; index += 1) {
+      const education = allRows[index];
+      const college = cleanText(education.college);
+      const degree = cleanText(education.degree);
+      const isCurrent = education.isCurrent === true;
+
+      const containsOtherEducationData = hasMeaningfulRow(education, [
+        "_id",
+        "__v",
+        "college",
+        "degree",
+        "educationType",
+        "isCurrent",
+      ]);
+
+      const hasStartedEducation =
+        Boolean(college) ||
+        Boolean(degree) ||
+        isCurrent ||
+        containsOtherEducationData;
+
+      if (!hasStartedEducation) continue;
+
+      if (!college && !degree) {
+        return `Education ${index + 1}: college name and degree name are required.`;
+      }
+
+      if (!college) {
+        return `Education ${index + 1}: college name is required.`;
+      }
+
+      if (!degree) {
+        return `Education ${index + 1}: degree name is required.`;
+      }
+    }
+  }
+
+  if (sectionName === "Experience") {
+    const allRows = Array.isArray(form.experiences)
+      ? (form.experiences as unknown as Record<string, unknown>[])
+      : [];
+
+    for (let index = 0; index < allRows.length; index += 1) {
+      const experience = allRows[index];
+      const company = cleanText(experience.company);
+      const isCurrent = experience.isCurrent === true;
+      const containsOtherExperienceData = hasMeaningfulRow(experience, [
+        "_id",
+        "__v",
+        "company",
+        "company_canonical_id",
+        "company_display",
+        "company_master_id",
+        "isCurrent",
+      ]);
+
+      if (isCurrent && !company) {
+        return `Experience ${index + 1}: please enter the company name before saving Currently Working.`;
+      }
+
+      if (containsOtherExperienceData && !company) {
+        return `Experience ${index + 1}: company name is required.`;
+      }
+    }
+  }
+
+  return null;
+}
+
+function assignIfNotEmpty(
+  payload: PayloadRecord,
+  key: string,
+  value: unknown[],
+): void {
+  if (value.length > 0) payload[key] = value;
+}
+
+function buildSectionPayload(
+  sectionName: string,
+  form: EditForm,
+): PayloadRecord {
+  switch (sectionName) {
+    case "Basic Information":
+      return {
+        name: cleanText(form.name || form.fullName),
+        fullName: cleanText(form.fullName || form.name),
+        email: cleanText(form.email).toLowerCase(),
+        phone: cleanText(form.phone),
+        about: cleanText(form.about),
+        visaStatus: cleanText(form.visaStatus),
+        gender: cleanText(form.gender),
+        dob: cleanText(form.dob),
+        ethnicity: cleanText(form.ethnicity),
+        maritalStatus: cleanText(form.maritalStatus),
+        linkedin: cleanText(form.linkedin),
+        github: cleanText(form.github),
+        portfolio: cleanText(form.portfolio),
+        profileImage: cleanText(form.profileImage),
+        resume: cleanText(form.resume),
+      };
+
+    case "Education": {
+      const payload: PayloadRecord = {};
+      assignIfNotEmpty(payload, "educations", cleanEducations(form.educations));
+      return payload;
+    }
+
+    case "Experience": {
+      const payload: PayloadRecord = {};
+      assignIfNotEmpty(payload, "experiences", cleanExperiences(form.experiences));
+
+      const companyEmail = cleanText(form.companyEmail).toLowerCase();
+      const noticePeriod = cleanText(form.noticePeriod);
+      if (companyEmail) payload.companyEmail = companyEmail;
+      if (noticePeriod) payload.noticePeriod = noticePeriod;
+
+      return payload;
+    }
+
+    case "Skills": {
+      const payload: PayloadRecord = {};
+      assignIfNotEmpty(payload, "skills", cleanStringArray(form.skills));
+      return payload;
+    }
+
+    case "Career Details":
+      return {
+        currentCompany: cleanText(form.currentCompany),
+        currentCompany_display: cleanText(form.currentCompany_display),
+        companyEmail: cleanText(form.companyEmail).toLowerCase(),
+        totalYearsOfExperience: cleanText(form.totalYearsOfExperience),
+        noticePeriod: cleanText(form.noticePeriod),
+        noticePeriodStartDate: cleanText(form.noticePeriodStartDate),
+        servingNoticePeriod: Boolean(form.servingNoticePeriod),
+        currentSalaryCurrency: cleanText(form.currentSalaryCurrency) || "₹",
+        currentSalaryAmount: cleanText(form.currentSalaryAmount),
+      };
+
+    case "Job Preferences": {
+      const payload: PayloadRecord = {
+        openToShift: cleanText(form.openToShift),
+        shiftPreferences: form.shiftPreferences,
+        currentSalaryCurrency: cleanText(form.currentSalaryCurrency) || "₹",
+        currentSalaryAmount: cleanText(form.currentSalaryAmount),
+        expectedSalaryCurrency: cleanText(form.expectedSalaryCurrency) || "₹",
+        expectedSalaryAmount: cleanText(form.expectedSalaryAmount),
+      };
+      assignIfNotEmpty(payload, "jobRoles", cleanStringArray(form.jobRoles));
+      assignIfNotEmpty(payload, "locations", cleanStringArray(form.locations));
+      assignIfNotEmpty(payload, "employmentType", cleanStringArray(form.employmentType));
+      assignIfNotEmpty(payload, "lookingFor", cleanStringArray(form.lookingFor));
+      assignIfNotEmpty(payload, "industry", cleanStringArray(form.industry));
+      return payload;
+    }
+
+    case "Tools & Languages": {
+      const payload: PayloadRecord = {};
+      assignIfNotEmpty(payload, "toolsAndPlatforms", cleanStringArray(form.toolsAndPlatforms));
+      assignIfNotEmpty(payload, "languagesKnown", cleanStringArray(form.languagesKnown));
+      assignIfNotEmpty(payload, "domainKnowledge", cleanStringArray(form.domainKnowledge));
+      return payload;
+    }
+
+    case "International Experience": {
+      const payload: PayloadRecord = {};
+      assignIfNotEmpty(
+        payload,
+        "internationalExperience",
+        cleanObjectArray(form.internationalExperience as unknown as Record<string, unknown>[]),
+      );
+      return payload;
+    }
+
+    case "Leadership": {
+      const payload: PayloadRecord = {};
+      assignIfNotEmpty(
+        payload,
+        "leadership",
+        cleanObjectArray(form.leadership as unknown as Record<string, unknown>[]),
+      );
+      return payload;
+    }
+
+    case "Achievements": {
+      const payload: PayloadRecord = {};
+      assignIfNotEmpty(
+        payload,
+        "achievements",
+        cleanObjectArray(form.achievements as unknown as Record<string, unknown>[]),
+      );
+      return payload;
+    }
+
+    case "Awards": {
+      const payload: PayloadRecord = {};
+      assignIfNotEmpty(
+        payload,
+        "awards",
+        cleanObjectArray(form.award as unknown as Record<string, unknown>[]),
+      );
+      return payload;
+    }
+
+    case "Publications": {
+      const payload: PayloadRecord = {};
+      assignIfNotEmpty(
+        payload,
+        "publications",
+        cleanObjectArray(form.publications as unknown as Record<string, unknown>[]),
+      );
+      return payload;
+    }
+
+    default:
+      return {};
+  }
 }
 
 // ---------- Page Component ----------
@@ -343,6 +667,7 @@ export default function EditProfilePage() {
   const [savingSection, setSavingSection] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
+  const [toast, setToast] = useState<ToastState>(null);
 
   const [masterData, setMasterData] = useState<MasterData>({
     colleges: [],
@@ -369,6 +694,16 @@ export default function EditProfilePage() {
       "User"
     );
   }, [form, profile]);
+
+  function showToast(type: "success" | "error", message: string) {
+    setToast({ type, message });
+
+    window.setTimeout(() => {
+      setToast((current) =>
+        current?.message === message && current.type === type ? null : current,
+      );
+    }, 3500);
+  }
 
   useEffect(() => {
     fetchInitialData();
@@ -570,11 +905,13 @@ export default function EditProfilePage() {
   ) {
     setForm((prev: EditForm | null) => {
       if (!prev) return prev;
+
       const next = [...prev.experiences];
       next[index] = {
         ...next[index],
         [key]: value,
       };
+
       if (key === "isCurrent" && value === true) {
         next[index].endDate = "";
       }
@@ -838,7 +1175,16 @@ export default function EditProfilePage() {
   }
 
   async function saveSection(sectionName: string) {
-    if (!form) return;
+    if (!form || savingSection) return;
+
+    const validationError = validateSection(sectionName, form);
+
+    if (validationError) {
+      setError(validationError);
+      setSuccess("");
+      showToast("error", validationError);
+      return;
+    }
 
     try {
       setSavingSection(sectionName);
@@ -846,9 +1192,14 @@ export default function EditProfilePage() {
       setSuccess("");
 
       const backendUrl = getBackendUrl();
-      const payload = buildPayload(form);
+      const payload = buildSectionPayload(sectionName, form);
 
-      console.log("Saving payload:", payload);
+      if (Object.keys(payload).length === 0) {
+        const message = `No ${sectionName.toLowerCase()} data to save.`;
+        setSuccess(message);
+        showToast("success", message);
+        return;
+      }
 
       const response = await axios.put(
         `${backendUrl}/api/onboarding/update`,
@@ -867,17 +1218,24 @@ export default function EditProfilePage() {
       const nextProfile =
         Object.keys(updatedProfile).length > 0
           ? updatedProfile
-          : {
+          : ({
               ...profile,
               ...payload,
-            };
+            } as ProfileData);
 
       setProfile(nextProfile);
       setForm(profileToForm(nextProfile));
-      setSuccess(`${sectionName} saved successfully`);
+
+      const message = `${sectionName} saved successfully.`;
+      setSuccess(message);
+      showToast("success", message);
     } catch (error: unknown) {
       console.error("Save error:", error);
-      setError(getErrorMessage(error, "Failed to save"));
+
+      const message = getErrorMessage(error, "Failed to save profile.");
+      setError(message);
+      setSuccess("");
+      showToast("error", message);
     } finally {
       setSavingSection("");
     }
@@ -904,6 +1262,20 @@ export default function EditProfilePage() {
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-white">
+      {toast && (
+        <div
+          role="alert"
+          aria-live="assertive"
+          className={`fixed right-4 top-4 z-[100] max-w-sm rounded-xl border px-4 py-3 text-sm font-medium shadow-2xl backdrop-blur ${
+            toast.type === "success"
+              ? "border-emerald-500/40 bg-emerald-950/95 text-emerald-200"
+              : "border-red-500/40 bg-red-950/95 text-red-200"
+          }`}
+        >
+          {toast.message}
+        </div>
+      )}
+
       <header className="flex min-h-[72px] items-center justify-between border-b border-[var(--border)] px-4 py-4 sm:px-8">
         <div className="flex items-center gap-3">
           <button
@@ -1189,8 +1561,7 @@ export default function EditProfilePage() {
               currentSalaryAmount={form.currentSalaryAmount}
               expectedSalaryCurrency={form.expectedSalaryCurrency}
               expectedSalaryAmount={form.expectedSalaryAmount}
-              onUpdate={(field: string, value: any) => {
-                console.log(`Updating ${field}:`, value);
+              onUpdate={(field: string, value: unknown) => {
                 updateField(field as keyof EditForm, value as never);
               }}
               roleOptions={masterData.jobRoles}

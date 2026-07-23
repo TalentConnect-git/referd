@@ -53,6 +53,8 @@ type AutocompleteInputProps = {
   placeholder?: string;
   label?: string;
   icon?: ElementType;
+  required?: boolean; // ✅ Add required prop
+  error?: string; // ✅ Add error prop
 };
 
 type ExperienceEditorProps = {
@@ -224,6 +226,8 @@ function AutocompleteInput({
   placeholder,
   label,
   icon: Icon,
+  required = false, // ✅ Add required prop
+  error = "", // ✅ Add error prop
 }: AutocompleteInputProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState(value || "");
@@ -442,8 +446,9 @@ function AutocompleteInput({
   return (
     <div ref={dropdownRef} className="relative">
       {label ? (
-        <label className="mb-1.5 block text-xs font-medium text-gray-300">
+        <label className="mb-1.5 flex items-center gap-1 text-xs font-medium text-gray-300">
           {label}
+          {required && <span className="text-red-400">*</span>}
         </label>
       ) : null}
 
@@ -456,7 +461,11 @@ function AutocompleteInput({
           onFocus={handleFocus}
           placeholder={placeholder}
           autoComplete="off"
-          className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-10 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+          className={`w-full rounded-lg border bg-[#0f172a] px-10 py-2.5 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-1 ${
+            error
+              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+              : "border-[#2a3a52] focus:border-green-500 focus:ring-green-500"
+          }`}
         />
 
         {Icon ? (
@@ -474,6 +483,8 @@ function AutocompleteInput({
           </button>
         ) : null}
       </div>
+
+      {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
 
       {showDropdown ? (
         <div className="absolute z-50 mt-1 max-h-52 w-full overflow-y-auto rounded-lg border border-[#2a3a52] bg-[#111827] shadow-xl">
@@ -602,7 +613,7 @@ export function ExperienceEditor({
        * Manual typing: clear metadata from a previously selected company.
        * Most importantly, company_master_id becomes undefined instead of "".
        */
-      clearOptionalExperienceField(index, "company_master_id");
+      
       clearOptionalExperienceField(index, "company_canonical_id");
 
       onUpdate(
@@ -621,15 +632,7 @@ export function ExperienceEditor({
       normalizedCompany,
     );
 
-    if (masterId) {
-      onUpdate(
-        index,
-        "company_master_id",
-        masterId as Experience[keyof Experience],
-      );
-    } else {
-      clearOptionalExperienceField(index, "company_master_id");
-    }
+    
 
     if (canonicalId) {
       onUpdate(
@@ -674,167 +677,191 @@ export function ExperienceEditor({
 
   return (
     <div className="space-y-6">
-      {experiences.map((experience, index) => (
-        <div
-          key={experience._id || `experience-${index}`}
-          className="group rounded-xl border border-[#2a3a52] bg-[#111827] p-5 transition-all duration-300 hover:border-green-500/30 hover:shadow-lg hover:shadow-green-500/5"
-        >
-          <div className="mb-5 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-green-500/20 bg-green-500/10 text-green-400">
-                <Briefcase className="h-4 w-4" />
+      {experiences.map((experience, index) => {
+        // ✅ Check if this experience has validation error
+        const hasCompanyError = experience.isCurrent && !experience.company?.trim();
+        
+        return (
+          <div
+            key={experience._id || `experience-${index}`}
+            className={`group rounded-xl border bg-[#111827] p-5 transition-all duration-300 ${
+              hasCompanyError
+                ? "border-red-500/50 hover:border-red-500/70"
+                : "border-[#2a3a52] hover:border-green-500/30"
+            } hover:shadow-lg hover:shadow-green-500/5`}
+          >
+            <div className="mb-5 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className={`flex h-8 w-8 items-center justify-center rounded-lg border ${
+                  hasCompanyError
+                    ? "border-red-500/20 bg-red-500/10 text-red-400"
+                    : "border-green-500/20 bg-green-500/10 text-green-400"
+                }`}>
+                  <Briefcase className="h-4 w-4" />
+                </div>
+
+                <h4 className="text-sm font-semibold text-white">
+                  Experience {index + 1}
+                </h4>
+
+                {hasCompanyError && (
+                  <span className="rounded-full bg-red-500/20 px-2 py-0.5 text-[10px] text-red-400">
+                    Required
+                  </span>
+                )}
+
+                {!experience.company &&
+                !experience.role &&
+                !experience.startDate ? (
+                  <span className="rounded-full bg-gray-800/50 px-2 py-0.5 text-[10px] text-gray-500">
+                    Optional
+                  </span>
+                ) : null}
               </div>
 
-              <h4 className="text-sm font-semibold text-white">
-                Experience {index + 1}
-              </h4>
-
-              {!experience.company &&
-              !experience.role &&
-              !experience.startDate ? (
-                <span className="rounded-full bg-gray-800/50 px-2 py-0.5 text-[10px] text-gray-500">
-                  Optional
-                </span>
+              {experiences.length > 1 ? (
+                <button
+                  type="button"
+                  onClick={() => onRemove(index)}
+                  className="flex items-center gap-1.5 rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:border-red-500/50 hover:bg-red-500/10"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  Remove
+                </button>
               ) : null}
             </div>
 
-            {experiences.length > 1 ? (
-              <button
-                type="button"
-                onClick={() => onRemove(index)}
-                className="flex items-center gap-1.5 rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:border-red-500/50 hover:bg-red-500/10"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-                Remove
-              </button>
-            ) : null}
-          </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-1.5 text-xs font-medium text-gray-300">
+                  <Building2 className="h-3.5 w-3.5 text-gray-500" />
+                  Company
+                  {experience.isCurrent && (
+                    <span className="ml-1 text-red-400">*</span>
+                  )}
+                </label>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-1.5">
-              <label className="flex items-center gap-1.5 text-xs font-medium text-gray-300">
-                <Building2 className="h-3.5 w-3.5 text-gray-500" />
-                Company
-              </label>
-
-              <AutocompleteInput
-                apiType="company"
-                value={experience.company || ""}
-                onChange={(value, item) =>
-                  handleCompanyChange(index, value, item)
-                }
-                placeholder="Search or type company name..."
-                icon={Search}
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="flex items-center gap-1.5 text-xs font-medium text-gray-300">
-                <User className="h-3.5 w-3.5 text-gray-500" />
-                Role / Title
-              </label>
-
-              <AutocompleteInput
-                apiType="jobRole"
-                value={experience.role || ""}
-                onChange={(value) =>
-                  onUpdate(index, "role", value)
-                }
-                placeholder="Search or type job role..."
-                icon={Search}
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="flex items-center gap-1.5 text-xs font-medium text-gray-300">
-                <Calendar className="h-3.5 w-3.5 text-gray-500" />
-                Start Date
-              </label>
-
-              <input
-                type="date"
-                value={experience.startDate || ""}
-                onChange={(event) =>
-                  onUpdate(
-                    index,
-                    "startDate",
-                    event.target.value,
-                  )
-                }
-                className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="flex items-center gap-1.5 text-xs font-medium text-gray-300">
-                <Calendar className="h-3.5 w-3.5 text-gray-500" />
-                End Date
-              </label>
-
-              <input
-                type="date"
-                value={experience.endDate || ""}
-                disabled={Boolean(experience.isCurrent)}
-                min={experience.startDate || undefined}
-                onChange={(event) => {
-                  const nextEndDate = event.target.value;
-
-                  if (nextEndDate) {
-                    onUpdate(index, "endDate", nextEndDate);
-                  } else {
-                    clearOptionalExperienceField(index, "endDate");
+                <AutocompleteInput
+                  apiType="company"
+                  value={experience.company || ""}
+                  onChange={(value, item) =>
+                    handleCompanyChange(index, value, item)
                   }
-                }}
-                className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:cursor-not-allowed disabled:opacity-50"
-              />
-            </div>
+                  placeholder="Search or type company name..."
+                  icon={Search}
+                  required={experience.isCurrent || false}
+                  error={hasCompanyError ? "Company name is required for current employment" : ""}
+                />
+              </div>
 
-            <div className="md:col-span-2">
-              <label className="group flex cursor-pointer items-center gap-3">
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-1.5 text-xs font-medium text-gray-300">
+                  <User className="h-3.5 w-3.5 text-gray-500" />
+                  Role / Title
+                </label>
+
+                <AutocompleteInput
+                  apiType="jobRole"
+                  value={experience.role || ""}
+                  onChange={(value) =>
+                    onUpdate(index, "role", value)
+                  }
+                  placeholder="Search or type job role..."
+                  icon={Search}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-1.5 text-xs font-medium text-gray-300">
+                  <Calendar className="h-3.5 w-3.5 text-gray-500" />
+                  Start Date
+                </label>
+
                 <input
-                  type="checkbox"
-                  checked={Boolean(experience.isCurrent)}
+                  type="date"
+                  value={experience.startDate || ""}
                   onChange={(event) =>
-                    handleCurrentlyWorkingChange(
+                    onUpdate(
                       index,
-                      event.target.checked,
+                      "startDate",
+                      event.target.value,
                     )
                   }
-                  className="h-4 w-4 rounded border-[#2a3a52] bg-[#0f172a] text-green-500 focus:ring-2 focus:ring-green-500/20 focus:ring-offset-0"
+                  className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 />
+              </div>
 
-                <span className="text-sm font-medium text-gray-300 transition-colors group-hover:text-white">
-                  Currently working here
-                </span>
-              </label>
-            </div>
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-1.5 text-xs font-medium text-gray-300">
+                  <Calendar className="h-3.5 w-3.5 text-gray-500" />
+                  End Date
+                </label>
 
-            <div className="md:col-span-2">
-              <label className="text-xs font-medium text-gray-300">
-                Description
-              </label>
+                <input
+                  type="date"
+                  value={experience.endDate || ""}
+                  disabled={Boolean(experience.isCurrent)}
+                  min={experience.startDate || undefined}
+                  onChange={(event) => {
+                    const nextEndDate = event.target.value;
 
-              <textarea
-                value={
-                  Array.isArray(experience.description)
-                    ? experience.description.join("\n")
-                    : experience.description || ""
-                }
-                onChange={(event) =>
-                  onUpdate(
-                    index,
-                    "description",
-                    event.target.value,
-                  )
-                }
-                placeholder="Describe your responsibilities and achievements..."
-                rows={3}
-                className="w-full resize-none rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
-              />
+                    if (nextEndDate) {
+                      onUpdate(index, "endDate", nextEndDate);
+                    } else {
+                      clearOptionalExperienceField(index, "endDate");
+                    }
+                  }}
+                  className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="group flex cursor-pointer items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(experience.isCurrent)}
+                    onChange={(event) =>
+                      handleCurrentlyWorkingChange(
+                        index,
+                        event.target.checked,
+                      )
+                    }
+                    className="h-4 w-4 rounded border-[#2a3a52] bg-[#0f172a] text-green-500 focus:ring-2 focus:ring-green-500/20 focus:ring-offset-0"
+                  />
+
+                  <span className="text-sm font-medium text-gray-300 transition-colors group-hover:text-white">
+                    Currently working here
+                  </span>
+                </label>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="text-xs font-medium text-gray-300">
+                  Description
+                </label>
+
+                <textarea
+                  value={
+                    Array.isArray(experience.description)
+                      ? experience.description.join("\n")
+                      : experience.description || ""
+                  }
+                  onChange={(event) =>
+                    onUpdate(
+                      index,
+                      "description",
+                      event.target.value,
+                    )
+                  }
+                  placeholder="Describe your responsibilities and achievements..."
+                  rows={3}
+                  className="w-full resize-none rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                />
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
 
       <button
         type="button"
