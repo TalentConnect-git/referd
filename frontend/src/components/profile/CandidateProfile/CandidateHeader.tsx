@@ -1,4 +1,3 @@
-// components/profile/CandidateHeader.tsx
 "use client";
 
 import { useMemo, useState } from "react";
@@ -15,11 +14,12 @@ import {
   Mail,
   Phone,
   MessageCircle,
+  Clock,
 } from "lucide-react";
 
 import { ProfileData } from "@/types/profile";
 import ResumeModal from "@/components/profile/ResumeModal";
-import { useAuth } from "@/context/AuthContext"; // Import your auth context
+import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 
 type EducationItem = {
@@ -41,6 +41,7 @@ type ExperienceItem = {
   isCurrent?: boolean;
 };
 
+// ✅ Just extend ProfileData - status is already defined there
 type CandidateHeaderProfile = ProfileData & {
   educations?: EducationItem[];
   experiences?: ExperienceItem[];
@@ -59,6 +60,7 @@ type CandidateHeaderProfile = ProfileData & {
   isVerified?: boolean;
   email?: string;
   phone?: string;
+  // ✅ Remove status declaration - it comes from ProfileData
 };
 
 interface CandidateHeaderProps {
@@ -90,6 +92,19 @@ const toNumber = (value?: string | number | null) => {
   const parsed = Number.parseFloat(String(value));
   if (Number.isNaN(parsed)) return 0;
   return parsed;
+};
+
+// ✅ Status labels
+const STATUS_LABELS: Record<string, string> = {
+  open_to_work: "Open to Work",
+  career_break: "Career Break",
+  freelancing: "Freelancing",
+  building: "Building Something",
+  not_looking: "Not Looking",
+  looking_internship: "Looking for Internship",
+  looking_job: "Looking for Job",
+  preparing_exams: "Preparing for Exams",
+  employed: "Employed",
 };
 
 const ResumeSvgIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
@@ -127,7 +142,7 @@ const GithubSvgIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
     className={className}
     xmlns="http://www.w3.org/2000/svg"
   >
-    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.15 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.62.24 2.85.12 3.15.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12Z" />
+    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.52.12-3.15 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.62.24 2.85.12 3.15.765.84 1.23 1.905 1.23 3.225 0 4.605-2.804 5.62-5.476 5.92.43.37.824 1.102.824 2.22 0 1.602-.015 2.894-.015 3.287 0 .322.216.694.825.57C20.565 22.092 24 17.592 24 12.297 24 5.67 18.627.297 12 .297z" />
   </svg>
 );
 
@@ -171,7 +186,7 @@ const PortfolioSvgIcon = ({
 
 export default function CandidateHeader({ profile }: CandidateHeaderProps) {
   const [isResumeOpen, setIsResumeOpen] = useState(false);
-  const { user } = useAuth(); // Get user from auth context
+  const { user } = useAuth();
   const router = useRouter();
 
   const currentExperience = useMemo(() => {
@@ -190,16 +205,39 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
     );
   }, [profile.educations]);
 
+  // ✅ Check if user has current company (from experiences or profile)
+  const hasCurrentCompany = useMemo(() => {
+    const hasCurrentExp = profile.experiences?.some(
+      (exp) => exp.isCurrent === true
+    );
+    const hasCurrentCompanyField = profile.currentCompany && profile.currentCompany.trim().length > 0;
+    return hasCurrentExp || hasCurrentCompanyField;
+  }, [profile.experiences, profile.currentCompany]);
+
+  // ✅ Get status display info - safely handle null
+  const statusType = profile.status?.type || "";
+  const statusLabel = STATUS_LABELS[statusType] || "";
+  const hasStatus = statusType && statusLabel;
+
   const name = safeText(profile.name, "Candidate");
 
   const role = currentExperience?.role || "Professional";
-
-  const companyName =
-    profile.currentCompany_display ||
-    profile.currentCompany ||
-    currentExperience?.company_display ||
-    currentExperience?.company ||
-    "Company";
+  
+  // ✅ Company/Status display
+  let companyOrStatusDisplay = "";
+  if (hasCurrentCompany) {
+    companyOrStatusDisplay = safeText(
+      profile.currentCompany_display ||
+        profile.currentCompany ||
+        currentExperience?.company_display ||
+        currentExperience?.company ||
+        "Company"
+    );
+  } else if (hasStatus) {
+    companyOrStatusDisplay = statusLabel;
+  } else {
+    companyOrStatusDisplay = "Not specified";
+  }
 
   const location = profile.locations?.[0] || profile.clientLocation || "N/A";
 
@@ -286,7 +324,7 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
         <div className="relative z-10">
           <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
             <div className="flex flex-col gap-4 md:flex-row md:items-center">
-              {/* Profile Image - Reduced size */}
+              {/* Profile Image */}
               <div className="relative h-[80px] w-[80px] shrink-0 rounded-full border-[3px] border-[#38e878] bg-[#0b1621] p-1 shadow-[0_0_25px_rgba(56,232,120,0.15)]">
                 {profile.profileImage ? (
                   <img
@@ -302,20 +340,30 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
               </div>
 
               <div className="min-w-0">
-                {/* Name - Reduced size */}
+                {/* Name */}
                 <h1 className="max-w-[400px] truncate text-2xl font-bold leading-tight text-[#cbd5e1] md:text-3xl">
                   {name}
                 </h1>
 
-                {/* Role Badge - Reduced size */}
+                {/* Role Badge - Shows status when no current company */}
                 <div className="mt-2 inline-flex max-w-full items-center rounded-full border border-[#38e878]/35 bg-[#12381f] px-3 py-1 shadow-[0_0_18px_rgba(56,232,120,0.08)]">
-                  <span className="truncate text-xs font-semibold leading-none text-[#38e878]">
-                    {safeText(role, "Professional")} @{" "}
-                    {safeText(companyName, "Company")}
-                  </span>
+                  {hasCurrentCompany ? (
+                    <span className="truncate text-xs font-semibold leading-none text-[#38e878]">
+                      {safeText(role, "Professional")} 
+                    </span>
+                  ) : hasStatus ? (
+                    <span className="flex items-center gap-1.5 truncate text-xs font-semibold leading-none text-[#38e878]">
+                      
+                      {safeText(role, "Professional")} 
+                    </span>
+                  ) : (
+                    <span className="truncate text-xs font-semibold leading-none text-[#38e878]">
+                      {safeText(role, "Professional")}
+                    </span>
+                  )}
                 </div>
 
-                {/* Info Row - Reduced size */}
+                {/* Info Row */}
                 <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs font-medium text-[#94a3b8]">
                   <div className="flex items-center gap-1.5">
                     <MapPin className="h-3.5 w-3.5 text-[#38e878]" />
@@ -339,6 +387,16 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
                       {safeText(educationName, "N/A")}
                     </span>
                   </div>
+
+                  {/* ✅ Show status as a separate tag when no current company */}
+                  {!hasCurrentCompany && hasStatus && (
+                    <div className="flex items-center gap-1.5 rounded-full border border-[#38e878]/20 bg-[#12381f]/50 px-2.5 py-0.5">
+                      <Clock className="h-3 w-3 text-[#38e878]" />
+                      <span className="text-xs text-[#cbd5e1]">
+                        {statusLabel}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -354,12 +412,8 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
                 </div>
               )}
 
-              {/* Contact Info - Email and Phone */}
-
-              {/* Social Links + Message Button - Compact row */}
+              {/* Social Links + Message Button */}
               <div className="flex flex-wrap items-center justify-end gap-1.5">
-                {/* Message Button */}
-
                 {socialLinks.map((link) => {
                   const Icon = link.icon;
                   const hasUrl = Boolean(link.url);
@@ -419,7 +473,7 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
             </div>
           </div>
 
-          {/* Stats - Reduced size */}
+          {/* Stats */}
           <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
             {stats.map((stat) => {
               const Icon = stat.icon;
@@ -447,7 +501,7 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
         </div>
       </section>
 
-      {/* Resume Modal - Only render when isResumeOpen is true */}
+      {/* Resume Modal */}
       {isResumeOpen && resumeUrl && (
         <ResumeModal
           resumeUrl={resumeUrl}

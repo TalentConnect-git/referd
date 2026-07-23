@@ -20,6 +20,8 @@ import {
   Trash2,
   User,
   X,
+  Clock,
+  AlertCircle,
 } from "lucide-react";
 
 import axiosInstance from "@/lib/axiosInstance";
@@ -55,6 +57,12 @@ type StoredExperienceStep = {
   noticePeriod: string;
   currentCompany: string;
   lastUpdated: string;
+  status?: {
+    type: string;
+    since: string;
+    note: string;
+    expectedReturn: string | null;
+  };
 };
 
 type ToastState = {
@@ -62,11 +70,27 @@ type ToastState = {
   message: string;
 } | null;
 
+type StatusType = 
+  | "open_to_work"
+  | "career_break"
+  | "freelancing"
+  | "building"
+  | "not_looking"
+  | "looking_internship"
+  | "looking_job"
+  | "preparing_exams";
+
+interface StatusData {
+  type: string;
+  since: string;
+  note: string;
+  expectedReturn: string | null;
+}
+
 const generateId = (): string => {
   if (typeof crypto !== "undefined" && crypto.randomUUID) {
     return crypto.randomUUID();
   }
-
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 };
 
@@ -75,7 +99,6 @@ const createEmptyExperience = (): Experience => ({
   company: "",
   company_canonical_id: "",
   company_display: "",
-  // company_master_id: "",
   role: "",
   startDate: "",
   endDate: "",
@@ -106,7 +129,6 @@ function hasMeaningfulExperienceData(experience: Experience): boolean {
 
 function safeJsonParse<T>(value: string | null, fallback: T): T {
   if (!value) return fallback;
-
   try {
     return (JSON.parse(value) as T) || fallback;
   } catch {
@@ -118,30 +140,25 @@ function extractItems(responseData: unknown): AutocompleteItem[] {
   if (Array.isArray(responseData)) {
     return responseData as AutocompleteItem[];
   }
-
   if (!responseData || typeof responseData !== "object") {
     return [];
   }
-
   const response = responseData as {
     data?: unknown;
     items?: unknown;
     companies?: unknown;
     results?: unknown;
   };
-
   const candidates = [
     response.data,
     response.items,
     response.companies,
     response.results,
   ];
-
   for (const candidate of candidates) {
     if (Array.isArray(candidate)) {
       return candidate as AutocompleteItem[];
     }
-
     if (candidate && typeof candidate === "object") {
       const nested = candidate as {
         data?: unknown;
@@ -149,14 +166,12 @@ function extractItems(responseData: unknown): AutocompleteItem[] {
         companies?: unknown;
         results?: unknown;
       };
-
       const nestedCandidates = [
         nested.data,
         nested.items,
         nested.companies,
         nested.results,
       ];
-
       for (const nestedCandidate of nestedCandidates) {
         if (Array.isArray(nestedCandidate)) {
           return nestedCandidate as AutocompleteItem[];
@@ -164,7 +179,6 @@ function extractItems(responseData: unknown): AutocompleteItem[] {
       }
     }
   }
-
   return [];
 }
 
@@ -227,9 +241,7 @@ function AutocompleteInput({
         setIsOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -237,44 +249,31 @@ function AutocompleteInput({
 
   const fetchData = async () => {
     if (loading || hasFetchedRef.current) return;
-
     try {
       setLoading(true);
-
       if (apiType === "company") {
-        // ✅ Use /api/company for GET
         const response = await axiosInstance.get("/api/company");
         const items = extractItems(response.data);
-        
-        // Transform items to have consistent structure
         const transformedItems = items.map((item) => ({
           ...item,
           value: item.name || item.value || "",
           label: item.name || item.value || "",
         }));
-        
         setData(transformedItems);
       } else {
-        // Job Role API
         const response = await axiosInstance.get("/api/company-master-data", {
-          params: {
-            type: "JOB_ROLE"
-          },
+          params: { type: "JOB_ROLE" },
         });
-
         const items = extractItems(response.data).map((item) => {
           const displayValue = getDisplayValue(item);
-
           return {
             ...item,
             value: displayValue,
             label: displayValue,
           };
         });
-
         setData(items);
       }
-
       hasFetchedRef.current = true;
     } catch (error) {
       console.error(`Error fetching ${apiType} options:`, error);
@@ -290,7 +289,6 @@ function AutocompleteInput({
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     const nextValue = event.target.value;
-
     setSearchTerm(nextValue);
     onChange(nextValue);
     setIsOpen(true);
@@ -312,27 +310,20 @@ function AutocompleteInput({
 
   const handleCreate = async () => {
     const valueToCreate = searchTerm.trim();
-
     if (!valueToCreate || isCreating) return;
-
     try {
       setIsCreating(true);
-
       let response;
-      
       if (apiType === "company") {
-        // ✅ Use POST /api/company for creating company
         response = await axiosInstance.post("/api/company", {
           name: valueToCreate,
         });
       } else {
-        // Job Role creation
         response = await axiosInstance.post("/api/company-master-data", {
           type: "JOB_ROLE",
           value: valueToCreate,
         });
       }
-
       const responseItems = extractItems(response.data);
       const responseObject =
         response.data &&
@@ -343,7 +334,6 @@ function AutocompleteInput({
               item?: AutocompleteItem;
             })
           : undefined;
-
       const createdItem =
         responseItems[0] ||
         responseObject?.data ||
@@ -353,26 +343,20 @@ function AutocompleteInput({
           name: valueToCreate,
           isCustom: true,
         };
-
       const createdValue = getDisplayValue(createdItem) || valueToCreate;
-
       setData((previous) => {
         const exists = previous.some(
           (item) =>
             getDisplayValue(item).toLowerCase() === createdValue.toLowerCase(),
         );
-
         return exists ? previous : [...previous, createdItem];
       });
-
       setSearchTerm(createdValue);
       onChange(createdValue);
       setIsOpen(false);
       inputRef.current?.blur();
     } catch (error) {
       console.error(`Error creating ${apiType}:`, error);
-
-      // Keep custom values even if the API fails
       setSearchTerm(valueToCreate);
       onChange(valueToCreate);
       setIsOpen(false);
@@ -383,11 +367,7 @@ function AutocompleteInput({
 
   const filteredData = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
-
-    if (!normalizedSearch) {
-      return data;
-    }
-
+    if (!normalizedSearch) return data;
     return data.filter((item) =>
       getDisplayValue(item).toLowerCase().includes(normalizedSearch),
     );
@@ -395,9 +375,7 @@ function AutocompleteInput({
 
   const exactMatchExists = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
-
     if (!normalizedSearch) return false;
-
     return data.some(
       (item) => getDisplayValue(item).toLowerCase() === normalizedSearch,
     );
@@ -413,7 +391,6 @@ function AutocompleteInput({
           {label}
         </label>
       ) : null}
-
       <div className="relative">
         <input
           ref={inputRef}
@@ -425,11 +402,9 @@ function AutocompleteInput({
           autoComplete="off"
           className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-10 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
         />
-
         {Icon ? (
           <Icon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
         ) : null}
-
         {searchTerm ? (
           <button
             type="button"
@@ -441,7 +416,6 @@ function AutocompleteInput({
           </button>
         ) : null}
       </div>
-
       {showDropdown ? (
         <div className="absolute z-50 mt-1 max-h-52 w-full overflow-y-auto rounded-lg border border-[#2a3a52] bg-[#111827] shadow-xl">
           {loading ? (
@@ -453,9 +427,7 @@ function AutocompleteInput({
             <>
               {filteredData.slice(0, 15).map((item, index) => {
                 const displayValue = getDisplayValue(item);
-
                 if (!displayValue) return null;
-
                 return (
                   <button
                     key={getItemKey(item, index)}
@@ -464,7 +436,6 @@ function AutocompleteInput({
                     className="group flex w-full items-center justify-between border-b border-[#2a3a52] px-4 py-2.5 text-left text-sm text-white transition-colors last:border-0 hover:bg-green-500/10"
                   >
                     <span>{displayValue}</span>
-
                     {isCustomItem(item) ? (
                       <span className="text-[10px] text-gray-500 group-hover:text-green-400">
                         Custom
@@ -473,7 +444,6 @@ function AutocompleteInput({
                   </button>
                 );
               })}
-
               {searchTerm.trim() && !exactMatchExists ? (
                 <button
                   type="button"
@@ -540,9 +510,24 @@ export default function StepFivePage() {
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState>(null);
 
+  // ✅ Status State
+  const [statusType, setStatusType] = useState<string>("");
+  const [statusSince, setStatusSince] = useState<string>("");
+  const [statusNote, setStatusNote] = useState<string>("");
+  const [statusExpectedReturn, setStatusExpectedReturn] = useState<string>("");
+  const [previousStatusType, setPreviousStatusType] = useState<string>("");
+
+  // Get user type from localStorage or context
+  const [userType, setUserType] = useState<string>("professional");
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    const role = localStorage.getItem("selectedRole") || user?.userType || "professional";
+    setUserType(role);
+  }, []);
+
   const showToast = (type: "success" | "error", message: string) => {
     setToast({ type, message });
-
     window.setTimeout(() => {
       setToast((current) =>
         current?.type === type && current.message === message ? null : current,
@@ -580,7 +565,59 @@ export default function StepFivePage() {
 
     setCompanyEmail(storedStep.companyEmail || "");
     setNoticePeriod(storedStep.noticePeriod || "");
+
+    // ✅ Restore status if exists
+    if (storedStep.status) {
+      setStatusType(storedStep.status.type || "");
+      setStatusSince(storedStep.status.since || "");
+      setStatusNote(storedStep.status.note || "");
+      setStatusExpectedReturn(storedStep.status.expectedReturn || "");
+      setPreviousStatusType(storedStep.status.type || "");
+    }
   }, []);
+
+  // ✅ Status options based on user type
+  const statusOptions = useMemo(() => {
+    if (userType === "student" || userType === "fresher") {
+      return [
+        { value: "looking_internship", label: "Looking for Internship" },
+        { value: "looking_job", label: "Looking for Job" },
+        { value: "preparing_exams", label: "Preparing for Exams" },
+      ];
+    }
+    return [
+      { value: "open_to_work", label: "Open to Work" },
+      { value: "career_break", label: "Career Break" },
+      { value: "freelancing", label: "Freelancing" },
+      { value: "building", label: "Building Something" },
+      { value: "not_looking", label: "Not Looking" },
+    ];
+  }, [userType]);
+
+  // ✅ Check if user has current employment (isCurrent: true AND company name exists)
+  const hasCurrentCompany = experiences.some(
+    (experience) => experience.isCurrent && cleanText(experience.company),
+  );
+
+  // ✅ Get current experience start date
+  const getCurrentExperienceStartDate = (): string => {
+    const currentExp = experiences.find(
+      (exp) => exp.isCurrent && cleanText(exp.company),
+    );
+    return currentExp?.startDate || new Date().toISOString().split("T")[0];
+  };
+
+  // ✅ Handle status change
+  const handleStatusChange = (value: string) => {
+    const today = new Date().toISOString().split("T")[0];
+    setStatusType(value);
+    setStatusSince(today);
+    
+    // Clear expected return if not career break
+    if (value !== "career_break") {
+      setStatusExpectedReturn("");
+    }
+  };
 
   const handleUpdate = <K extends keyof Experience>(
     index: number,
@@ -600,10 +637,7 @@ export default function StepFivePage() {
   };
 
   const handleAdd = () => {
-    setExperiences((previous) => [
-      ...previous,
-      createEmptyExperience(),
-    ]);
+    setExperiences((previous) => [...previous, createEmptyExperience()]);
   };
 
   const handleRemove = (index: number) => {
@@ -611,17 +645,13 @@ export default function StepFivePage() {
       if (previous.length <= 1) {
         return previous;
       }
-
       return previous.filter(
         (_experience, experienceIndex) => experienceIndex !== index,
       );
     });
   };
 
-  const handleCurrentlyWorkingChange = (
-    index: number,
-    checked: boolean,
-  ) => {
+  const handleCurrentlyWorkingChange = (index: number, checked: boolean) => {
     setExperiences((previous) =>
       previous.map((experience, experienceIndex) => {
         if (experienceIndex === index) {
@@ -631,26 +661,36 @@ export default function StepFivePage() {
             endDate: checked ? "" : experience.endDate,
           };
         }
-
         if (checked && experience.isCurrent) {
           return {
             ...experience,
             isCurrent: false,
           };
         }
-
         return experience;
       }),
     );
+
+    // ✅ If unchecked (removing current company), clear status and make it required
+    if (!checked) {
+      // Find if this was the only current company
+      const otherCurrent = experiences.some(
+        (exp, idx) => idx !== index && exp.isCurrent && cleanText(exp.company),
+      );
+      if (!otherCurrent) {
+        setStatusType("");
+        setStatusSince("");
+        setStatusNote("");
+        setStatusExpectedReturn("");
+      }
+    }
   };
 
   const getCleanedExperiences = (): Experience[] => {
     return experiences
       .filter(hasMeaningfulExperienceData)
       .map((experience) => {
-        const rawExperience = experience as Experience &
-          Record<string, unknown>;
-
+        const rawExperience = experience as Experience & Record<string, unknown>;
         const {
           _id: _temporaryId,
           company_canonical_id: _companyCanonicalId,
@@ -692,9 +732,33 @@ export default function StepFivePage() {
         if (experience.isCurrent === true) {
           return `Experience ${index + 1}: please enter the company name before saving Currently Working.`;
         }
-
         return `Experience ${index + 1}: company name is required.`;
       }
+    }
+
+    return null;
+  };
+
+  // ✅ Validate status - only if no current company
+  const validateStatus = (): string | null => {
+    // If user has current company, status is auto-managed - no validation needed
+    if (hasCurrentCompany) {
+      return null;
+    }
+
+    // Status is required when no current company
+    if (!statusType) {
+      return "Please select your current status.";
+    }
+
+    // Career break requires expected return date
+    if (statusType === "career_break" && !statusExpectedReturn) {
+      return "Please provide an expected return date for your career break.";
+    }
+
+    // Note max length
+    if (statusNote && statusNote.length > 500) {
+      return "Status note cannot exceed 500 characters.";
     }
 
     return null;
@@ -715,12 +779,31 @@ export default function StepFivePage() {
       ? noticePeriod.trim()
       : "";
 
+    // ✅ Build status data - only if there's no current company
+    let statusData: StatusData | undefined;
+    
+    if (hasCurrentCompany) {
+      // Auto-managed employed status - backend will handle this
+      // We don't send this in the payload, backend auto-creates it
+      statusData = undefined;
+    } else if (statusType) {
+      statusData = {
+        type: statusType,
+        since: statusSince || new Date().toISOString(),
+        note: statusNote.trim(),
+        expectedReturn: statusType === "career_break" && statusExpectedReturn
+          ? statusExpectedReturn
+          : null,
+      };
+    }
+
     const onboardingData: StoredExperienceStep = {
       experiences: cleanedExperiences,
       companyEmail: normalizedEmail,
       noticePeriod: normalizedNoticePeriod,
       currentCompany: cleanText(currentExperience?.company),
       lastUpdated: new Date().toISOString(),
+      ...(statusData ? { status: statusData } : {}),
     };
 
     localStorage.setItem(
@@ -747,6 +830,14 @@ export default function StepFivePage() {
       return;
     }
 
+    // ✅ Validate status only if no current company
+    const statusError = validateStatus();
+    if (statusError) {
+      setError(statusError);
+      showToast("error", statusError);
+      return;
+    }
+
     try {
       setError(null);
       setIsLoading(true);
@@ -758,7 +849,6 @@ export default function StepFivePage() {
 
       if (currentExperience && companyEmail.trim()) {
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
         if (!emailPattern.test(companyEmail.trim())) {
           const message = "Please enter a valid official company email.";
           setError(message);
@@ -782,15 +872,12 @@ export default function StepFivePage() {
 
   const handleBack = () => {
     const cleanedExperiences = getCleanedExperiences();
-
     persistExperienceStep(cleanedExperiences);
-
     router.push("/onboarding/stepFour");
   };
 
-  const hasCurrentExperience = experiences.some(
-    (experience) => Boolean(experience.isCurrent),
-  );
+  // A company counts as current only when both company name and isCurrent exist.
+  const hasAnyCurrentExperience = hasCurrentCompany;
 
   return (
     <form
@@ -814,14 +901,12 @@ export default function StepFivePage() {
         <div className="rounded-xl border border-green-500/20 bg-green-500/10 p-2">
           <Briefcase className="h-5 w-5 text-green-400" />
         </div>
-
         <div>
           <h2 className="text-xl font-bold text-white">Work Experience</h2>
           <p className="text-sm text-gray-400">
             Add your work experience details
           </p>
         </div>
-
         <span className="ml-auto text-sm text-gray-500">Step 5 of 6</span>
       </div>
 
@@ -843,11 +928,9 @@ export default function StepFivePage() {
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-green-500/20 bg-green-500/10 text-green-400">
                   <Briefcase className="h-4 w-4" />
                 </div>
-
                 <h3 className="text-sm font-semibold text-white">
                   Experience {index + 1}
                 </h3>
-
                 {!experience.company &&
                 !experience.role &&
                 !experience.startDate ? (
@@ -856,7 +939,6 @@ export default function StepFivePage() {
                   </span>
                 ) : null}
               </div>
-
               {experiences.length > 1 ? (
                 <button
                   type="button"
@@ -875,7 +957,6 @@ export default function StepFivePage() {
                   <Building2 className="h-3.5 w-3.5 text-gray-500" />
                   Company
                 </label>
-
                 <AutocompleteInput
                   apiType="company"
                   value={experience.company || ""}
@@ -892,7 +973,6 @@ export default function StepFivePage() {
                   <User className="h-3.5 w-3.5 text-gray-500" />
                   Role / Title
                 </label>
-
                 <AutocompleteInput
                   apiType="jobRole"
                   value={experience.role || ""}
@@ -909,16 +989,11 @@ export default function StepFivePage() {
                   <Calendar className="h-3.5 w-3.5 text-gray-500" />
                   Start Date
                 </label>
-
                 <input
                   type="date"
                   value={experience.startDate || ""}
                   onChange={(event) =>
-                    handleUpdate(
-                      index,
-                      "startDate",
-                      event.target.value,
-                    )
+                    handleUpdate(index, "startDate", event.target.value)
                   }
                   className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 />
@@ -929,18 +1004,13 @@ export default function StepFivePage() {
                   <Calendar className="h-3.5 w-3.5 text-gray-500" />
                   End Date
                 </label>
-
                 <input
                   type="date"
                   value={experience.endDate || ""}
                   disabled={Boolean(experience.isCurrent)}
                   min={experience.startDate || undefined}
                   onChange={(event) =>
-                    handleUpdate(
-                      index,
-                      "endDate",
-                      event.target.value,
-                    )
+                    handleUpdate(index, "endDate", event.target.value)
                   }
                   className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:cursor-not-allowed disabled:opacity-50"
                 />
@@ -952,14 +1022,10 @@ export default function StepFivePage() {
                     type="checkbox"
                     checked={Boolean(experience.isCurrent)}
                     onChange={(event) =>
-                      handleCurrentlyWorkingChange(
-                        index,
-                        event.target.checked,
-                      )
+                      handleCurrentlyWorkingChange(index, event.target.checked)
                     }
                     className="h-4 w-4 rounded border-[#2a3a52] bg-[#0f172a] text-green-500 focus:ring-2 focus:ring-green-500/20 focus:ring-offset-0"
                   />
-
                   <span className="text-sm font-medium text-gray-300 transition-colors group-hover:text-white">
                     Currently working here
                   </span>
@@ -970,7 +1036,6 @@ export default function StepFivePage() {
                 <label className="text-xs font-medium text-gray-300">
                   Description
                 </label>
-
                 <textarea
                   value={
                     Array.isArray(experience.description)
@@ -978,11 +1043,7 @@ export default function StepFivePage() {
                       : experience.description || ""
                   }
                   onChange={(event) =>
-                    handleUpdate(
-                      index,
-                      "description",
-                      event.target.value,
-                    )
+                    handleUpdate(index, "description", event.target.value)
                   }
                   placeholder="Describe your responsibilities and achievements..."
                   rows={3}
@@ -1003,11 +1064,107 @@ export default function StepFivePage() {
         </button>
       </div>
 
-      {hasCurrentExperience ? (
+      {/* ✅ Candidate Status Section - Only show when NO current company */}
+      {!hasAnyCurrentExperience && (
+        <div className="space-y-4 rounded-xl border border-[#2a3a52] bg-[#111827] p-5">
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-green-400" />
+            <h3 className="text-sm font-semibold text-white">Candidate Status</h3>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-gray-300">
+                Current Status <span className="text-red-400">*</span>
+              </label>
+              <select
+                value={statusType}
+                onChange={(e) => handleStatusChange(e.target.value)}
+                className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              >
+                <option value="">Select your status...</option>
+                {statusOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* ✅ Expected Return Date (only for career break) */}
+            {statusType === "career_break" && (
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-gray-300">
+                  Expected Return Date <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={statusExpectedReturn}
+                  onChange={(e) => setStatusExpectedReturn(e.target.value)}
+                  min={new Date().toISOString().split("T")[0]}
+                  className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  When do you plan to return to work?
+                </p>
+              </div>
+            )}
+
+            {/* ✅ Note (optional) */}
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-gray-300">
+                Note (Optional)
+              </label>
+              <textarea
+                value={statusNote}
+                onChange={(e) => setStatusNote(e.target.value.slice(0, 500))}
+                placeholder="Add any additional details about your status..."
+                rows={2}
+                maxLength={500}
+                className="w-full resize-none rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              />
+              <div className="mt-1 flex justify-between text-xs">
+                <span className="text-gray-500">Optional</span>
+                <span className={`${statusNote.length > 450 ? 'text-yellow-400' : 'text-gray-500'}`}>
+                  {statusNote.length}/500
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ✅ Show employed status message when user has current company */}
+      {hasAnyCurrentExperience && (
         <div className="space-y-4 rounded-xl border border-green-500/20 bg-green-500/5 p-5">
           <div className="flex items-center gap-2">
             <Briefcase className="h-4 w-4 text-green-400" />
+            <h3 className="text-sm font-semibold text-white">Employment Status</h3>
+            <span className="ml-auto rounded-full bg-green-500/20 px-2.5 py-0.5 text-[10px] font-medium text-green-400">
+              Auto-Managed
+            </span>
+          </div>
+          <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-500/20">
+                <Briefcase className="h-4 w-4 text-green-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-white">Currently Employed</p>
+                <p className="text-xs text-gray-400">
+                  Your status is automatically set to &quot;Employed&quot; since you have a current job.
+                  This will be managed by the system.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
+      {hasAnyCurrentExperience ? (
+        <div className="space-y-4 rounded-xl border border-green-500/20 bg-green-500/5 p-5">
+          <div className="flex items-center gap-2">
+            <Briefcase className="h-4 w-4 text-green-400" />
             <h3 className="text-sm font-semibold text-white">
               Current Employment Details
             </h3>
@@ -1021,7 +1178,6 @@ export default function StepFivePage() {
               >
                 Notice Period (days)
               </label>
-
               <input
                 id="noticePeriod"
                 type="number"
@@ -1044,7 +1200,6 @@ export default function StepFivePage() {
               >
                 Official Company Email
               </label>
-
               <input
                 id="companyEmail"
                 type="email"

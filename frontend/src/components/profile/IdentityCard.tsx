@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -9,6 +8,7 @@ import {
   Loader2,
   ShieldCheck,
   UserRound,
+  Clock,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
@@ -84,6 +84,32 @@ const formatExternalUrl = (url: string): string => {
   return `https://${trimmedUrl}`;
 };
 
+// ✅ Status label mapping
+const STATUS_LABELS: Record<string, string> = {
+  open_to_work: "Open to Work",
+  career_break: "Career Break",
+  freelancing: "Freelancing",
+  building: "Building Something",
+  not_looking: "Not Looking",
+  looking_internship: "Looking for Internship",
+  looking_job: "Looking for Job",
+  preparing_exams: "Preparing for Exams",
+  employed: "Currently Employed",
+};
+
+// ✅ Status color mapping
+const STATUS_COLORS: Record<string, string> = {
+  open_to_work: "text-green-400 bg-green-500/10 border-green-500/20",
+  career_break: "text-yellow-400 bg-yellow-500/10 border-yellow-500/20",
+  freelancing: "text-blue-400 bg-blue-500/10 border-blue-500/20",
+  building: "text-purple-400 bg-purple-500/10 border-purple-500/20",
+  not_looking: "text-gray-400 bg-gray-500/10 border-gray-500/20",
+  looking_internship: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20",
+  looking_job: "text-green-400 bg-green-500/10 border-green-500/20",
+  preparing_exams: "text-orange-400 bg-orange-500/10 border-orange-500/20",
+  employed: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+};
+
 export default function IdentityCard({
   profile,
   initials,
@@ -101,6 +127,14 @@ export default function IdentityCard({
 
   const displayName = profile.fullName || profile.name || "User";
   const profileInitials = initials || getInitials(displayName);
+
+  // ✅ Check if user has current company
+  const hasCurrentCompany = profile.currentCompany && profile.currentCompany.trim().length > 0;
+
+  // ✅ Get status display info
+  const statusType = profile.status?.type || "";
+  const statusLabel = STATUS_LABELS[statusType] || "";
+  const statusColor = STATUS_COLORS[statusType] || "text-gray-400 bg-gray-500/10 border-gray-500/20";
 
   useEffect(() => {
     setProfileImage(profile.profileImage || null);
@@ -287,6 +321,26 @@ export default function IdentityCard({
                     <ShieldCheck className="h-3.5 w-3.5" />
                     Verified
                   </span>
+
+                  {/* ✅ Status Badge - Show when no current company */}
+                  {!hasCurrentCompany && statusType && statusLabel && (
+                    <span
+                      className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-medium ${statusColor}`}
+                    >
+                      <Clock className="h-3.5 w-3.5" />
+                      {statusLabel}
+                    </span>
+                  )}
+
+                  {/* ✅ Employed Badge - Show when has current company */}
+                  {hasCurrentCompany && (
+                    <span
+                      className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-medium ${STATUS_COLORS.employed}`}
+                    >
+                      <BriefcaseBusiness className="h-3.5 w-3.5" />
+                      Employed
+                    </span>
+                  )}
                 </div>
 
                 <div className="mt-3 flex flex-col items-center gap-2 sm:items-start">
@@ -309,6 +363,9 @@ export default function IdentityCard({
                       </p>
                     </div>
                   )}
+
+                  
+                 
                 </div>
               </div>
 
@@ -377,4 +434,3 @@ export default function IdentityCard({
     </>
   );
 }
-

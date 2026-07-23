@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import {
@@ -51,6 +51,7 @@ import type {
   Award,
   Publication,
   MasterData,
+  Status,
 } from "@/types/profile";
 
 // ---------- Constants ----------
@@ -71,7 +72,6 @@ const emptyExperience: Experience = {
   company: "",
   company_canonical_id: "",
   company_display: "",
-  // company_master_id: "",
   role: "",
   startDate: "",
   endDate: "",
@@ -213,6 +213,75 @@ function normalizeOptions(items: unknown): Option[] {
     .filter((item: Option) => item.value.length > 0 && item.label.length > 0);
 }
 
+function cleanText(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+const VALID_STATUS_TYPES = new Set([
+  "open_to_work",
+  "career_break",
+  "freelancing",
+  "building",
+  "not_looking",
+  "looking_internship",
+  "looking_job",
+  "preparing_exams",
+  "employed",
+]);
+
+function hasValidCurrentExperience(experiences: Experience[]): boolean {
+  return (
+    Array.isArray(experiences) &&
+    experiences.some(
+      (experience) =>
+        experience?.isCurrent === true &&
+        cleanText(experience.company).length > 0,
+    )
+  );
+}
+
+function normalizeStatus(
+  status: Status | null,
+  experiences: Experience[],
+): Status | null {
+  const hasCurrentCompany = hasValidCurrentExperience(experiences);
+
+  if (hasCurrentCompany) {
+    const currentExperience = experiences.find(
+      (experience) =>
+        experience?.isCurrent === true &&
+        cleanText(experience.company).length > 0,
+    );
+
+    return {
+      type: "employed",
+      since:
+        cleanText(currentExperience?.startDate) ||
+        new Date().toISOString().split("T")[0],
+      note: "",
+      expectedReturn: null,
+    };
+  }
+
+  if (!status || typeof status !== "object") {
+    return null;
+  }
+
+  const type = cleanText(status.type);
+
+  if (!type || !VALID_STATUS_TYPES.has(type) || type === "employed") {
+    return null;
+  }
+
+  return {
+    type,
+    since: cleanText(status.since) || new Date().toISOString().split("T")[0],
+    note: cleanText(status.note).slice(0, 500),
+    expectedReturn:
+      type === "career_break" ? cleanText(status.expectedReturn) || null : null,
+  };
+}
+
 function profileToForm(profile: ProfileData): EditForm {
   return {
     fullName: profile.fullName || profile.name || "",
@@ -278,6 +347,12 @@ function profileToForm(profile: ProfileData): EditForm {
     currentSalaryAmount: profile.currentSalaryAmount || "",
     expectedSalaryCurrency: profile.expectedSalaryCurrency || "₹",
     expectedSalaryAmount: profile.expectedSalaryAmount || "",
+    status:
+      profile.status &&
+      cleanText(profile.status.type) &&
+      VALID_STATUS_TYPES.has(cleanText(profile.status.type))
+        ? profile.status
+        : null,
   };
 }
 
@@ -287,10 +362,6 @@ type ToastState = {
   type: "success" | "error";
   message: string;
 } | null;
-
-function cleanText(value: unknown): string {
-  return typeof value === "string" ? value.trim() : "";
-}
 
 function hasMeaningfulValue(value: unknown): boolean {
   if (typeof value === "string") return value.trim().length > 0;
@@ -362,7 +433,8 @@ function getEnteredEducationRows(
 function cleanEducations(educations: Education[]): Education[] {
   return getEnteredEducationRows(educations)
     .filter(
-      (item) => cleanText(item.college).length > 0 && cleanText(item.degree).length > 0,
+      (item) =>
+        cleanText(item.college).length > 0 && cleanText(item.degree).length > 0,
     )
     .map((item) => {
       const cleaned = { ...item };
@@ -415,10 +487,7 @@ function cleanExperiences(experiences: Experience[]): Experience[] {
     });
 }
 
-function validateSection(
-  sectionName: string,
-  form: EditForm,
-): string | null {
+function validateSection(sectionName: string, form: EditForm): string | null {
   if (sectionName === "Basic Information") {
     if (!cleanText(form.name || form.fullName)) {
       return "Please enter your name.";
@@ -502,6 +571,20 @@ function validateSection(
         return `Experience ${index + 1}: company name is required.`;
       }
     }
+
+    const hasCurrentCompany = hasValidCurrentExperience(form.experiences);
+    const normalizedStatus = normalizeStatus(form.status, form.experiences);
+
+    if (!hasCurrentCompany && !normalizedStatus) {
+      return "Please select your current status.";
+    }
+
+    if (
+      normalizedStatus?.type === "career_break" &&
+      !normalizedStatus.expectedReturn
+    ) {
+      return "Please select the expected return date for your career break.";
+    }
   }
 
   return null;
@@ -547,12 +630,22 @@ function buildSectionPayload(
 
     case "Experience": {
       const payload: PayloadRecord = {};
-      assignIfNotEmpty(payload, "experiences", cleanExperiences(form.experiences));
+      assignIfNotEmpty(
+        payload,
+        "experiences",
+        cleanExperiences(form.experiences),
+      );
 
       const companyEmail = cleanText(form.companyEmail).toLowerCase();
       const noticePeriod = cleanText(form.noticePeriod);
       if (companyEmail) payload.companyEmail = companyEmail;
       if (noticePeriod) payload.noticePeriod = noticePeriod;
+
+      const normalizedStatus = normalizeStatus(form.status, form.experiences);
+
+      if (normalizedStatus) {
+        payload.status = normalizedStatus;
+      }
 
       return payload;
     }
@@ -587,17 +680,37 @@ function buildSectionPayload(
       };
       assignIfNotEmpty(payload, "jobRoles", cleanStringArray(form.jobRoles));
       assignIfNotEmpty(payload, "locations", cleanStringArray(form.locations));
-      assignIfNotEmpty(payload, "employmentType", cleanStringArray(form.employmentType));
-      assignIfNotEmpty(payload, "lookingFor", cleanStringArray(form.lookingFor));
+      assignIfNotEmpty(
+        payload,
+        "employmentType",
+        cleanStringArray(form.employmentType),
+      );
+      assignIfNotEmpty(
+        payload,
+        "lookingFor",
+        cleanStringArray(form.lookingFor),
+      );
       assignIfNotEmpty(payload, "industry", cleanStringArray(form.industry));
       return payload;
     }
 
     case "Tools & Languages": {
       const payload: PayloadRecord = {};
-      assignIfNotEmpty(payload, "toolsAndPlatforms", cleanStringArray(form.toolsAndPlatforms));
-      assignIfNotEmpty(payload, "languagesKnown", cleanStringArray(form.languagesKnown));
-      assignIfNotEmpty(payload, "domainKnowledge", cleanStringArray(form.domainKnowledge));
+      assignIfNotEmpty(
+        payload,
+        "toolsAndPlatforms",
+        cleanStringArray(form.toolsAndPlatforms),
+      );
+      assignIfNotEmpty(
+        payload,
+        "languagesKnown",
+        cleanStringArray(form.languagesKnown),
+      );
+      assignIfNotEmpty(
+        payload,
+        "domainKnowledge",
+        cleanStringArray(form.domainKnowledge),
+      );
       return payload;
     }
 
@@ -606,7 +719,9 @@ function buildSectionPayload(
       assignIfNotEmpty(
         payload,
         "internationalExperience",
-        cleanObjectArray(form.internationalExperience as unknown as Record<string, unknown>[]),
+        cleanObjectArray(
+          form.internationalExperience as unknown as Record<string, unknown>[],
+        ),
       );
       return payload;
     }
@@ -616,7 +731,9 @@ function buildSectionPayload(
       assignIfNotEmpty(
         payload,
         "leadership",
-        cleanObjectArray(form.leadership as unknown as Record<string, unknown>[]),
+        cleanObjectArray(
+          form.leadership as unknown as Record<string, unknown>[],
+        ),
       );
       return payload;
     }
@@ -626,7 +743,9 @@ function buildSectionPayload(
       assignIfNotEmpty(
         payload,
         "achievements",
-        cleanObjectArray(form.achievements as unknown as Record<string, unknown>[]),
+        cleanObjectArray(
+          form.achievements as unknown as Record<string, unknown>[],
+        ),
       );
       return payload;
     }
@@ -646,7 +765,9 @@ function buildSectionPayload(
       assignIfNotEmpty(
         payload,
         "publications",
-        cleanObjectArray(form.publications as unknown as Record<string, unknown>[]),
+        cleanObjectArray(
+          form.publications as unknown as Record<string, unknown>[],
+        ),
       );
       return payload;
     }
@@ -837,15 +958,101 @@ export default function EditProfilePage() {
     }
   }
 
-  function updateField<K extends keyof EditForm>(field: K, value: EditForm[K]) {
+  // ✅ Use useCallback to prevent recreation on every render
+  const updateField = useCallback(
+    <K extends keyof EditForm>(field: K, value: EditForm[K]) => {
+      setForm((prev: EditForm | null) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          [field]: value,
+        };
+      });
+    },
+    [],
+  );
+
+  // ✅ Memoized status update handler
+  const handleStatusTypeChange = useCallback((value: string) => {
+    const nextType = value.trim();
+
     setForm((prev: EditForm | null) => {
       if (!prev) return prev;
+
+      if (!nextType) {
+        return { ...prev, status: null };
+      }
+
+      const today = new Date().toISOString().split("T")[0];
+      const prevStatus = prev.status || {
+        type: "",
+        since: "",
+        note: "",
+        expectedReturn: null,
+      };
+
       return {
         ...prev,
-        [field]: value,
+        status: {
+          type: nextType,
+          since: today,
+          note: prevStatus.note || "",
+          expectedReturn:
+            nextType === "career_break"
+              ? prevStatus.expectedReturn || null
+              : null,
+        },
       };
     });
-  }
+  }, []);
+
+  const handleStatusSinceChange = useCallback((value: string) => {
+    setForm((prev: EditForm | null) => {
+      if (!prev) return prev;
+      const prevStatus = prev.status || {
+        type: "",
+        since: "",
+        note: "",
+        expectedReturn: null,
+      };
+      return {
+        ...prev,
+        status: { ...prevStatus, since: value },
+      };
+    });
+  }, []);
+
+  const handleStatusNoteChange = useCallback((value: string) => {
+    setForm((prev: EditForm | null) => {
+      if (!prev) return prev;
+      const prevStatus = prev.status || {
+        type: "",
+        since: "",
+        note: "",
+        expectedReturn: null,
+      };
+      return {
+        ...prev,
+        status: { ...prevStatus, note: value.slice(0, 500) },
+      };
+    });
+  }, []);
+
+  const handleStatusExpectedReturnChange = useCallback((value: string) => {
+    setForm((prev: EditForm | null) => {
+      if (!prev) return prev;
+      const prevStatus = prev.status || {
+        type: "",
+        since: "",
+        note: "",
+        expectedReturn: null,
+      };
+      return {
+        ...prev,
+        status: { ...prevStatus, expectedReturn: value || null },
+      };
+    });
+  }, []);
 
   function updateEducation<K extends keyof Education>(
     index: number,
@@ -1260,6 +1467,17 @@ export default function EditProfilePage() {
 
   if (!form) return null;
 
+  // ✅ Status state for ExperienceEditor
+  const statusData = form.status || {
+    type: "",
+    since: "",
+    note: "",
+    expectedReturn: null,
+  };
+
+  // ✅ Add debug log
+  console.log("Parent statusData:", statusData);
+
   return (
     <div className="min-h-screen bg-[var(--background)] text-white">
       {toast && (
@@ -1481,6 +1699,14 @@ export default function EditProfilePage() {
               onNoticePeriodChange={(value: string) =>
                 updateField("noticePeriod", value)
               }
+              statusType={statusData.type || ""}
+              statusSince={statusData.since || ""}
+              statusNote={statusData.note || ""}
+              statusExpectedReturn={statusData.expectedReturn || ""}
+              onStatusTypeChange={handleStatusTypeChange}
+              onStatusSinceChange={handleStatusSinceChange}
+              onStatusNoteChange={handleStatusNoteChange}
+              onStatusExpectedReturnChange={handleStatusExpectedReturnChange}
             />
 
             <SectionActions

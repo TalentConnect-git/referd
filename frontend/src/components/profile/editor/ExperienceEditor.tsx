@@ -18,6 +18,7 @@ import {
   Trash2,
   User,
   X,
+  Clock,
 } from "lucide-react";
 
 import axiosInstance from "@/lib/axiosInstance";
@@ -53,8 +54,8 @@ type AutocompleteInputProps = {
   placeholder?: string;
   label?: string;
   icon?: ElementType;
-  required?: boolean; // ✅ Add required prop
-  error?: string; // ✅ Add error prop
+  required?: boolean;
+  error?: string;
 };
 
 type ExperienceEditorProps = {
@@ -72,6 +73,16 @@ type ExperienceEditorProps = {
   noticePeriod: string;
   onCompanyEmailChange: (value: string) => void;
   onNoticePeriodChange: (value: string) => void;
+
+  // ✅ Status props
+  statusType: string;
+  statusSince: string;
+  statusNote: string;
+  statusExpectedReturn: string;
+  onStatusTypeChange: (value: string) => void;
+  onStatusSinceChange: (value: string) => void;
+  onStatusNoteChange: (value: string) => void;
+  onStatusExpectedReturnChange: (value: string) => void;
 };
 
 function extractItems(responseData: unknown): AutocompleteItem[] {
@@ -226,8 +237,8 @@ function AutocompleteInput({
   placeholder,
   label,
   icon: Icon,
-  required = false, // ✅ Add required prop
-  error = "", // ✅ Add error prop
+  required = false,
+  error = "",
 }: AutocompleteInputProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState(value || "");
@@ -323,11 +334,6 @@ function AutocompleteInput({
     const nextValue = event.target.value;
 
     setSearchTerm(nextValue);
-
-    /*
-     * item is undefined during manual typing.
-     * The parent uses this to clear old company ObjectId/canonical metadata.
-     */
     onChange(nextValue, undefined);
     setIsOpen(true);
   }
@@ -402,10 +408,6 @@ function AutocompleteInput({
     } catch (error) {
       console.error(`Error creating ${apiType}:`, error);
 
-      /*
-       * Keep manually entered text when optional master-data creation fails.
-       * No invalid master ID is retained.
-       */
       setSearchTerm(valueToCreate);
       onChange(valueToCreate, undefined);
       setIsOpen(false);
@@ -583,11 +585,16 @@ export function ExperienceEditor({
   noticePeriod,
   onCompanyEmailChange,
   onNoticePeriodChange,
+  // ✅ Status props
+  statusType = "",
+  statusSince = "",
+  statusNote = "",
+  statusExpectedReturn = "",
+  onStatusTypeChange,
+  onStatusSinceChange,
+  onStatusNoteChange,
+  onStatusExpectedReturnChange,
 }: ExperienceEditorProps) {
-  /*
-   * Stores undefined in React state for optional ObjectId fields.
-   * JSON.stringify omits undefined, preventing Mongoose from receiving "".
-   */
   function clearOptionalExperienceField(
     index: number,
     key: keyof Experience,
@@ -609,11 +616,6 @@ export function ExperienceEditor({
     onUpdate(index, "company", normalizedCompany);
 
     if (!item) {
-      /*
-       * Manual typing: clear metadata from a previously selected company.
-       * Most importantly, company_master_id becomes undefined instead of "".
-       */
-      
       clearOptionalExperienceField(index, "company_canonical_id");
 
       onUpdate(
@@ -625,14 +627,11 @@ export function ExperienceEditor({
       return;
     }
 
-    const masterId = getMasterId(item);
     const canonicalId = getCanonicalId(item);
     const displayName = getCompanyDisplayName(
       item,
       normalizedCompany,
     );
-
-    
 
     if (canonicalId) {
       onUpdate(
@@ -671,14 +670,63 @@ export function ExperienceEditor({
     }
   }
 
-  const hasCurrentExperience = experiences.some((experience) =>
-    Boolean(experience.isCurrent),
+  // ✅ Get user type for status options
+  const [userType, setUserType] = useState<"student" | "fresher" | "professional">("professional");
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    const role = localStorage.getItem("selectedRole") || user?.userType || "professional";
+    setUserType(role as "student" | "fresher" | "professional");
+  }, []);
+
+  // ✅ Status options based on user type
+  const statusOptions = useMemo(() => {
+    if (userType === "student" || userType === "fresher") {
+      return [
+        { value: "looking_internship", label: "Looking for Internship" },
+        { value: "looking_job", label: "Looking for Job" },
+        { value: "preparing_exams", label: "Preparing for Exams" },
+      ];
+    }
+    return [
+      { value: "open_to_work", label: "Open to Work" },
+      { value: "career_break", label: "Career Break" },
+      { value: "freelancing", label: "Freelancing" },
+      { value: "building", label: "Building Something" },
+      { value: "not_looking", label: "Not Looking" },
+    ];
+  }, [userType]);
+
+  // ✅ Check if any experience has isCurrent: true
+  const hasAnyCurrentExperience = experiences.some(
+    (exp) => exp.isCurrent === true,
   );
+
+  // ✅ Handle status change - Directly call the parent handlers
+  const handleStatusChange = (value: string) => {
+    const today = new Date().toISOString().split("T")[0];
+    
+    // ✅ Update status type in parent
+    onStatusTypeChange(value);
+    
+    // ✅ Update status since to today in parent
+    onStatusSinceChange(today);
+    
+    // ✅ Clear expected return if not career break in parent
+    if (value !== "career_break") {
+      onStatusExpectedReturnChange("");
+    }
+  };
+
+  // ✅ Safely get status note with fallback
+  const safeStatusNote = statusNote || "";
+
+  // ✅ Log current status for debugging
+  console.log("Current statusType in ExperienceEditor:", statusType);
 
   return (
     <div className="space-y-6">
       {experiences.map((experience, index) => {
-        // ✅ Check if this experience has validation error
         const hasCompanyError = experience.isCurrent && !experience.company?.trim();
         
         return (
@@ -872,7 +920,108 @@ export function ExperienceEditor({
         Add more experience
       </button>
 
-      {hasCurrentExperience ? (
+      {/* ✅ Candidate Status Section - Only show when NO current company */}
+      {!hasAnyCurrentExperience && (
+        <div className="space-y-4 rounded-xl border border-[#2a3a52] bg-[#111827] p-5">
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-green-400" />
+            <h4 className="text-sm font-semibold text-white">Candidate Status</h4>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-gray-300">
+                Current Status <span className="text-red-400">*</span>
+              </label>
+              <select
+                value={statusType}
+                onChange={(e) => {
+                  const selectedValue = e.target.value;
+                  console.log("Dropdown selected value:", selectedValue);
+                  handleStatusChange(selectedValue);
+                }}
+                className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              >
+                <option value="">Select your status...</option>
+                {statusOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* ✅ Expected Return Date (only for career break) */}
+            {statusType === "career_break" && (
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-gray-300">
+                  Expected Return Date <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={statusExpectedReturn}
+                  onChange={(e) => onStatusExpectedReturnChange(e.target.value)}
+                  min={new Date().toISOString().split("T")[0]}
+                  className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  When do you plan to return to work?
+                </p>
+              </div>
+            )}
+
+            {/* ✅ Note (optional) */}
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-gray-300">
+                Note (Optional)
+              </label>
+              <textarea
+                value={safeStatusNote}
+                onChange={(e) => onStatusNoteChange(e.target.value.slice(0, 500))}
+                placeholder="Add any additional details about your status..."
+                rows={2}
+                maxLength={500}
+                className="w-full resize-none rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+              />
+              <div className="mt-1 flex justify-between text-xs">
+                <span className="text-gray-500">Optional</span>
+                <span className={`${safeStatusNote.length > 450 ? 'text-yellow-400' : 'text-gray-500'}`}>
+                  {safeStatusNote.length}/500
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ✅ Show employed status message when user has current company */}
+      {hasAnyCurrentExperience && (
+        <div className="space-y-4 rounded-xl border border-green-500/20 bg-green-500/5 p-5">
+          <div className="flex items-center gap-2">
+            <Briefcase className="h-4 w-4 text-green-400" />
+            <h4 className="text-sm font-semibold text-white">Employment Status</h4>
+            <span className="ml-auto rounded-full bg-green-500/20 px-2.5 py-0.5 text-[10px] font-medium text-green-400">
+              Auto-Managed
+            </span>
+          </div>
+          <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-500/20">
+                <Briefcase className="h-4 w-4 text-green-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-white">Currently Employed</p>
+                <p className="text-xs text-gray-400">
+                  Your status is automatically set to &quot;Employed&quot; since you have a current job.
+                  This will be managed by the system.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {hasAnyCurrentExperience ? (
         <div className="space-y-4 rounded-xl border border-green-500/20 bg-green-500/5 p-5">
           <div className="flex items-center gap-2">
             <Briefcase className="h-4 w-4 text-green-400" />
