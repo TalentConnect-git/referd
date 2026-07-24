@@ -8,7 +8,17 @@ import {
   Loader2,
   ShieldCheck,
   UserRound,
-  Clock,
+  MapPin,
+  Award,
+  BadgeCheck,
+  Sparkles,
+  TrendingUp,
+  Briefcase,
+  User,
+  Calendar,
+  Heart,
+  GraduationCap,
+  School,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
@@ -50,6 +60,89 @@ const LinkedInIcon = ({ className = "h-4 w-4" }: SocialIconProps) => {
   );
 };
 
+// Status configuration
+const STATUS_CONFIG: Record<string, {
+  label: string;
+  icon: React.ReactNode;
+  color: string;
+  bgColor: string;
+  borderColor: string;
+  glowColor: string;
+}> = {
+  open_to_work: {
+    label: "Open to Work",
+    icon: <TrendingUp className="h-3.5 w-3.5" />,
+    color: "text-green-400",
+    bgColor: "bg-green-500/10",
+    borderColor: "border-green-500/30",
+    glowColor: "shadow-green-500/20",
+  },
+  career_break: {
+    label: "Career Break",
+    icon: <Heart className="h-3.5 w-3.5" />,
+    color: "text-amber-400",
+    bgColor: "bg-amber-500/10",
+    borderColor: "border-amber-500/30",
+    glowColor: "shadow-amber-500/20",
+  },
+  freelancing: {
+    label: "Freelancing",
+    icon: <Briefcase className="h-3.5 w-3.5" />,
+    color: "text-blue-400",
+    bgColor: "bg-blue-500/10",
+    borderColor: "border-blue-500/30",
+    glowColor: "shadow-blue-500/20",
+  },
+  building: {
+    label: "Building Something",
+    icon: <Sparkles className="h-3.5 w-3.5" />,
+    color: "text-purple-400",
+    bgColor: "bg-purple-500/10",
+    borderColor: "border-purple-500/30",
+    glowColor: "shadow-purple-500/20",
+  },
+  not_looking: {
+    label: "Not Looking",
+    icon: <User className="h-3.5 w-3.5" />,
+    color: "text-gray-400",
+    bgColor: "bg-gray-500/10",
+    borderColor: "border-gray-500/30",
+    glowColor: "shadow-gray-500/20",
+  },
+  looking_internship: {
+    label: "Looking for Internship",
+    icon: <Award className="h-3.5 w-3.5" />,
+    color: "text-cyan-400",
+    bgColor: "bg-cyan-500/10",
+    borderColor: "border-cyan-500/30",
+    glowColor: "shadow-cyan-500/20",
+  },
+  looking_job: {
+    label: "Looking for Job",
+    icon: <BriefcaseBusiness className="h-3.5 w-3.5" />,
+    color: "text-emerald-400",
+    bgColor: "bg-emerald-500/10",
+    borderColor: "border-emerald-500/30",
+    glowColor: "shadow-emerald-500/20",
+  },
+  preparing_exams: {
+    label: "Preparing for Exams",
+    icon: <Calendar className="h-3.5 w-3.5" />,
+    color: "text-orange-400",
+    bgColor: "bg-orange-500/10",
+    borderColor: "border-orange-500/30",
+    glowColor: "shadow-orange-500/20",
+  },
+  employed: {
+    label: "Currently Employed",
+    icon: <BadgeCheck className="h-3.5 w-3.5" />,
+    color: "text-emerald-400",
+    bgColor: "bg-emerald-500/10",
+    borderColor: "border-emerald-500/30",
+    glowColor: "shadow-emerald-500/20",
+  },
+};
+
 interface IdentityCardProps {
   profile: ProfileData;
   initials?: string;
@@ -84,32 +177,6 @@ const formatExternalUrl = (url: string): string => {
   return `https://${trimmedUrl}`;
 };
 
-// ✅ Status label mapping
-const STATUS_LABELS: Record<string, string> = {
-  open_to_work: "Open to Work",
-  career_break: "Career Break",
-  freelancing: "Freelancing",
-  building: "Building Something",
-  not_looking: "Not Looking",
-  looking_internship: "Looking for Internship",
-  looking_job: "Looking for Job",
-  preparing_exams: "Preparing for Exams",
-  employed: "Currently Employed",
-};
-
-// ✅ Status color mapping
-const STATUS_COLORS: Record<string, string> = {
-  open_to_work: "text-green-400 bg-green-500/10 border-green-500/20",
-  career_break: "text-yellow-400 bg-yellow-500/10 border-yellow-500/20",
-  freelancing: "text-blue-400 bg-blue-500/10 border-blue-500/20",
-  building: "text-purple-400 bg-purple-500/10 border-purple-500/20",
-  not_looking: "text-gray-400 bg-gray-500/10 border-gray-500/20",
-  looking_internship: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20",
-  looking_job: "text-green-400 bg-green-500/10 border-green-500/20",
-  preparing_exams: "text-orange-400 bg-orange-500/10 border-orange-500/20",
-  employed: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
-};
-
 export default function IdentityCard({
   profile,
   initials,
@@ -122,22 +189,27 @@ export default function IdentityCard({
   const [profileImage, setProfileImage] = useState<string | null>(
     profile.profileImage || null,
   );
+  const [imageError, setImageError] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const displayName = profile.fullName || profile.name || "User";
   const profileInitials = initials || getInitials(displayName);
 
-  // ✅ Check if user has current company
+  // Check if user has current company
   const hasCurrentCompany = profile.currentCompany && profile.currentCompany.trim().length > 0;
 
-  // ✅ Get status display info
+  // Get status config
   const statusType = profile.status?.type || "";
-  const statusLabel = STATUS_LABELS[statusType] || "";
-  const statusColor = STATUS_COLORS[statusType] || "text-gray-400 bg-gray-500/10 border-gray-500/20";
+  const statusConfig = STATUS_CONFIG[statusType] || STATUS_CONFIG.not_looking;
+
+  // Get education details
+  const education = profile.educations?.[0] || profile.education?.[0] || null;
+  const hasEducation = education && (education.college || education.degree || education.specialization);
 
   useEffect(() => {
     setProfileImage(profile.profileImage || null);
+    setImageError(false);
   }, [profile.profileImage]);
 
   const handleSocialLink = (url?: string) => {
@@ -188,6 +260,11 @@ export default function IdentityCard({
       const response = await axiosInstance.put(
         "/api/onboarding/update",
         formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
 
       const responseData = response.data;
@@ -203,27 +280,18 @@ export default function IdentityCard({
         responseData?.profileImage ||
         responseData?.data?.profileImage;
 
-      if (!responseData?.success && !updatedImage) {
-        throw new Error(
-          responseData?.msg ||
-            responseData?.message ||
-            "Failed to update profile image.",
-        );
-      }
-
       if (updatedImage) {
         setProfileImage(updatedImage);
+        setImageError(false);
+        
+        if (onProfileUpdate && updatedProfile && typeof updatedProfile === "object") {
+          onProfileUpdate(updatedProfile as ProfileData);
+        }
+        
+        toast.success("Profile image updated successfully.");
+      } else {
+        throw new Error("No image URL returned from server");
       }
-
-      if (
-        onProfileUpdate &&
-        updatedProfile &&
-        typeof updatedProfile === "object"
-      ) {
-        onProfileUpdate(updatedProfile as ProfileData);
-      }
-
-      toast.success("Profile image updated successfully.");
     } catch (error: unknown) {
       console.error("Profile image upload error:", error);
 
@@ -232,17 +300,21 @@ export default function IdentityCard({
           data?: {
             msg?: string;
             message?: string;
+            error?: string;
+            details?: string;
           };
         };
         message?: string;
       };
 
-      toast.error(
+      const errorMessage = 
         uploadError.response?.data?.msg ||
-          uploadError.response?.data?.message ||
-          uploadError.message ||
-          "Failed to update profile image.",
-      );
+        uploadError.response?.data?.message ||
+        uploadError.response?.data?.error ||
+        uploadError.message ||
+        "Failed to update profile image.";
+
+      toast.error(errorMessage);
     } finally {
       setIsUploading(false);
 
@@ -252,9 +324,39 @@ export default function IdentityCard({
     }
   };
 
+  const handleImageError = () => {
+    setImageError(true);
+    setProfileImage(null);
+  };
+
+  // Get status badge class
+  const getStatusBadgeClass = (config: typeof statusConfig) => {
+    return `inline-flex shrink-0 items-center gap-1.5 rounded-full border ${config.bgColor} ${config.borderColor} ${config.color} px-2.5 py-1 text-[11px] font-medium shadow-lg ${config.glowColor}`;
+  };
+
+  // Get employment badge class
+  const getEmployedBadgeClass = () => {
+    const config = STATUS_CONFIG.employed;
+    return `inline-flex shrink-0 items-center gap-1.5 rounded-full border ${config.bgColor} ${config.borderColor} ${config.color} px-2.5 py-1 text-[11px] font-medium shadow-lg ${config.glowColor}`;
+  };
+
+  // Format education string
+  const getEducationString = () => {
+    if (!hasEducation) return null;
+    
+    const parts = [];
+    if (education.degree) parts.push(education.degree);
+    if (education.specialization) parts.push(education.specialization);
+    if (education.college) parts.push(education.college);
+    
+    return parts.join(" · ");
+  };
+
+  const educationString = getEducationString();
+
   return (
     <>
-      <section className="overflow-hidden rounded-2xl border border-[#2a3a52] bg-gradient-to-r from-[#111827] to-[#1a2332] p-4 shadow-xl shadow-black/20 sm:p-5">
+      <section className="group overflow-hidden rounded-2xl border border-[#2a3a52] bg-gradient-to-br from-[#0f172a] via-[#111827] to-[#1a2332] p-4 shadow-xl shadow-black/20 transition-all duration-300 hover:border-green-500/20 hover:shadow-2xl hover:shadow-green-500/5 sm:p-6">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
           {/* Profile Image */}
           <div className="flex shrink-0 justify-center sm:justify-start">
@@ -264,22 +366,24 @@ export default function IdentityCard({
                 onClick={handleImageClick}
                 disabled={isUploading}
                 aria-label="Update profile image"
-                className="group/avatar relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border-2 border-green-500/30 bg-[#0b1621] shadow-lg shadow-green-500/10 transition duration-300 hover:scale-[1.03] hover:border-green-500/60 focus:outline-none focus:ring-2 focus:ring-green-500/40 disabled:cursor-not-allowed sm:h-24 sm:w-24"
+                className="group/avatar relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border-2 border-green-500/30 bg-gradient-to-br from-[#0b1621] to-[#1a2332] shadow-lg shadow-green-500/10 transition-all duration-300 hover:scale-[1.03] hover:border-green-500/60 hover:shadow-xl hover:shadow-green-500/20 focus:outline-none focus:ring-2 focus:ring-green-500/40 disabled:cursor-not-allowed sm:h-24 sm:w-24"
               >
-                {profileImage ? (
+                {profileImage && !imageError ? (
                   <img
                     src={profileImage}
                     alt={`${displayName}'s profile`}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover/avatar:scale-105"
+                    onError={handleImageError}
                   />
                 ) : (
-                  <span className="flex h-full w-full items-center justify-center bg-gradient-to-br from-green-500/20 to-emerald-500/10 text-2xl font-bold text-green-400 sm:text-3xl">
+                  <span className="flex h-full w-full items-center justify-center bg-gradient-to-br from-green-500/20 to-emerald-500/10 text-2xl font-bold text-green-400 transition-transform duration-300 group-hover/avatar:scale-105 sm:text-3xl">
                     {profileInitials}
                   </span>
                 )}
 
+                {/* Upload Overlay */}
                 <span
-                  className={`absolute inset-0 flex items-center justify-center bg-black/65 transition-opacity duration-300 ${
+                  className={`absolute inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm transition-opacity duration-300 ${
                     isUploading
                       ? "opacity-100"
                       : "opacity-0 group-hover/avatar:opacity-100"
@@ -288,15 +392,18 @@ export default function IdentityCard({
                   {isUploading ? (
                     <Loader2 className="h-6 w-6 animate-spin text-white" />
                   ) : (
-                    <Camera className="h-6 w-6 text-white" />
+                    <Camera className="h-6 w-6 text-white transition-transform duration-300 group-hover/avatar:scale-110" />
                   )}
                 </span>
-              </button>
 
-              <span
-                className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-[3px] border-[#111827] bg-emerald-400"
-                aria-label="Online"
-              />
+                {/* Online Status Dot */}
+                <span
+                  className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-[3px] border-[#111827] bg-emerald-400 shadow-lg shadow-emerald-500/50"
+                  aria-label="Online"
+                >
+                  <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-75" />
+                </span>
+              </button>
 
               <input
                 ref={fileInputRef}
@@ -312,60 +419,68 @@ export default function IdentityCard({
           <div className="min-w-0 flex-1">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div className="min-w-0 flex-1 text-center sm:text-left">
+                {/* Name & Badges */}
                 <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
                   <h2 className="max-w-full truncate text-xl font-bold tracking-tight text-white sm:text-2xl">
                     {displayName}
                   </h2>
 
-                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-green-500/20 bg-green-500/10 px-2.5 py-1 text-[11px] font-medium text-green-400">
+                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-400 shadow-lg shadow-emerald-500/10">
                     <ShieldCheck className="h-3.5 w-3.5" />
                     Verified
                   </span>
 
-                  {/* ✅ Status Badge - Show when no current company */}
-                  {!hasCurrentCompany && statusType && statusLabel && (
-                    <span
-                      className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-medium ${statusColor}`}
-                    >
-                      <Clock className="h-3.5 w-3.5" />
-                      {statusLabel}
+                  {/* Status Badge - Show when no current company */}
+                  {!hasCurrentCompany && statusType && statusConfig && (
+                    <span className={getStatusBadgeClass(statusConfig)}>
+                      {statusConfig.icon}
+                      {statusConfig.label}
                     </span>
                   )}
 
-                  {/* ✅ Employed Badge - Show when has current company */}
+                  {/* Employed Badge - Show when has current company */}
                   {hasCurrentCompany && (
-                    <span
-                      className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-medium ${STATUS_COLORS.employed}`}
-                    >
-                      <BriefcaseBusiness className="h-3.5 w-3.5" />
+                    <span className={getEmployedBadgeClass()}>
+                      <BadgeCheck className="h-3.5 w-3.5" />
                       Employed
                     </span>
                   )}
                 </div>
 
-                <div className="mt-3 flex flex-col items-center gap-2 sm:items-start">
-                  {headline && (
-                    <div className="flex max-w-full items-start gap-2 text-sm text-slate-200">
-                      <UserRound className="mt-0.5 h-4 w-4 shrink-0 text-green-400" />
+                {/* Headline & Role & Education */}
+                <div className="mt-3 space-y-2">
+                  {/* Headline */}
+                  
 
-                      <p className="break-words text-left leading-5">
-                        {headline}
-                      </p>
-                    </div>
-                  )}
-
+                  {/* Current Role */}
                   {currentRoleLine && (
-                    <div className="flex max-w-full items-start gap-2 text-sm text-slate-400">
+                    <div className="flex max-w-full items-start justify-center gap-2 text-sm text-slate-400 sm:justify-start">
                       <BriefcaseBusiness className="mt-0.5 h-4 w-4 shrink-0 text-green-400" />
-
                       <p className="break-words text-left leading-5">
                         {currentRoleLine}
                       </p>
                     </div>
                   )}
 
-                  
-                 
+                  {/* Education */}
+                  {educationString && (
+                    <div className="flex max-w-full items-start justify-center gap-2 text-sm text-slate-400 sm:justify-start">
+                      <GraduationCap className="mt-0.5 h-4 w-4 shrink-0 text-green-400/70" />
+                      <p className="break-words text-left leading-5">
+                        {educationString}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Location - Optional */}
+                  {profile.location && (
+                    <div className="flex max-w-full items-start justify-center gap-2 text-sm text-slate-500 sm:justify-start">
+                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-green-400/60" />
+                      <p className="break-words text-left leading-5">
+                        {profile.location}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -377,7 +492,7 @@ export default function IdentityCard({
                     onClick={() => handleSocialLink(profile.github)}
                     aria-label="Open GitHub profile"
                     title="GitHub"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#2a3a52] bg-[#0f172a] text-slate-400 transition duration-200 hover:-translate-y-0.5 hover:border-green-500/40 hover:bg-green-500/10 hover:text-green-400 focus:outline-none focus:ring-2 focus:ring-green-500/30"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#2a3a52] bg-[#0f172a] text-slate-400 transition-all duration-200 hover:-translate-y-1 hover:border-green-500/40 hover:bg-green-500/10 hover:text-green-400 hover:shadow-lg hover:shadow-green-500/10 focus:outline-none focus:ring-2 focus:ring-green-500/30"
                   >
                     <GitHubIcon className="h-4 w-4" />
                   </button>
@@ -389,7 +504,7 @@ export default function IdentityCard({
                     onClick={() => handleSocialLink(profile.linkedin)}
                     aria-label="Open LinkedIn profile"
                     title="LinkedIn"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#2a3a52] bg-[#0f172a] text-slate-400 transition duration-200 hover:-translate-y-0.5 hover:border-green-500/40 hover:bg-green-500/10 hover:text-green-400 focus:outline-none focus:ring-2 focus:ring-green-500/30"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#2a3a52] bg-[#0f172a] text-slate-400 transition-all duration-200 hover:-translate-y-1 hover:border-green-500/40 hover:bg-green-500/10 hover:text-green-400 hover:shadow-lg hover:shadow-green-500/10 focus:outline-none focus:ring-2 focus:ring-green-500/30"
                   >
                     <LinkedInIcon className="h-4 w-4" />
                   </button>
@@ -401,7 +516,7 @@ export default function IdentityCard({
                     onClick={() => handleSocialLink(profile.portfolio)}
                     aria-label="Open portfolio"
                     title="Portfolio"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#2a3a52] bg-[#0f172a] text-slate-400 transition duration-200 hover:-translate-y-0.5 hover:border-green-500/40 hover:bg-green-500/10 hover:text-green-400 focus:outline-none focus:ring-2 focus:ring-green-500/30"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#2a3a52] bg-[#0f172a] text-slate-400 transition-all duration-200 hover:-translate-y-1 hover:border-green-500/40 hover:bg-green-500/10 hover:text-green-400 hover:shadow-lg hover:shadow-green-500/10 focus:outline-none focus:ring-2 focus:ring-green-500/30"
                   >
                     <Globe2 className="h-4 w-4" />
                   </button>
@@ -413,10 +528,10 @@ export default function IdentityCard({
                     onClick={() => setIsResumeModalOpen(true)}
                     aria-label="View resume"
                     title="View Resume"
-                    className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-3 text-xs font-semibold text-green-400 transition duration-200 hover:-translate-y-0.5 hover:border-green-500/50 hover:bg-green-500/20 focus:outline-none focus:ring-2 focus:ring-green-500/30"
+                    className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-green-500/30 bg-gradient-to-r from-green-500/10 to-emerald-500/10 px-3 text-xs font-semibold text-green-400 transition-all duration-200 hover:-translate-y-1 hover:border-green-500/50 hover:bg-gradient-to-r hover:from-green-500/20 hover:to-emerald-500/20 hover:shadow-lg hover:shadow-green-500/20 focus:outline-none focus:ring-2 focus:ring-green-500/30"
                   >
                     <FileText className="h-4 w-4" />
-                    <span>Resume</span>
+                    <span className="hidden sm:inline">Resume</span>
                   </button>
                 )}
               </div>

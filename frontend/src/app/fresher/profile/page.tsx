@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
 import {
@@ -13,6 +13,9 @@ import {
   Loader2,
   Trophy,
   User,
+  AlertCircle,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 
 import ProfileHeader from "@/components/profile/ProfileHeader";
@@ -23,8 +26,9 @@ import TagList from "@/components/profile/TagList";
 import Empty from "@/components/profile/Empty";
 import Sidebar from "@/components/profile/Sidebar";
 import ResumeModal from "@/components/profile/ResumeModal";
+import { SwitchToProfessionalModal } from "@/components/profile/SwitchToProfessionalModal";
 
-import type { ProfileData } from "@/types/profile";
+import type { ProfileData, Experience } from "@/types/profile";
 
 import {
   getInitials,
@@ -35,14 +39,24 @@ import {
 
 import { useAuth } from "@/context/AuthContext";
 
+// ---------- Types ----------
+type ToastType = "success" | "error" | "info" | "warning";
+
+interface Toast {
+  id: string;
+  type: ToastType;
+  message: string;
+  duration?: number;
+}
+
 // ---------- Helpers ----------
 function hasAwardData(item: any) {
   return Boolean(
     item?.title ||
-      item?.organization ||
-      item?.startDate ||
-      item?.endDate ||
-      item?.description,
+    item?.organization ||
+    item?.startDate ||
+    item?.endDate ||
+    item?.description,
   );
 }
 
@@ -95,14 +109,71 @@ function getSafePublicationUrl(url?: string | null) {
 
   if (!trimmedUrl) return "";
 
-  if (
-    trimmedUrl.startsWith("http://") ||
-    trimmedUrl.startsWith("https://")
-  ) {
+  if (trimmedUrl.startsWith("http://") || trimmedUrl.startsWith("https://")) {
     return trimmedUrl;
   }
 
   return `https://${trimmedUrl}`;
+}
+
+// ---------- Toast Component ----------
+function ToastNotification({
+  toast,
+  onClose,
+}: {
+  toast: Toast;
+  onClose: (id: string) => void;
+}) {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose(toast.id);
+    }, toast.duration || 5000);
+
+    return () => clearTimeout(timer);
+  }, [toast.id, toast.duration, onClose]);
+
+  const getIcon = () => {
+    switch (toast.type) {
+      case "success":
+        return <CheckCircle2 className="h-5 w-5 text-green-400" />;
+      case "error":
+        return <XCircle className="h-5 w-5 text-red-400" />;
+      case "warning":
+        return <AlertCircle className="h-5 w-5 text-yellow-400" />;
+      default:
+        return <AlertCircle className="h-5 w-5 text-blue-400" />;
+    }
+  };
+
+  const getBgColor = () => {
+    switch (toast.type) {
+      case "success":
+        return "border-green-500/30 bg-green-500/10";
+      case "error":
+        return "border-red-500/30 bg-red-500/10";
+      case "warning":
+        return "border-yellow-500/30 bg-yellow-500/10";
+      default:
+        return "border-blue-500/30 bg-blue-500/10";
+    }
+  };
+
+  return (
+    <div
+      className={`flex items-start gap-3 rounded-xl border ${getBgColor()} p-4 shadow-xl backdrop-blur-sm animate-in slide-in-from-right-5 fade-in duration-300`}
+    >
+      <div className="flex-shrink-0 mt-0.5">{getIcon()}</div>
+      <div className="flex-1">
+        <p className="text-sm text-white">{toast.message}</p>
+      </div>
+      <button
+        onClick={() => onClose(toast.id)}
+        className="flex-shrink-0 text-gray-400 transition hover:text-white"
+      >
+        <XCircle className="h-4 w-4" />
+      </button>
+    </div>
+  );
 }
 
 // ---------- Page Component ----------
@@ -113,13 +184,39 @@ export default function ProfilePage() {
   const { profile, profileLoading, refreshProfile } = useAuth();
 
   const [resumeModalOpen, setResumeModalOpen] = useState(false);
+  const [switchModalOpen, setSwitchModalOpen] = useState(false);
   const [switching, setSwitching] = useState(false);
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const editHref = `${pathname.replace(/\/profile\/?$/, "")}/edit-option`;
 
-  // Switch to professional account
-  const switchToProfessional = async () => {
-    if (!profile) return;
+  // Toast management
+  const addToast = (type: ToastType, message: string, duration?: number) => {
+    const id = Date.now().toString();
+    setToasts((prev) => [...prev, { id, type, message, duration }]);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  };
+
+  // Switch to professional account with experience data
+  // app/profile/page.tsx (updated handleSwitchToProfessional)
+
+  const handleSwitchToProfessional = async (data: {
+    experiences: Experience[];
+    statusType: string;
+    statusSince: string;
+    statusNote: string;
+    statusExpectedReturn: string;
+    noticePeriod: string;
+    companyEmail: string;
+  }) => {
+    if (!profile) {
+      addToast("error", "Profile not found. Please try again.");
+      return;
+    }
 
     try {
       setSwitching(true);
@@ -127,24 +224,101 @@ export default function ProfilePage() {
       const backendUrl = process.env.NEXT_PUBLIC_API_URL;
       const token = localStorage.getItem("token");
 
-      await axios.put(
+      if (!backendUrl) {
+        throw new Error("API URL not configured");
+      }
+
+      if (!token) {
+        throw new Error("Authentication token not found");
+      }
+
+      addToast("info", "Updating your profile to professional account...");
+
+      // Prepare the update payload for /onboarding/update
+      const updatePayload = {
+        profileType: "professional",
+        experiences: data.experiences.map((exp) => ({
+          ...exp,
+          company: exp.company?.trim() || "",
+          role: exp.role?.trim() || "",
+          startDate: exp.startDate || "",
+          endDate: exp.isCurrent ? "" : exp.endDate || "",
+          isCurrent: exp.isCurrent || false,
+          description: exp.description || "",
+          company_display: exp.company_display || exp.company?.trim() || "",
+          company_canonical_id: exp.company_canonical_id || "",
+        })),
+        // Only include status if there are experiences
+        ...(data.experiences.length > 0 && {
+          status: {
+            type: data.statusType || "open_to_work",
+            since: data.statusSince || new Date().toISOString().split("T")[0],
+            note: data.statusNote || "",
+            expectedReturn: data.statusExpectedReturn || undefined,
+          },
+        }),
+        // Only include notice period and company email if there's a current experience
+        ...(data.experiences.some((exp) => exp.isCurrent) && {
+          noticePeriod: data.noticePeriod || "",
+          companyEmail: data.companyEmail || "",
+        }),
+      };
+
+      // Call the onboarding update API
+      const response = await axios.put(
         `${backendUrl}/api/onboarding/update`,
-        { profileType: "professional" },
+        updatePayload,
         {
           withCredentials: true,
           headers: {
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         },
       );
 
+      if (response.status !== 200) {
+        throw new Error("Failed to update profile");
+      }
+
+      // Refresh profile data
       await refreshProfile();
-      router.push("/professional/home");
-    } catch (err) {
-      console.error("Failed to switch to professional", err);
+
+      setSwitchModalOpen(false);
+      addToast("success", "Successfully switched to professional account! 🎉");
+
+      // Redirect after a short delay
+      setTimeout(() => {
+        router.push("/professional/home");
+      }, 1500);
+    } catch (err: any) {
+      console.error("Failed to switch to professional:", err);
+
+      let errorMessage =
+        "Failed to switch to professional account. Please try again.";
+
+      if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+
+      addToast("error", errorMessage);
     } finally {
       setSwitching(false);
+    }
+  };
+
+  // Refresh profile with loading state
+  const handleRefreshProfile = async () => {
+    try {
+      setIsRefreshing(true);
+      await refreshProfile();
+      addToast("success", "Profile refreshed successfully!");
+    } catch (error) {
+      addToast("error", "Failed to refresh profile");
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -203,30 +377,59 @@ export default function ProfilePage() {
   // ---------- Render States ----------
   if (profileLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0a0f16] text-white">
-        <Loader2 className="mr-2 h-5 w-5 animate-spin text-[#38e878]" />
-        <span className="text-[#94a3b8]">Loading profile...</span>
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0f16] text-white">
+        <Loader2 className="h-8 w-8 animate-spin text-[#38e878]" />
+        <p className="mt-4 text-[#94a3b8]">Loading your profile...</p>
       </div>
     );
   }
 
   if (!profile || !computed) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0a0f16] text-white">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0f16] text-white">
         <div className="text-center">
-          <p className="text-[#94a3b8]">No profile data found</p>
+          <AlertCircle className="mx-auto h-12 w-12 text-yellow-500" />
+          <p className="mt-4 text-[#94a3b8]">No profile data found</p>
+          <button
+            onClick={handleRefreshProfile}
+            className="mt-4 rounded-lg border border-[#2a3a52] px-4 py-2 text-sm text-white transition hover:bg-[#1a2533]"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0f16] text-white">
+    <div className="relative min-h-screen bg-[#0a0f16] text-white">
+      {/* Toast Container */}
+      <div className="fixed right-4 top-4 z-50 flex w-96 flex-col gap-3">
+        {toasts.map((toast) => (
+          <ToastNotification
+            key={toast.id}
+            toast={toast}
+            onClose={removeToast}
+          />
+        ))}
+      </div>
+
+      {/* Refresh Indicator */}
+      {isRefreshing && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="rounded-xl bg-[#0f172a] p-6 shadow-2xl">
+            <Loader2 className="mx-auto h-8 w-8 animate-spin text-[#38e878]" />
+            <p className="mt-3 text-sm text-white">Refreshing profile...</p>
+          </div>
+        </div>
+      )}
+
       <ProfileHeader
         editHref={editHref}
         profileType={profile.profileType}
         switching={switching}
-        onSwitchToProfessional={switchToProfessional}
+        onSwitchToProfessional={() => setSwitchModalOpen(true)}
+        onRefresh={handleRefreshProfile}
       />
 
       <main className="grid gap-6 px-4 py-7 sm:px-8 xl:grid-cols-[1fr_420px]">
@@ -239,7 +442,10 @@ export default function ProfilePage() {
           />
 
           {/* Personal Details */}
-          <ProfileSection title="Personal Details" icon={<User className="h-4 w-4 text-[#38e878]" />}>
+          <ProfileSection
+            title="Personal Details"
+            icon={<User className="h-4 w-4 text-[#38e878]" />}
+          >
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <InfoItem label="Gender" value={computed.gender || "N/A"} />
               <InfoItem label="Date of Birth" value={computed.dob || "N/A"} />
@@ -252,7 +458,10 @@ export default function ProfilePage() {
           </ProfileSection>
 
           {/* Education */}
-          <ProfileSection title="Education" icon={<GraduationCap className="h-4 w-4 text-[#38e878]" />}>
+          <ProfileSection
+            title="Education"
+            icon={<GraduationCap className="h-4 w-4 text-[#38e878]" />}
+          >
             {computed.educations.length ? (
               <div className="space-y-4">
                 {computed.educations.map((edu, index) => (
@@ -291,7 +500,10 @@ export default function ProfilePage() {
           </ProfileSection>
 
           {/* Experience */}
-          <ProfileSection title="Experience" icon={<Briefcase className="h-4 w-4 text-[#38e878]" />}>
+          <ProfileSection
+            title="Experience"
+            icon={<Briefcase className="h-4 w-4 text-[#38e878]" />}
+          >
             {computed.experiences.length ? (
               <div className="space-y-4">
                 {computed.experiences.map((exp, index) => (
@@ -338,7 +550,10 @@ export default function ProfilePage() {
 
           {/* International Experience */}
           {computed.internationalExperience.length > 0 && (
-            <ProfileSection title="International Experience" icon={<Globe className="h-4 w-4 text-[#38e878]" />}>
+            <ProfileSection
+              title="International Experience"
+              icon={<Globe className="h-4 w-4 text-[#38e878]" />}
+            >
               <div className="space-y-4">
                 {computed.internationalExperience.map((exp, idx) => (
                   <div
@@ -371,7 +586,10 @@ export default function ProfilePage() {
 
           {/* Leadership */}
           {computed.leadership.length > 0 && (
-            <ProfileSection title="Leadership" icon={<Trophy className="h-4 w-4 text-[#38e878]" />}>
+            <ProfileSection
+              title="Leadership"
+              icon={<Trophy className="h-4 w-4 text-[#38e878]" />}
+            >
               <div className="space-y-4">
                 {computed.leadership.map((item, idx) => (
                   <div
@@ -403,7 +621,10 @@ export default function ProfilePage() {
           )}
 
           {/* Skills */}
-          <ProfileSection title="Skills" icon={<AwardIcon className="h-4 w-4 text-[#38e878]" />}>
+          <ProfileSection
+            title="Skills"
+            icon={<AwardIcon className="h-4 w-4 text-[#38e878]" />}
+          >
             {computed.skills.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {computed.skills.map((skill, index) => (
@@ -421,7 +642,10 @@ export default function ProfilePage() {
           </ProfileSection>
 
           {/* Languages */}
-          <ProfileSection title="Languages" icon={<Globe className="h-4 w-4 text-[#38e878]" />}>
+          <ProfileSection
+            title="Languages"
+            icon={<Globe className="h-4 w-4 text-[#38e878]" />}
+          >
             {computed.languages.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {computed.languages.map((language, index) => (
@@ -439,7 +663,10 @@ export default function ProfilePage() {
           </ProfileSection>
 
           {/* Domains */}
-          <ProfileSection title="Domains" icon={<Briefcase className="h-4 w-4 text-[#38e878]" />}>
+          <ProfileSection
+            title="Domains"
+            icon={<Briefcase className="h-4 w-4 text-[#38e878]" />}
+          >
             {computed.domains.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {computed.domains.map((domain, index) => (
@@ -457,7 +684,10 @@ export default function ProfilePage() {
           </ProfileSection>
 
           {/* Tools */}
-          <ProfileSection title="Tools & Platforms" icon={<AwardIcon className="h-4 w-4 text-[#38e878]" />}>
+          <ProfileSection
+            title="Tools & Platforms"
+            icon={<AwardIcon className="h-4 w-4 text-[#38e878]" />}
+          >
             {computed.tools.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {computed.tools.map((tool, index) => (
@@ -475,14 +705,20 @@ export default function ProfilePage() {
           </ProfileSection>
 
           {/* About */}
-          <ProfileSection title="About" icon={<User className="h-4 w-4 text-[#38e878]" />}>
+          <ProfileSection
+            title="About"
+            icon={<User className="h-4 w-4 text-[#38e878]" />}
+          >
             <p className="text-[14px] leading-7 text-[#94a3b8]">
               {profile.about || "No about information provided."}
             </p>
           </ProfileSection>
 
           {/* Achievements */}
-          <ProfileSection title="Achievements" icon={<Trophy className="h-4 w-4 text-[#38e878]" />}>
+          <ProfileSection
+            title="Achievements"
+            icon={<Trophy className="h-4 w-4 text-[#38e878]" />}
+          >
             {profile.achievements?.length ? (
               <div className="space-y-4">
                 {profile.achievements.map((item, index) => (
@@ -521,7 +757,10 @@ export default function ProfilePage() {
           </ProfileSection>
 
           {/* Awards */}
-          <ProfileSection title="Awards" icon={<AwardIcon className="h-4 w-4 text-[#38e878]" />}>
+          <ProfileSection
+            title="Awards"
+            icon={<AwardIcon className="h-4 w-4 text-[#38e878]" />}
+          >
             {computed.awards.length ? (
               <div className="space-y-4">
                 {computed.awards.map((item, index) => {
@@ -567,7 +806,10 @@ export default function ProfilePage() {
           </ProfileSection>
 
           {/* Publications */}
-          <ProfileSection title="Publications" icon={<FileText className="h-4 w-4 text-[#38e878]" />}>
+          <ProfileSection
+            title="Publications"
+            icon={<FileText className="h-4 w-4 text-[#38e878]" />}
+          >
             {computed.publications.length ? (
               <div className="space-y-4">
                 {computed.publications.map((item, index) => {
@@ -621,6 +863,14 @@ export default function ProfilePage() {
           onClose={() => setResumeModalOpen(false)}
         />
       )}
+
+      {/* Switch to Professional Modal */}
+      <SwitchToProfessionalModal
+        isOpen={switchModalOpen}
+        onClose={() => setSwitchModalOpen(false)}
+        onConfirm={handleSwitchToProfessional}
+        isLoading={switching}
+      />
     </div>
   );
 }
