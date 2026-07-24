@@ -1075,7 +1075,7 @@ export default function StepFivePage() {
           <div className="space-y-4">
             <div>
               <label className="mb-1.5 block text-xs font-medium text-gray-300">
-                Current Status <span className="text-red-400">*</span>
+                Current Status
               </label>
               <select
                 value={statusType}

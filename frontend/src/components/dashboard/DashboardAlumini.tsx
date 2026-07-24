@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AlumniCard from "./AluminiCard";
 import Link from "next/link";
-import { fetchAlumniData } from "@/services/alumani.services";
 import { Alumni } from "@/types/dashboard";
 import { DashboardAluminiProps } from "@/types/dashboard";
-import { Users, ChevronRight, UserCheck, Building2 } from "lucide-react";
+import { Users, ChevronRight, UserCheck, Building2, UsersRound } from "lucide-react";
+import axiosInstance from "@/lib/axiosInstance";
 
 export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
   const [alumni, setAlumni] = useState<Alumni[]>([]);
@@ -16,16 +16,25 @@ export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
   useEffect(() => {
     const fetchAlumni = async () => {
       try {
-        if (userType === "student" || userType === "fresher") {
-          const response = await fetchAlumniData("college", 1);
-          setAlumni(response.data || []);
+        const response = await axiosInstance.get(
+          "/api/candidate/hiring-network",
+        );
+        
+        // Handle different response structures
+        let alumniData = [];
+        if (response.data?.data) {
+          alumniData = response.data.data;
+        } else if (Array.isArray(response.data)) {
+          alumniData = response.data;
+        } else if (response.data?.alumni) {
+          alumniData = response.data.alumni;
         } else {
-          const response = await fetchAlumniData("company", 1);
-          if ("alumniByCompany" in response) {
-            const alumniList = Object.values(response.alumniByCompany).flat();
-            setAlumni(alumniList);
-          }
+          alumniData = [];
         }
+        
+        setAlumni(alumniData);
+
+        console.log("alumnilist",alumniData);
       } catch (error) {
         console.error("Error fetching alumni:", error);
         setAlumni([]);
@@ -37,18 +46,19 @@ export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
     fetchAlumni();
   }, []);
 
-  console.log("Alumni list is ", alumni);
-
+  // Remove duplicates based on _id
   const uniqueAlumni = Array.from(
     new Map(alumni.map((item) => [item._id, item])).values(),
   );
 
+  // Get first 3 alumni
   const displayedAlumni = uniqueAlumni.slice(0, 3);
   const hasMore = uniqueAlumni.length > 3;
+  const totalCount = uniqueAlumni.length;
 
   if (loading) {
     return (
-      <div className="mt-4  rounded-2xl border border-slate-800 bg-[#0f172a] overflow-hidden">
+      <div className="mt-4 rounded-2xl border border-slate-800 bg-[#0f172a] overflow-hidden">
         <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
           <div>
             <div className="h-5 w-40 animate-pulse rounded bg-slate-700/50" />
@@ -70,7 +80,7 @@ export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
   }
 
   return (
-    <div className="mt-4  rounded-2xl border border-slate-800 bg-[#0f172a] overflow-hidden">
+    <div className="mt-4 rounded-2xl border border-slate-800 bg-[#0f172a] overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-[#0f172a]/50">
         <div className="flex items-center gap-2.5">
@@ -80,27 +90,26 @@ export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
 
           <div>
             <h2 className="text-[13px] font-semibold text-white">
-              Alumni Hiring Network
+              Alumni Network
             </h2>
             <p className="text-[10px] text-gray-500">
-              {alumni.length} verified alumni currently hiring
+              {totalCount > 0 ? `${totalCount} verified alumni` : 'No alumni found'}
             </p>
           </div>
         </div>
 
-        {hasMore && (
-          <Link
-            href={`${
-              userType === "student" || userType === "fresher"
-                ? "/student"
-                : "/professional"
-            }/alumani-network`}
-            className="group inline-flex items-center gap-1 text-[11px] font-medium text-gray-400 hover:text-white transition-colors duration-200"
-          >
-            View All
-            <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform duration-200" />
-          </Link>
-        )}
+        {/* View All - Always visible */}
+        <Link
+          href={`${
+            userType === "student" || userType === "fresher"
+              ? "/student"
+              : "/professional"
+          }/alumani-network`}
+          className="group inline-flex items-center gap-1 text-[11px] font-medium text-gray-400 hover:text-white transition-colors duration-200"
+        >
+          View All
+          <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform duration-200" />
+        </Link>
       </div>
 
       {/* Alumni Grid */}
@@ -108,7 +117,7 @@ export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
         {displayedAlumni.length === 0 ? (
           <div className="col-span-full flex flex-col items-center justify-center py-8 px-5">
             <div className="h-12 w-12 rounded-full bg-slate-800/50 flex items-center justify-center mb-3">
-              <Users className="h-6 w-6 text-gray-500" />
+              <UsersRound className="h-6 w-6 text-gray-500" />
             </div>
             <p className="text-sm text-gray-400">No alumni found</p>
             <p className="text-xs text-gray-500 mt-1">
@@ -123,7 +132,7 @@ export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
               role={person.jobRoles?.[0] || "Professional"}
               company={person.currentCompany || "Company"}
               profileImage={person.profileImage}
-              college={person.colleges?.[0] || "College"}
+              college={person.colleges?.[0]  || "College"}
               userId={person.userId}
               openRoles={person.referralMetrics?.totalReferralsPosted || 0}
               onClick={() =>
@@ -134,8 +143,8 @@ export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
         )}
       </div>
 
-      {/* Footer - Show only if hasMore */}
-      {hasMore && displayedAlumni.length > 0 && (
+      {/* Footer - Show View All again if there are more than 3 */}
+      {totalCount > 3 && displayedAlumni.length > 0 && (
         <div className="px-4 py-2.5 border-t border-slate-800 bg-slate-800/10">
           <Link
             href={`${
@@ -143,9 +152,10 @@ export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
                 ? "/student"
                 : "/professional"
             }/alumani-network`}
-            className="w-full inline-flex items-center justify-center gap-2 text-[11px] font-medium text-gray-400 hover:text-pink-400 transition-colors duration-200 group"
+            className="w-full inline-flex items-center justify-center gap-2 text-[11px] font-medium text-gray-400 hover:text-blue-400 transition-colors duration-200 group"
           >
-            <span>View all {alumni.length} alumni</span>
+            <UsersRound className="h-3.5 w-3.5" />
+            <span>View all {totalCount} alumni</span>
             <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform duration-200" />
           </Link>
         </div>

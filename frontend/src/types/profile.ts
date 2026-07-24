@@ -110,6 +110,7 @@ export type Project = {
 export type ProfileData = {
   _id?: string;
   userId?: string;
+  location:string;
   
   profileType?: "student" | "fresher" | "professional" | string;
   status?: Status | null;
