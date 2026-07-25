@@ -9,31 +9,32 @@ export default function ReferralActions({
   inactive,
 }: ReferralActionsProps) {
   return (
-    <div className="flex items-center justify-between border-t border-[var(--border)] pt-4 mt-4">
+    <div className="flex items-center justify-between border-t border-divider pt-4 mt-4">
       {/* Left Side - Pause/Reactivate Button */}
       <div className="flex gap-3">
         <button
           onClick={onPause}
           className="
+            btn-secondary
             flex items-center gap-2
             px-4 py-2 
             rounded-lg 
-            border border-[var(--border)] 
-            hover:bg-[var(--card-hover)] 
+            border border-theme 
+            hover:bg-card-hover 
             transition-all duration-200
-            hover:border-green-500/30
+            hover:border-primary/30
             text-sm font-medium
           "
         >
           {inactive ? (
             <>
-              <Play className="w-4 h-4 text-green-400" />
-              <span className="text-green-400">Reactivate</span>
+              <Play className="w-4 h-4 text-success" />
+              <span className="text-success">Reactivate</span>
             </>
           ) : (
             <>
-              <Pause className="w-4 h-4 text-yellow-400" />
-              <span className="text-yellow-400">Pause</span>
+              <Pause className="w-4 h-4 text-warning" />
+              <span className="text-warning">Pause</span>
             </>
           )}
         </button>
@@ -41,17 +42,18 @@ export default function ReferralActions({
         <button
           onClick={handleDelete}
           className="
-          flex items-center gap-2
-          px-4 py-2
-          rounded-lg
-          border border-red-500/20
-          hover:bg-red-500/10
-          transition-all duration-200
-          hover:border-red-500/40
-          text-sm font-medium
-          text-red-400
-          hover:text-red-300
-        "
+            btn-danger
+            flex items-center gap-2
+            px-4 py-2
+            rounded-lg
+            border border-danger/20
+            hover:bg-danger-soft
+            transition-all duration-200
+            hover:border-danger/40
+            text-sm font-medium
+            text-danger
+            hover:text-danger
+          "
         >
           <Trash2 className="w-4 h-4" />
           Delete Referral

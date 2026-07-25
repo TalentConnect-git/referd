@@ -177,22 +177,20 @@ export function SkillsEditor({ skills, onChange }: SkillsEditorProps) {
   return (
     <div className="space-y-3">
       <div className="relative" ref={dropdownRef}>
-        
-
         {/* Main input area */}
         <div className="relative">
-          <div className="flex min-h-12 flex-wrap gap-2 rounded-lg border border-[#2a3a52] bg-[#0f172a] p-3 transition focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500">
+          <div className="flex min-h-12 flex-wrap gap-2 rounded-lg border border-[var(--border)] bg-[var(--background-soft)] p-3 transition focus-within:border-[var(--primary)] focus-within:ring-1 focus-within:ring-[var(--primary)]">
             {/* Selected Skills */}
             {skills.map((skill) => (
               <span
                 key={skill}
-                className="inline-flex items-center gap-1 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-xs font-medium text-green-400"
+                className="badge badge-primary inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium"
               >
                 {skill}
                 <button
                   type="button"
                   onClick={() => removeSkill(skill)}
-                  className="hover:text-red-400 transition-colors"
+                  className="hover:text-[var(--danger)] transition-colors"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -218,31 +216,31 @@ export function SkillsEditor({ skills, onChange }: SkillsEditorProps) {
                   : "Add more skills..."
               }
               disabled={loading || isCreating}
-              className="min-w-[120px] flex-1 bg-transparent text-sm text-white outline-none placeholder:text-gray-500"
+              className="min-w-[120px] flex-1 bg-transparent text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]"
             />
           </div>
 
           {/* Loading indicator */}
           {(loading || isCreating) && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              <Loader2 className="h-4 w-4 animate-spin text-green-400" />
+              <Loader2 className="h-4 w-4 animate-spin text-[var(--primary)]" />
             </div>
           )}
         </div>
 
         {/* Dropdown */}
         {isOpen && (
-          <div className="absolute z-50 mt-2 w-full rounded-lg border border-[#2a3a52] bg-[#111827] shadow-xl overflow-hidden">
+          <div className="surface-card absolute z-50 mt-2 w-full overflow-hidden rounded-lg border border-[var(--border)] shadow-xl">
             <div className="max-h-80 overflow-y-auto p-2">
               {/* Search results */}
               {inputValue.length > 0 && (
                 <div className="mb-2">
-                  <div className="px-2 py-1 text-[10px] font-medium uppercase text-gray-500">
+                  <div className="px-2 py-1 text-[10px] font-medium uppercase text-[var(--text-muted)]">
                     Search Results
                   </div>
                   {loading ? (
-                    <div className="flex items-center justify-center px-4 py-3 text-sm text-gray-400">
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <div className="flex items-center justify-center px-4 py-3 text-sm text-[var(--text-muted)]">
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Loading...
                     </div>
                   ) : filteredSkills.length > 0 ? (
@@ -252,14 +250,14 @@ export function SkillsEditor({ skills, onChange }: SkillsEditorProps) {
                           key={skill}
                           type="button"
                           onClick={() => handleSelectOrAddSkill(skill)}
-                          className="inline-flex items-center rounded-full border border-[#2a3a52] px-3 py-1.5 text-xs text-white hover:border-green-500 hover:bg-green-500/10 transition-colors"
+                          className="inline-flex items-center rounded-full border border-[var(--border)] px-3 py-1.5 text-xs text-[var(--text-primary)] transition-colors hover:border-[var(--primary-border)] hover:bg-[var(--primary-soft)]"
                         >
                           {skill}
                         </button>
                       ))}
                     </div>
                   ) : (
-                    <div className="px-2 py-2 text-sm text-gray-400">
+                    <div className="px-2 py-2 text-sm text-[var(--text-muted)]">
                       No matching skills found
                     </div>
                   )}
@@ -270,7 +268,7 @@ export function SkillsEditor({ skills, onChange }: SkillsEditorProps) {
                       type="button"
                       onClick={() => handleSelectOrAddSkill(inputValue)}
                       disabled={isCreating}
-                      className="mt-2 w-full rounded-lg border border-dashed border-green-500/30 px-4 py-2.5 text-left text-sm text-green-400 hover:bg-green-500/10 transition-colors flex items-center gap-2"
+                      className="mt-2 flex w-full items-center gap-2 rounded-lg border border-dashed border-[var(--primary-border)] px-4 py-2.5 text-left text-sm text-[var(--primary)] transition-colors hover:bg-[var(--primary-soft)]"
                     >
                       {isCreating ? (
                         <>
@@ -292,8 +290,8 @@ export function SkillsEditor({ skills, onChange }: SkillsEditorProps) {
               {popularSkills.length > 0 && (
                 <div>
                   <div className="flex items-center gap-2 px-2 py-1">
-                    <Sparkles className="h-3 w-3 text-yellow-500" />
-                    <span className="text-[10px] font-medium uppercase text-gray-500">
+                    <Sparkles className="h-3 w-3 text-[var(--warning)]" />
+                    <span className="text-[10px] font-medium uppercase text-[var(--text-muted)]">
                       Popular Skills
                     </span>
                   </div>
@@ -303,7 +301,7 @@ export function SkillsEditor({ skills, onChange }: SkillsEditorProps) {
                         key={skill}
                         type="button"
                         onClick={() => handleSelectOrAddSkill(skill)}
-                        className="inline-flex items-center rounded-full border border-[#2a3a52] px-3 py-1.5 text-xs text-white hover:border-green-500 hover:bg-green-500/10 transition-colors"
+                        className="inline-flex items-center rounded-full border border-[var(--border)] px-3 py-1.5 text-xs text-[var(--text-primary)] transition-colors hover:border-[var(--primary-border)] hover:bg-[var(--primary-soft)]"
                       >
                         {skill}
                       </button>
@@ -315,8 +313,8 @@ export function SkillsEditor({ skills, onChange }: SkillsEditorProps) {
               {/* Empty state */}
               {popularSkills.length === 0 && !loading && (
                 <div className="px-4 py-6 text-center">
-                  <p className="text-sm text-gray-400">No skills available</p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-sm text-[var(--text-muted)]">No skills available</p>
+                  <p className="mt-1 text-xs text-[var(--text-muted)]">
                     Start typing to create a new skill
                   </p>
                 </div>
@@ -328,7 +326,7 @@ export function SkillsEditor({ skills, onChange }: SkillsEditorProps) {
 
       {/* Skill count */}
       {skills.length > 0 && (
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-[var(--text-muted)]">
           {skills.length} skill{skills.length !== 1 ? "s" : ""} added
         </p>
       )}

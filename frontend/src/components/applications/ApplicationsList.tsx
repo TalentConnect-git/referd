@@ -38,40 +38,29 @@ export enum ApplicationStatus {
   JoinedTheCompany = "Joined the Company",
 }
 
-// Status color mapping
+// Status color mapping using theme variables
 const statusColors: Record<ApplicationStatus, string> = {
-  [ApplicationStatus.Saved]: "bg-gray-500/10 text-gray-400 border-gray-500/20",
-  [ApplicationStatus.Applied]:
-    "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  [ApplicationStatus.ApplicationSent]:
-    "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
-  [ApplicationStatus.AwaitingRecruiterAction]:
-    "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-  [ApplicationStatus.Shortlisted]:
-    "bg-purple-500/10 text-purple-400 border-purple-500/20",
-  [ApplicationStatus.InterviewScheduled]:
-    "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
-  [ApplicationStatus.OfferExtended]:
-    "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-  [ApplicationStatus.Accepted]:
-    "bg-green-500/10 text-green-400 border-green-500/20",
-  [ApplicationStatus.Rejected]: "bg-red-500/10 text-red-400 border-red-500/20",
-  [ApplicationStatus.ReferredToCompany]:
-    "bg-orange-500/10 text-orange-400 border-orange-500/20",
-  [ApplicationStatus.OfferAccepted]:
-    "bg-green-600/10 text-green-500 border-green-600/20",
-  [ApplicationStatus.OfferRejected]:
-    "bg-red-600/10 text-red-500 border-red-600/20",
-  [ApplicationStatus.JoinedTheCompany]:
-    "bg-teal-500/10 text-teal-400 border-teal-500/20",
+  [ApplicationStatus.Saved]: "text-[var(--text-muted)] border-[var(--border)] bg-[var(--background-soft)]",
+  [ApplicationStatus.Applied]: "text-[var(--info)] border-[var(--info-border)] bg-[var(--info-soft)]",
+  [ApplicationStatus.ApplicationSent]: "text-[var(--info)] border-[var(--info-border)] bg-[var(--info-soft)]",
+  [ApplicationStatus.AwaitingRecruiterAction]: "text-[var(--warning)] border-[var(--warning-border)] bg-[var(--warning-soft)]",
+  [ApplicationStatus.Shortlisted]: "text-[var(--primary)] border-[var(--primary-border)] bg-[var(--primary-soft)]",
+  [ApplicationStatus.InterviewScheduled]: "text-[var(--info)] border-[var(--info-border)] bg-[var(--info-soft)]",
+  [ApplicationStatus.OfferExtended]: "text-[var(--success)] border-[var(--success-border)] bg-[var(--success-soft)]",
+  [ApplicationStatus.Accepted]: "text-[var(--success)] border-[var(--success-border)] bg-[var(--success-soft)]",
+  [ApplicationStatus.Rejected]: "text-[var(--danger)] border-[var(--danger-border)] bg-[var(--danger-soft)]",
+  [ApplicationStatus.ReferredToCompany]: "text-[var(--primary)] border-[var(--primary-border)] bg-[var(--primary-soft)]",
+  [ApplicationStatus.OfferAccepted]: "text-[var(--success)] border-[var(--success-border)] bg-[var(--success-soft)]",
+  [ApplicationStatus.OfferRejected]: "text-[var(--danger)] border-[var(--danger-border)] bg-[var(--danger-soft)]",
+  [ApplicationStatus.JoinedTheCompany]: "text-[var(--success)] border-[var(--success-border)] bg-[var(--success-soft)]",
 };
 
 // Get match score color
 const getMatchScoreColor = (score?: number): string => {
   const numericScore = Number(score) || 0;
-  if (numericScore >= 75) return "text-green-400";
-  if (numericScore >= 40) return "text-orange-400";
-  return "text-red-400";
+  if (numericScore >= 75) return "text-[var(--success)]";
+  if (numericScore >= 40) return "text-[var(--warning)]";
+  return "text-[var(--danger)]";
 };
 
 // Status badge component
@@ -79,11 +68,11 @@ const StatusBadge = ({ status }: { status: string }) => {
   const statusKey = status as ApplicationStatus;
   const colorClass =
     statusColors[statusKey] ||
-    "bg-gray-500/10 text-gray-400 border-gray-500/20";
+    "text-[var(--text-muted)] border-[var(--border)] bg-[var(--background-soft)]";
 
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${colorClass}`}
+      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${colorClass}`}
     >
       {status}
     </span>
@@ -256,7 +245,6 @@ export default function ApplicationsList({
       toast.error("Application ID is missing");
       return;
     }
-    // Navigate to the application details page
     router.push(`/${userType}/applications/${applicationId}`);
   };
 
@@ -268,7 +256,7 @@ export default function ApplicationsList({
     }
   };
 
-  // Handle company profile click - FIXED: Navigate to company profile
+  // Handle company profile click
   const handleCompanyClick = (e: React.MouseEvent, companyId?: string | null) => {
     e.stopPropagation();
     if (companyId) {
@@ -292,7 +280,7 @@ export default function ApplicationsList({
 
     if (image) {
       return (
-        <div className="h-8 w-8 rounded-full overflow-hidden border border-gray-600/30 flex-shrink-0">
+        <div className="h-8 w-8 flex-shrink-0 overflow-hidden rounded-full border border-[var(--border)]">
           <Image
             src={image}
             alt={displayName}
@@ -305,8 +293,8 @@ export default function ApplicationsList({
     }
 
     return (
-      <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center border border-gray-600/30 flex-shrink-0">
-        <span className="text-blue-400 font-medium text-[11px]">
+      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--info-soft)]">
+        <span className="text-[11px] font-medium text-[var(--info)]">
           {getInitials(displayName)}
         </span>
       </div>
@@ -314,27 +302,27 @@ export default function ApplicationsList({
   };
 
   return (
-    <div className="rounded-2xl ml-4  border border-[#2a3a52] overflow-hidden min-h-[420px] flex flex-col ">
+    <div className="mx-4 flex min-h-[420px] flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] sm:mx-5">
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-[#111827] border-b border-[#2a3a52]">
-            <tr className="text-left text-gray-400">
-              <th className="px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider">
+          <thead className="border-b border-[var(--border)] bg-[var(--background-soft)]">
+            <tr className="text-left text-[var(--text-muted)]">
+              <th className="px-3 py-2.5 text-[10px] font-medium uppercase tracking-wider sm:px-4">
                 {applicationType === "Referral" ? "Referred By" : "Posted By"}
               </th>
-              <th className="px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider">
+              <th className="px-3 py-2.5 text-[10px] font-medium uppercase tracking-wider sm:px-4">
                 Company
               </th>
-              <th className="px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider">
+              <th className="px-3 py-2.5 text-[10px] font-medium uppercase tracking-wider sm:px-4">
                 Role
               </th>
-              <th className="px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider">
+              <th className="px-3 py-2.5 text-[10px] font-medium uppercase tracking-wider sm:px-4">
                 Stage
               </th>
-              <th className="px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider">
+              <th className="px-3 py-2.5 text-[10px] font-medium uppercase tracking-wider sm:px-4">
                 Applied
               </th>
-              <th className="px-4 py-2.5 text-[10px] font-medium uppercase tracking-wider">
+              <th className="px-3 py-2.5 text-[10px] font-medium uppercase tracking-wider sm:px-4">
                 Match Score
               </th>
             </tr>
@@ -345,13 +333,13 @@ export default function ApplicationsList({
               <tr>
                 <td colSpan={6} className="h-[320px] text-center">
                   <div className="flex flex-col items-center justify-center">
-                    <div className="h-12 w-12 rounded-full bg-slate-800/50 flex items-center justify-center mb-3">
-                      <Briefcase className="h-6 w-6 text-gray-500" />
+                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--background-soft)]">
+                      <Briefcase className="h-6 w-6 text-[var(--text-muted)]" />
                     </div>
-                    <p className="text-sm font-medium text-gray-300">
+                    <p className="text-sm font-medium text-[var(--text-secondary)]">
                       No {applicationType} applications found
                     </p>
-                    <p className="mt-1 text-xs text-gray-500">
+                    <p className="mt-1 text-xs text-[var(--text-muted)]">
                       You haven't applied to any {applicationType?.toLowerCase()}{" "}
                       opportunities yet.
                     </p>
@@ -380,7 +368,7 @@ export default function ApplicationsList({
                   jobDetails?.companyName ||
                   "N/A";
 
-                // Get job title - for Internship use jobRoles, for others use jobTitle
+                // Get job title
                 const jobRole =
                   jobDetails?.jobRoles?.[0] || 
                   jobDetails?.jobTitle?.[0] || 
@@ -450,13 +438,13 @@ export default function ApplicationsList({
                 return (
                   <tr
                     key={application?._id || Math.random().toString()}
-                    className="border-t border-[#2a3a52] hover:bg-[#1a2332] transition-colors cursor-pointer group"
+                    className="cursor-pointer border-t border-[var(--border)] transition-colors hover:bg-[var(--card-hover)] group"
                     onClick={() => handleRowClick(application?._id)}
                   >
                     {/* Posted By / Referred By Column */}
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-3 sm:px-4">
                       <div
-                        className="flex items-center gap-2.5 cursor-pointer"
+                        className="flex cursor-pointer items-center gap-2.5"
                         onClick={(e) => handleProfileClick(e, displayUserId)}
                       >
                         {isReferral ? (
@@ -466,25 +454,25 @@ export default function ApplicationsList({
                             displayImage,
                           )
                         ) : (
-                          <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center border border-gray-600/30 flex-shrink-0">
-                            <span className="text-blue-400 font-medium text-[11px]">
+                          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--info-soft)]">
+                            <span className="text-[11px] font-medium text-[var(--info)]">
                               {getInitials(displayName)}
                             </span>
                           </div>
                         )}
                         <div>
-                          <span className="text-white font-medium text-[13px] group-hover:text-green-400 transition-colors">
+                          <span className="text-sm font-medium text-[var(--text-primary)] transition-colors group-hover:text-[var(--primary)]">
                             {displayName}
                           </span>
                           {displayDesignation && (
-                            <p className="text-[10px] text-gray-400">
+                            <p className="text-[10px] text-[var(--text-muted)]">
                               {displayDesignation}
                             </p>
                           )}
                           {isReferral &&
                             referralUserId &&
                             loadingUsers[referralUserId] && (
-                              <p className="text-[10px] text-gray-500">
+                              <p className="text-[10px] text-[var(--text-muted)]">
                                 Loading...
                               </p>
                             )}
@@ -492,63 +480,62 @@ export default function ApplicationsList({
                       </div>
                     </td>
 
-                    {/* Company Column - Now displays referral's company for referral applications */}
-                    <td className="px-4 py-3">
+                    {/* Company Column */}
+                    <td className="px-3 py-3 sm:px-4">
                       <div
-                        className="flex items-center gap-1.5 cursor-pointer group-hover:text-green-400 transition-colors"
+                        className="flex cursor-pointer items-center gap-1.5 transition-colors group-hover:text-[var(--primary)]"
                         onClick={(e) => handleCompanyClick(e, companyId)}
                       >
-                        <Store className="w-3.5 h-3.5 text-gray-500 group-hover:text-green-400 transition-colors" />
-                        <span className="text-white text-[13px]">
+                        <Store className="h-3.5 w-3.5 text-[var(--text-muted)] transition-colors group-hover:text-[var(--primary)]" />
+                        <span className="text-sm text-[var(--text-primary)]">
                           {displayCompanyName}
                         </span>
-                        
                       </div>
                     </td>
 
                     {/* Role Column */}
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-3 sm:px-4">
                       <div className="flex items-center gap-1.5">
-                        <Briefcase className="w-3.5 h-3.5 text-gray-500" />
-                        <span className="text-white font-medium text-[13px]">
+                        <Briefcase className="h-3.5 w-3.5 text-[var(--text-muted)]" />
+                        <span className="text-sm font-medium text-[var(--text-primary)]">
                           {jobRole}
                         </span>
                       </div>
                     </td>
 
                     {/* Stage Column */}
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-3 sm:px-4">
                       <StatusBadge status={currentStatus} />
                     </td>
 
                     {/* Applied Date Column */}
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-3 sm:px-4">
                       <div className="flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5 text-gray-500" />
-                        <span className="text-gray-300 text-[13px]">
+                        <Calendar className="h-3.5 w-3.5 text-[var(--text-muted)]" />
+                        <span className="text-sm text-[var(--text-secondary)]">
                           {formatDate(appliedDate)}
                         </span>
                       </div>
                     </td>
 
                     {/* Match Score Column */}
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-3 sm:px-4">
                       <div className="flex items-center gap-1.5">
-                        <Target className="w-3.5 h-3.5 text-gray-500" />
+                        <Target className="h-3.5 w-3.5 text-[var(--text-muted)]" />
                         <span
-                          className={`font-semibold text-[13px] ${getMatchScoreColor(matchScore)}`}
+                          className={`text-sm font-semibold ${getMatchScoreColor(matchScore)}`}
                         >
                           {matchScore}%
                         </span>
                         {matchScore > 0 && (
-                          <div className="w-10 h-1 bg-[#1e293b] rounded-full overflow-hidden">
+                          <div className="h-1 w-10 overflow-hidden rounded-full bg-[var(--border)]">
                             <div
                               className={`h-full rounded-full ${
                                 matchScore >= 75
-                                  ? "bg-green-500"
+                                  ? "bg-[var(--success)]"
                                   : matchScore >= 40
-                                    ? "bg-orange-500"
-                                    : "bg-red-500"
+                                    ? "bg-[var(--warning)]"
+                                    : "bg-[var(--danger)]"
                               }`}
                               style={{ width: `${Math.min(matchScore, 100)}%` }}
                             />
@@ -575,49 +562,39 @@ export default function ApplicationsList({
 
       {/* Pagination */}
       {meta && applications.length > 0 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-[#2a3a52] bg-[#0f172a]/50">
-          <div className="text-[10px] text-slate-500 order-2 sm:order-1">
+        <div className="flex flex-col items-center justify-between gap-3 border-t border-[var(--border)] bg-[var(--background-soft)] px-3 py-3 sm:flex-row sm:px-4">
+          <div className="order-2 text-[10px] text-[var(--text-muted)] sm:order-1">
             Showing {startIndex} to {endIndex} of {totalItems} applications
           </div>
           
-          <div className="flex items-center gap-1.5 order-1 sm:order-2">
+          <div className="order-1 flex items-center gap-1.5 sm:order-2">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={!hasPrev}
               className="
-                inline-flex
-                items-center
-                gap-1
-                px-2.5
-                py-1.5
-                rounded-lg
-                border
-                border-[#2a3a52]
-                bg-[#0f172a]
-                text-[10px]
-                font-medium
-                text-slate-400
-                transition-all
-                hover:border-green-500/30
-                hover:bg-green-500/10
-                hover:text-green-400
-                disabled:opacity-40
-                disabled:cursor-not-allowed
-                disabled:hover:border-[#2a3a52]
+                inline-flex items-center gap-1 rounded-lg border
+                border-[var(--border)] bg-[var(--background-soft)]
+                px-2.5 py-1.5 text-[10px] font-medium
+                text-[var(--text-muted)] transition-all
+                hover:border-[var(--primary-border)]
+                hover:bg-[var(--primary-soft)]
+                hover:text-[var(--primary)]
+                disabled:cursor-not-allowed disabled:opacity-40
+                disabled:hover:border-[var(--border)]
                 disabled:hover:bg-transparent
-                disabled:hover:text-slate-400
+                disabled:hover:text-[var(--text-muted)]
               "
             >
               <ChevronLeft size={12} />
               Prev
             </button>
 
-            <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#1a2332] border border-[#2a3a52]">
-              <span className="text-[10px] font-medium text-white">
+            <div className="flex items-center gap-1 rounded-lg border border-[var(--border)] bg-[var(--card-hover)] px-2.5 py-1">
+              <span className="text-[10px] font-medium text-[var(--text-primary)]">
                 {currentPage}
               </span>
-              <span className="text-[10px] text-slate-500">/</span>
-              <span className="text-[10px] text-slate-500">
+              <span className="text-[10px] text-[var(--text-muted)]">/</span>
+              <span className="text-[10px] text-[var(--text-muted)]">
                 {totalPages}
               </span>
             </div>
@@ -626,27 +603,17 @@ export default function ApplicationsList({
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={!hasNext}
               className="
-                inline-flex
-                items-center
-                gap-1
-                px-2.5
-                py-1.5
-                rounded-lg
-                border
-                border-[#2a3a52]
-                bg-[#0f172a]
-                text-[10px]
-                font-medium
-                text-slate-400
-                transition-all
-                hover:border-green-500/30
-                hover:bg-green-500/10
-                hover:text-green-400
-                disabled:opacity-40
-                disabled:cursor-not-allowed
-                disabled:hover:border-[#2a3a52]
+                inline-flex items-center gap-1 rounded-lg border
+                border-[var(--border)] bg-[var(--background-soft)]
+                px-2.5 py-1.5 text-[10px] font-medium
+                text-[var(--text-muted)] transition-all
+                hover:border-[var(--primary-border)]
+                hover:bg-[var(--primary-soft)]
+                hover:text-[var(--primary)]
+                disabled:cursor-not-allowed disabled:opacity-40
+                disabled:hover:border-[var(--border)]
                 disabled:hover:bg-transparent
-                disabled:hover:text-slate-400
+                disabled:hover:text-[var(--text-muted)]
               "
             >
               Next

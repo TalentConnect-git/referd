@@ -10,7 +10,7 @@ export default function ReferralCard({
 }: ReferralCardProps) {
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-3 ml-0 mr-0 mt-2 mb-3">
+    <div className="card rounded-xl border border-theme bg-card p-3 ml-0 mr-0 mt-2 mb-3">
       <ReferralCardHeader referral={referral} />
 
       <ReferralStats metrics={referral.metrics} onViewDetails={onViewDetails} />
@@ -19,7 +19,3 @@ export default function ReferralCard({
     </div>
   );
 }
-
-
-
-

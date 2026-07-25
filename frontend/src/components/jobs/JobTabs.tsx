@@ -16,16 +16,21 @@ export default function JobTabs() {
     router.push(`/${role}/referral-jobs`);
   };
 
+  // Helper function to check if a tab is active
+  const isTabActive = (path: string) => {
+    return pathname.includes(path);
+  };
+
   return (
-    <div className="mb-4 mt-4 flex items-center justify-between border-b border-[var(--border)] px-4">
+    <div className="mx-4 mb-4 mt-4 flex flex-col gap-3 border-b border-[var(--border)] sm:flex-row sm:items-center sm:justify-between sm:px-4">
       {/* Left Tabs */}
-      <div className="flex gap-8">
+      <div className="flex gap-6 overflow-x-auto sm:gap-8">
         <Link
           href={`/${role}/jobs/offcampus`}
-          className={`pb-2 text-sm font-medium transition-colors ${
-            pathname.includes("offcampus")
-              ? "border-b-2 border-green-500 text-green-500"
-              : "text-gray-400 hover:text-white"
+          className={`whitespace-nowrap pb-2 text-sm font-medium transition-colors ${
+            isTabActive("offcampus")
+              ? "border-b-2 border-[var(--primary)] text-[var(--primary)]"
+              : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
           }`}
         >
           Off-campus
@@ -33,22 +38,21 @@ export default function JobTabs() {
 
         <Link
           href={`/${role}/jobs/referral-jobs`}
-          className={`pb-2 text-sm font-medium transition-colors ${
-            pathname.includes("referral-jobs")
-              ? "border-b-2 border-green-500 text-green-500"
-              : "text-gray-400 hover:text-white"
+          className={`whitespace-nowrap pb-2 text-sm font-medium transition-colors ${
+            isTabActive("referral-jobs")
+              ? "border-b-2 border-[var(--primary)] text-[var(--primary)]"
+              : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
           }`}
         >
           Referral
         </Link>
 
-
         <Link
           href={`/${role}/jobs/internships`}
-          className={`pb-2 text-sm font-medium transition-colors ${
-            pathname.includes("internships")
-              ? "border-b-2 border-green-500 text-green-500"
-              : "text-gray-400 hover:text-white"
+          className={`whitespace-nowrap pb-2 text-sm font-medium transition-colors ${
+            isTabActive("internships")
+              ? "border-b-2 border-[var(--primary)] text-[var(--primary)]"
+              : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
           }`}
         >
           Internship
@@ -58,7 +62,7 @@ export default function JobTabs() {
       {/* Right Button */}
       <button
         onClick={handleAskForReferral}
-        className="inline-flex items-center gap-1.5 rounded-md border border-white/30 bg-transparent px-3 py-1.5 mb-1 text-xs font-medium text-white transition-all duration-200 hover:border-white hover:bg-white/10"
+        className="btn-secondary inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 sm:mb-1"
       >
         <UserPlus className="h-3.5 w-3.5" />
         <span>Ask for Referral</span>

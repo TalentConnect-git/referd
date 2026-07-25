@@ -81,15 +81,15 @@ export default function OffCampusPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-4 flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/10 border border-blue-500/20">
-            <Briefcase size={14} className="text-blue-400" />
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-info-soft border border-info/20">
+            <Briefcase size={14} className="text-info" />
           </div>
 
           <div>
-            <h1 className="text-[12px] font-bold text-white">
+            <h1 className="text-[12px] font-bold text-primary">
               Off-Campus Opportunities
             </h1>
-            <p className="text-[8px] text-slate-400">
+            <p className="text-[8px] text-muted">
               Discover off-campus jobs tailored to your profile
             </p>
           </div>
@@ -108,8 +108,8 @@ export default function OffCampusPage() {
         </div>
 
         {/* Pagination */}
-        <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-2 px-3 py-2 rounded-lg border border-[#2a3a52] bg-[#0f172a]/50">
-          <div className="text-[10px] text-slate-500 order-2 sm:order-1">
+        <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-2 px-3 py-2 rounded-lg border border-theme bg-background/50">
+          <div className="text-[10px] text-muted order-2 sm:order-1">
             Showing {start} to {end} of {meta.total}
           </div>
 
@@ -118,6 +118,7 @@ export default function OffCampusPage() {
               onClick={() => handlePageChange(page - 1)}
               disabled={!meta.hasPrev || page === 1}
               className="
+                btn-secondary
                 inline-flex
                 items-center
                 gap-1
@@ -125,15 +126,15 @@ export default function OffCampusPage() {
                 py-1
                 rounded-lg
                 border
-                border-[#2a3a52]
-                bg-[#0f172a]
+                border-theme
+                bg-background
                 text-[10px]
                 font-medium
-                text-slate-400
+                text-muted
                 transition-all
-                hover:border-green-500/30
-                hover:bg-green-500/10
-                hover:text-green-400
+                hover:border-primary/30
+                hover:bg-primary-soft
+                hover:text-primary
                 disabled:opacity-40
                 disabled:cursor-not-allowed
               "
@@ -142,12 +143,12 @@ export default function OffCampusPage() {
               Prev
             </button>
 
-            <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#1a2332] border border-[#2a3a52]">
-              <span className="text-[10px] font-medium text-white">
+            <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-card-soft border border-theme">
+              <span className="text-[10px] font-medium text-primary">
                 {meta.page}
               </span>
-              <span className="text-[10px] text-slate-500">/</span>
-              <span className="text-[10px] text-slate-500">
+              <span className="text-[10px] text-muted">/</span>
+              <span className="text-[10px] text-muted">
                 {meta.totalPages}
               </span>
             </div>
@@ -156,6 +157,7 @@ export default function OffCampusPage() {
               onClick={() => handlePageChange(page + 1)}
               disabled={!meta.hasNext || page === meta.totalPages}
               className="
+                btn-secondary
                 inline-flex
                 items-center
                 gap-1
@@ -163,15 +165,15 @@ export default function OffCampusPage() {
                 py-1
                 rounded-lg
                 border
-                border-[#2a3a52]
-                bg-[#0f172a]
+                border-theme
+                bg-background
                 text-[10px]
                 font-medium
-                text-slate-400
+                text-muted
                 transition-all
-                hover:border-green-500/30
-                hover:bg-green-500/10
-                hover:text-green-400
+                hover:border-primary/30
+                hover:bg-primary-soft
+                hover:text-primary
                 disabled:opacity-40
                 disabled:cursor-not-allowed
               "

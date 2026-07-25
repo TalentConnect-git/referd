@@ -9,18 +9,19 @@ export default function ApplicationDetailTimeline({
   return (
     <div
       className="
+        card
         rounded-2xl
         border
-        border-[#2a3a52]
-        bg-gradient-to-r from-[#111827] to-[#1a2332]
+        border-theme
+        bg-gradient-to-r from-card to-card-soft
         p-5
         shadow-xl
         shadow-black/20
         backdrop-blur-sm
       "
     >
-      <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-        <span className="bg-gradient-to-r from-green-500 to-emerald-600 w-1 h-6 rounded-full"></span>
+      <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+        <span className="bg-gradient-to-r from-primary to-primary-light w-1 h-6 rounded-full"></span>
         Application Timeline
       </h2>
 
@@ -38,10 +39,10 @@ export default function ApplicationDetailTimeline({
                     relative
                     rounded-xl
                     border
-                    border-[#2a3a52]
-                    bg-[#0f172a]
+                    border-theme
+                    bg-background
                     p-4
-                    hover:border-green-500/30
+                    hover:border-success/30
                     transition-all
                     hover:scale-[1.01]
                     group
@@ -49,7 +50,7 @@ export default function ApplicationDetailTimeline({
                 >
                   {/* Timeline connector line */}
                   {!isFirst && (
-                    <div className="absolute -top-3 left-5 h-3 w-0.5 bg-[#2a3a52] group-hover:bg-green-500/30 transition-colors"></div>
+                    <div className="absolute -top-3 left-5 h-3 w-0.5 bg-theme group-hover:bg-success/30 transition-colors"></div>
                   )}
                   
                   <div className="flex items-start justify-between">
@@ -57,18 +58,18 @@ export default function ApplicationDetailTimeline({
                       {/* Status icon */}
                       <div className="mt-0.5">
                         {isLatest ? (
-                          <div className="h-3 w-3 rounded-full bg-green-500 ring-2 ring-green-500/30 animate-pulse"></div>
+                          <div className="h-3 w-3 rounded-full bg-success ring-2 ring-success/30 animate-pulse"></div>
                         ) : (
-                          <div className="h-3 w-3 rounded-full bg-slate-600 ring-2 ring-slate-600/30"></div>
+                          <div className="h-3 w-3 rounded-full bg-muted ring-2 ring-muted/30"></div>
                         )}
                       </div>
                       
                       <div>
-                        <h3 className="text-sm font-semibold text-white">
+                        <h3 className="text-sm font-semibold text-primary">
                           {item.status}
                         </h3>
 
-                        <p className="mt-1 text-xs text-slate-500 flex items-center gap-1">
+                        <p className="mt-1 text-xs text-muted flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           {new Date(
                             item.date
@@ -80,7 +81,7 @@ export default function ApplicationDetailTimeline({
                               year: "numeric",
                             }
                           )}
-                          <span className="text-slate-600">•</span>
+                          <span className="text-muted/60">•</span>
                           {new Date(
                             item.date
                           ).toLocaleTimeString(
@@ -96,6 +97,7 @@ export default function ApplicationDetailTimeline({
 
                     <span
                       className={`
+                        badge
                         px-2.5
                         py-0.5
                         rounded-full
@@ -105,8 +107,8 @@ export default function ApplicationDetailTimeline({
                         ml-2
                         ${
                           isLatest
-                            ? "bg-green-500/10 border border-green-500/30 text-green-400"
-                            : "bg-slate-500/10 border border-slate-500/30 text-slate-400"
+                            ? "badge-success border border-success/30"
+                            : "badge border border-theme bg-background-soft text-muted"
                         }
                       `}
                     >
@@ -119,7 +121,7 @@ export default function ApplicationDetailTimeline({
           )}
         </div>
       ) : (
-        <p className="text-sm text-slate-500 text-center py-4">
+        <p className="text-sm text-muted text-center py-4">
           No timeline available
         </p>
       )}

@@ -1,25 +1,15 @@
 "use client";
 
 import { ApplicationDetailExperienceProps } from "@/types/applications";
+import { Briefcase, Calendar, Building2 } from "lucide-react";
 
 export default function ApplicationDetailExperience({
   experiences,
 }: ApplicationDetailExperienceProps) {
   return (
-    <div
-      className="
-        rounded-2xl
-        border
-        border-[#2a3a52]
-        bg-gradient-to-r from-[#111827] to-[#1a2332]
-        p-5
-        shadow-xl
-        shadow-black/20
-        backdrop-blur-sm
-      "
-    >
-      <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-        <span className="bg-gradient-to-r from-green-500 to-emerald-600 w-1 h-6 rounded-full"></span>
+    <div className="surface-card rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-lg backdrop-blur-sm">
+      <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-[var(--text-primary)]">
+        <span className="h-6 w-1 rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--primary-light)]"></span>
         Experience
       </h2>
 
@@ -28,25 +18,17 @@ export default function ApplicationDetailExperience({
           {experiences.map((experience: any, index: number) => (
             <div
               key={index}
-              className="
-                rounded-xl
-                border
-                border-[#2a3a52]
-                bg-[#0f172a]
-                p-4
-                hover:border-green-500/30
-                transition-all
-                hover:scale-[1.01]
-                group
-              "
+              className="surface-card group rounded-xl border border-[var(--border)] bg-[var(--background-soft)] p-4 transition-all hover:border-[var(--primary-border)] hover:scale-[1.01]"
             >
               <div className="flex items-start justify-between">
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-semibold text-white">
+                <div className="min-w-0 flex-1">
+                  <h3 className="flex items-center gap-2 text-base font-semibold text-[var(--text-primary)]">
+                    <Briefcase className="h-4 w-4 text-[var(--text-muted)]" />
                     {experience?.role || "N/A"}
                   </h3>
 
-                  <p className="text-sm text-blue-400 font-medium">
+                  <p className="flex items-center gap-1.5 text-sm font-medium text-[var(--info)]">
+                    <Building2 className="h-3.5 w-3.5" />
                     {experience?.company_display ||
                       experience?.company ||
                       "N/A"}
@@ -54,28 +36,14 @@ export default function ApplicationDetailExperience({
                 </div>
 
                 {experience?.isCurrent && (
-                  <span
-                    className="
-                      px-2.5
-                      py-0.5
-                      rounded-full
-                      bg-green-500/10
-                      border
-                      border-green-500/30
-                      text-green-400
-                      text-xs
-                      font-medium
-                      flex-shrink-0
-                      ml-2
-                    "
-                  >
+                  <span className="badge badge-success flex-shrink-0 ml-2 rounded-full border border-[var(--success-border)] bg-[var(--success-soft)] px-2.5 py-0.5 text-xs font-medium text-[var(--success)]">
                     Current
                   </span>
                 )}
               </div>
 
-              <p className="mt-2 text-xs text-slate-500 flex items-center gap-1">
-                <span className="text-slate-400">📅</span>
+              <p className="mt-2 flex items-center gap-1 text-xs text-[var(--text-muted)]">
+                <Calendar className="h-3.5 w-3.5 text-[var(--text-muted)]" />
                 {experience?.startDate
                   ? new Date(
                       experience.startDate
@@ -84,7 +52,7 @@ export default function ApplicationDetailExperience({
                       year: "numeric",
                     })
                   : "N/A"}
-                <span className="text-slate-600 mx-1">•</span>
+                <span className="mx-1 text-[var(--text-muted)]">•</span>
                 {experience?.isCurrent
                   ? "Present"
                   : experience?.endDate
@@ -98,7 +66,7 @@ export default function ApplicationDetailExperience({
               </p>
 
               {experience?.description && (
-                <p className="mt-2 text-sm text-slate-400 leading-relaxed line-clamp-2 group-hover:line-clamp-none transition-all">
+                <p className="mt-2 line-clamp-2 text-sm text-[var(--text-secondary)] leading-relaxed transition-all group-hover:line-clamp-none">
                   {experience.description}
                 </p>
               )}
@@ -106,7 +74,7 @@ export default function ApplicationDetailExperience({
           ))}
         </div>
       ) : (
-        <p className="text-sm text-slate-500 text-center py-4">
+        <p className="py-4 text-center text-sm text-[var(--text-muted)]">
           No experience added
         </p>
       )}

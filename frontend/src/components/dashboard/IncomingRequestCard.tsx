@@ -130,29 +130,26 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
     if (score >= 75) {
       return {
         label: "High",
-        scoreClass: "text-green-400",
-        badgeClass:
-          "border-green-500/30 bg-green-500/10 text-green-400",
-        dotClass: "bg-green-400",
+        scoreClass: "text-[var(--success)]",
+        badgeClass: "border-[var(--success-border)] bg-[var(--success-soft)] text-[var(--success)]",
+        dotClass: "bg-[var(--success)]",
       };
     }
 
     if (score >= 40) {
       return {
         label: "Medium",
-        scoreClass: "text-orange-400",
-        badgeClass:
-          "border-orange-500/30 bg-orange-500/10 text-orange-400",
-        dotClass: "bg-orange-400",
+        scoreClass: "text-[var(--warning)]",
+        badgeClass: "border-[var(--warning-border)] bg-[var(--warning-soft)] text-[var(--warning)]",
+        dotClass: "bg-[var(--warning)]",
       };
     }
 
     return {
       label: "Low",
-      scoreClass: "text-red-400",
-      badgeClass:
-        "border-red-500/30 bg-red-500/10 text-red-400",
-      dotClass: "bg-red-400",
+      scoreClass: "text-[var(--danger)]",
+      badgeClass: "border-[var(--danger-border)] bg-[var(--danger-soft)] text-[var(--danger)]",
+      dotClass: "bg-[var(--danger)]",
     };
   };
 
@@ -215,8 +212,8 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
             key={star}
             className={`h-3 w-3 ${
               star <= numericRating
-                ? "fill-yellow-400 text-yellow-400"
-                : "text-gray-600"
+                ? "fill-[var(--warning)] text-[var(--warning)]"
+                : "text-[var(--text-muted)]"
             }`}
           />
         ))}
@@ -242,28 +239,29 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
       onClick={handleCardClick}
       className="
         w-full cursor-pointer
-        border-b border-[#1e293b]
-        px-4 py-3
+        border-b border-[var(--border)]
+        px-3 py-3
         transition-colors duration-150
-        hover:bg-[#111a2e]
+        hover:bg-[var(--card-hover)]
         last:border-b-0
+        sm:px-4
       "
     >
       <div
         className="
-          grid w-full items-center gap-x-3
+          grid w-full items-center gap-x-2
 
-          grid-cols-[minmax(0,1fr)_96px_96px]
+          grid-cols-[minmax(0,1fr)_80px_80px]
 
-          sm:grid-cols-[200px_repeat(2,minmax(90px,1fr))_96px]
+          sm:grid-cols-[180px_repeat(2,minmax(80px,1fr))_80px]
 
-          lg:grid-cols-[215px_repeat(3,minmax(90px,1fr))_96px]
+          lg:grid-cols-[200px_repeat(3,minmax(80px,1fr))_80px]
 
-          xl:grid-cols-[225px_repeat(4,minmax(90px,1fr))_96px]
+          xl:grid-cols-[210px_repeat(4,minmax(80px,1fr))_80px]
         "
       >
         {/* Applicant Details — Leftmost */}
-        <div className="flex min-w-0 items-center gap-3 justify-self-start">
+        <div className="flex min-w-0 items-center gap-2 justify-self-start sm:gap-3">
           {/* Profile Image */}
           <div className="flex h-9 w-9 shrink-0 items-center justify-center">
             {profileImage ? (
@@ -274,10 +272,10 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
                 height={36}
                 className="
                   h-9 w-9 rounded-full
-                  border border-blue-500/30
+                  border border-[var(--info-border)]
                   object-cover
                   transition-all
-                  hover:border-blue-500/60
+                  hover:border-[var(--info-border)]
                 "
               />
             ) : (
@@ -285,13 +283,11 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
                 className="
                   flex h-9 w-9 items-center justify-center
                   rounded-full
-                  border border-blue-500/30
-                  bg-gradient-to-br
-                  from-blue-500/20
-                  to-purple-500/20
+                  border border-[var(--info-border)]
+                  bg-[var(--info-soft)]
                 "
               >
-                <span className="text-sm font-semibold text-blue-400">
+                <span className="text-sm font-semibold text-[var(--info)]">
                   {applicantName.charAt(0).toUpperCase() || "A"}
                 </span>
               </div>
@@ -302,7 +298,7 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
           <div className="min-w-0">
             <p
               title={applicantName}
-              className="truncate text-sm font-medium text-white"
+              className="truncate text-sm font-medium text-[var(--text-primary)]"
             >
               {applicantName}
             </p>
@@ -311,11 +307,10 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
               <div className="mt-0.5 flex min-w-0 items-center gap-1.5">
                 {hasCollege && (
                   <div className="flex min-w-0 items-center gap-1">
-                    <GraduationCap className="h-3 w-3 shrink-0 text-gray-500" />
-
+                    <GraduationCap className="h-3 w-3 shrink-0 text-[var(--text-muted)]" />
                     <span
                       title={collegeName}
-                      className="max-w-[70px] truncate text-[9px] text-gray-400"
+                      className="max-w-[60px] truncate text-[9px] text-[var(--text-muted)] sm:max-w-[70px]"
                     >
                       {collegeName}
                     </span>
@@ -323,18 +318,17 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
                 )}
 
                 {hasCollege && hasCurrentCompany && (
-                  <span className="shrink-0 text-[10px] text-gray-600">
+                  <span className="shrink-0 text-[10px] text-[var(--text-muted)]">
                     |
                   </span>
                 )}
 
                 {hasCurrentCompany && (
                   <div className="flex min-w-0 items-center gap-1">
-                    <Building2 className="h-3 w-3 shrink-0 text-gray-500" />
-
+                    <Building2 className="h-3 w-3 shrink-0 text-[var(--text-muted)]" />
                     <span
                       title={currentCompany}
-                      className="max-w-[70px] truncate text-[9px] text-gray-400"
+                      className="max-w-[60px] truncate text-[9px] text-[var(--text-muted)] sm:max-w-[70px]"
                     >
                       {currentCompany}
                     </span>
@@ -347,12 +341,11 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
 
         {/* Job Title */}
         <div className="hidden min-w-0 items-center justify-center sm:flex">
-          <div className="flex max-w-[150px] min-w-0 items-center gap-1.5">
-            <Briefcase className="h-3.5 w-3.5 shrink-0 text-gray-500" />
-
+          <div className="flex max-w-[120px] min-w-0 items-center gap-1.5">
+            <Briefcase className="h-3.5 w-3.5 shrink-0 text-[var(--text-muted)]" />
             <span
               title={jobTitle}
-              className="truncate text-xs text-gray-400"
+              className="truncate text-xs text-[var(--text-secondary)]"
             >
               {jobTitle}
             </span>
@@ -395,7 +388,7 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
           {numericRating > 0 ? (
             renderStars()
           ) : (
-            <span className="whitespace-nowrap text-[10px] text-gray-500">
+            <span className="whitespace-nowrap text-[10px] text-[var(--text-muted)]">
               No rating
             </span>
           )}
@@ -406,16 +399,15 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
           {adminComment ? (
             <div
               title={adminComment}
-              className="flex max-w-[90px] min-w-0 items-center justify-center gap-1"
+              className="flex max-w-[80px] min-w-0 items-center justify-center gap-1"
             >
-              <MessageSquare className="h-3.5 w-3.5 shrink-0 text-gray-500" />
-
-              <span className="truncate text-[10px] text-gray-400">
+              <MessageSquare className="h-3.5 w-3.5 shrink-0 text-[var(--text-muted)]" />
+              <span className="truncate text-[10px] text-[var(--text-secondary)]">
                 {truncateComment(adminComment)}
               </span>
             </div>
           ) : (
-            <span className="text-[10px] text-gray-500">
+            <span className="text-[10px] text-[var(--text-muted)]">
               —
             </span>
           )}
@@ -424,39 +416,37 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
         {/* Action — Rightmost */}
         <div
           ref={dropdownRef}
-          className="relative flex w-[96px] justify-end justify-self-end"
+          className="relative flex w-[80px] justify-end justify-self-end"
         >
           {isAlreadyReferred ? (
             <div
               className="
-                flex h-8 w-[96px]
+                flex h-8 w-[80px]
                 items-center justify-center gap-1.5
                 rounded-lg
-                border border-green-500/30
-                bg-green-500/10
+                border border-[var(--success-border)]
+                bg-[var(--success-soft)]
                 px-2
               "
             >
-              <CheckCircle className="h-3.5 w-3.5 shrink-0 text-green-400" />
-
-              <span className="whitespace-nowrap text-xs font-medium text-green-400">
+              <CheckCircle className="h-3.5 w-3.5 shrink-0 text-[var(--success)]" />
+              <span className="whitespace-nowrap text-xs font-medium text-[var(--success)]">
                 Referred
               </span>
             </div>
           ) : isRejected ? (
             <div
               className="
-                flex h-8 w-[96px]
+                flex h-8 w-[80px]
                 items-center justify-center gap-1.5
                 rounded-lg
-                border border-red-500/30
-                bg-red-500/10
+                border border-[var(--danger-border)]
+                bg-[var(--danger-soft)]
                 px-2
               "
             >
-              <XCircle className="h-3.5 w-3.5 shrink-0 text-red-400" />
-
-              <span className="whitespace-nowrap text-xs font-medium text-red-400">
+              <XCircle className="h-3.5 w-3.5 shrink-0 text-[var(--danger)]" />
+              <span className="whitespace-nowrap text-xs font-medium text-[var(--danger)]">
                 Rejected
               </span>
             </div>
@@ -467,21 +457,20 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
                 disabled={isUpdating}
                 onClick={(event) => {
                   event.stopPropagation();
-
                   setShowDropdown(
                     (previous) => !previous,
                   );
                 }}
                 className="
-                  flex h-8 w-[96px]
+                  flex h-8 w-[80px]
                   items-center justify-center gap-1
                   rounded-lg
-                  border border-green-500/30
-                  bg-green-500/10
+                  border border-[var(--primary-border)]
+                  bg-[var(--primary-soft)]
                   px-2
-                  text-xs font-medium text-green-400
+                  text-xs font-medium text-[var(--primary)]
                   transition-colors duration-200
-                  hover:bg-green-500/20
+                  hover:bg-[var(--primary-soft)]/80
                   disabled:cursor-not-allowed
                   disabled:opacity-50
                 "
@@ -494,18 +483,12 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
                 ) : (
                   <>
                     <User className="h-3.5 w-3.5" />
-
                     <span>Action</span>
-
                     <ChevronDown
                       className={`
                         h-3.5 w-3.5
                         transition-transform
-                        ${
-                          showDropdown
-                            ? "rotate-180"
-                            : ""
-                        }
+                        ${showDropdown ? "rotate-180" : ""}
                       `}
                     />
                   </>
@@ -522,9 +505,9 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
                     absolute bottom-full right-0 z-50
                     mb-1 w-40 overflow-hidden
                     rounded-lg
-                    border border-[#334155]
-                    bg-[#1e293b]
-                    shadow-xl
+                    border border-[var(--border)]
+                    bg-[var(--card)]
+                    shadow-lg
                   "
                 >
                   <button
@@ -537,9 +520,9 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
                     className="
                       flex w-full items-center gap-2
                       px-4 py-2.5
-                      text-left text-xs text-green-400
+                      text-left text-xs text-[var(--success)]
                       transition-colors
-                      hover:bg-green-500/10
+                      hover:bg-[var(--success-soft)]
                     "
                   >
                     <CheckCircle className="h-3.5 w-3.5" />
@@ -553,11 +536,11 @@ const IncomingRequestCard: React.FC<IncomingRequestCardProps> = ({
                     }
                     className="
                       flex w-full items-center gap-2
-                      border-t border-[#334155]
+                      border-t border-[var(--border)]
                       px-4 py-2.5
-                      text-left text-xs text-red-400
+                      text-left text-xs text-[var(--danger)]
                       transition-colors
-                      hover:bg-red-500/10
+                      hover:bg-[var(--danger-soft)]
                     "
                   >
                     <XCircle className="h-3.5 w-3.5" />

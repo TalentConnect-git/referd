@@ -11,14 +11,14 @@ import {
 
 export default function RightPanel({ allJobs, onSelectJob }: RightPanelProps) {
   return (
-    <div className="w-[28%] overflow-y-auto border-l border-[#1e293b] bg-[#111827] p-4 sticky top-0 h-[calc(100vh-80px)]">
+    <div className="sticky top-0 h-[calc(100vh-80px)] w-full overflow-y-auto border-t border-[var(--border)] bg-[var(--card)] p-4 lg:w-[28%] lg:border-l lg:border-t-0">
       {/* Header */}
       <div className="mb-4">
-        <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-          <Briefcase className="w-4 h-4 text-green-400" />
+        <h3 className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]">
+          <Briefcase className="h-4 w-4 text-[var(--primary)]" />
           Other Jobs
         </h3>
-        <p className="text-[11px] text-gray-400 mt-0.5">
+        <p className="mt-0.5 text-[11px] text-[var(--text-muted)]">
           {allJobs.length} opportunity{allJobs.length !== 1 ? "s" : ""}{" "}
           available
         </p>
@@ -26,10 +26,10 @@ export default function RightPanel({ allJobs, onSelectJob }: RightPanelProps) {
 
       {/* Job List */}
       {allJobs.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-40 text-center">
-          <Briefcase className="w-8 h-8 text-gray-600 mb-2" />
-          <p className="text-sm text-gray-400">No jobs available</p>
-          <p className="text-[11px] text-gray-500">
+        <div className="flex h-40 flex-col items-center justify-center text-center">
+          <Briefcase className="mb-2 h-8 w-8 text-[var(--text-muted)]" />
+          <p className="text-sm text-[var(--text-secondary)]">No jobs available</p>
+          <p className="text-[11px] text-[var(--text-muted)]">
             Check back later for new opportunities
           </p>
         </div>
@@ -50,19 +50,19 @@ export default function RightPanel({ allJobs, onSelectJob }: RightPanelProps) {
             return (
               <div
                 key={job._id}
-                className="group rounded-lg border border-[#1e293b] bg-[#0f172a] p-3 hover:border-green-500/40 hover:bg-[#1a2332] transition-all duration-200 cursor-pointer"
+                className="surface-card group rounded-lg p-3 transition-all duration-200 hover:border-[var(--primary-border)] hover:shadow-sm cursor-pointer"
                 onClick={() => onSelectJob(job)}
               >
                 {/* Job Title - Always show */}
-                <h4 className="text-sm font-semibold text-white group-hover:text-green-400 transition-colors truncate">
+                <h4 className="truncate text-sm font-semibold text-[var(--text-primary)] transition-colors group-hover:text-[var(--primary)]">
                   {jobTitle}
                 </h4>
 
                 {/* Company - Only show if exists */}
                 {companyName && (
-                  <div className="flex items-center gap-1 mt-1">
-                    <Building2 className="w-3 h-3 text-gray-500 flex-shrink-0" />
-                    <p className="text-[11px] text-gray-400 truncate">
+                  <div className="mt-1 flex items-center gap-1">
+                    <Building2 className="h-3 w-3 flex-shrink-0 text-[var(--text-muted)]" />
+                    <p className="truncate text-[11px] text-[var(--text-secondary)]">
                       {companyName}
                     </p>
                   </div>
@@ -70,30 +70,30 @@ export default function RightPanel({ allJobs, onSelectJob }: RightPanelProps) {
 
                 {/* Location - Only show if exists */}
                 {location && (
-                  <div className="flex items-center gap-1 mt-0.5">
-                    <MapPin className="w-3 h-3 text-gray-500 flex-shrink-0" />
-                    <p className="text-[10px] text-gray-500 truncate">
+                  <div className="mt-0.5 flex items-center gap-1">
+                    <MapPin className="h-3 w-3 flex-shrink-0 text-[var(--text-muted)]" />
+                    <p className="truncate text-[10px] text-[var(--text-muted)]">
                       {location}
                     </p>
                   </div>
                 )}
 
                 {/* Tags & Match Score */}
-                <div className="flex items-center justify-between mt-2">
+                <div className="mt-2 flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     {/* Employment Type Tag - Only show if exists */}
                     {employmentType && (
-                      <span className="px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[9px] font-medium">
+                      <span className="badge badge-info rounded-full px-2 py-0.5 text-[9px] font-medium">
                         {employmentType}
                       </span>
                     )}
                     
                     {/* Match Score - Only show if > 0 */}
                     {matchScore > 0 && (
-                      <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-medium border ${
-                        matchScore >= 75 ? 'bg-green-500/10 text-green-400 border-green-500/20' :
-                        matchScore >= 40 ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' :
-                        'bg-red-500/10 text-red-400 border-red-500/20'
+                      <span className={`badge rounded-full px-1.5 py-0.5 text-[9px] font-medium ${
+                        matchScore >= 75 ? 'badge-success' :
+                        matchScore >= 40 ? 'badge-warning' :
+                        'badge-danger'
                       }`}>
                         {matchScore}% Match
                       </span>
@@ -101,7 +101,7 @@ export default function RightPanel({ allJobs, onSelectJob }: RightPanelProps) {
                   </div>
 
                   {/* View Details Arrow */}
-                  <ChevronRight className="w-3.5 h-3.5 text-gray-500 group-hover:text-green-400 group-hover:translate-x-0.5 transition-all duration-200" />
+                  <ChevronRight className="h-3.5 w-3.5 text-[var(--text-muted)] transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-[var(--primary)]" />
                 </div>
               </div>
             );

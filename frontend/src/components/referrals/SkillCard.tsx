@@ -17,8 +17,8 @@ export const SkillCard: React.FC<SkillCardProps> = ({
   emptyText = "No skills found.",
 }) => {
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--background-soft)] p-4">
-      <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+    <div className="card rounded-2xl border border-theme bg-background-soft p-4">
+      <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted">
         {title}
       </p>
       <div className="flex flex-wrap gap-2">
@@ -30,7 +30,7 @@ export const SkillCard: React.FC<SkillCardProps> = ({
             </Chip>
           ))
         ) : (
-          <p className="text-sm text-[var(--text-primary)]">{emptyText}</p>
+          <p className="text-sm text-primary">{emptyText}</p>
         )}
       </div>
     </div>

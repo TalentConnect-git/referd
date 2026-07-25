@@ -13,19 +13,19 @@ export default function ReferralPagination({
       <button
         disabled={!hasPrev}
         onClick={onPrevious}
-        className="px-3 py-2 border rounded-md disabled:opacity-50"
+        className="btn-secondary px-3 py-2 border border-theme rounded-md text-sm font-medium text-primary hover:bg-card-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all"
       >
         Previous
       </button>
 
-      <span>
+      <span className="text-sm text-secondary">
         Page {page} of {totalPages}
       </span>
 
       <button
         disabled={!hasNext}
         onClick={onNext}
-        className="px-3 py-2 border rounded-md disabled:opacity-50"
+        className="btn-secondary px-3 py-2 border border-theme rounded-md text-sm font-medium text-primary hover:bg-card-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all"
       >
         Next
       </button>

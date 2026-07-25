@@ -11,24 +11,24 @@ interface ProgressBarProps {
 
 const colorMap = {
   green: {
-    bg: 'bg-[#12381f]',
-    fill: 'bg-[#38e878]',
-    text: 'text-[#38e878]'
+    bg: 'bg-success-soft',
+    fill: 'bg-success',
+    text: 'text-success'
   },
   red: {
-    bg: 'bg-[#3d1a1a]',
-    fill: 'bg-[#e83838]',
-    text: 'text-[#e83838]'
+    bg: 'bg-danger-soft',
+    fill: 'bg-danger',
+    text: 'text-danger'
   },
   yellow: {
-    bg: 'bg-[#3d3a1a]',
-    fill: 'bg-[#e8d838]',
-    text: 'text-[#e8d838]'
+    bg: 'bg-warning-soft',
+    fill: 'bg-warning',
+    text: 'text-warning'
   },
   blue: {
-    bg: 'bg-[#1a2a3d]',
-    fill: 'bg-[#3898e8]',
-    text: 'text-[#3898e8]'
+    bg: 'bg-info-soft',
+    fill: 'bg-info',
+    text: 'text-info'
   }
 };
 
@@ -53,7 +53,7 @@ export default function ProgressBar({
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between">
-        <span className="text-[13px] font-medium text-[#cbd5e1]">{label}</span>
+        <span className="text-[13px] font-medium text-secondary">{label}</span>
         {showPercentage && (
           <span className={`text-[13px] font-semibold ${colors.text}`}>
             {Math.round(percentage)}%

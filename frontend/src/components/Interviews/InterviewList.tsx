@@ -74,26 +74,26 @@ export default function InterviewList({
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Scheduled":
-        return "text-green-400 bg-green-500/10 border-green-500/20";
+        return "text-[var(--success)] bg-[var(--success-soft)] border-[var(--success-border)]";
       case "Completed":
-        return "text-blue-400 bg-blue-500/10 border-blue-500/20";
+        return "text-[var(--info)] bg-[var(--info-soft)] border-[var(--info-border)]";
       case "Missed":
-        return "text-red-400 bg-red-500/10 border-red-500/20";
+        return "text-[var(--danger)] bg-[var(--danger-soft)] border-[var(--danger-border)]";
       default:
-        return "text-gray-400 bg-gray-500/10 border-gray-500/20";
+        return "text-[var(--text-muted)] bg-[var(--background-soft)] border-[var(--border)]";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "Scheduled":
-        return <Circle className="w-1.5 h-1.5 fill-green-400 text-green-400" />;
+        return <Circle className="h-1.5 w-1.5 fill-[var(--success)] text-[var(--success)]" />;
       case "Completed":
-        return <CheckCircle2 className="w-2.5 h-2.5 text-blue-400" />;
+        return <CheckCircle2 className="h-2.5 w-2.5 text-[var(--info)]" />;
       case "Missed":
-        return <XCircle className="w-2.5 h-2.5 text-red-400" />;
+        return <XCircle className="h-2.5 w-2.5 text-[var(--danger)]" />;
       default:
-        return <Circle className="w-1.5 h-1.5 fill-gray-400 text-gray-400" />;
+        return <Circle className="h-1.5 w-1.5 fill-[var(--text-muted)] text-[var(--text-muted)]" />;
     }
   };
 
@@ -118,13 +118,13 @@ export default function InterviewList({
 
   if (loading) {
     return (
-      <div className="flex min-h-48 items-center justify-center rounded-xl border border-slate-800 bg-slate-900/30 px-4 py-12">
+      <div className="flex min-h-48 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--background-soft)] px-4 py-12">
         <div className="flex flex-col items-center gap-2">
           <div className="relative">
-            <Loader2 className="w-6 h-6 animate-spin text-green-400" />
-            <div className="absolute inset-0 w-6 h-6 rounded-full border-2 border-green-400/20 animate-ping" />
+            <Loader2 className="h-6 w-6 animate-spin text-[var(--primary)]" />
+            <div className="absolute inset-0 h-6 w-6 animate-ping rounded-full border-2 border-[var(--primary)]/20" />
           </div>
-          <p className="text-gray-400 text-xs">Loading interviews...</p>
+          <p className="text-xs text-[var(--text-muted)]">Loading interviews...</p>
         </div>
       </div>
     );
@@ -132,16 +132,16 @@ export default function InterviewList({
 
   if (interviews.length === 0) {
     return (
-      <div className="flex min-h-56 flex-col items-center justify-center rounded-xl border border-slate-800 bg-slate-900/40 px-5 py-12">
-        <div className="w-14 h-14 rounded-full bg-slate-800/50 flex items-center justify-center mb-3">
-          <CalendarDays className="w-6 h-6 text-gray-600" />
+      <div className="flex min-h-56 flex-col items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--background-soft)] px-5 py-12">
+        <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--background-soft)]">
+          <CalendarDays className="h-6 w-6 text-[var(--text-muted)]" />
         </div>
-        <h3 className="text-sm font-semibold text-white">No Interviews Scheduled</h3>
-        <p className="text-gray-400 text-xs text-center max-w-xs mt-1">
+        <h3 className="text-sm font-semibold text-[var(--text-primary)]">No Interviews Scheduled</h3>
+        <p className="mt-1 max-w-xs text-center text-xs text-[var(--text-muted)]">
           You don't have any upcoming interviews at the moment.
         </p>
-        <div className="mt-3 px-3 py-1 bg-slate-800/50 rounded-full border border-slate-700">
-          <span className="text-[10px] text-gray-500">💡 Stay tuned for invites</span>
+        <div className="mt-3 rounded-full border border-[var(--border)] bg-[var(--background-soft)] px-3 py-1">
+          <span className="text-[10px] text-[var(--text-muted)]">💡 Stay tuned for invites</span>
         </div>
       </div>
     );
@@ -150,28 +150,28 @@ export default function InterviewList({
   return (
     <div className="w-full space-y-4 overflow-hidden">
       {/* Header with Tabs */}
-      <div className="flex flex-col gap-3 rounded-xl border border-slate-700/40 bg-slate-900/40 p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
+      <div className="flex flex-col gap-3 rounded-xl border border-[var(--border)] bg-[var(--background-soft)] p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
         <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-green-400" />
+          <Calendar className="h-4 w-4 text-[var(--primary)]" />
           <div>
-            <h2 className="text-sm font-semibold text-white">Interviews</h2>
-            <p className="text-[10px] text-gray-400">
+            <h2 className="text-sm font-semibold text-[var(--text-primary)]">Interviews</h2>
+            <p className="text-[10px] text-[var(--text-muted)]">
               {upcomingInterviews.length} upcoming • {completedInterviews.length} completed
             </p>
           </div>
         </div>
-        <div className="grid w-full grid-cols-2 gap-1 rounded-lg border border-slate-700/50 bg-slate-800/60 p-1 sm:w-auto">
+        <div className="grid w-full grid-cols-2 gap-1 rounded-lg border border-[var(--border)] bg-[var(--background)] p-1 sm:w-auto">
           <button
             onClick={() => setActiveTab("upcoming")}
             className={`flex min-h-9 items-center justify-center rounded-md px-3 py-2 text-[11px] font-medium transition-all sm:min-h-0 sm:py-1.5 ${
               activeTab === "upcoming"
-                ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                : "text-gray-400 hover:text-gray-300"
+                ? "bg-[var(--primary-soft)] text-[var(--primary)] border border-[var(--primary-border)]"
+                : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
             }`}
           >
             Upcoming
             {upcomingInterviews.length > 0 && (
-              <span className="ml-1 px-1.5 py-0.5 bg-green-500/30 text-green-400 rounded-full text-[9px]">
+              <span className="ml-1 rounded-full bg-[var(--primary-soft)] px-1.5 py-0.5 text-[9px] text-[var(--primary)]">
                 {upcomingInterviews.length}
               </span>
             )}
@@ -180,13 +180,13 @@ export default function InterviewList({
             onClick={() => setActiveTab("past")}
             className={`flex min-h-9 items-center justify-center rounded-md px-3 py-2 text-[11px] font-medium transition-all sm:min-h-0 sm:py-1.5 ${
               activeTab === "past"
-                ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                : "text-gray-400 hover:text-gray-300"
+                ? "bg-[var(--info-soft)] text-[var(--info)] border border-[var(--info-border)]"
+                : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
             }`}
           >
             Past
             {completedInterviews.length > 0 && (
-              <span className="ml-1 px-1.5 py-0.5 bg-blue-500/30 text-blue-400 rounded-full text-[9px]">
+              <span className="ml-1 rounded-full bg-[var(--info-soft)] px-1.5 py-0.5 text-[9px] text-[var(--info)]">
                 {completedInterviews.length}
               </span>
             )}
@@ -214,10 +214,10 @@ export default function InterviewList({
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-8 bg-slate-800/20 rounded-xl border border-slate-800">
-                <CheckCircle2 className="w-6 h-6 text-green-400/50 mb-1.5" />
-                <p className="text-xs text-gray-400">No upcoming interviews</p>
-                <p className="text-[10px] text-gray-500 mt-0.5">All caught up! 🎉</p>
+              <div className="flex flex-col items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--background-soft)] py-8">
+                <CheckCircle2 className="mb-1.5 h-6 w-6 text-[var(--success)]/50" />
+                <p className="text-xs text-[var(--text-muted)]">No upcoming interviews</p>
+                <p className="mt-0.5 text-[10px] text-[var(--text-muted)]">All caught up! 🎉</p>
               </div>
             )}
           </div>
@@ -241,10 +241,10 @@ export default function InterviewList({
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-8 bg-slate-800/20 rounded-xl border border-slate-800">
-                <CalendarDays className="w-6 h-6 text-gray-600 mb-1.5" />
-                <p className="text-xs text-gray-400">No past interviews</p>
-                <p className="text-[10px] text-gray-500 mt-0.5">Your history will appear here</p>
+              <div className="flex flex-col items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--background-soft)] py-8">
+                <CalendarDays className="mb-1.5 h-6 w-6 text-[var(--text-muted)]" />
+                <p className="text-xs text-[var(--text-muted)]">No past interviews</p>
+                <p className="mt-0.5 text-[10px] text-[var(--text-muted)]">Your history will appear here</p>
               </div>
             )}
           </div>
@@ -279,12 +279,12 @@ const InterviewCard = ({
 
   return (
     <div
-      className={`group w-full cursor-pointer overflow-hidden rounded-xl border bg-slate-900/55 transition-all duration-200 hover:bg-slate-800/70 ${
+      className={`group w-full cursor-pointer overflow-hidden rounded-xl border bg-[var(--background)] transition-all duration-200 hover:bg-[var(--card-hover)] ${
         isUpcoming
-          ? `border-slate-700/50 hover:border-green-500/30 hover:shadow-md hover:shadow-green-500/5 ${
-              isUnread ? "border-l-3 border-l-yellow-400" : ""
+          ? `border-[var(--border)] hover:border-[var(--primary-border)] hover:shadow-md hover:shadow-[var(--primary)]/5 ${
+              isUnread ? "border-l-3 border-l-[var(--warning)]" : ""
             }`
-          : "border-slate-700/30 hover:border-slate-600 opacity-75 hover:opacity-100"
+          : "border-[var(--border)] opacity-75 hover:opacity-100 hover:border-[var(--border-strong)]"
       }`}
       onClick={() => onInterviewClick(interview._id)}
       onMouseEnter={() => setIsHovered(true)}
@@ -293,35 +293,35 @@ const InterviewCard = ({
       <div className="p-2.5 sm:p-3">
         <div className="flex min-w-0 items-start gap-2.5 sm:gap-3">
           {/* Icon */}
-          <div className="flex-shrink-0 relative">
+          <div className="relative flex-shrink-0">
             <div
               className={`flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-200 sm:h-10 sm:w-10 ${
                 isUpcoming
-                  ? "bg-gradient-to-br from-green-500/20 to-emerald-500/10 border border-green-500/20"
-                  : "bg-slate-700/30 border border-slate-600/20"
+                  ? "border border-[var(--primary-border)] bg-[var(--primary-soft)]"
+                  : "border border-[var(--border)] bg-[var(--background-soft)]"
               }`}
             >
               {isUpcoming ? (
-                <Briefcase className="h-4 w-4 text-green-400" />
+                <Briefcase className="h-4 w-4 text-[var(--primary)]" />
               ) : (
-                <CheckCircle2 className="h-4 w-4 text-gray-500" />
+                <CheckCircle2 className="h-4 w-4 text-[var(--text-muted)]" />
               )}
             </div>
             {isUnread && isUpcoming && (
-              <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
+              <div className="absolute -right-0.5 -top-0.5 h-2 w-2 animate-pulse rounded-full bg-[var(--warning)]" />
             )}
           </div>
 
           {/* Content */}
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
-                <h4 className="break-words text-sm font-semibold leading-5 text-white sm:text-base group-hover:text-green-400 transition-colors">
+                <h4 className="break-words text-sm font-semibold leading-5 text-[var(--text-primary)] transition-colors group-hover:text-[var(--primary)] sm:text-base">
                   {interview.jobId?.jobTitle || "Interview"}
                 </h4>
                 <div className="mt-1 flex min-w-0 items-center gap-1.5">
-                  <Building2 className="h-3.5 w-3.5 flex-shrink-0 text-gray-400" />
-                  <p className="truncate text-xs text-gray-400">
+                  <Building2 className="h-3.5 w-3.5 flex-shrink-0 text-[var(--text-muted)]" />
+                  <p className="truncate text-xs text-[var(--text-muted)]">
                     {interview.companySnapshot?.companyName || "Company"}
                   </p>
                 </div>
@@ -329,8 +329,8 @@ const InterviewCard = ({
               {isUpcoming && (
                 <div className="flex flex-wrap items-center gap-1.5 sm:flex-shrink-0 sm:justify-end">
                   {isUnread && (
-                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-[9px] text-yellow-400 font-medium">
-                      <Eye className="w-2 h-2" />
+                    <span className="inline-flex items-center gap-0.5 rounded-full border border-[var(--warning-border)] bg-[var(--warning-soft)] px-1.5 py-0.5 text-[9px] font-medium text-[var(--warning)]">
+                      <Eye className="h-2 w-2" />
                       New
                     </span>
                   )}
@@ -341,20 +341,20 @@ const InterviewCard = ({
             {/* Details */}
             <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
               <div className="flex items-center gap-1">
-                <Calendar className="h-3.5 w-3.5 text-gray-400" />
-                <span className="text-xs text-gray-300">{formatDate(interview.date)}</span>
+                <Calendar className="h-3.5 w-3.5 text-[var(--text-muted)]" />
+                <span className="text-xs text-[var(--text-secondary)]">{formatDate(interview.date)}</span>
               </div>
               <div className="flex items-center gap-1">
-                <Clock className="h-3.5 w-3.5 text-gray-400" />
-                <span className="text-xs text-gray-300">{interview.time}</span>
+                <Clock className="h-3.5 w-3.5 text-[var(--text-muted)]" />
+                <span className="text-xs text-[var(--text-secondary)]">{interview.time}</span>
               </div>
             </div>
 
             {/* Interview Message */}
             {interview.message ? (
-              <div className="mt-2.5 flex min-w-0 items-start gap-2 rounded-lg border-t border-slate-700/40 bg-slate-800/30 px-2.5 py-2">
-                <MessageSquare className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-gray-500" />
-                <p className="line-clamp-2 break-words text-[11px] leading-4 text-gray-400 sm:text-xs">
+              <div className="mt-2.5 flex min-w-0 items-start gap-2 rounded-lg border-t border-[var(--border)] bg-[var(--background-soft)] px-2.5 py-2">
+                <MessageSquare className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[var(--text-muted)]" />
+                <p className="line-clamp-2 break-words text-[11px] leading-4 text-[var(--text-muted)] sm:text-xs">
                   {interview.message}
                 </p>
               </div>
@@ -368,7 +368,7 @@ const InterviewCard = ({
                 href={interview.meetLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-green-400/30 bg-green-500 px-2.5 text-[11px] font-semibold text-black shadow-sm shadow-green-500/10 transition hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-green-400/30 active:scale-[0.98] sm:px-3"
+                className="btn-primary inline-flex h-8 items-center justify-center gap-1.5 rounded-md px-2.5 text-[11px] font-semibold shadow-sm shadow-[var(--primary)]/10 transition active:scale-[0.98] sm:px-3"
                 onClick={(event) => event.stopPropagation()}
               >
                 <Video className="h-3.5 w-3.5" />
@@ -388,14 +388,14 @@ const InterviewCard = ({
             )}
 
             {isUpcoming && !isPast ? (
-              <span className="whitespace-nowrap rounded-full border border-yellow-500/20 bg-yellow-500/10 px-1.5 py-0.5 text-[9px] text-yellow-400/70">
+              <span className="whitespace-nowrap rounded-full border border-[var(--warning-border)] bg-[var(--warning-soft)] px-1.5 py-0.5 text-[9px] text-[var(--warning)]/70">
                 {getTimeRemaining(interview.date, interview.time)}
               </span>
             ) : null}
 
             <ChevronRight
-              className={`h-3 w-3 text-gray-500 transition-all duration-200 ${
-                isHovered ? "translate-x-0.5 text-gray-300" : ""
+              className={`h-3 w-3 text-[var(--text-muted)] transition-all duration-200 ${
+                isHovered ? "translate-x-0.5 text-[var(--text-secondary)]" : ""
               }`}
             />
           </div>
@@ -403,9 +403,9 @@ const InterviewCard = ({
 
         {/* Progress bar */}
         {isUpcoming && (
-          <div className="mt-1.5 h-0.5 w-full overflow-hidden rounded-full bg-slate-700/30">
+          <div className="mt-1.5 h-0.5 w-full overflow-hidden rounded-full bg-[var(--border)]">
             <div
-              className="h-full bg-gradient-to-r from-green-400 to-emerald-300 rounded-full transition-all duration-1000"
+              className="h-full rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--primary-light)] transition-all duration-1000"
               style={{
                 width: `${Math.min(
                   100,

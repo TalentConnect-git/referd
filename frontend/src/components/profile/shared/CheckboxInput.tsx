@@ -20,9 +20,9 @@ export function CheckboxInput({
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
         disabled={disabled}
-        className="h-4 w-4 cursor-pointer rounded border border-[var(--border)] bg-[var(--background)] text-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/50 focus:ring-offset-2 focus:ring-offset-[var(--background)] disabled:cursor-not-allowed disabled:opacity-50"
+        className="h-4 w-4 cursor-pointer rounded border border-theme bg-background text-primary focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
       />
-      <label className="cursor-pointer text-[13px] text-white/80 select-none disabled:cursor-not-allowed disabled:opacity-50">
+      <label className="cursor-pointer text-[13px] text-secondary select-none disabled:cursor-not-allowed disabled:opacity-50">
         {label}
       </label>
     </div>

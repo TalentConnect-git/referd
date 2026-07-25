@@ -194,21 +194,21 @@ export default function ConversationPageClient({
         style={{ background: "var(--background)" }}
       >
         <div className="text-center">
-          <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-[var(--card)]">
-            <AlertCircle className="h-10 w-10 text-red-500" />
+          <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-card">
+            <AlertCircle className="h-10 w-10 text-danger" />
           </div>
 
-          <h3 className="mb-2 text-lg font-semibold text-white">
+          <h3 className="mb-2 text-lg font-semibold text-primary">
             Failed to load messages
           </h3>
 
-          <p className="mx-auto max-w-sm text-sm text-[var(--text-muted)]">
+          <p className="mx-auto max-w-sm text-sm text-muted">
             {messagesError}
           </p>
 
           <button
             onClick={refreshMessages}
-            className="mt-6 rounded-xl bg-[var(--primary)] px-6 py-3 text-white transition-all hover:bg-[#259a3a]"
+            className="btn-primary mt-6 rounded-xl bg-primary px-6 py-3 text-inverse transition-all hover:bg-primary-hover"
           >
             <RefreshCw className="mr-2 inline h-4 w-4" />
             Retry

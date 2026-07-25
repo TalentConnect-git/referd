@@ -387,7 +387,7 @@ function AutocompleteInput({
   return (
     <div ref={dropdownRef} className="relative">
       {label ? (
-        <label className="mb-1.5 block text-xs font-medium text-gray-300">
+        <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
           {label}
         </label>
       ) : null}
@@ -400,27 +400,27 @@ function AutocompleteInput({
           onFocus={handleFocus}
           placeholder={placeholder}
           autoComplete="off"
-          className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-10 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+          className="input-field pl-10 text-sm"
         />
         {Icon ? (
-          <Icon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+          <Icon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-muted)]" />
         ) : null}
         {searchTerm ? (
           <button
             type="button"
             onClick={clearInput}
             aria-label="Clear input"
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition-colors hover:text-white"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
           >
             <X className="h-4 w-4" />
           </button>
         ) : null}
       </div>
       {showDropdown ? (
-        <div className="absolute z-50 mt-1 max-h-52 w-full overflow-y-auto rounded-lg border border-[#2a3a52] bg-[#111827] shadow-xl">
+        <div className="surface-card absolute z-50 mt-1 max-h-52 w-full overflow-y-auto rounded-lg border border-[var(--border)] shadow-xl">
           {loading ? (
-            <div className="flex items-center justify-center px-4 py-3 text-sm text-gray-400">
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <div className="flex items-center justify-center px-4 py-3 text-sm text-[var(--text-muted)]">
+              <Loader2 className="mr-2 h-4 w-4 animate-spin text-[var(--primary)]" />
               Loading...
             </div>
           ) : filteredData.length > 0 ? (
@@ -433,11 +433,11 @@ function AutocompleteInput({
                     key={getItemKey(item, index)}
                     type="button"
                     onClick={() => handleSelect(displayValue)}
-                    className="group flex w-full items-center justify-between border-b border-[#2a3a52] px-4 py-2.5 text-left text-sm text-white transition-colors last:border-0 hover:bg-green-500/10"
+                    className="group flex w-full items-center justify-between border-b border-[var(--border)] px-4 py-2.5 text-left text-sm text-[var(--text-primary)] transition-colors last:border-0 hover:bg-[var(--primary-soft)]"
                   >
                     <span>{displayValue}</span>
                     {isCustomItem(item) ? (
-                      <span className="text-[10px] text-gray-500 group-hover:text-green-400">
+                      <span className="text-[10px] text-[var(--text-muted)] group-hover:text-[var(--primary)]">
                         Custom
                       </span>
                     ) : null}
@@ -449,11 +449,11 @@ function AutocompleteInput({
                   type="button"
                   onClick={() => void handleCreate()}
                   disabled={isCreating}
-                  className="flex w-full items-center gap-2 border-t border-[#2a3a52] px-4 py-2.5 text-left text-sm text-green-400 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex w-full items-center gap-2 border-t border-[var(--border)] px-4 py-2.5 text-left text-sm text-[var(--primary)] transition-colors hover:bg-[var(--primary-soft)] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isCreating ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin text-[var(--primary)]" />
                       Creating...
                     </>
                   ) : (
@@ -470,11 +470,11 @@ function AutocompleteInput({
               type="button"
               onClick={() => void handleCreate()}
               disabled={isCreating}
-              className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-green-400 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-[var(--primary)] transition-colors hover:bg-[var(--primary-soft)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isCreating ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin text-[var(--primary)]" />
                   Creating...
                 </>
               ) : (
@@ -486,8 +486,8 @@ function AutocompleteInput({
             </button>
           ) : (
             <div className="px-4 py-3 text-center">
-              <p className="text-sm text-gray-400">No options found</p>
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="text-sm text-[var(--text-muted)]">No options found</p>
+              <p className="mt-1 text-xs text-[var(--text-muted)]">
                 Type a value to create one
               </p>
             </div>
@@ -510,7 +510,7 @@ export default function StepFivePage() {
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState>(null);
 
-  // ✅ Status State
+  // Status State
   const [statusType, setStatusType] = useState<string>("");
   const [statusSince, setStatusSince] = useState<string>("");
   const [statusNote, setStatusNote] = useState<string>("");
@@ -566,7 +566,7 @@ export default function StepFivePage() {
     setCompanyEmail(storedStep.companyEmail || "");
     setNoticePeriod(storedStep.noticePeriod || "");
 
-    // ✅ Restore status if exists
+    // Restore status if exists
     if (storedStep.status) {
       setStatusType(storedStep.status.type || "");
       setStatusSince(storedStep.status.since || "");
@@ -576,7 +576,7 @@ export default function StepFivePage() {
     }
   }, []);
 
-  // ✅ Status options based on user type
+  // Status options based on user type
   const statusOptions = useMemo(() => {
     if (userType === "student" || userType === "fresher") {
       return [
@@ -594,12 +594,12 @@ export default function StepFivePage() {
     ];
   }, [userType]);
 
-  // ✅ Check if user has current employment (isCurrent: true AND company name exists)
+  // Check if user has current employment (isCurrent: true AND company name exists)
   const hasCurrentCompany = experiences.some(
     (experience) => experience.isCurrent && cleanText(experience.company),
   );
 
-  // ✅ Get current experience start date
+  // Get current experience start date
   const getCurrentExperienceStartDate = (): string => {
     const currentExp = experiences.find(
       (exp) => exp.isCurrent && cleanText(exp.company),
@@ -607,11 +607,12 @@ export default function StepFivePage() {
     return currentExp?.startDate || new Date().toISOString().split("T")[0];
   };
 
-  // ✅ Handle status change
+  // Handle status change
   const handleStatusChange = (value: string) => {
     const today = new Date().toISOString().split("T")[0];
     setStatusType(value);
-    setStatusSince(today);
+    // Don't auto-set statusSince - let user select it
+    // setStatusSince(today);
     
     // Clear expected return if not career break
     if (value !== "career_break") {
@@ -671,7 +672,7 @@ export default function StepFivePage() {
       }),
     );
 
-    // ✅ If unchecked (removing current company), clear status and make it required
+    // If unchecked (removing current company), clear status and make it required
     if (!checked) {
       // Find if this was the only current company
       const otherCurrent = experiences.some(
@@ -739,7 +740,7 @@ export default function StepFivePage() {
     return null;
   };
 
-  // ✅ Validate status - only if no current company
+  // Validate status - only if no current company
   const validateStatus = (): string | null => {
     // If user has current company, status is auto-managed - no validation needed
     if (hasCurrentCompany) {
@@ -749,6 +750,11 @@ export default function StepFivePage() {
     // Status is required when no current company
     if (!statusType) {
       return "Please select your current status.";
+    }
+
+    // Since date is required
+    if (!statusSince) {
+      return "Please select the date since when this status applies.";
     }
 
     // Career break requires expected return date
@@ -779,17 +785,16 @@ export default function StepFivePage() {
       ? noticePeriod.trim()
       : "";
 
-    // ✅ Build status data - only if there's no current company
+    // Build status data - only if there's no current company
     let statusData: StatusData | undefined;
     
     if (hasCurrentCompany) {
       // Auto-managed employed status - backend will handle this
-      // We don't send this in the payload, backend auto-creates it
       statusData = undefined;
     } else if (statusType) {
       statusData = {
         type: statusType,
-        since: statusSince || new Date().toISOString(),
+        since: statusSince || new Date().toISOString().split("T")[0],
         note: statusNote.trim(),
         expectedReturn: statusType === "career_break" && statusExpectedReturn
           ? statusExpectedReturn
@@ -830,7 +835,7 @@ export default function StepFivePage() {
       return;
     }
 
-    // ✅ Validate status only if no current company
+    // Validate status only if no current company
     const statusError = validateStatus();
     if (statusError) {
       setError(statusError);
@@ -882,7 +887,7 @@ export default function StepFivePage() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mx-auto max-w-4xl space-y-6 p-6"
+      className="mx-auto max-w-4xl space-y-6 bg-[var(--background)] p-4 sm:p-6"
     >
       {toast ? (
         <div
@@ -890,29 +895,29 @@ export default function StepFivePage() {
           aria-live="assertive"
           className={`fixed right-4 top-4 z-[100] max-w-sm rounded-xl border px-4 py-3 text-sm font-medium shadow-2xl backdrop-blur ${
             toast.type === "success"
-              ? "border-emerald-500/40 bg-emerald-950/95 text-emerald-200"
-              : "border-red-500/40 bg-red-950/95 text-red-200"
+              ? "border-[var(--success-border)] bg-[var(--success-soft)] text-[var(--success)]"
+              : "border-[var(--danger-border)] bg-[var(--danger-soft)] text-[var(--danger)]"
           }`}
         >
           {toast.message}
         </div>
       ) : null}
       <div className="mb-6 flex items-center gap-3">
-        <div className="rounded-xl border border-green-500/20 bg-green-500/10 p-2">
-          <Briefcase className="h-5 w-5 text-green-400" />
+        <div className="rounded-xl border border-[var(--primary-border)] bg-[var(--primary-soft)] p-2">
+          <Briefcase className="h-5 w-5 text-[var(--primary)]" />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-white">Work Experience</h2>
-          <p className="text-sm text-gray-400">
+          <h2 className="text-xl font-bold text-[var(--text-primary)]">Work Experience</h2>
+          <p className="text-sm text-[var(--text-muted)]">
             Add your work experience details
           </p>
         </div>
-        <span className="ml-auto text-sm text-gray-500">Step 5 of 6</span>
+        <span className="ml-auto text-sm text-[var(--text-muted)]">Step 5 of 6</span>
       </div>
 
       {error ? (
-        <div className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
-          <X className="h-4 w-4" />
+        <div className="flex items-center gap-2 rounded-lg border border-[var(--danger-border)] bg-[var(--danger-soft)] p-3 text-sm text-[var(--danger)]">
+          <AlertCircle className="h-4 w-4" />
           {error}
         </div>
       ) : null}
@@ -921,29 +926,23 @@ export default function StepFivePage() {
         {experiences.map((experience, index) => (
           <div
             key={experience._id || `experience-${index}`}
-            className="rounded-xl border border-[#2a3a52] bg-[#111827] p-5 transition-all duration-300 hover:border-green-500/30"
+            className="surface-card rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 transition-all duration-300 hover:border-[var(--primary-border)] hover:shadow-md sm:p-5"
           >
             <div className="mb-5 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-green-500/20 bg-green-500/10 text-green-400">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--primary-border)] bg-[var(--primary-soft)] text-[var(--primary)]">
                   <Briefcase className="h-4 w-4" />
                 </div>
-                <h3 className="text-sm font-semibold text-white">
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">
                   Experience {index + 1}
                 </h3>
-                {!experience.company &&
-                !experience.role &&
-                !experience.startDate ? (
-                  <span className="rounded-full bg-gray-800/50 px-2 py-0.5 text-[10px] text-gray-500">
-                    Optional
-                  </span>
-                ) : null}
+                
               </div>
               {experiences.length > 1 ? (
                 <button
                   type="button"
                   onClick={() => handleRemove(index)}
-                  className="flex items-center gap-1.5 rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:border-red-500/50 hover:bg-red-500/10"
+                  className="btn-danger flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                   Remove
@@ -953,8 +952,8 @@ export default function StepFivePage() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-1.5">
-                <label className="flex items-center gap-1.5 text-xs font-medium text-gray-300">
-                  <Building2 className="h-3.5 w-3.5 text-gray-500" />
+                <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)]">
+                  <Building2 className="h-3.5 w-3.5 text-[var(--text-muted)]" />
                   Company
                 </label>
                 <AutocompleteInput
@@ -969,8 +968,8 @@ export default function StepFivePage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="flex items-center gap-1.5 text-xs font-medium text-gray-300">
-                  <User className="h-3.5 w-3.5 text-gray-500" />
+                <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)]">
+                  <User className="h-3.5 w-3.5 text-[var(--text-muted)]" />
                   Role / Title
                 </label>
                 <AutocompleteInput
@@ -985,8 +984,8 @@ export default function StepFivePage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="flex items-center gap-1.5 text-xs font-medium text-gray-300">
-                  <Calendar className="h-3.5 w-3.5 text-gray-500" />
+                <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)]">
+                  <Calendar className="h-3.5 w-3.5 text-[var(--text-muted)]" />
                   Start Date
                 </label>
                 <input
@@ -995,13 +994,13 @@ export default function StepFivePage() {
                   onChange={(event) =>
                     handleUpdate(index, "startDate", event.target.value)
                   }
-                  className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                  className="input-field"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="flex items-center gap-1.5 text-xs font-medium text-gray-300">
-                  <Calendar className="h-3.5 w-3.5 text-gray-500" />
+                <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)]">
+                  <Calendar className="h-3.5 w-3.5 text-[var(--text-muted)]" />
                   End Date
                 </label>
                 <input
@@ -1012,7 +1011,7 @@ export default function StepFivePage() {
                   onChange={(event) =>
                     handleUpdate(index, "endDate", event.target.value)
                   }
-                  className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="input-field disabled:cursor-not-allowed disabled:opacity-50"
                 />
               </div>
 
@@ -1024,16 +1023,16 @@ export default function StepFivePage() {
                     onChange={(event) =>
                       handleCurrentlyWorkingChange(index, event.target.checked)
                     }
-                    className="h-4 w-4 rounded border-[#2a3a52] bg-[#0f172a] text-green-500 focus:ring-2 focus:ring-green-500/20 focus:ring-offset-0"
+                    className="h-4 w-4 rounded border-[var(--border)] bg-[var(--background-soft)] text-[var(--primary)] focus:ring-2 focus:ring-[var(--focus-ring)] focus:ring-offset-0"
                   />
-                  <span className="text-sm font-medium text-gray-300 transition-colors group-hover:text-white">
+                  <span className="text-sm font-medium text-[var(--text-secondary)] transition-colors group-hover:text-[var(--text-primary)]">
                     Currently working here
                   </span>
                 </label>
               </div>
 
               <div className="md:col-span-2">
-                <label className="text-xs font-medium text-gray-300">
+                <label className="text-xs font-medium text-[var(--text-secondary)]">
                   Description
                 </label>
                 <textarea
@@ -1047,7 +1046,7 @@ export default function StepFivePage() {
                   }
                   placeholder="Describe your responsibilities and achievements..."
                   rows={3}
-                  className="w-full resize-none rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                  className="textarea-field resize-none"
                 />
               </div>
             </div>
@@ -1057,30 +1056,30 @@ export default function StepFivePage() {
         <button
           type="button"
           onClick={handleAdd}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[#2a3a52] bg-[#111827] py-4 text-sm font-medium text-gray-400 transition hover:border-green-500/50 hover:bg-green-500/5 hover:text-green-400"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--border)] bg-[var(--card)] py-4 text-sm font-medium text-[var(--text-muted)] transition hover:border-[var(--primary-border)] hover:bg-[var(--primary-soft)] hover:text-[var(--primary)]"
         >
           <Plus className="h-4 w-4" />
           Add more experience
         </button>
       </div>
 
-      {/* ✅ Candidate Status Section - Only show when NO current company */}
+      {/* Candidate Status Section - Only show when NO current company */}
       {!hasAnyCurrentExperience && (
-        <div className="space-y-4 rounded-xl border border-[#2a3a52] bg-[#111827] p-5">
+        <div className="surface-card space-y-4 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 sm:p-5">
           <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-green-400" />
-            <h3 className="text-sm font-semibold text-white">Candidate Status</h3>
+            <Clock className="h-4 w-4 text-[var(--primary)]" />
+            <h3 className="text-sm font-semibold text-[var(--text-primary)]">Candidate Status</h3>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-gray-300">
+              <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
                 Current Status
               </label>
               <select
                 value={statusType}
                 onChange={(e) => handleStatusChange(e.target.value)}
-                className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                className="select-field"
               >
                 <option value="">Select your status...</option>
                 {statusOptions.map((option) => (
@@ -1091,28 +1090,47 @@ export default function StepFivePage() {
               </select>
             </div>
 
-            {/* ✅ Expected Return Date (only for career break) */}
+            {/* Since Date - User can select custom date */}
+            {statusType && (
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
+                  Since <span className="text-[var(--danger)]">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={statusSince}
+                  onChange={(e) => setStatusSince(e.target.value)}
+                  max={new Date().toISOString().split("T")[0]}
+                  className="input-field"
+                />
+                <p className="mt-1 text-xs text-[var(--text-muted)]">
+                  Select the date since when this status applies
+                </p>
+              </div>
+            )}
+
+            {/* Expected Return Date (only for career break) */}
             {statusType === "career_break" && (
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-gray-300">
-                  Expected Return Date <span className="text-red-400">*</span>
+                <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
+                  Expected Return Date <span className="text-[var(--danger)]">*</span>
                 </label>
                 <input
                   type="date"
                   value={statusExpectedReturn}
                   onChange={(e) => setStatusExpectedReturn(e.target.value)}
                   min={new Date().toISOString().split("T")[0]}
-                  className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                  className="input-field"
                 />
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs text-[var(--text-muted)]">
                   When do you plan to return to work?
                 </p>
               </div>
             )}
 
-            {/* ✅ Note (optional) */}
+            {/* Note (optional) */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-gray-300">
+              <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
                 Note (Optional)
               </label>
               <textarea
@@ -1121,11 +1139,11 @@ export default function StepFivePage() {
                 placeholder="Add any additional details about your status..."
                 rows={2}
                 maxLength={500}
-                className="w-full resize-none rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                className="textarea-field resize-none"
               />
               <div className="mt-1 flex justify-between text-xs">
-                <span className="text-gray-500">Optional</span>
-                <span className={`${statusNote.length > 450 ? 'text-yellow-400' : 'text-gray-500'}`}>
+               
+                <span className={`${statusNote.length > 450 ? 'text-[var(--warning)]' : 'text-[var(--text-muted)]'}`}>
                   {statusNote.length}/500
                 </span>
               </div>
@@ -1134,25 +1152,25 @@ export default function StepFivePage() {
         </div>
       )}
 
-      {/* ✅ Show employed status message when user has current company */}
+      {/* Show employed status message when user has current company */}
       {hasAnyCurrentExperience && (
-        <div className="space-y-4 rounded-xl border border-green-500/20 bg-green-500/5 p-5">
+        <div className="space-y-4 rounded-xl border border-[var(--success-border)] bg-[var(--success-soft)] p-4 sm:p-5">
           <div className="flex items-center gap-2">
-            <Briefcase className="h-4 w-4 text-green-400" />
-            <h3 className="text-sm font-semibold text-white">Employment Status</h3>
-            <span className="ml-auto rounded-full bg-green-500/20 px-2.5 py-0.5 text-[10px] font-medium text-green-400">
+            <Briefcase className="h-4 w-4 text-[var(--success)]" />
+            <h3 className="text-sm font-semibold text-[var(--text-primary)]">Employment Status</h3>
+            <span className="badge badge-success ml-auto rounded-full px-2.5 py-0.5 text-[10px] font-medium">
               Auto-Managed
             </span>
           </div>
-          <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-4">
+          <div className="rounded-lg border border-[var(--success-border)] bg-[var(--success-soft)] p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-500/20">
-                <Briefcase className="h-4 w-4 text-green-400" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--success-soft)]">
+                <Briefcase className="h-4 w-4 text-[var(--success)]" />
               </div>
               <div>
-                <p className="text-sm font-medium text-white">Currently Employed</p>
-                <p className="text-xs text-gray-400">
-                  Your status is automatically set to &quot;Employed&quot; since you have a current job.
+                <p className="text-sm font-medium text-[var(--text-primary)]">Currently Employed</p>
+                <p className="text-xs text-[var(--text-muted)]">
+                  Your status is automatically set to "Employed" since you have a current job.
                   This will be managed by the system.
                 </p>
               </div>
@@ -1162,10 +1180,10 @@ export default function StepFivePage() {
       )}
 
       {hasAnyCurrentExperience ? (
-        <div className="space-y-4 rounded-xl border border-green-500/20 bg-green-500/5 p-5">
+        <div className="space-y-4 rounded-xl border border-[var(--success-border)] bg-[var(--success-soft)] p-4 sm:p-5">
           <div className="flex items-center gap-2">
-            <Briefcase className="h-4 w-4 text-green-400" />
-            <h3 className="text-sm font-semibold text-white">
+            <Briefcase className="h-4 w-4 text-[var(--success)]" />
+            <h3 className="text-sm font-semibold text-[var(--text-primary)]">
               Current Employment Details
             </h3>
           </div>
@@ -1174,7 +1192,7 @@ export default function StepFivePage() {
             <div className="space-y-1.5">
               <label
                 htmlFor="noticePeriod"
-                className="text-xs font-medium text-gray-300"
+                className="text-xs font-medium text-[var(--text-secondary)]"
               >
                 Notice Period (days)
               </label>
@@ -1189,14 +1207,14 @@ export default function StepFivePage() {
                   setNoticePeriod(event.target.value)
                 }
                 placeholder="e.g., 30, 60, 90"
-                className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                className="input-field"
               />
             </div>
 
             <div className="space-y-1.5">
               <label
                 htmlFor="companyEmail"
-                className="text-xs font-medium text-gray-300"
+                className="text-xs font-medium text-[var(--text-secondary)]"
               >
                 Official Company Email
               </label>
@@ -1214,19 +1232,19 @@ export default function StepFivePage() {
                 }
                 placeholder="yourname@company.com"
                 autoComplete="email"
-                className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                className="input-field"
               />
             </div>
           </div>
         </div>
       ) : null}
 
-      <div className="flex gap-4 border-t border-[#2a3a52] pt-4">
+      <div className="flex gap-4 border-t border-[var(--border)] pt-4">
         <button
           type="button"
           onClick={handleBack}
           disabled={isLoading}
-          className="flex-1 rounded-lg border border-[#2a3a52] bg-[#0f172a] py-2.5 text-sm font-medium text-gray-300 transition-all hover:border-green-500/30 hover:bg-green-500/5 hover:text-white disabled:opacity-50"
+          className="btn-secondary flex-1 rounded-lg py-2.5 text-sm font-medium"
         >
           Back
         </button>
@@ -1234,7 +1252,7 @@ export default function StepFivePage() {
         <button
           type="submit"
           disabled={isLoading}
-          className="flex-1 rounded-lg bg-green-500 py-2.5 text-sm font-medium text-black transition-all hover:bg-green-400 disabled:cursor-not-allowed disabled:opacity-50"
+          className="btn-primary flex-1 rounded-lg py-2.5 text-sm font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isLoading ? "Saving..." : "Continue →"}
         </button>

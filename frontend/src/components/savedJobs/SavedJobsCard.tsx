@@ -75,16 +75,16 @@ export default function SavedJobCard({
   // Get match score color
   const getMatchScoreColor = (score?: number): string => {
     const numericScore = Number(score) || 0;
-    if (numericScore >= 75) return "text-green-400";
-    if (numericScore >= 40) return "text-orange-400";
-    return "text-red-400";
+    if (numericScore >= 75) return "text-success";
+    if (numericScore >= 40) return "text-warning";
+    return "text-danger";
   };
 
   const getMatchScoreBg = (score?: number): string => {
     const numericScore = Number(score) || 0;
-    if (numericScore >= 75) return "bg-green-500";
-    if (numericScore >= 40) return "bg-orange-500";
-    return "bg-red-500";
+    if (numericScore >= 75) return "bg-success";
+    if (numericScore >= 40) return "bg-warning";
+    return "bg-danger";
   };
 
   const getMatchScoreLabel = (score?: number): string => {
@@ -103,17 +103,18 @@ export default function SavedJobCard({
     <div
       onClick={onClick}
       className="
+        card
         cursor-pointer
         rounded-2xl
         border
-        border-[var(--border)]
-        bg-[var(--card)]
+        border-theme
+        bg-card
         p-4
         transition-all
         duration-200
-        hover:border-green-500/50
+        hover:border-primary/50
         hover:shadow-lg
-        hover:shadow-green-500/5
+        hover:shadow-primary/5
         relative
         group
         mb-3
@@ -129,14 +130,14 @@ export default function SavedJobCard({
               w-10
               rounded-xl
               border
-              border-gray-600/30
-              text-gray-300
+              border-theme
+              text-muted
               flex
               items-center
               justify-center
               text-base
               font-bold
-              bg-gray-800/30
+              bg-background-soft
               flex-shrink-0
             "
           >
@@ -144,17 +145,17 @@ export default function SavedJobCard({
           </div>
 
           <div className="min-w-0 flex-1">
-            <h3 className="text-base font-semibold text-white truncate pr-2">
+            <h3 className="text-base font-semibold text-primary truncate pr-2">
               {job?.jobRoles?.[0] || job?.jobTitle?.[0] || "Untitled Job"}
             </h3>
             <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-              <p className="text-xs text-zinc-400 truncate">{company}</p>
+              <p className="text-xs text-secondary truncate">{company}</p>
 
               {/* Job Type Badge */}
               {job?.jobType && (
                 <>
-                  <div className="w-px h-3 bg-[var(--border)]" />
-                  <span className="text-[10px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full border border-blue-500/20 whitespace-nowrap">
+                  <div className="w-px h-3 bg-divider" />
+                  <span className="badge badge-info text-[10px] px-2 py-0.5 rounded-full border border-info/20 whitespace-nowrap">
                     {getJobTypeLabel()}
                   </span>
                 </>
@@ -163,9 +164,9 @@ export default function SavedJobCard({
               {/* Work Mode */}
               {job?.workMode?.[0] && (
                 <>
-                  <div className="w-px h-3 bg-[var(--border)]" />
-                  <div className="flex items-center gap-1 text-zinc-400 text-xs">
-                    <Briefcase className="w-3 h-3" />
+                  <div className="w-px h-3 bg-divider" />
+                  <div className="flex items-center gap-1 text-secondary text-xs">
+                    <Briefcase className="w-3 h-3 text-muted" />
                     <span className="capitalize">{job.workMode[0]}</span>
                   </div>
                 </>
@@ -180,17 +181,19 @@ export default function SavedJobCard({
           {matchScore !== undefined && matchScore !== null && (
             <div
               className="
+                badge
+                badge-primary
                 inline-flex
                 items-center
                 rounded-full
                 border
-                border-green-500/30
-                bg-green-500/10
+                border-primary/30
+                bg-primary-soft
                 px-2
                 py-0.5
                 text-xs
                 font-medium
-                text-green-400
+                text-primary
                 whitespace-nowrap
                 gap-1
               "
@@ -204,17 +207,19 @@ export default function SavedJobCard({
           {/* Saved Badge */}
           <div
             className="
+              badge
+              badge-success
               inline-flex
               items-center
               rounded-full
               border
-              border-green-500/30
-              bg-green-500/10
+              border-success/30
+              bg-success-soft
               px-2.5
               py-0.5
               text-xs
               font-medium
-              text-green-400
+              text-success
               whitespace-nowrap
               gap-1
             "
@@ -226,41 +231,39 @@ export default function SavedJobCard({
       </div>
 
       {/* Divider */}
-      <div className="mt-2.5 pt-2.5 border-t border-[var(--border)]" />
+      <div className="mt-2.5 pt-2.5 border-t border-divider" />
 
       {/* Row 2: All elements in a single flex row */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
         {/* Left Side: Location, Posted By, Employment Type, Package */}
         <div className="flex items-center gap-2 flex-wrap">
           {job?.location?.[0] && (
-            <div className="flex items-center gap-1 text-zinc-400 text-xs">
-              <MapPin className="w-3 h-3" />
+            <div className="flex items-center gap-1 text-secondary text-xs">
+              <MapPin className="w-3 h-3 text-muted" />
               <span className="truncate max-w-[100px]">{job.location[0]}</span>
             </div>
           )}
 
           {job?.postedBy && (
             <>
-              <div className="w-px h-3 bg-[var(--border)]" />
-              <div className="flex items-center gap-1 text-zinc-400 text-xs">
-                <Clock className="w-3 h-3" />
+              <div className="w-px h-3 bg-divider" />
+              <div className="flex items-center gap-1 text-secondary text-xs">
+                <Clock className="w-3 h-3 text-muted" />
                 <span>By {job.postedBy}</span>
               </div>
             </>
           )}
 
-          
-
           {/* Package Details */}
           {packageDisplay && (
             <>
-              <div className="w-px h-3 bg-[var(--border)]" />
+              <div className="w-px h-3 bg-divider" />
               <div className="flex items-center gap-1.5">
-                <span className="text-sm font-semibold text-white whitespace-nowrap">
+                <span className="text-sm font-semibold text-primary whitespace-nowrap">
                   {packageDisplay}
                 </span>
                 {job?.packageDetails?.totalCTC && (
-                  <span className="text-[10px] text-zinc-500 font-medium">
+                  <span className="text-[10px] text-muted font-medium">
                     CTC
                   </span>
                 )}
@@ -271,9 +274,9 @@ export default function SavedJobCard({
           {/* Match Score Label - Using matchScore from savedJob root */}
           {matchScore !== undefined && matchScore !== null && (
             <>
-              <div className="w-px h-3 bg-[var(--border)]" />
+              <div className="w-px h-3 bg-divider" />
               <div className="flex items-center gap-2">
-                <div className="w-12 h-1.5 bg-[#1e293b] rounded-full overflow-hidden">
+                <div className="w-12 h-1.5 bg-background-soft rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full ${getMatchScoreBg(matchScore)}`}
                     style={{
@@ -298,24 +301,25 @@ export default function SavedJobCard({
           <button
             onClick={handleUnsave}
             className="
+              btn-danger
               inline-flex
               items-center
               gap-1.5
               rounded-lg
               border
-              border-red-500/30
-              bg-red-500/10
+              border-danger/30
+              bg-danger-soft
               px-3
               py-1.5
               text-xs
               font-medium
-              text-red-400
+              text-danger
               transition-all
               duration-200
-              hover:bg-red-500/20
-              hover:border-red-500/50
+              hover:bg-danger-soft
+              hover:border-danger/50
               hover:shadow-lg
-              hover:shadow-red-500/10
+              hover:shadow-danger/10
               group/unsave
             "
           >
@@ -327,11 +331,11 @@ export default function SavedJobCard({
           <span
             className="
               text-xs
-              text-zinc-400 
+              text-secondary 
               font-medium 
               transition-all 
               duration-200 
-              hover:text-green-500 
+              hover:text-primary 
               inline-flex
               items-center
               gap-0.5

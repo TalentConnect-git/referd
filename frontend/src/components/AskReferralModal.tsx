@@ -115,22 +115,22 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[var(--overlay)] p-4 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="w-full max-w-xl">
         <div className="glass-card rounded-[var(--radius-xl)] overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
           {/* Header */}
-          <div className="p-6 border-b border-[var(--border)] bg-[var(--background-soft)]/50">
+          <div className="border-b border-[var(--border)] bg-[var(--background-soft)]/50 p-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-xl primary-gradient flex items-center justify-center shadow-lg">
-                    <Building2 className="w-5 h-5 text-black" />
+                <div className="mb-2 flex items-center gap-3">
+                  <div className="primary-gradient flex h-10 w-10 items-center justify-center rounded-xl shadow-lg">
+                    <Building2 className="h-5 w-5 text-black" />
                   </div>
-                  <h2 className="text-xl font-bold text-[var(--text-secondary)]">
+                  <h2 className="text-xl font-bold text-[var(--text-primary)]">
                     Find Alumni for Referrals
                   </h2>
                 </div>
-                <p className="text-sm text-[var(--text-primary)] max-w-md">
+                <p className="max-w-md text-sm text-[var(--text-secondary)]">
                   Paste the URL of a job posting to discover alumni working at
                   that company. They can refer you and boost your chances of
                   landing an interview.
@@ -140,7 +140,7 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
                 type="button"
                 onClick={onClose}
                 disabled={loading}
-                className="rounded-xl p-2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--card-hover)] transition-all disabled:opacity-50"
+                className="rounded-xl p-2 text-[var(--text-muted)] transition-all hover:bg-[var(--card-hover)] hover:text-[var(--text-secondary)] disabled:opacity-50"
               >
                 <X size={20} />
               </button>
@@ -148,14 +148,14 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
           </div>
 
           {/* Body */}
-          <div className="p-6 space-y-6">
+          <div className="space-y-6 p-6">
             {/* Input */}
             <div>
               <label
                 htmlFor="job-url"
-                className="block text-sm font-semibold text-[var(--text-secondary)] mb-2"
+                className="mb-2 block text-sm font-semibold text-[var(--text-secondary)]"
               >
-                Job Posting URL <span className="text-red-400">*</span>
+                Job Posting URL <span className="text-[var(--danger)]">*</span>
               </label>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">
@@ -173,52 +173,34 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
                     if (e.key === "Enter" && !loading) searchByUrl();
                   }}
                   placeholder="https://www.linkedin.com/jobs/view/1234567890"
-                  className="w-full rounded-xl bg-[var(--background-soft)] border border-[var(--border)] pl-12 pr-4 py-3.5 text-sm text-white placeholder:text-[var(--text-muted)] outline-none transition-all focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20"
+                  className="input-field w-full rounded-xl pl-12 pr-4 py-3.5 text-sm placeholder:text-[var(--input-placeholder)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--focus-ring)]"
                   autoFocus
                 />
               </div>
 
               {/* Examples & tips */}
               <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[var(--text-muted)]">
-                <span className="font-medium text-[var(--text-primary)]">
+                <span className="font-medium text-[var(--text-secondary)]">
                   Supported:
                 </span>
-                <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]">
-                  LinkedIn
-                </span>
-                <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]">
-                  Naukri
-                </span>
-                <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]">
-                  Unstop
-                </span>
-                <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]">
-                  Indeed
-                </span>
-                <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]">
-                  Wellfound
-                </span>
-                <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]">
-                  Greenhouse
-                </span>
-                <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]">
-                  Lever
-                </span>
-                <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]">
-                  Workday
-                </span>
-                <span className="px-2 py-1 rounded-md bg-[var(--background-soft)] border border-[var(--border)]">
-                  Ashby
-                </span>
+                <span className="badge">LinkedIn</span>
+                <span className="badge">Naukri</span>
+                <span className="badge">Unstop</span>
+                <span className="badge">Indeed</span>
+                <span className="badge">Wellfound</span>
+                <span className="badge">Greenhouse</span>
+                <span className="badge">Lever</span>
+                <span className="badge">Workday</span>
+                <span className="badge">Ashby</span>
               </div>
             </div>
 
             {/* Error */}
             {error && (
-              <div className="rounded-xl bg-red-500/10 border border-red-500/30 p-4 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="animate-in fade-in slide-in-from-top-2 duration-200 rounded-xl border border-[var(--danger-border)] bg-[var(--danger-soft)] p-4">
                 <div className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-red-300 whitespace-pre-line">
+                  <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--danger)]" />
+                  <p className="whitespace-pre-line text-sm text-[var(--danger)]">
                     {error}
                   </p>
                 </div>
@@ -226,12 +208,12 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
             )}
 
             {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <button
                 type="button"
                 onClick={onClose}
                 disabled={loading}
-                className="flex-1 rounded-xl border border-[var(--border)] px-4 py-3.5 text-sm font-medium text-[var(--text-primary)] hover:bg-[var(--card-hover)] hover:text-[var(--text-secondary)] transition-all disabled:opacity-50"
+                className="flex-1 rounded-xl border border-[var(--border)] px-4 py-3.5 text-sm font-medium text-[var(--text-secondary)] transition-all hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)] disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -239,7 +221,7 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
                 type="button"
                 onClick={searchByUrl}
                 disabled={loading}
-                className="flex-1 rounded-xl bg-[var(--primary)] px-4 py-3.5 text-sm font-semibold text-black hover:bg-[var(--primary-dark)] transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+                className="btn-primary flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3.5 text-sm font-semibold shadow-lg transition-all hover:shadow-xl active:scale-95 disabled:opacity-50"
               >
                 {loading ? (
                   <>
@@ -257,8 +239,8 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
             </div>
 
             {/* Footer note */}
-            <div className="pt-2 border-t border-[var(--border)]">
-              <p className="text-xs text-[var(--text-muted)] text-center">
+            <div className="border-t border-[var(--border)] pt-2">
+              <p className="text-center text-xs text-[var(--text-muted)]">
                 💡 We'll match the URL to the company and show you alumni who
                 can refer you.
               </p>

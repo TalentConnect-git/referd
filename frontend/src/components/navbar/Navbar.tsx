@@ -1,7 +1,8 @@
 "use client";
-import { Bell, CalendarDays, MessageCircle } from "lucide-react";
+import { Bell, CalendarDays, MessageCircle, Moon, Sun } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useGetAllUsers } from "@/hooks/useGetAllUsers";
+import { useTheme } from "@/context/ThemeContext";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
@@ -12,6 +13,29 @@ import { useNotification } from "@/context/NotificationContext";
 import { getInterviews, getUnreadInterviews } from "@/services/navbar.service";
 import { Interview } from "@/types/navbar";
 import { useRouter } from "next/navigation";
+
+// Theme toggle component
+function ThemeToggle() {
+  const { theme, toggleTheme } = useTheme();
+
+  return (
+    <button
+      onClick={toggleTheme}
+      className="
+        relative flex h-8 w-8 items-center justify-center
+        rounded-full bg-[var(--card)] text-[var(--text-secondary)]
+        transition-colors hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)]
+      "
+      aria-label="Toggle theme"
+    >
+      {theme === "light" ? (
+        <Moon size={15} />
+      ) : (
+        <Sun size={15} />
+      )}
+    </button>
+  );
+}
 
 export default function Navbar() {
   const { profile, user } = useAuth();
@@ -43,7 +67,7 @@ export default function Navbar() {
   const userType = profile?.profileType || user?.userType || "student";
   const profileImageUrl = profile?.profileImage || null;
 
-  // ✅ Fetch unread interviews count for badge
+  // Fetch unread interviews count for badge
   useEffect(() => {
     const fetchUnreadInterviews = async () => {
       try {
@@ -56,7 +80,7 @@ export default function Navbar() {
     fetchUnreadInterviews();
   }, []);
 
-  // ✅ Fetch interviews for calendar dropdown
+  // Fetch interviews for calendar dropdown
   useEffect(() => {
     const fetchInterviews = async () => {
       try {
@@ -126,7 +150,7 @@ export default function Navbar() {
     setShowNotifications((prev) => !prev);
   };
 
-  // ✅ Handle calendar click - mark interviews as read
+  // Handle calendar click - mark interviews as read
   const handleCalendarClick = () => {
     setShowCalendar((prev) => !prev);
     // Reset unread count when opening calendar
@@ -135,12 +159,12 @@ export default function Navbar() {
     }
   };
 
-  // ✅ Function to close calendar modal
+  // Function to close calendar modal
   const handleCloseCalendar = () => {
     setShowCalendar(false);
   };
 
-  // ✅ Function to close notifications modal
+  // Function to close notifications modal
   const handleCloseNotifications = () => {
     setShowNotifications(false);
   };
@@ -148,19 +172,13 @@ export default function Navbar() {
   return (
     <header
       className="
-        mb-0
-        flex
-        h-12
-        items-center
-        justify-between
-        border-b
-        border-[#2a3a52]
-        bg-[var(--background)]
-        px-6
+        global-navbar flex h-12 items-center
+        justify-between border-b border-[var(--border)]
+        bg-[var(--navbar-background)] px-4 sm:px-6
       "
     >
       {/* Logo */}
-      <Link href="/" className="flex items-center gap-0.5 group">
+      <Link href="/" className="group flex items-center gap-0.5">
         <div className="relative h-6 w-6 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
           <Image
             src={logo}
@@ -170,53 +188,38 @@ export default function Navbar() {
             priority
           />
         </div>
-        <span className="text-sm font-medium tracking-tight text-white transition-colors duration-200 group-hover:text-[var(--primary)]">
+        <span className="text-sm font-medium tracking-tight text-[var(--text-primary)] transition-colors duration-200 group-hover:text-[var(--primary)]">
           referd
           <span className="text-[var(--primary)]">.</span>
         </span>
       </Link>
 
       {/* Right side icons */}
-      <div className="flex items-center gap-3">
-        {/* ✅ Calendar with Interview Badge */}
+      <div className="flex items-center gap-2 sm:gap-3">
+        {/* Theme Toggle */}
+        <ThemeToggle />
+
+        {/* Calendar with Interview Badge */}
         <div className="relative" ref={calendarRef}>
           <button
             onClick={handleCalendarClick}
             className="
-              relative
-              flex
-              h-8
-              w-8
-              items-center
-              justify-center
-              rounded-full
-              bg-[var(--card-bg)]
-              hover:bg-[var(--primary-hover)]
-              transition-colors
+              relative flex h-8 w-8 items-center justify-center
+              rounded-full bg-[var(--card)] text-[var(--text-secondary)]
+              transition-colors hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)]
             "
           >
-            <CalendarDays size={15} className="text-[var(--text-secondary)]" />
+            <CalendarDays size={15} />
             
-            {/* ✅ Show unread interview count badge */}
+            {/* Show unread interview count badge */}
             {unreadInterviewCount > 0 && (
               <span
                 className="
-                  absolute
-                  -top-0.5
-                  -right-0.5
-                  flex
-                  h-4
-                  min-w-[16px]
-                  items-center
-                  justify-center
-                  rounded-full
-                  bg-red-500
-                  px-1
-                  text-[9px]
-                  font-bold
-                  text-white
-                  shadow-lg
-                  shadow-red-500/30
+                  absolute -right-0.5 -top-0.5 flex h-4
+                  min-w-[16px] items-center justify-center
+                  rounded-full bg-[var(--danger)] px-1
+                  text-[9px] font-bold text-white
+                  shadow-lg shadow-[var(--danger)]/30
                   animate-pulse-dot
                 "
               >
@@ -237,11 +240,10 @@ export default function Navbar() {
                 backgroundColor: "var(--background)",
                 border: "1px solid var(--border)",
                 borderRadius: "10px",
-                boxShadow: "0 20px 25px rgba(0,0,0,0.4)",
+                boxShadow: "var(--shadow-lg)",
                 zIndex: 9999,
               }}
             >
-              {/* ✅ Pass onClose prop to InterviewCall */}
               <InterviewCall onClose={handleCloseCalendar} />
             </div>
           )}
@@ -252,39 +254,21 @@ export default function Navbar() {
           <button
             onClick={handleNotificationClick}
             className="
-              relative
-              flex
-              h-8
-              w-8
-              items-center
-              justify-center
-              rounded-full
-              bg-[var(--card-bg)]
-              hover:bg-[var(--primary-hover)]
-              transition-colors
+              relative flex h-8 w-8 items-center justify-center
+              rounded-full bg-[var(--card)] text-[var(--text-secondary)]
+              transition-colors hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)]
             "
           >
-            <Bell size={15} className="text-[var(--text-secondary)]" />
+            <Bell size={15} />
             
             {notificationUnreadCount > 0 && (
               <span
                 className="
-                  absolute
-                  -top-0.5
-                  -right-0.5
-                  flex
-                  h-4
-                  min-w-[16px]
-                  items-center
-                  justify-center
-                  rounded-full
-                  bg-red-500
-                  px-1
-                  text-[9px]
-                  font-bold
-                  text-white
-                  shadow-lg
-                  shadow-red-500/30
+                  absolute -right-0.5 -top-0.5 flex h-4
+                  min-w-[16px] items-center justify-center
+                  rounded-full bg-[var(--danger)] px-1
+                  text-[9px] font-bold text-white
+                  shadow-lg shadow-[var(--danger)]/30
                   animate-pulse-dot
                 "
               >
@@ -297,19 +281,11 @@ export default function Navbar() {
             <div
               style={{ width: "380px", maxHeight: "500px" }}
               className="
-                absolute
-                right-0
-                top-[calc(100%+10px)]
-                z-50
-                overflow-y-auto
-                rounded-lg
-                border
-                border-[var(--border)]
-                bg-[var(--background)]
-                shadow-2xl
+                absolute right-0 top-[calc(100%+10px)] z-50
+                overflow-y-auto rounded-lg border border-[var(--border)]
+                bg-[var(--background)] shadow-2xl
               "
             >
-              {/* ✅ Pass onClose prop to NotificationsDropdown */}
               <NotificationsDropdown onClick={handleCloseNotifications} />
             </div>
           )}
@@ -320,40 +296,21 @@ export default function Navbar() {
           <button
             onClick={handleMessageClick}
             className="
-              relative
-              flex
-              h-8
-              w-8
-              items-center
-              justify-center
-              rounded-full
-              bg-[var(--card-bg)]
-              hover:bg-[var(--primary-hover)]
-              transition-colors
-              cursor-pointer
+              relative flex h-8 w-8 cursor-pointer items-center justify-center
+              rounded-full bg-[var(--card)] text-[var(--text-secondary)]
+              transition-colors hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)]
             "
           >
-            <MessageCircle size={15} className="text-[var(--text-secondary)]" />
+            <MessageCircle size={15} />
 
             {totalUnread > 0 && (
               <span
                 className="
-                  absolute
-                  -top-1
-                  -right-1
-                  flex
-                  h-4
-                  min-w-[16px]
-                  items-center
-                  justify-center
-                  rounded-full
-                  bg-red-500
-                  px-1
-                  text-[9px]
-                  font-bold
-                  text-white
-                  shadow-lg
-                  shadow-red-500/30
+                  absolute -right-0.5 -top-0.5 flex h-4
+                  min-w-[16px] items-center justify-center
+                  rounded-full bg-[var(--danger)] px-1
+                  text-[9px] font-bold text-white
+                  shadow-lg shadow-[var(--danger)]/30
                   animate-pulse-dot
                 "
               >
@@ -367,21 +324,10 @@ export default function Navbar() {
         <Link
           href={`/${userType}/profile`}
           className="
-            relative
-            flex
-            h-8
-            w-8
-            items-center
-            justify-center
-            rounded-full
-            overflow-hidden
-            bg-[var(--primary)]
-            text-white
-            font-semibold
-            text-xs
-            transition
-            hover:opacity-90
-            flex-shrink-0
+            relative flex h-8 w-8 flex-shrink-0 items-center
+            justify-center overflow-hidden rounded-full
+            bg-[var(--primary)] text-xs font-semibold text-black
+            transition hover:opacity-90
           "
         >
           {profileImageUrl ? (

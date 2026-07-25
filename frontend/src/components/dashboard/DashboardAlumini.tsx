@@ -58,20 +58,20 @@ export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
 
   if (loading) {
     return (
-      <div className="mt-4 rounded-2xl border border-slate-800 bg-[#0f172a] overflow-hidden">
-        <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
+      <div className="surface-card mt-4 overflow-hidden rounded-2xl">
+        <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3">
           <div>
-            <div className="h-5 w-40 animate-pulse rounded bg-slate-700/50" />
-            <div className="mt-1.5 h-3.5 w-48 animate-pulse rounded bg-slate-700/50" />
+            <div className="h-5 w-40 animate-pulse rounded bg-[var(--shimmer-start)]" />
+            <div className="mt-1.5 h-3.5 w-48 animate-pulse rounded bg-[var(--shimmer-start)]" />
           </div>
-          <div className="h-4 w-20 animate-pulse rounded bg-slate-700/50" />
+          <div className="h-4 w-20 animate-pulse rounded bg-[var(--shimmer-start)]" />
         </div>
 
         <div className="grid grid-cols-1 gap-3 p-3 md:grid-cols-2 xl:grid-cols-3">
           {[1, 2, 3].map((item) => (
             <div
               key={item}
-              className="h-32 animate-pulse rounded-xl border border-slate-800 bg-slate-800/20"
+              className="skeleton h-32 rounded-xl"
             />
           ))}
         </div>
@@ -80,19 +80,19 @@ export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
   }
 
   return (
-    <div className="mt-4 rounded-2xl border border-slate-800 bg-[#0f172a] overflow-hidden">
+    <div className="surface-card mt-4 overflow-hidden rounded-2xl">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-[#0f172a]/50">
+      <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--background-soft)]/50 px-4 py-3">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/10 border border-blue-500/20">
-            <UserCheck className="h-3.5 w-3.5 text-blue-400" />
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--info-border)] bg-[var(--info-soft)]">
+            <UserCheck className="h-3.5 w-3.5 text-[var(--info)]" />
           </div>
 
           <div>
-            <h2 className="text-[13px] font-semibold text-white">
+            <h2 className="text-sm font-semibold text-[var(--text-primary)]">
               Alumni Network
             </h2>
-            <p className="text-[10px] text-gray-500">
+            <p className="text-[10px] text-[var(--text-muted)]">
               {totalCount > 0 ? `${totalCount} verified alumni` : 'No alumni found'}
             </p>
           </div>
@@ -105,22 +105,22 @@ export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
               ? "/student"
               : "/professional"
           }/alumani-network`}
-          className="group inline-flex items-center gap-1 text-[11px] font-medium text-gray-400 hover:text-white transition-colors duration-200"
+          className="group inline-flex items-center gap-1 text-[11px] font-medium text-[var(--text-muted)] transition-colors duration-200 hover:text-[var(--text-primary)]"
         >
           View All
-          <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform duration-200" />
+          <ChevronRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
         </Link>
       </div>
 
       {/* Alumni Grid */}
       <div className="grid grid-cols-1 gap-3 p-3 md:grid-cols-2 xl:grid-cols-3">
         {displayedAlumni.length === 0 ? (
-          <div className="col-span-full flex flex-col items-center justify-center py-8 px-5">
-            <div className="h-12 w-12 rounded-full bg-slate-800/50 flex items-center justify-center mb-3">
-              <UsersRound className="h-6 w-6 text-gray-500" />
+          <div className="col-span-full flex flex-col items-center justify-center px-5 py-8">
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--background-soft)]">
+              <UsersRound className="h-6 w-6 text-[var(--text-muted)]" />
             </div>
-            <p className="text-sm text-gray-400">No alumni found</p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-sm text-[var(--text-secondary)]">No alumni found</p>
+            <p className="mt-1 text-xs text-[var(--text-muted)]">
               Check back later for updates
             </p>
           </div>
@@ -145,18 +145,18 @@ export default function DashboardAlumni({ userType }: DashboardAluminiProps) {
 
       {/* Footer - Show View All again if there are more than 3 */}
       {totalCount > 3 && displayedAlumni.length > 0 && (
-        <div className="px-4 py-2.5 border-t border-slate-800 bg-slate-800/10">
+        <div className="border-t border-[var(--border)] bg-[var(--background-soft)]/30 px-4 py-2.5">
           <Link
             href={`${
               userType === "student" || userType === "fresher"
                 ? "/student"
                 : "/professional"
             }/alumani-network`}
-            className="w-full inline-flex items-center justify-center gap-2 text-[11px] font-medium text-gray-400 hover:text-blue-400 transition-colors duration-200 group"
+            className="group inline-flex w-full items-center justify-center gap-2 text-[11px] font-medium text-[var(--text-muted)] transition-colors duration-200 hover:text-[var(--info)]"
           >
             <UsersRound className="h-3.5 w-3.5" />
             <span>View all {totalCount} alumni</span>
-            <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform duration-200" />
+            <ChevronRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
           </Link>
         </div>
       )}

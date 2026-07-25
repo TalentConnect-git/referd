@@ -124,21 +124,21 @@ export default function ApplicationStats({
   // Get color for each stat
   const getColor = (label: string): string => {
     const colors: Record<string, string> = {
-      "Saved": "text-gray-400 border-gray-500/20 bg-gray-500/5",
-      "Application Sent": "text-indigo-400 border-indigo-500/20 bg-indigo-500/5",
-      "Applied": "text-blue-400 border-blue-500/20 bg-blue-500/5",
-      "Awaiting Recruiter Action": "text-yellow-400 border-yellow-500/20 bg-yellow-500/5",
-      "Shortlisted": "text-purple-400 border-purple-500/20 bg-purple-500/5",
-      "Interview Scheduled": "text-cyan-400 border-cyan-500/20 bg-cyan-500/5",
-      "Offer Extended": "text-emerald-400 border-emerald-500/20 bg-emerald-500/5",
-      "Accepted": "text-green-400 border-green-500/20 bg-green-500/5",
-      "Rejected": "text-red-400 border-red-500/20 bg-red-500/5",
-      "Referred To Company": "text-orange-400 border-orange-500/20 bg-orange-500/5",
-      "Offer Accepted": "text-green-600 border-green-600/20 bg-green-600/5",
-      "Offer Rejected": "text-red-600 border-red-600/20 bg-red-600/5",
-      "Joined the Company": "text-teal-400 border-teal-500/20 bg-teal-500/5",
+      "Saved": "badge text-muted border-theme bg-background-soft",
+      "Application Sent": "badge-info",
+      "Applied": "badge-info",
+      "Awaiting Recruiter Action": "badge-warning",
+      "Shortlisted": "badge-primary",
+      "Interview Scheduled": "badge-info",
+      "Offer Extended": "badge-success",
+      "Accepted": "badge-success",
+      "Rejected": "badge-danger",
+      "Referred To Company": "badge-warning",
+      "Offer Accepted": "badge-success",
+      "Offer Rejected": "badge-danger",
+      "Joined the Company": "badge-success",
     };
-    return colors[label] || "text-gray-400 border-slate-700 bg-slate-800/5";
+    return colors[label] || "badge";
   };
 
   // Get short label for display
@@ -174,15 +174,15 @@ export default function ApplicationStats({
     return (
       <div className="mt-6 ">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-white">
+          <h2 className="text-lg font-semibold text-primary">
             Application Pipeline
           </h2>
-          <span className="text-sm text-gray-400">
-            Total: <span className="text-white font-semibold">{applications.length}</span>
+          <span className="text-sm text-muted">
+            Total: <span className="text-primary font-semibold">{applications.length}</span>
           </span>
         </div>
-        <div className="rounded-xl border border-slate-800 bg-slate-800/20 p-8 text-center">
-          <p className="text-gray-400">No applications in pipeline yet.</p>
+        <div className="card rounded-xl border border-theme bg-card-soft p-8 text-center">
+          <p className="text-muted">No applications in pipeline yet.</p>
         </div>
       </div>
     );
@@ -191,39 +191,43 @@ export default function ApplicationStats({
   return (
     <div className="mt-6 ">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-white">
+        <h2 className="text-lg font-semibold text-primary">
           Application Pipeline
         </h2>
-        <span className="text-sm text-gray-400">
-          Total: <span className="text-white font-semibold">{applications.length}</span>
+        <span className="text-sm text-muted">
+          Total: <span className="text-primary font-semibold">{applications.length}</span>
         </span>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3">
         {allStats.map(([label, value]) => {
           const Icon = getIcon(label);
-          const color = getColor(label);
+          const colorClass = getColor(label);
           const shortLabel = getShortLabel(label);
           const opacityClass = getOpacityClass(value);
+
+          // Extract the text color class from the badge class
+          const textColorClass = colorClass.includes('text-') 
+            ? colorClass.split(' ').find(c => c.startsWith('text-')) || 'text-muted'
+            : 'text-muted';
 
           return (
             <div
               key={label}
               className={`
-                rounded-xl border p-3 transition-all duration-200
-                ${color}
+                card rounded-xl border border-theme bg-card p-3 transition-all duration-200
                 ${opacityClass}
                 ${value > 0 ? 'hover:scale-105 hover:shadow-lg' : ''}
               `}
             >
               <div className="flex items-center gap-1.5">
-                <Icon className={`w-3.5 h-3.5 ${color.split(' ')[0]}`} />
-                <p className="text-[9px] text-gray-400 uppercase tracking-wider truncate">
+                <Icon className={`w-3.5 h-3.5 ${textColorClass}`} />
+                <p className="text-[9px] text-muted uppercase tracking-wider truncate">
                   {shortLabel}
                 </p>
               </div>
 
-              <p className={`text-xl font-bold mt-1.5 ${color.split(' ')[0]}`}>
+              <p className={`text-xl font-bold mt-1.5 ${textColorClass}`}>
                 {value}
               </p>
             </div>

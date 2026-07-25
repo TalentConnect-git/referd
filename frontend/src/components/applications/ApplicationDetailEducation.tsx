@@ -11,18 +11,19 @@ export default function ApplicationDetailEducation({
   return (
     <div
       className="
+        card
         rounded-2xl
         border
-        border-[#2a3a52]
-        bg-gradient-to-r from-[#111827] to-[#1a2332]
+        border-theme
+        bg-gradient-to-r from-card to-card-soft
         p-5
         shadow-xl
         shadow-black/20
         backdrop-blur-sm
       "
     >
-      <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-        <span className="bg-gradient-to-r from-green-500 to-emerald-600 w-1 h-6 rounded-full"></span>
+      <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+        <span className="bg-gradient-to-r from-primary to-primary-light w-1 h-6 rounded-full"></span>
         Education
       </h2>
 
@@ -34,10 +35,10 @@ export default function ApplicationDetailEducation({
                 key={index}
                 className="
                   border-l-2
-                  border-green-500/50
+                  border-success/50
                   pl-4
                   relative
-                  hover:border-green-500
+                  hover:border-success
                   transition-colors
                   group
                 "
@@ -50,47 +51,47 @@ export default function ApplicationDetailEducation({
                     h-3
                     w-3
                     rounded-full
-                    bg-gradient-to-r from-green-500 to-emerald-500
+                    bg-gradient-to-r from-primary to-primary-light
                     group-hover:scale-110
                     transition-transform
                   "
                 />
 
-                <h3 className="font-semibold text-base text-white">
+                <h3 className="font-semibold text-base text-primary">
                   {education?.college_display ||
                     education?.college ||
                     "N/A"}
                 </h3>
 
-                <p className="text-sm text-slate-400 font-medium">
+                <p className="text-sm text-muted font-medium">
                   {education?.degree || "N/A"}
                 </p>
 
                 {education?.specialization && (
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <p className="text-xs text-muted mt-0.5">
                     {education?.specialization}
                   </p>
                 )}
 
                 <div className="flex flex-wrap gap-3 mt-2 text-xs">
                   {education?.cgpa && (
-                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700">
-                      <span className="text-slate-400 font-medium">CGPA:</span>
-                      <span className="text-white font-semibold">{education?.cgpa}</span>
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-background-soft border border-theme">
+                      <span className="text-muted font-medium">CGPA:</span>
+                      <span className="text-primary font-semibold">{education?.cgpa}</span>
                     </span>
                   )}
 
                   {education?.yearOfGraduation && (
-                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700">
-                      <span className="text-slate-400 font-medium">Graduation:</span>
-                      <span className="text-white font-semibold">{education?.yearOfGraduation}</span>
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-background-soft border border-theme">
+                      <span className="text-muted font-medium">Graduation:</span>
+                      <span className="text-primary font-semibold">{education?.yearOfGraduation}</span>
                     </span>
                   )}
 
                   {education?.educationType && (
-                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700">
-                      <span className="text-slate-400 font-medium">Type:</span>
-                      <span className="text-white font-semibold capitalize">{education?.educationType}</span>
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-background-soft border border-theme">
+                      <span className="text-muted font-medium">Type:</span>
+                      <span className="text-primary font-semibold capitalize">{education?.educationType}</span>
                     </span>
                   )}
                 </div>
@@ -98,15 +99,16 @@ export default function ApplicationDetailEducation({
                 {education?.isCurrent && (
                   <span
                     className="
+                      badge
+                      badge-success
                       inline-block
                       mt-2
                       px-2.5
                       py-0.5
                       rounded-full
-                      bg-green-500/10
                       border
-                      border-green-500/30
-                      text-green-400
+                      border-success/30
+                      text-success
                       text-xs
                       font-medium
                     "
@@ -119,7 +121,7 @@ export default function ApplicationDetailEducation({
           )}
         </div>
       ) : (
-        <p className="text-sm text-slate-500 text-center py-4">
+        <p className="text-sm text-muted text-center py-4">
           No education added
         </p>
       )}

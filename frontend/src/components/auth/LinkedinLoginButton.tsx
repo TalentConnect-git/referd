@@ -9,7 +9,7 @@ export default function LinkedinLoginButton({
     <button
       type="button"
       onClick={onClick}
-      className="flex  hover:cursor-pointer h-12 w-full items-center justify-center gap-3 rounded-lg border border-[#0A66C2]/25 bg-[#0A66C2]/10 px-5 text-[14px] font-medium text-white transition hover:border-[#0A66C2]/40 hover:bg-[#0A66C2]/15"
+      className="btn-secondary flex hover:cursor-pointer h-12 w-full items-center justify-center gap-3 rounded-lg border border-[#0A66C2]/25 bg-[#0A66C2]/10 px-5 text-[14px] font-medium text-primary transition hover:border-[#0A66C2]/40 hover:bg-[#0A66C2]/15"
     >
       <svg
         width="18"

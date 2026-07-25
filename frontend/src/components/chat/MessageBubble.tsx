@@ -53,7 +53,7 @@ export const MessageBubble = memo(
             }`}
             style={{
               background: isMyMessage ? "var(--primary)" : "var(--card)",
-              color: isMyMessage ? "#fff" : "var(--text-secondary)",
+              color: isMyMessage ? "var(--text-inverse)" : "var(--text-secondary)",
               border: isMyMessage ? "none" : "1px solid var(--border)",
               boxShadow: isMyMessage
                 ? "0 2px 8px rgba(34,197,94,0.2)"

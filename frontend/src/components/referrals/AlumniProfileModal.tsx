@@ -44,18 +44,18 @@ export function AlumniProfileModal({
   if (!alumni) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm">
-      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto glass-card rounded-[var(--radius-xl)]">
+    <div className="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-overlay p-4 backdrop-blur-sm">
+      <div className="modal-content relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl border border-theme bg-card shadow-xl">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 rounded-xl bg-[var(--background-soft)] border border-[var(--border)] text-[var(--text-primary)] hover:text-[var(--text-secondary)] hover:bg-[var(--card-hover)] transition-all"
+          className="btn-ghost absolute top-4 right-4 z-10 p-2 rounded-xl border border-theme bg-background-soft text-primary hover:text-secondary hover:bg-card-hover transition-all"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Header */}
-        <div className="p-6 sm:p-8 border-b border-[var(--border)]">
+        <div className="p-6 sm:p-8 border-b border-divider">
           <div className="flex flex-col sm:flex-row sm:items-start gap-5">
             {/* Avatar */}
             <div className="relative flex-shrink-0">
@@ -63,36 +63,36 @@ export function AlumniProfileModal({
                 <img
                   src={alumni.profileImage}
                   alt={alumni.name}
-                  className="w-20 h-20 rounded-2xl object-cover ring-2 ring-[var(--border)]"
+                  className="w-20 h-20 rounded-2xl object-cover ring-2 ring-border"
                 />
               ) : (
                 <div className="w-20 h-20 rounded-2xl primary-gradient flex items-center justify-center">
-                  <span className="text-2xl font-bold text-black">
+                  <span className="text-2xl font-bold text-inverse">
                     {getInitials(alumni.name)}
                   </span>
                 </div>
               )}
               {alumni.isCurrentEmployee && (
-                <div className="absolute -bottom-1 -right-1 px-2 py-0.5 rounded-md bg-[var(--primary)] border-2 border-[var(--card)]">
-                  <span className="text-[10px] font-bold text-black">ACTIVE</span>
+                <div className="absolute -bottom-1 -right-1 px-2 py-0.5 rounded-md bg-primary border-2 border-card">
+                  <span className="text-[10px] font-bold text-inverse">ACTIVE</span>
                 </div>
               )}
             </div>
 
             <div className="flex-1 min-w-0">
-              <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-secondary)]">
+              <h2 className="text-xl sm:text-2xl font-bold text-secondary">
                 {alumni.name}
               </h2>
               
               <div className="flex items-center gap-2 mt-1.5">
-                <Building2 className="w-4 h-4 text-[var(--primary)] flex-shrink-0" />
-                <p className="text-[var(--text-primary)] font-medium truncate">
+                <Building2 className="w-4 h-4 text-primary flex-shrink-0" />
+                <p className="text-primary font-medium truncate">
                   {alumni.currentCompany || "Professional"}
                 </p>
               </div>
               
               {alumni.jobRoles?.[0] && (
-                <p className="text-sm text-[var(--text-muted)] mt-1">
+                <p className="text-sm text-muted mt-1">
                   {alumni.jobRoles[0]}
                 </p>
               )}
@@ -100,27 +100,27 @@ export function AlumniProfileModal({
               {/* Stats Badges */}
               <div className="flex flex-wrap gap-2 mt-4">
                 {alumni.totalYearsOfExperience && (
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--primary-soft)] border border-[var(--primary)]/10">
-                    <Clock className="w-3.5 h-3.5 text-[var(--primary)]" />
-                    <span className="text-xs font-medium text-[var(--primary)]">
+                  <div className="badge badge-primary inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-primary/10">
+                    <Clock className="w-3.5 h-3.5 text-primary" />
+                    <span className="text-xs font-medium text-primary">
                       {alumni.totalYearsOfExperience} Experience
                     </span>
                   </div>
                 )}
                 
                 {alumni.college && (
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--background-soft)] border border-[var(--border)]">
-                    <GraduationCap className="w-3.5 h-3.5 text-[var(--text-muted)]" />
-                    <span className="text-xs font-medium text-[var(--text-primary)] truncate max-w-[150px]">
+                  <div className="badge inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-theme bg-background-soft">
+                    <GraduationCap className="w-3.5 h-3.5 text-muted" />
+                    <span className="text-xs font-medium text-primary truncate max-w-[150px]">
                       {alumni.college}
                     </span>
                   </div>
                 )}
                 
                 {alumni.isAlumni && (
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--background-soft)] border border-[var(--border)]">
-                    <Award className="w-3.5 h-3.5 text-[var(--primary)]" />
-                    <span className="text-xs font-medium text-[var(--text-primary)]">Alumni</span>
+                  <div className="badge inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-theme bg-background-soft">
+                    <Award className="w-3.5 h-3.5 text-primary" />
+                    <span className="text-xs font-medium text-primary">Alumni</span>
                   </div>
                 )}
               </div>
@@ -132,7 +132,7 @@ export function AlumniProfileModal({
                     href={alumni.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2 rounded-lg bg-[var(--background-soft)] border border-[var(--border)] text-[var(--text-primary)] hover:text-[var(--text-secondary)] hover:border-[var(--border-strong)] transition-all"
+                    className="btn-ghost p-2 rounded-lg border border-theme bg-background-soft text-primary hover:text-secondary hover:border-strong transition-all"
                     title="LinkedIn Profile"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -145,7 +145,7 @@ export function AlumniProfileModal({
                     href={alumni.github}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2 rounded-lg bg-[var(--background-soft)] border border-[var(--border)] text-[var(--text-primary)] hover:text-[var(--text-secondary)] hover:border-[var(--border-strong)] transition-all"
+                    className="btn-ghost p-2 rounded-lg border border-theme bg-background-soft text-primary hover:text-secondary hover:border-strong transition-all"
                     title="GitHub Profile"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -158,7 +158,7 @@ export function AlumniProfileModal({
                     href={alumni.portfolio}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2 rounded-lg bg-[var(--background-soft)] border border-[var(--border)] text-[var(--text-primary)] hover:text-[var(--text-secondary)] hover:border-[var(--border-strong)] transition-all"
+                    className="btn-ghost p-2 rounded-lg border border-theme bg-background-soft text-primary hover:text-secondary hover:border-strong transition-all"
                     title="Portfolio"
                   >
                     <Globe className="w-4 h-4" />
@@ -167,7 +167,7 @@ export function AlumniProfileModal({
                 {alumni.email && (
                   <a
                     href={`mailto:${alumni.email}`}
-                    className="p-2 rounded-lg bg-[var(--background-soft)] border border-[var(--border)] text-[var(--text-primary)] hover:text-[var(--text-secondary)] hover:border-[var(--border-strong)] transition-all"
+                    className="btn-ghost p-2 rounded-lg border border-theme bg-background-soft text-primary hover:text-secondary hover:border-strong transition-all"
                     title="Send Email"
                   >
                     <Mail className="w-4 h-4" />
@@ -183,12 +183,12 @@ export function AlumniProfileModal({
           {/* About */}
           {alumni.about && (
             <div>
-              <h3 className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-3 flex items-center gap-2">
-                <div className="w-1 h-4 rounded-full bg-[var(--primary)]" />
+              <h3 className="text-xs font-semibold text-primary uppercase tracking-wider mb-3 flex items-center gap-2">
+                <div className="w-1 h-4 rounded-full bg-primary" />
                 About
               </h3>
-              <div className="p-4 rounded-xl bg-[var(--background-soft)] border border-[var(--border)]">
-                <p className="text-sm text-[var(--text-primary)] leading-relaxed">
+              <div className="p-4 rounded-xl bg-background-soft border border-theme">
+                <p className="text-sm text-primary leading-relaxed">
                   {alumni.about}
                 </p>
               </div>
@@ -198,39 +198,39 @@ export function AlumniProfileModal({
           {/* Experience */}
           {alumni.experiences && alumni.experiences.length > 0 && (
             <div>
-              <h3 className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-3 flex items-center gap-2">
-                <div className="w-1 h-4 rounded-full bg-[var(--primary)]" />
+              <h3 className="text-xs font-semibold text-primary uppercase tracking-wider mb-3 flex items-center gap-2">
+                <div className="w-1 h-4 rounded-full bg-primary" />
                 Work Experience
               </h3>
               <div className="space-y-2.5">
                 {alumni.experiences.map((exp, index) => (
                   <div
                     key={index}
-                    className="p-4 rounded-xl bg-[var(--background-soft)] border border-[var(--border)] hover:border-[var(--border-strong)] transition-all"
+                    className="p-4 rounded-xl bg-background-soft border border-theme hover:border-strong transition-all"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-[var(--text-secondary)] text-sm">
+                        <h4 className="font-semibold text-secondary text-sm">
                           {exp.role}
                         </h4>
-                        <p className="text-sm text-[var(--text-primary)] mt-0.5">
+                        <p className="text-sm text-primary mt-0.5">
                           {exp.company}
                         </p>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="text-xs text-[var(--text-muted)] flex items-center gap-1 justify-end">
+                        <p className="text-xs text-muted flex items-center gap-1 justify-end">
                           <Calendar className="w-3 h-3" />
                           <span>{exp.startDate} - {exp.isCurrent ? "Present" : exp.endDate}</span>
                         </p>
                         {exp.isCurrent && (
-                          <span className="inline-block mt-1.5 px-2 py-0.5 text-[10px] font-medium rounded-md bg-[var(--primary-soft)] text-[var(--primary)] border border-[var(--primary)]/20">
+                          <span className="badge badge-primary inline-block mt-1.5 px-2 py-0.5 text-[10px] font-medium rounded-md border border-primary/20">
                             Current
                           </span>
                         )}
                       </div>
                     </div>
                     {exp.description && (
-                      <p className="mt-3 text-xs text-[var(--text-muted)] leading-relaxed border-t border-[var(--border)] pt-3">
+                      <p className="mt-3 text-xs text-muted leading-relaxed border-t border-divider pt-3">
                         {exp.description}
                       </p>
                     )}
@@ -243,31 +243,31 @@ export function AlumniProfileModal({
           {/* Education */}
           {alumni.educations && alumni.educations.length > 0 && (
             <div>
-              <h3 className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-3 flex items-center gap-2">
-                <div className="w-1 h-4 rounded-full bg-[var(--primary)]" />
+              <h3 className="text-xs font-semibold text-primary uppercase tracking-wider mb-3 flex items-center gap-2">
+                <div className="w-1 h-4 rounded-full bg-primary" />
                 Education
               </h3>
               <div className="space-y-2.5">
                 {alumni.educations.map((edu, index) => (
                   <div
                     key={index}
-                    className="p-4 rounded-xl bg-[var(--background-soft)] border border-[var(--border)] hover:border-[var(--border-strong)] transition-all"
+                    className="p-4 rounded-xl bg-background-soft border border-theme hover:border-strong transition-all"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-[var(--text-secondary)] text-sm">
+                        <h4 className="font-semibold text-secondary text-sm">
                           {edu.college}
                         </h4>
-                        <p className="text-sm text-[var(--text-primary)] mt-0.5">
+                        <p className="text-sm text-primary mt-0.5">
                           {edu.degree}{edu.specialization ? ` in ${edu.specialization}` : ''}
                         </p>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="text-xs text-[var(--text-muted)]">
+                        <p className="text-xs text-muted">
                           Graduated {edu.yearOfGraduation}
                         </p>
                         {edu.cgpa && (
-                          <p className="text-xs text-[var(--primary)] font-medium mt-1">
+                          <p className="text-xs text-primary font-medium mt-1">
                             CGPA: {edu.cgpa}
                           </p>
                         )}
@@ -282,15 +282,15 @@ export function AlumniProfileModal({
           {/* Skills */}
           {alumni.jobRoles && alumni.jobRoles.length > 0 && (
             <div>
-              <h3 className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-3 flex items-center gap-2">
-                <div className="w-1 h-4 rounded-full bg-[var(--primary)]" />
+              <h3 className="text-xs font-semibold text-primary uppercase tracking-wider mb-3 flex items-center gap-2">
+                <div className="w-1 h-4 rounded-full bg-primary" />
                 Skills & Expertise
               </h3>
               <div className="flex flex-wrap gap-2">
                 {alumni.jobRoles.map((role, index) => (
                   <span
                     key={index}
-                    className="px-3 py-1.5 text-xs font-medium rounded-lg bg-[var(--primary-soft)] text-[var(--primary)] border border-[var(--primary)]/10 hover:border-[var(--primary)]/30 transition-all"
+                    className="badge badge-primary px-3 py-1.5 text-xs font-medium rounded-lg border border-primary/10 hover:border-primary/30 transition-all"
                   >
                     {role}
                   </span>
@@ -302,43 +302,43 @@ export function AlumniProfileModal({
           {/* Contact */}
           {(alumni.email || alumni.phone) && (
             <div>
-              <h3 className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wider mb-3 flex items-center gap-2">
-                <div className="w-1 h-4 rounded-full bg-[var(--primary)]" />
+              <h3 className="text-xs font-semibold text-primary uppercase tracking-wider mb-3 flex items-center gap-2">
+                <div className="w-1 h-4 rounded-full bg-primary" />
                 Contact Information
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {alumni.email && (
                   <a
                     href={`mailto:${alumni.email}`}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-[var(--background-soft)] border border-[var(--border)] hover:border-[var(--border-strong)] transition-all group"
+                    className="flex items-center gap-3 p-3 rounded-xl bg-background-soft border border-theme hover:border-strong transition-all group"
                   >
-                    <div className="w-9 h-9 rounded-lg bg-[var(--primary-soft)] flex items-center justify-center flex-shrink-0">
-                      <Mail className="w-4 h-4 text-[var(--primary)]" />
+                    <div className="w-9 h-9 rounded-lg bg-primary-soft flex items-center justify-center flex-shrink-0">
+                      <Mail className="w-4 h-4 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Email</p>
-                      <p className="text-sm text-[var(--text-primary)] truncate group-hover:text-[var(--text-secondary)] transition-colors">
+                      <p className="text-[10px] text-muted uppercase tracking-wider">Email</p>
+                      <p className="text-sm text-primary truncate group-hover:text-secondary transition-colors">
                         {alumni.email}
                       </p>
                     </div>
-                    <ExternalLink className="w-4 h-4 text-[var(--text-muted)] flex-shrink-0" />
+                    <ExternalLink className="w-4 h-4 text-muted flex-shrink-0" />
                   </a>
                 )}
                 {alumni.phone && (
                   <a
                     href={`tel:${alumni.phone}`}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-[var(--background-soft)] border border-[var(--border)] hover:border-[var(--border-strong)] transition-all group"
+                    className="flex items-center gap-3 p-3 rounded-xl bg-background-soft border border-theme hover:border-strong transition-all group"
                   >
-                    <div className="w-9 h-9 rounded-lg bg-[var(--primary-soft)] flex items-center justify-center flex-shrink-0">
-                      <Phone className="w-4 h-4 text-[var(--primary)]" />
+                    <div className="w-9 h-9 rounded-lg bg-primary-soft flex items-center justify-center flex-shrink-0">
+                      <Phone className="w-4 h-4 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Phone</p>
-                      <p className="text-sm text-[var(--text-primary)] truncate group-hover:text-[var(--text-secondary)] transition-colors">
+                      <p className="text-[10px] text-muted uppercase tracking-wider">Phone</p>
+                      <p className="text-sm text-primary truncate group-hover:text-secondary transition-colors">
                         {alumni.phone}
                       </p>
                     </div>
-                    <ExternalLink className="w-4 h-4 text-[var(--text-muted)] flex-shrink-0" />
+                    <ExternalLink className="w-4 h-4 text-muted flex-shrink-0" />
                   </a>
                 )}
               </div>
@@ -347,11 +347,11 @@ export function AlumniProfileModal({
         </div>
 
         {/* Footer */}
-        <div className="p-6 sm:p-8 border-t border-[var(--border)]">
+        <div className="p-6 sm:p-8 border-t border-divider">
           <button
             onClick={onRequestReferral}
             disabled={requestLoading}
-            className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[var(--primary)] text-black font-semibold hover:bg-[var(--primary-dark)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="btn-primary w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-primary text-inverse font-semibold hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             {requestLoading ? (
               <>
@@ -370,4 +370,4 @@ export function AlumniProfileModal({
       </div>
     </div>
   );
-};
+}

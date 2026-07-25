@@ -7,16 +7,19 @@ import { AuthContextRole } from "@/context/AuthContext";
 import { SocketProvider } from "@/context/SocketContext";
 import { NotificationProvider } from "@/context/NotificationContext";
 import { ChatProvider } from "@/context/ChatContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 
 export default function Providers({ children }: { children: ReactNode }) {
   const appProviders = (
-    <AuthContextRole>
-      <SocketProvider>
-        <NotificationProvider>
-          <ChatProvider>{children}</ChatProvider>
-        </NotificationProvider>
-      </SocketProvider>
-    </AuthContextRole>
+    <ThemeProvider>
+      <AuthContextRole>
+        <SocketProvider>
+          <NotificationProvider>
+            <ChatProvider>{children}</ChatProvider>
+          </NotificationProvider>
+        </SocketProvider>
+      </AuthContextRole>
+    </ThemeProvider>
   );
 
   return (

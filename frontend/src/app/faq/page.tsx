@@ -137,19 +137,19 @@ export default function FAQPage() {
   return (
     <>
       <Navbar/>
-      <main className="min-h-screen mt-12 bg-[#0f172a] px-4 py-8 sm:px-6 lg:px-8">
+      <main className="min-h-screen mt-12 bg-background px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
           {/* Header */}
           <div className="mb-8 text-center">
             <div className="flex items-center justify-center gap-3 mb-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-500/10 border border-green-500/20">
-                <HelpCircle className="h-6 w-6 text-green-400" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-soft border border-primary/20">
+                <HelpCircle className="h-6 w-6 text-primary" />
               </div>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
+            <h1 className="text-3xl md:text-4xl font-bold text-primary tracking-tight">
               Frequently Asked Questions
             </h1>
-            <p className="text-slate-400 mt-2 text-sm">
+            <p className="text-muted mt-2 text-sm">
               Everything you need to know about India's alumni-powered referral network.
             </p>
           </div>
@@ -161,18 +161,18 @@ export default function FAQPage() {
               return (
                 <div
                   key={item.id}
-                  className="rounded-xl border border-[#2a3a52] bg-[#111827] overflow-hidden transition-all duration-200 hover:border-[#3a4a62]"
+                  className="card rounded-xl border border-theme bg-card-soft overflow-hidden transition-all duration-200 hover:border-strong"
                 >
                   <button
                     onClick={() => toggle(item.id)}
-                    className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left bg-transparent hover:bg-[#1a2332] transition-colors"
+                    className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left bg-transparent hover:bg-card-hover transition-colors"
                     aria-expanded={isOpen}
                   >
-                    <span className="text-white font-medium text-sm md:text-base pr-2">
+                    <span className="text-primary font-medium text-sm md:text-base pr-2">
                       {item.question}
                     </span>
                     <ChevronDown
-                      className={`w-5 h-5 text-slate-400 flex-shrink-0 transition-transform duration-200 ${
+                      className={`w-5 h-5 text-muted flex-shrink-0 transition-transform duration-200 ${
                         isOpen ? 'rotate-180' : ''
                       }`}
                       strokeWidth={2}
@@ -183,7 +183,7 @@ export default function FAQPage() {
                       isOpen ? 'max-h-[800px] pb-5' : 'max-h-0'
                     }`}
                   >
-                    <div className="text-slate-300 text-sm leading-relaxed whitespace-pre-line border-t border-[#2a3a52] pt-4">
+                    <div className="text-secondary text-sm leading-relaxed whitespace-pre-line border-t border-divider pt-4">
                       {item.answer}
                     </div>
                   </div>
@@ -193,9 +193,9 @@ export default function FAQPage() {
           </div>
 
           {/* Footer / support */}
-          <div className="mt-8 pt-6 border-t border-[#2a3a52] text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-2">
+          <div className="mt-8 pt-6 border-t border-divider text-xs text-muted flex flex-col sm:flex-row justify-between items-center gap-2">
             <span>© Referd — alumni-powered referral hiring</span>
-            <span className="text-slate-600">⚡ vetted · trusted · free</span>
+            <span className="text-muted/60">⚡ vetted · trusted · free</span>
           </div>
         </div>
       </main>

@@ -7,7 +7,7 @@ import {
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, User, GraduationCap, Briefcase } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -19,10 +19,10 @@ import {
 import GoogleOAuthButton from "./GoogleOAuthButton";
 import LinkedinLoginButton from "./LinkedinLoginButton";
 
-const roles: UserType[] = [
-  "student",
-  "fresher",
-  "professional",
+const roles: { value: UserType; label: string; icon: React.ReactNode }[] = [
+  { value: "student", label: "Student", icon: <GraduationCap size={16} /> },
+  { value: "fresher", label: "Fresher", icon: <User size={16} /> },
+  { value: "professional", label: "Professional", icon: <Briefcase size={16} /> },
 ];
 
 const isUserType = (
@@ -89,10 +89,6 @@ export default function SignupForm() {
   const [loading, setLoading] =
     useState(false);
 
-  /*
-   * Handle role received through query parameter.
-   * Example: /signup?role=professional
-   */
   useEffect(() => {
     if (isUserType(queryRole)) {
       setRole(queryRole);
@@ -126,7 +122,6 @@ export default function SignupForm() {
       return;
     }
 
-    // Store the role before leaving the website.
     persistSelectedRole(role);
 
     window.location.href =
@@ -143,9 +138,6 @@ export default function SignupForm() {
     try {
       setLoading(true);
 
-      /*
-       * First step: validate details and send OTP.
-       */
       if (!showOtpField) {
         const cleanedEmail = email
           .trim()
@@ -195,9 +187,6 @@ export default function SignupForm() {
         return;
       }
 
-      /*
-       * Second step: verify OTP and create account.
-       */
       if (!/^\d{6}$/.test(otp)) {
         setOtpError(
           "Please enter a valid 6-digit OTP.",
@@ -205,7 +194,6 @@ export default function SignupForm() {
         return;
       }
 
-      // Store it immediately before signup.
       persistSelectedRole(role);
 
       const data = await signupUser({
@@ -215,10 +203,6 @@ export default function SignupForm() {
         otp,
       });
 
-      /*
-       * Use the role returned by the backend as
-       * the final source of truth.
-       */
       const authenticatedRole =
         data.user.userType;
 
@@ -244,56 +228,70 @@ export default function SignupForm() {
   };
 
   return (
-    <div className="w-full border border-[var(--border)] bg-[var(--background)] px-7 py-8 text-white lg:w-[60%] lg:rounded-r-3xl lg:border-l-0 lg:px-10">
-      <h2 className="text-[24px] font-bold tracking-[-0.04em] text-white">
+    <div className="w-full border border-[var(--border)] bg-[var(--card)] px-5 py-6 text-[var(--text-primary)] backdrop-blur-sm sm:px-6 sm:py-8 lg:w-[60%] lg:rounded-r-3xl lg:border-l-0 lg:px-10">
+      <h2 className="text-2xl font-bold tracking-[-0.04em] text-[var(--text-primary)] sm:text-[24px]">
         Create your Referd account
       </h2>
 
-      <p className="mt-1 text-[13px] text-[var(--text-primary)]">
+      <p className="mt-1 text-sm text-[var(--text-secondary)]">
         Choose your role and continue.
       </p>
 
-      {/* Role selection */}
-      <div className="mt-6 grid grid-cols-3 gap-3">
+      {/* Role selection - Enhanced with icons */}
+      <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-3">
         {roles.map((item) => {
-          const isSelected = role === item;
+          const isSelected = role === item.value;
 
           return (
             <button
-              key={item}
+              key={item.value}
               type="button"
               disabled={
                 showOtpField || loading
               }
               aria-pressed={isSelected}
               onClick={() =>
-                handleRoleChange(item)
+                handleRoleChange(item.value)
               }
-              className={`h-10 rounded-lg border font-mono text-[10px] font-semibold uppercase tracking-[0.16em] transition disabled:cursor-not-allowed disabled:opacity-60 ${
-                isSelected
-                  ? "border-[var(--primary)] bg-[var(--primary-soft)] text-white"
-                  : "border-[var(--border)] bg-transparent text-[var(--text-primary)] hover:border-white/25 hover:text-white"
-              }`}
+              className={`
+                relative flex flex-col items-center justify-center gap-1.5
+                rounded-xl border-2 px-3 py-3 text-center transition-all duration-200
+                disabled:cursor-not-allowed disabled:opacity-60
+                ${isSelected
+                  ? "border-[var(--primary)] bg-[var(--primary-soft)] shadow-lg shadow-[var(--primary)]/10 scale-[1.02]"
+                  : "border-[var(--border)] bg-[var(--background-soft)] hover:border-[var(--border-strong)] hover:bg-[var(--card-hover)] hover:scale-[1.01]"
+                }
+              `}
             >
-              {item}
+              {/* Icon */}
+              <span className={`transition-colors duration-200 ${
+                isSelected ? "text-[var(--primary)]" : "text-[var(--text-muted)]"
+              }`}>
+                {item.icon}
+              </span>
+              
+              {/* Label */}
+              <span className={`text-[10px] font-semibold uppercase tracking-[0.08em] transition-colors duration-200 sm:text-[11px] ${
+                isSelected ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]"
+              }`}>
+                {item.label}
+              </span>
+
+              {/* Active indicator bar */}
+              {isSelected && (
+                <span className="absolute -bottom-[1px] left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-[var(--primary)]" />
+              )}
             </button>
           );
         })}
       </div>
 
       {/* Social signup */}
-      <div className="mt-6 space-y-3">
+      <div className="mt-6 space-y-3 sm:mt-8">
         <LinkedinLoginButton
           onClick={handleLinkedInSignup}
         />
 
-        {/*
-         * key={role} remounts the Google component
-         * when the selected role changes.
-         *
-         * onClickCapture saves the role before the
-         * Google button's own click handler executes.
-         */}
         <div
           onClickCapture={() =>
             persistSelectedRole(role)
@@ -306,14 +304,14 @@ export default function SignupForm() {
         </div>
       </div>
 
-      <div className="my-6 flex items-center gap-3">
-        <div className="h-px flex-1 bg-[var(--border)]" />
+      <div className="my-6 flex items-center gap-3 sm:my-7">
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[var(--border)] to-transparent" />
 
-        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--text-primary)]">
+        <span className="whitespace-nowrap font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-[var(--text-muted)] sm:text-[11px]">
           Or manual entry
         </span>
 
-        <div className="h-px flex-1 bg-[var(--border)]" />
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[var(--border)] to-transparent" />
       </div>
 
       <form
@@ -334,7 +332,7 @@ export default function SignupForm() {
                 setEmail(event.target.value);
                 setOtpError("");
               }}
-              className="h-10 w-full rounded-lg border border-white/10 bg-[var(--background)] px-4 text-[13px] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15 disabled:opacity-60"
+              className="input-field h-10 w-full rounded-xl px-4 text-sm placeholder:text-sm placeholder:text-[var(--text-muted)] focus:ring-2 focus:ring-[var(--focus-ring)] disabled:opacity-60"
             />
 
             {/* Password */}
@@ -356,7 +354,7 @@ export default function SignupForm() {
                   );
                   setOtpError("");
                 }}
-                className="h-10 w-full rounded-lg border border-white/10 bg-[var(--background)] px-4 pr-12 text-[13px] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15 disabled:opacity-60"
+                className="input-field h-10 w-full rounded-xl px-4 pr-12 text-sm placeholder:text-sm placeholder:text-[var(--text-muted)] focus:ring-2 focus:ring-[var(--focus-ring)] disabled:opacity-60"
               />
 
               <button
@@ -373,7 +371,7 @@ export default function SignupForm() {
                     (current) => !current,
                   )
                 }
-                className="absolute right-0 top-0 flex h-10 w-11 items-center justify-center text-[var(--text-muted)] transition hover:text-white focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                className="absolute right-0 top-0 flex h-10 w-11 items-center justify-center text-[var(--text-muted)] transition hover:text-[var(--text-primary)] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {showPassword ? (
                   <EyeOff size={17} />
@@ -402,7 +400,7 @@ export default function SignupForm() {
                   );
                   setOtpError("");
                 }}
-                className="h-10 w-full rounded-lg border border-white/10 bg-[var(--background)] px-4 pr-12 text-[13px] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15 disabled:opacity-60"
+                className="input-field h-10 w-full rounded-xl px-4 pr-12 text-sm placeholder:text-sm placeholder:text-[var(--text-muted)] focus:ring-2 focus:ring-[var(--focus-ring)] disabled:opacity-60"
               />
 
               <button
@@ -421,7 +419,7 @@ export default function SignupForm() {
                     (current) => !current,
                   )
                 }
-                className="absolute right-0 top-0 flex h-10 w-11 items-center justify-center text-[var(--text-muted)] transition hover:text-white focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                className="absolute right-0 top-0 flex h-10 w-11 items-center justify-center text-[var(--text-muted)] transition hover:text-[var(--text-primary)] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {showConfirmPassword ? (
                   <EyeOff size={17} />
@@ -433,10 +431,10 @@ export default function SignupForm() {
           </>
         ) : (
           <>
-            <p className="text-[12px] leading-5 text-[var(--text-primary)]">
+            <p className="text-xs leading-5 text-[var(--text-secondary)]">
               We sent a verification OTP
               to{" "}
-              <span className="font-semibold text-white">
+              <span className="font-semibold text-[var(--text-primary)]">
                 {email}
               </span>
             </p>
@@ -459,7 +457,7 @@ export default function SignupForm() {
                 setOtp(numericValue);
                 setOtpError("");
               }}
-              className="h-10 w-full rounded-lg border border-white/10 bg-[var(--background)] px-4 text-center font-mono text-[14px] tracking-[0.35em] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15 disabled:opacity-60"
+              className="input-field h-10 w-full rounded-xl px-4 text-center font-mono text-sm tracking-[0.35em] placeholder:text-sm placeholder:text-[var(--text-muted)] focus:ring-2 focus:ring-[var(--focus-ring)] disabled:opacity-60"
             />
 
             <button
@@ -470,7 +468,7 @@ export default function SignupForm() {
                 setOtp("");
                 setOtpError("");
               }}
-              className="text-[12px] text-[var(--text-primary)] transition hover:text-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-60"
+              className="text-xs text-[var(--text-secondary)] transition hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               Change email or password
             </button>
@@ -481,7 +479,7 @@ export default function SignupForm() {
         {otpError && (
           <p
             role="alert"
-            className="text-[12px] text-red-400"
+            className="text-xs text-[var(--danger)]"
           >
             {otpError}
           </p>
@@ -490,7 +488,7 @@ export default function SignupForm() {
         <button
           type="submit"
           disabled={loading}
-          className="button-color h-10 w-full rounded-lg text-[13px] font-semibold text-black transition-all duration-300 hover:brightness-110 hover:shadow-[0_0_22px_rgba(49,170,64,0.28)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+          className="btn-primary h-10 w-full rounded-xl text-sm font-semibold text-black transition-all duration-300 hover:brightness-110 hover:shadow-[0_0_22px_rgba(49,170,64,0.28)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
         >
           {loading
             ? showOtpField
@@ -502,13 +500,13 @@ export default function SignupForm() {
         </button>
       </form>
 
-      <div className="my-6 h-px w-full bg-[var(--border)]" />
+      <div className="my-6 h-px w-full bg-gradient-to-r from-transparent via-[var(--border)] to-transparent sm:my-7" />
 
-      <p className="text-center text-[12px] text-[var(--text-primary)]">
+      <p className="text-center text-xs text-[var(--text-secondary)]">
         Already have an account?{" "}
         <Link
           href="/login"
-          className="font-semibold text-white transition hover:text-[var(--primary)]"
+          className="font-semibold text-[var(--primary)] transition hover:text-[var(--primary-hover)]"
         >
           Log In
         </Link>

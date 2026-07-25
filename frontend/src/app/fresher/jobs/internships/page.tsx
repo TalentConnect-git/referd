@@ -73,18 +73,18 @@ export default function InternshipPage() {
     meta.total === 0 ? 0 : Math.min(meta.page * meta.limit, meta.total);
 
   return (
-    <div className="min-h-[calc(100vh-120px)] px-4 sm:px-6 py-4 sm:py-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-[calc(100vh-120px)] bg-[var(--background)] px-4 py-4 sm:px-6 sm:py-6">
+      <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-4 flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/10 border border-blue-500/20">
-            <Briefcase size={14} className="text-blue-400" />
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--info-border)] bg-[var(--info-soft)]">
+            <Briefcase size={14} className="text-[var(--info)]" />
           </div>
           <div>
-            <h1 className="text-[12px] font-bold text-white">
+            <h1 className="text-xs font-bold text-[var(--text-primary)]">
               Internships Opportunities
             </h1>
-            <p className="text-[8px] text-slate-400">
+            <p className="text-[8px] text-[var(--text-muted)]">
               Discover Internships tailored to your profile
             </p>
           </div>
@@ -95,50 +95,39 @@ export default function InternshipPage() {
         <InternshipContainer internships={internships} loading={loading} />
 
         {/* Pagination */}
-        {/* Pagination */}
-        <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-2 px-4 py-2 rounded-lg border border-[#2a3a52] bg-[#0f172a]/50">
-          <div className="text-[10px] text-slate-500 order-2 sm:order-1">
+        <div className="mt-4 flex flex-col items-center justify-between gap-2 rounded-lg border border-[var(--border)] bg-[var(--background-soft)] px-4 py-2 sm:flex-row">
+          <div className="order-2 text-[10px] text-[var(--text-muted)] sm:order-1">
             Showing {start} to {end} of {meta.total}
           </div>
 
-          <div className="flex items-center gap-1 order-1 sm:order-2">
+          <div className="order-1 flex items-center gap-1 sm:order-2">
             <button
               onClick={() => handlePageChange(page - 1)}
               disabled={!meta.hasPrev || page === 1}
               className="
-        inline-flex
-        items-center
-        gap-1
-        px-2.5
-        py-1
-        rounded-lg
-        border
-        border-[#2a3a52]
-        bg-[#0f172a]
-        text-[10px]
-        font-medium
-        text-slate-400
-        transition-all
-        hover:border-green-500/30
-        hover:bg-green-500/10
-        hover:text-green-400
-        disabled:opacity-40
-        disabled:cursor-not-allowed
-        disabled:hover:border-[#2a3a52]
-        disabled:hover:bg-transparent
-        disabled:hover:text-slate-400
-      "
+                inline-flex items-center gap-1 rounded-lg border
+                border-[var(--border)] bg-[var(--background-soft)]
+                px-2.5 py-1 text-[10px] font-medium
+                text-[var(--text-muted)] transition-all
+                hover:border-[var(--primary-border)]
+                hover:bg-[var(--primary-soft)]
+                hover:text-[var(--primary)]
+                disabled:cursor-not-allowed disabled:opacity-40
+                disabled:hover:border-[var(--border)]
+                disabled:hover:bg-transparent
+                disabled:hover:text-[var(--text-muted)]
+              "
             >
               <ChevronLeft size={12} />
               Prev
             </button>
 
-            <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#1a2332] border border-[#2a3a52]">
-              <span className="text-[10px] font-medium text-white">
+            <div className="flex items-center gap-1 rounded-lg border border-[var(--border)] bg-[var(--card-hover)] px-2.5 py-1">
+              <span className="text-[10px] font-medium text-[var(--text-primary)]">
                 {meta.page}
               </span>
-              <span className="text-[10px] text-slate-500">/</span>
-              <span className="text-[10px] text-slate-500">
+              <span className="text-[10px] text-[var(--text-muted)]">/</span>
+              <span className="text-[10px] text-[var(--text-muted)]">
                 {meta.totalPages}
               </span>
             </div>
@@ -147,28 +136,18 @@ export default function InternshipPage() {
               onClick={() => handlePageChange(page + 1)}
               disabled={!meta.hasNext || page === meta.totalPages}
               className="
-        inline-flex
-        items-center
-        gap-1
-        px-2.5
-        py-1
-        rounded-lg
-        border
-        border-[#2a3a52]
-        bg-[#0f172a]
-        text-[10px]
-        font-medium
-        text-slate-400
-        transition-all
-        hover:border-green-500/30
-        hover:bg-green-500/10
-        hover:text-green-400
-        disabled:opacity-40
-        disabled:cursor-not-allowed
-        disabled:hover:border-[#2a3a52]
-        disabled:hover:bg-transparent
-        disabled:hover:text-slate-400
-      "
+                inline-flex items-center gap-1 rounded-lg border
+                border-[var(--border)] bg-[var(--background-soft)]
+                px-2.5 py-1 text-[10px] font-medium
+                text-[var(--text-muted)] transition-all
+                hover:border-[var(--primary-border)]
+                hover:bg-[var(--primary-soft)]
+                hover:text-[var(--primary)]
+                disabled:cursor-not-allowed disabled:opacity-40
+                disabled:hover:border-[var(--border)]
+                disabled:hover:bg-transparent
+                disabled:hover:text-[var(--text-muted)]
+              "
             >
               Next
               <ChevronRight size={12} />

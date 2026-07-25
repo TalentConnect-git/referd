@@ -41,7 +41,6 @@ type ExperienceItem = {
   isCurrent?: boolean;
 };
 
-// ✅ Just extend ProfileData - status is already defined there
 type CandidateHeaderProfile = ProfileData & {
   educations?: EducationItem[];
   experiences?: ExperienceItem[];
@@ -60,7 +59,6 @@ type CandidateHeaderProfile = ProfileData & {
   isVerified?: boolean;
   email?: string;
   phone?: string;
-  // ✅ Remove status declaration - it comes from ProfileData
 };
 
 interface CandidateHeaderProps {
@@ -94,7 +92,6 @@ const toNumber = (value?: string | number | null) => {
   return parsed;
 };
 
-// ✅ Status labels
 const STATUS_LABELS: Record<string, string> = {
   open_to_work: "Open to Work",
   career_break: "Career Break",
@@ -205,7 +202,6 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
     );
   }, [profile.educations]);
 
-  // ✅ Check if user has current company (from experiences or profile)
   const hasCurrentCompany = useMemo(() => {
     const hasCurrentExp = profile.experiences?.some(
       (exp) => exp.isCurrent === true
@@ -214,7 +210,6 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
     return hasCurrentExp || hasCurrentCompanyField;
   }, [profile.experiences, profile.currentCompany]);
 
-  // ✅ Get status display info - safely handle null
   const statusType = profile.status?.type || "";
   const statusLabel = STATUS_LABELS[statusType] || "";
   const hasStatus = statusType && statusLabel;
@@ -223,7 +218,6 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
 
   const role = currentExperience?.role || "Professional";
   
-  // ✅ Company/Status display
   let companyOrStatusDisplay = "";
   if (hasCurrentCompany) {
     companyOrStatusDisplay = safeText(
@@ -320,12 +314,12 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
 
   return (
     <>
-      <section className="relative overflow-hidden rounded-2xl border border-[#38e878]/15 bg-[#071018] px-4 py-4 shadow-[0_20px_70px_rgba(0,0,0,0.45)] sm:px-5">
+      <section className="surface-card relative overflow-hidden rounded-2xl border border-[var(--primary-border)] bg-[var(--card)] px-4 py-4 shadow-xl sm:px-5">
         <div className="relative z-10">
           <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
             <div className="flex flex-col gap-4 md:flex-row md:items-center">
               {/* Profile Image */}
-              <div className="relative h-[80px] w-[80px] shrink-0 rounded-full border-[3px] border-[#38e878] bg-[#0b1621] p-1 shadow-[0_0_25px_rgba(56,232,120,0.15)]">
+              <div className="relative h-[80px] w-[80px] shrink-0 rounded-full border-[3px] border-[var(--primary)] bg-[var(--background-soft)] p-1 shadow-[0_0_25px_rgba(56,232,120,0.15)]">
                 {profile.profileImage ? (
                   <img
                     src={profile.profileImage}
@@ -333,7 +327,7 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
                     className="relative h-full w-full rounded-full object-cover"
                   />
                 ) : (
-                  <div className="relative flex h-full w-full items-center justify-center rounded-full border border-[#38e878]/20 bg-[#12381f] text-2xl font-bold text-[#38e878]">
+                  <div className="relative flex h-full w-full items-center justify-center rounded-full border border-[var(--primary-border)] bg-[var(--primary-soft)] text-2xl font-bold text-[var(--primary)]">
                     {getFirstLetter(profile.name)}
                   </div>
                 )}
@@ -341,40 +335,39 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
 
               <div className="min-w-0">
                 {/* Name */}
-                <h1 className="max-w-[400px] truncate text-2xl font-bold leading-tight text-[#cbd5e1] md:text-3xl">
+                <h1 className="max-w-[400px] truncate text-2xl font-bold leading-tight text-[var(--text-primary)] md:text-3xl">
                   {name}
                 </h1>
 
-                {/* Role Badge - Shows status when no current company */}
-                <div className="mt-2 inline-flex max-w-full items-center rounded-full border border-[#38e878]/35 bg-[#12381f] px-3 py-1 shadow-[0_0_18px_rgba(56,232,120,0.08)]">
+                {/* Role Badge */}
+                <div className="mt-2 inline-flex max-w-full items-center rounded-full border border-[var(--primary-border)] bg-[var(--primary-soft)] px-3 py-1 shadow-[0_0_18px_rgba(56,232,120,0.08)]">
                   {hasCurrentCompany ? (
-                    <span className="truncate text-xs font-semibold leading-none text-[#38e878]">
+                    <span className="truncate text-xs font-semibold leading-none text-[var(--primary)]">
                       {safeText(role, "Professional")} 
                     </span>
                   ) : hasStatus ? (
-                    <span className="flex items-center gap-1.5 truncate text-xs font-semibold leading-none text-[#38e878]">
-                      
+                    <span className="flex items-center gap-1.5 truncate text-xs font-semibold leading-none text-[var(--primary)]">
                       {safeText(role, "Professional")} 
                     </span>
                   ) : (
-                    <span className="truncate text-xs font-semibold leading-none text-[#38e878]">
+                    <span className="truncate text-xs font-semibold leading-none text-[var(--primary)]">
                       {safeText(role, "Professional")}
                     </span>
                   )}
                 </div>
 
                 {/* Info Row */}
-                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs font-medium text-[#94a3b8]">
+                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs font-medium text-[var(--text-muted)]">
                   <div className="flex items-center gap-1.5">
-                    <MapPin className="h-3.5 w-3.5 text-[#38e878]" />
-                    <span className="text-[#cbd5e1]">
+                    <MapPin className="h-3.5 w-3.5 text-[var(--primary)]" />
+                    <span className="text-[var(--text-secondary)]">
                       {safeText(location, "N/A")}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-1.5">
-                    <Building2 className="h-3.5 w-3.5 text-[#38e878]" />
-                    <span className="text-[#cbd5e1]">
+                    <Building2 className="h-3.5 w-3.5 text-[var(--primary)]" />
+                    <span className="text-[var(--text-secondary)]">
                       {companiesCount === 0
                         ? "No companies"
                         : `Work at ${companiesCount} ${companiesCount === 1 ? "Company" : "Companies"}`}
@@ -382,17 +375,17 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
                   </div>
 
                   <div className="flex items-center gap-1.5">
-                    <GraduationCap className="h-3.5 w-3.5 text-[#38e878]" />
-                    <span className="max-w-[240px] truncate text-[#cbd5e1]">
+                    <GraduationCap className="h-3.5 w-3.5 text-[var(--primary)]" />
+                    <span className="max-w-[240px] truncate text-[var(--text-secondary)]">
                       {safeText(educationName, "N/A")}
                     </span>
                   </div>
 
-                  {/* ✅ Show status as a separate tag when no current company */}
+                  {/* Show status as a separate tag when no current company */}
                   {!hasCurrentCompany && hasStatus && (
-                    <div className="flex items-center gap-1.5 rounded-full border border-[#38e878]/20 bg-[#12381f]/50 px-2.5 py-0.5">
-                      <Clock className="h-3 w-3 text-[#38e878]" />
-                      <span className="text-xs text-[#cbd5e1]">
+                    <div className="flex items-center gap-1.5 rounded-full border border-[var(--primary-border)] bg-[var(--primary-soft)]/50 px-2.5 py-0.5">
+                      <Clock className="h-3 w-3 text-[var(--primary)]" />
+                      <span className="text-xs text-[var(--text-secondary)]">
                         {statusLabel}
                       </span>
                     </div>
@@ -404,9 +397,9 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
             {/* Verified Badge + Social Icons + Contact */}
             <div className="flex flex-col items-end gap-1.5">
               {isVerified && (
-                <div className="flex items-center gap-1.5 rounded-full border border-[#38e878]/30 bg-[#12381f]/60 px-2.5 py-1 shadow-[0_0_20px_rgba(56,232,120,0.1)]">
-                  <CheckCircle className="h-3.5 w-3.5 text-[#38e878]" />
-                  <span className="text-[10px] font-bold text-[#38e878]">
+                <div className="flex items-center gap-1.5 rounded-full border border-[var(--primary-border)] bg-[var(--primary-soft)]/60 px-2.5 py-1 shadow-[0_0_20px_rgba(56,232,120,0.1)]">
+                  <CheckCircle className="h-3.5 w-3.5 text-[var(--primary)]" />
+                  <span className="text-[10px] font-bold text-[var(--primary)]">
                     Verified
                   </span>
                 </div>
@@ -426,10 +419,10 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
                       onClick={() => handleActionClick(link)}
                       className={`inline-flex h-[30px] items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-semibold transition-all duration-200 ${
                         link.name === "Resume" && hasUrl
-                          ? "bg-[#38e878] text-[#071018] shadow-[0_6px_16px_rgba(56,232,120,0.2)] hover:-translate-y-0.5 hover:bg-[#38e878]/90 hover:shadow-[0_8px_20px_rgba(56,232,120,0.25)]"
+                          ? "btn-primary"
                           : hasUrl
-                            ? "border border-[#38e878]/15 bg-[#0b1621] text-[#cbd5e1] hover:-translate-y-0.5 hover:border-[#38e878]/50 hover:bg-[#12381f] hover:text-[#38e878]"
-                            : "cursor-not-allowed border border-[#38e878]/10 bg-[#0b1621]/60 px-3 text-[#94a3b8]"
+                            ? "btn-secondary"
+                            : "cursor-not-allowed border border-[var(--border)] bg-[var(--background-soft)]/60 px-3 text-[var(--text-muted)]"
                       }`}
                     >
                       <Icon className="h-3.5 w-3.5" />
@@ -443,7 +436,7 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
                 {profile.email && (
                   <a
                     href={`mailto:${profile.email}`}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#38e878]/15 bg-[#0b1621] px-3 py-1.5 text-xs font-medium text-[#cbd5e1] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#38e878]/50 hover:bg-[#12381f] hover:text-[#38e878]"
+                    className="btn-secondary inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95"
                   >
                     <Mail className="h-3.5 w-3.5" />
                     <span className="max-w-[120px] truncate">
@@ -454,7 +447,7 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
                 {profile.phone && (
                   <a
                     href={`tel:${profile.phone}`}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#38e878]/15 bg-[#0b1621] px-3 py-1.5 text-xs font-medium text-[#cbd5e1] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#38e878]/50 hover:bg-[#12381f] hover:text-[#38e878]"
+                    className="btn-secondary inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95"
                   >
                     <Phone className="h-3.5 w-3.5" />
                     <span>{profile.phone}</span>
@@ -464,7 +457,7 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
                 <button
                   type="button"
                   onClick={handleMessageClick}
-                  className="inline-flex h-[30px] items-center justify-center gap-1.5 rounded-lg bg-[#38e878] px-3 text-xs font-semibold text-[#071018] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#38e878]/90 hover:shadow-[0_8px_20px_rgba(56,232,120,0.25)]"
+                  className="btn-primary inline-flex h-[30px] items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95"
                 >
                   <MessageCircle className="h-3.5 w-3.5" />
                   Message
@@ -481,17 +474,17 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
               return (
                 <div
                   key={stat.label}
-                  className="group rounded-xl border border-[#38e878]/10 bg-[#0b1621] px-3 py-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#38e878]/35 hover:bg-[#0b1621]/95 hover:shadow-[0_12px_26px_rgba(0,0,0,0.22)]"
+                  className="group rounded-xl border border-[var(--border)] bg-[var(--background-soft)] px-3 py-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--primary-border)] hover:bg-[var(--card-hover)] hover:shadow-md"
                 >
-                  <div className="mb-2 flex h-7 w-7 items-center justify-center rounded-lg border border-[#38e878]/15 bg-[#12381f] text-[#38e878] transition group-hover:border-[#38e878]/40">
+                  <div className="mb-2 flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--primary-border)] bg-[var(--primary-soft)] text-[var(--primary)] transition group-hover:border-[var(--primary-border)]">
                     <Icon className="h-3.5 w-3.5" />
                   </div>
 
-                  <p className="text-xl font-bold leading-none text-[#cbd5e1]">
+                  <p className="text-xl font-bold leading-none text-[var(--text-primary)]">
                     {stat.value}
                   </p>
 
-                  <p className="mt-1.5 text-[9px] font-semibold uppercase tracking-wider text-[#94a3b8]">
+                  <p className="mt-1.5 text-[9px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
                     {stat.label}
                   </p>
                 </div>

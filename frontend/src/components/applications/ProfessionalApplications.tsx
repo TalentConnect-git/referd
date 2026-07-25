@@ -225,11 +225,11 @@ export default function ProfessionalApplications() {
     if (loading) {
       return (
         <div className="mx-5 mb-4 mt-4">
-          <div className="rounded-2xl border border-slate-800 p-8 text-center">
+          <div className="card rounded-2xl border border-theme p-8 text-center">
             <div className="flex items-center justify-center">
-              <div className="h-6 w-6 animate-spin rounded-full border-[3px] border-green-500/30 border-t-green-500" />
+              <div className="h-6 w-6 animate-spin rounded-full border-[3px] border-success/30 border-t-success" />
 
-              <span className="ml-2 text-xs text-gray-400">
+              <span className="ml-2 text-xs text-muted">
                 Loading applications...
               </span>
             </div>
@@ -241,15 +241,15 @@ export default function ProfessionalApplications() {
     if (error) {
       return (
         <div className="mx-5 mb-4 mt-4">
-          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-8 text-center">
-            <p className="text-sm text-red-400">
+          <div className="card rounded-2xl border border-danger/30 bg-danger-soft p-8 text-center">
+            <p className="text-sm text-danger">
               Error: {error}
             </p>
 
             <button
               type="button"
               onClick={handleRetry}
-              className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/20 px-3 py-1.5 text-xs font-medium text-red-400 transition-colors hover:bg-red-500/30"
+              className="btn-primary mt-3 inline-flex items-center gap-1.5 rounded-lg border border-danger/30 bg-danger-soft px-3 py-1.5 text-xs font-medium text-danger transition-colors hover:bg-danger-soft"
             >
               <RefreshCw className="h-3.5 w-3.5" />
               Retry
@@ -297,8 +297,8 @@ export default function ProfessionalApplications() {
 
     return (
       <div className="mx-5 mb-4 mt-4">
-        <div className="rounded-2xl border border-slate-800 p-8 text-center">
-          <p className="text-sm text-gray-400">
+        <div className="card rounded-2xl border border-theme p-8 text-center">
+          <p className="text-sm text-muted">
             No applications found
           </p>
         </div>

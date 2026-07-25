@@ -82,23 +82,25 @@ export default function StateCitySelector({
   };
 
   return (
-    <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${className}`}>
+    <div className={`grid grid-cols-1 gap-4 md:grid-cols-2 ${className}`}>
       {/* State Dropdown */}
       <div>
         {showLabel && (
-          <label className="block text-sm font-medium text-gray-300 mb-1.5">
-            <MapPin className="w-4 h-4 inline mr-1.5" />
-            State {required && <span className="text-red-400">*</span>}
-            <span className="text-xs text-gray-500 ml-1.5">(Optional)</span>
+          <label className="mb-1.5 block text-sm font-medium text-[var(--text-secondary)]">
+            <MapPin className="mr-1.5 inline h-4 w-4" />
+            State {required && <span className="text-[var(--danger)]">*</span>}
+            <span className="ml-1.5 text-xs text-[var(--text-muted)]">(Optional)</span>
           </label>
         )}
         <select
           value={selectedStateCode || ""}
           onChange={handleStateChange}
           disabled={disabled || indianStates.length === 0}
-          className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="select-field disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <option value="">{indianStates.length === 0 ? "Loading..." : "Select State (Optional)"}</option>
+          <option value="">
+            {indianStates.length === 0 ? "Loading..." : "Select State (Optional)"}
+          </option>
           {indianStates.map((state) => (
             <option key={state.isoCode} value={state.isoCode}>
               {state.name}
@@ -106,24 +108,24 @@ export default function StateCitySelector({
           ))}
         </select>
         {indianStates.length === 0 && (
-          <p className="mt-1 text-xs text-yellow-400">Loading states...</p>
+          <p className="mt-1 text-xs text-[var(--warning)]">Loading states...</p>
         )}
       </div>
 
       {/* City Dropdown */}
       <div>
         {showLabel && (
-          <label className="block text-sm font-medium text-gray-300 mb-1.5">
-            <MapPin className="w-4 h-4 inline mr-1.5" />
-            City {required && <span className="text-red-400">*</span>}
-            <span className="text-xs text-gray-500 ml-1.5">(Optional)</span>
+          <label className="mb-1.5 block text-sm font-medium text-[var(--text-secondary)]">
+            <MapPin className="mr-1.5 inline h-4 w-4" />
+            City {required && <span className="text-[var(--danger)]">*</span>}
+            <span className="ml-1.5 text-xs text-[var(--text-muted)]">(Optional)</span>
           </label>
         )}
         <select
           value={selectedCityName || ""}
           onChange={handleCityChange}
           disabled={!selectedStateCode || disabled || stateCities.length === 0}
-          className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="select-field disabled:cursor-not-allowed disabled:opacity-50"
         >
           <option value="">
             {!selectedStateCode 
@@ -139,7 +141,7 @@ export default function StateCitySelector({
           ))}
         </select>
         {selectedStateCode && stateCities.length === 0 && (
-          <p className="mt-1 text-xs text-yellow-400">No cities found for this state</p>
+          <p className="mt-1 text-xs text-[var(--warning)]">No cities found for this state</p>
         )}
       </div>
     </div>

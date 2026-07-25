@@ -336,54 +336,54 @@ export default function Sidebar({
       label: "Referrals Posted",
       value: professionalStats.totalReferralsPosted ?? 0,
       icon: <Send className="h-5 w-5" />,
-      color: "text-[#60a5fa]",
-      bgColor: "bg-[#60a5fa]/10",
-      borderColor: "border-[#60a5fa]/20",
+      color: "text-info",
+      bgColor: "bg-info-soft",
+      borderColor: "border-info/20",
     },
     {
       id: "applications-received",
       label: "Applications Received",
       value: professionalStats.totalApplicationsReceived ?? 0,
       icon: <Users className="h-5 w-5" />,
-      color: "text-[#a78bfa]",
-      bgColor: "bg-[#a78bfa]/10",
-      borderColor: "border-[#a78bfa]/20",
+      color: "text-purple-400",
+      bgColor: "bg-purple-500/10",
+      borderColor: "border-purple-500/20",
     },
     {
       id: "referred-to-company",
       label: "Referred to Company",
       value: professionalStats.totalReferredToCompany ?? 0,
       icon: <Briefcase className="h-5 w-5" />,
-      color: "text-[#34d399]",
-      bgColor: "bg-[#34d399]/10",
-      borderColor: "border-[#34d399]/20",
+      color: "text-success",
+      bgColor: "bg-success-soft",
+      borderColor: "border-success/20",
     },
     {
       id: "accepted-by-company",
       label: "Accepted by Company",
       value: professionalStats.totalAcceptedByCompany ?? 0,
       icon: <UserCheck className="h-5 w-5" />,
-      color: "text-[#2fb344]",
-      bgColor: "bg-[#2fb344]/10",
-      borderColor: "border-[#2fb344]/20",
+      color: "text-primary",
+      bgColor: "bg-primary-soft",
+      borderColor: "border-primary/20",
     },
     {
       id: "response-rate",
       label: "Response Rate",
       value: `${professionalStats.responseRate ?? 0}%`,
       icon: <Clock className="h-5 w-5" />,
-      color: "text-[#fbbf24]",
-      bgColor: "bg-[#fbbf24]/10",
-      borderColor: "border-[#fbbf24]/20",
+      color: "text-warning",
+      bgColor: "bg-warning-soft",
+      borderColor: "border-warning/20",
     },
     {
       id: "success-rate",
       label: "Success Rate",
       value: `${professionalStats.referralSuccessRate ?? 0}%`,
       icon: <TrendingUp className="h-5 w-5" />,
-      color: "text-[#fb7185]",
-      bgColor: "bg-[#fb7185]/10",
-      borderColor: "border-[#fb7185]/20",
+      color: "text-pink-400",
+      bgColor: "bg-pink-500/10",
+      borderColor: "border-pink-500/20",
     },
   ];
 
@@ -394,54 +394,54 @@ export default function Sidebar({
       label: "Saved Jobs",
       value: candidateStats.savedCount ?? 0,
       icon: <Bookmark className="h-5 w-5" />,
-      color: "text-[#60a5fa]",
-      bgColor: "bg-[#60a5fa]/10",
-      borderColor: "border-[#60a5fa]/20",
+      color: "text-info",
+      bgColor: "bg-info-soft",
+      borderColor: "border-info/20",
     },
     {
       id: "applications",
       label: "Applications",
       value: candidateStats.totalApplications ?? 0,
       icon: <FileCheck className="h-5 w-5" />,
-      color: "text-[#a78bfa]",
-      bgColor: "bg-[#a78bfa]/10",
-      borderColor: "border-[#a78bfa]/20",
+      color: "text-purple-400",
+      bgColor: "bg-purple-500/10",
+      borderColor: "border-purple-500/20",
     },
     {
       id: "referrals",
       label: "Referral Apps",
       value: candidateStats.referralApplications ?? 0,
       icon: <Users className="h-5 w-5" />,
-      color: "text-[#34d399]",
-      bgColor: "bg-[#34d399]/10",
-      borderColor: "border-[#34d399]/20",
+      color: "text-success",
+      bgColor: "bg-success-soft",
+      borderColor: "border-success/20",
     },
     {
       id: "resume-score",
       label: "Resume Score",
       value: `${careerInsights.resumeScore ?? 0}%`,
       icon: <FileText className="h-5 w-5" />,
-      color: "text-[#22d3ee]",
-      bgColor: "bg-[#22d3ee]/10",
-      borderColor: "border-[#22d3ee]/20",
+      color: "text-cyan-400",
+      bgColor: "bg-cyan-500/10",
+      borderColor: "border-cyan-500/20",
     },
     {
       id: "hiring-score",
       label: "Hiring Score",
       value: `${careerInsights.hiringScore ?? 0}%`,
       icon: <TrendingUp className="h-5 w-5" />,
-      color: "text-[#fb923c]",
-      bgColor: "bg-[#fb923c]/10",
-      borderColor: "border-[#fb923c]/20",
+      color: "text-orange-400",
+      bgColor: "bg-orange-500/10",
+      borderColor: "border-orange-500/20",
     },
     {
       id: "interviews",
       label: "Interviews",
       value: interviewCount,
       icon: <Calendar className="h-5 w-5" />,
-      color: "text-[#fb7185]",
-      bgColor: "bg-[#fb7185]/10",
-      borderColor: "border-[#fb7185]/20",
+      color: "text-pink-400",
+      bgColor: "bg-pink-500/10",
+      borderColor: "border-pink-500/20",
     },
   ];
 
@@ -454,32 +454,32 @@ export default function Sidebar({
     <aside className="space-y-6">
       {/* Conditional Stats Section */}
       {isProfessional ? (
-        <section className="rounded-3xl border border-[#242d3a] bg-[#111821] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition hover:border-[#2fb344]/40">
+        <section className="card rounded-3xl p-6 shadow-lg transition hover:border-primary/40">
           <div className="mb-6 flex items-center gap-3">
-            <span className="text-[#2fb344] [&_svg]:h-5 [&_svg]:w-5">
+            <span className="text-primary [&_svg]:h-5 [&_svg]:w-5">
               <Briefcase className="h-5 w-5" />
             </span>
-            <h2 className="text-[16px] font-bold text-white">Professional Stats</h2>
+            <h2 className="text-[16px] font-bold text-primary">Professional Stats</h2>
           </div>
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#2fb344] border-t-transparent"></div>
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3">
               {professionalStatBoxes.map((stat) => (
                 <div
                   key={stat.id}
-                  className={`rounded-xl border ${stat.borderColor} ${stat.bgColor} p-3 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-[#2fb344]/5`}
+                  className={`rounded-xl border ${stat.borderColor} ${stat.bgColor} p-3 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/5`}
                 >
                   <div className="flex items-center gap-2">
                     <div className={stat.color}>{stat.icon}</div>
-                    <span className="text-xs text-[#94a3b8] font-medium">
+                    <span className="text-xs text-muted font-medium">
                       {stat.label}
                     </span>
                   </div>
                   <div
-                    className={`mt-1 text-lg font-bold text-white ${stat.color}`}
+                    className={`mt-1 text-lg font-bold text-primary ${stat.color}`}
                   >
                     {stat.value}
                   </div>
@@ -489,32 +489,32 @@ export default function Sidebar({
           )}
         </section>
       ) : (
-        <section className="rounded-3xl border border-[#242d3a] bg-[#111821] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition hover:border-[#2fb344]/40">
+        <section className="card rounded-3xl p-6 shadow-lg transition hover:border-primary/40">
           <div className="mb-6 flex items-center gap-3">
-            <span className="text-[#2fb344] [&_svg]:h-5 [&_svg]:w-5">
+            <span className="text-primary [&_svg]:h-5 [&_svg]:w-5">
               <BarChart className="h-5 w-5" />
             </span>
-            <h2 className="text-[16px] font-bold text-white">Career Dashboard</h2>
+            <h2 className="text-[16px] font-bold text-primary">Career Dashboard</h2>
           </div>
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#2fb344] border-t-transparent"></div>
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3">
               {candidateStatBoxes.map((stat) => (
                 <div
                   key={stat.id}
-                  className={`rounded-xl border ${stat.borderColor} ${stat.bgColor} p-3 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-[#2fb344]/5`}
+                  className={`rounded-xl border ${stat.borderColor} ${stat.bgColor} p-3 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/5`}
                 >
                   <div className="flex items-center gap-2">
                     <div className={stat.color}>{stat.icon}</div>
-                    <span className="text-xs text-[#94a3b8] font-medium">
+                    <span className="text-xs text-muted font-medium">
                       {stat.label}
                     </span>
                   </div>
                   <div
-                    className={`mt-1 text-lg font-bold text-white ${stat.color}`}
+                    className={`mt-1 text-lg font-bold text-primary ${stat.color}`}
                   >
                     {stat.value}
                   </div>
@@ -526,12 +526,12 @@ export default function Sidebar({
       )}
 
       {/* Documents - Enhanced with Upload */}
-      <section className="rounded-3xl border border-[#242d3a] bg-[#111821] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition hover:border-[#2fb344]/40">
+      <section className="card rounded-3xl p-6 shadow-lg transition hover:border-primary/40">
         <div className="mb-6 flex items-center gap-3">
-          <span className="text-[#2fb344] [&_svg]:h-5 [&_svg]:w-5">
+          <span className="text-primary [&_svg]:h-5 [&_svg]:w-5">
             <FileText className="h-5 w-5" />
           </span>
-          <h2 className="text-[16px] font-bold text-white">Documents</h2>
+          <h2 className="text-[16px] font-bold text-primary">Documents</h2>
         </div>
         
         {/* Hidden file input */}
@@ -548,29 +548,29 @@ export default function Sidebar({
             <button
               type="button"
               onClick={handleViewResume}
-              className="group flex w-full items-center gap-3 rounded-xl border border-[#242d3a] bg-[#0a0f16] p-4 text-left transition-all duration-300 hover:border-[#2fb344] hover:bg-[#2fb344]/5 hover:shadow-md hover:shadow-[#2fb344]/5"
+              className="group flex w-full items-center gap-3 rounded-xl border border-theme bg-card-soft p-4 text-left transition-all duration-300 hover:border-primary hover:bg-primary-soft hover:shadow-md hover:shadow-primary/5"
             >
-              <div className="rounded-lg bg-[#2fb344]/10 p-2 text-[#2fb344] transition group-hover:bg-[#2fb344]/20">
+              <div className="rounded-lg bg-primary-soft p-2 text-primary transition group-hover:bg-primary-soft">
                 <FileText className="h-5 w-5" />
               </div>
 
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[13px] font-bold text-white group-hover:text-[#2fb344] transition">
+                <p className="truncate text-[13px] font-bold text-primary group-hover:text-primary transition">
                   View Resume
                 </p>
-                <p className="text-[11px] text-[#64748b]">
+                <p className="text-[11px] text-muted">
                   Click to preview PDF
                 </p>
               </div>
 
-              <Eye className="h-4 w-4 text-[#64748b] opacity-0 transition group-hover:opacity-100" />
+              <Eye className="h-4 w-4 text-muted opacity-0 transition group-hover:opacity-100" />
             </button>
 
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={handleDownloadResume}
-                className="group flex-1 flex items-center justify-center gap-2 rounded-xl border border-[#242d3a] bg-[#0a0f16] py-3 text-[13px] font-bold text-white transition-all duration-300 hover:border-[#2fb344] hover:bg-[#2fb344]/5 hover:text-[#2fb344] hover:shadow-md hover:shadow-[#2fb344]/5"
+                className="btn-secondary group flex-1 flex items-center justify-center gap-2 rounded-xl border border-theme bg-card-soft py-3 text-[13px] font-bold text-primary transition-all duration-300 hover:border-primary hover:bg-primary-soft hover:text-primary hover:shadow-md hover:shadow-primary/5"
               >
                 <Download className="h-4 w-4 transition group-hover:scale-110" />
                 Download
@@ -580,7 +580,7 @@ export default function Sidebar({
                 type="button"
                 onClick={handleUploadClick}
                 disabled={isUploading}
-                className="group flex-1 flex items-center justify-center gap-2 rounded-xl border border-[#242d3a] bg-[#0a0f16] py-3 text-[13px] font-bold text-white transition-all duration-300 hover:border-[#2fb344] hover:bg-[#2fb344]/5 hover:text-[#2fb344] hover:shadow-md hover:shadow-[#2fb344]/5 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-secondary group flex-1 flex items-center justify-center gap-2 rounded-xl border border-theme bg-card-soft py-3 text-[13px] font-bold text-primary transition-all duration-300 hover:border-primary hover:bg-primary-soft hover:text-primary hover:shadow-md hover:shadow-primary/5 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isUploading ? (
                   <>
@@ -598,17 +598,16 @@ export default function Sidebar({
           </div>
         ) : (
           <div className="space-y-3">
-            {/* FIXED: Removed nested p/div structure */}
-            <div className="flex flex-col items-center justify-center rounded-xl border border-[#242d3a] bg-[#0a0f16] py-6 text-center">
-              <FileText className="h-8 w-8 text-[#64748b]/30 mb-2" />
-              <p className="text-[#94a3b8]">No resume uploaded</p>
+            <div className="flex flex-col items-center justify-center rounded-xl border border-theme bg-card-soft py-6 text-center">
+              <FileText className="h-8 w-8 text-muted/30 mb-2" />
+              <p className="text-muted">No resume uploaded</p>
             </div>
             
             <button
               type="button"
               onClick={handleUploadClick}
               disabled={isUploading}
-              className="group w-full flex items-center justify-center gap-2 rounded-xl border border-[#2fb344]/30 bg-[#2fb344]/10 py-3 text-[13px] font-bold text-[#2fb344] transition-all duration-300 hover:bg-[#2fb344]/20 hover:shadow-md hover:shadow-[#2fb344]/10 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary group w-full flex items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary-soft py-3 text-[13px] font-bold text-primary transition-all duration-300 hover:bg-primary-soft hover:shadow-md hover:shadow-primary/10 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isUploading ? (
                 <>
@@ -627,20 +626,20 @@ export default function Sidebar({
       </section>
 
       {/* Connected - Enhanced */}
-      <section className="rounded-3xl border border-[#242d3a] bg-[#111821] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition hover:border-[#2fb344]/40">
+      <section className="card rounded-3xl p-6 shadow-lg transition hover:border-primary/40">
         <div className="mb-6 flex items-center gap-3">
-          <span className="text-[#2fb344] [&_svg]:h-5 [&_svg]:w-5">
+          <span className="text-primary [&_svg]:h-5 [&_svg]:w-5">
             <Mail className="h-5 w-5" />
           </span>
-          <h2 className="text-[16px] font-bold text-white">Contact Details</h2>
+          <h2 className="text-[16px] font-bold text-primary">Contact Details</h2>
         </div>
         <div className="space-y-3">
           <ConnectedItem
-            icon={<Mail className="h-4 w-4 text-[#2fb344]" />}
+            icon={<Mail className="h-4 w-4 text-primary" />}
             value={profile.email}
           />
           <ConnectedItem
-            icon={<Phone className="h-4 w-4 text-[#2fb344]" />}
+            icon={<Phone className="h-4 w-4 text-primary" />}
             value={profile.phone}
           />
           <ConnectedItem
@@ -652,21 +651,21 @@ export default function Sidebar({
             value={profile.github}
           />
           <ConnectedItem
-            icon={<MapPin className="h-4 w-4 text-[#2fb344]" />}
+            icon={<MapPin className="h-4 w-4 text-primary" />}
             value={data.locations.join(", ")}
           />
         </div>
       </section>
 
       {/* Career details - Enhanced */}
-      <section className="rounded-3xl border border-[#242d3a] bg-[#111821] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition hover:border-[#2fb344]/40">
+      <section className="card rounded-3xl p-6 shadow-lg transition hover:border-primary/40">
         <div className="mb-6 flex items-center gap-3">
-          <span className="text-[#2fb344] [&_svg]:h-5 [&_svg]:w-5">
+          <span className="text-primary [&_svg]:h-5 [&_svg]:w-5">
             <BriefcaseIcon className="h-5 w-5" />
           </span>
-          <h2 className="text-[16px] font-bold text-white">Career Details</h2>
+          <h2 className="text-[16px] font-bold text-primary">Career Details</h2>
         </div>
-        <div className="divide-y divide-[#242d3a]/50">
+        <div className="divide-y divide-divider">
           <Info label="Current Company" value={profile.currentCompany} />
           <Info label="Company Email" value={profile.companyEmail} />
           <Info
@@ -679,42 +678,42 @@ export default function Sidebar({
       </section>
 
       {/* Job preferences - Enhanced */}
-      <section className="rounded-3xl border border-[#242d3a] bg-[#111821] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition hover:border-[#2fb344]/40">
+      <section className="card rounded-3xl p-6 shadow-lg transition hover:border-primary/40">
         <div className="mb-6 flex items-center gap-3">
-          <span className="text-[#2fb344] [&_svg]:h-5 [&_svg]:w-5">
+          <span className="text-primary [&_svg]:h-5 [&_svg]:w-5">
             <Award className="h-5 w-5" />
           </span>
-          <h2 className="text-[16px] font-bold text-white">Job Preferences</h2>
+          <h2 className="text-[16px] font-bold text-primary">Job Preferences</h2>
         </div>
         <div className="space-y-4">
-          <div className="rounded-xl border border-[#242d3a] bg-[#0a0f16]/50 p-3 transition hover:border-[#2fb344]/20 hover:bg-[#2fb344]/5">
+          <div className="rounded-xl border border-theme bg-card-soft/50 p-3 transition hover:border-primary/20 hover:bg-primary-soft">
             <SmallTagBlock title="Roles" items={data.jobRoles} />
           </div>
-          <div className="rounded-xl border border-[#242d3a] bg-[#0a0f16]/50 p-3 transition hover:border-[#2fb344]/20 hover:bg-[#2fb344]/5">
+          <div className="rounded-xl border border-theme bg-card-soft/50 p-3 transition hover:border-primary/20 hover:bg-primary-soft">
             <SmallTagBlock title="Looking for" items={data.lookingFor} />
           </div>
-          <div className="rounded-xl border border-[#242d3a] bg-[#0a0f16]/50 p-3 transition hover:border-[#2fb344]/20 hover:bg-[#2fb344]/5">
+          <div className="rounded-xl border border-theme bg-card-soft/50 p-3 transition hover:border-primary/20 hover:bg-primary-soft">
             <SmallTagBlock title="Employment" items={data.employmentTypes} />
           </div>
         </div>
       </section>
 
       {/* Tools & languages - Enhanced */}
-      <section className="rounded-3xl border border-[#242d3a] bg-[#111821] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition hover:border-[#2fb344]/40">
+      <section className="card rounded-3xl p-6 shadow-lg transition hover:border-primary/40">
         <div className="mb-6 flex items-center gap-3">
-          <span className="text-[#2fb344] [&_svg]:h-5 [&_svg]:w-5">
+          <span className="text-primary [&_svg]:h-5 [&_svg]:w-5">
             <GraduationCap className="h-5 w-5" />
           </span>
-          <h2 className="text-[16px] font-bold text-white">Tools & Languages</h2>
+          <h2 className="text-[16px] font-bold text-primary">Tools & Languages</h2>
         </div>
         <div className="space-y-4">
-          <div className="rounded-xl border border-[#242d3a] bg-[#0a0f16]/50 p-3 transition hover:border-[#2fb344]/20 hover:bg-[#2fb344]/5">
+          <div className="rounded-xl border border-theme bg-card-soft/50 p-3 transition hover:border-primary/20 hover:bg-primary-soft">
             <SmallTagBlock title="Tools" items={data.tools} />
           </div>
-          <div className="rounded-xl border border-[#242d3a] bg-[#0a0f16]/50 p-3 transition hover:border-[#2fb344]/20 hover:bg-[#2fb344]/5">
+          <div className="rounded-xl border border-theme bg-card-soft/50 p-3 transition hover:border-primary/20 hover:bg-primary-soft">
             <SmallTagBlock title="Domains" items={data.domains} />
           </div>
-          <div className="rounded-xl border border-[#242d3a] bg-[#0a0f16]/50 p-3 transition hover:border-[#2fb344]/20 hover:bg-[#2fb344]/5">
+          <div className="rounded-xl border border-theme bg-card-soft/50 p-3 transition hover:border-primary/20 hover:bg-primary-soft">
             <SmallTagBlock title="Languages" items={data.languages} />
           </div>
         </div>

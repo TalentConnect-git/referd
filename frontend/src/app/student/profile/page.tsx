@@ -16,6 +16,7 @@ import {
   AlertCircle,
   CheckCircle2,
   XCircle,
+  X,
 } from "lucide-react";
 
 import ProfileHeader from "@/components/profile/ProfileHeader";
@@ -135,26 +136,26 @@ function ToastNotification({
   const getIcon = () => {
     switch (toast.type) {
       case "success":
-        return <CheckCircle2 className="h-5 w-5 text-green-400" />;
+        return <CheckCircle2 className="h-5 w-5 text-[var(--success)]" />;
       case "error":
-        return <XCircle className="h-5 w-5 text-red-400" />;
+        return <XCircle className="h-5 w-5 text-[var(--danger)]" />;
       case "warning":
-        return <AlertCircle className="h-5 w-5 text-yellow-400" />;
+        return <AlertCircle className="h-5 w-5 text-[var(--warning)]" />;
       default:
-        return <AlertCircle className="h-5 w-5 text-blue-400" />;
+        return <AlertCircle className="h-5 w-5 text-[var(--info)]" />;
     }
   };
 
   const getBgColor = () => {
     switch (toast.type) {
       case "success":
-        return "border-green-500/30 bg-green-500/10";
+        return "border-[var(--success-border)] bg-[var(--success-soft)]";
       case "error":
-        return "border-red-500/30 bg-red-500/10";
+        return "border-[var(--danger-border)] bg-[var(--danger-soft)]";
       case "warning":
-        return "border-yellow-500/30 bg-yellow-500/10";
+        return "border-[var(--warning-border)] bg-[var(--warning-soft)]";
       default:
-        return "border-blue-500/30 bg-blue-500/10";
+        return "border-[var(--info-border)] bg-[var(--info-soft)]";
     }
   };
 
@@ -162,15 +163,15 @@ function ToastNotification({
     <div
       className={`flex items-start gap-3 rounded-xl border ${getBgColor()} p-4 shadow-xl backdrop-blur-sm animate-in slide-in-from-right-5 fade-in duration-300`}
     >
-      <div className="flex-shrink-0 mt-0.5">{getIcon()}</div>
+      <div className="mt-0.5 flex-shrink-0">{getIcon()}</div>
       <div className="flex-1">
-        <p className="text-sm text-white">{toast.message}</p>
+        <p className="text-sm text-[var(--text-primary)]">{toast.message}</p>
       </div>
       <button
         onClick={() => onClose(toast.id)}
-        className="flex-shrink-0 text-gray-400 transition hover:text-white"
+        className="flex-shrink-0 text-[var(--text-muted)] transition hover:text-[var(--text-primary)]"
       >
-        <XCircle className="h-4 w-4" />
+        <X className="h-4 w-4" />
       </button>
     </div>
   );
@@ -202,8 +203,6 @@ export default function ProfilePage() {
   };
 
   // Switch to professional account with experience data
-  // app/profile/page.tsx (updated handleSwitchToProfessional)
-
   const handleSwitchToProfessional = async (data: {
     experiences: Experience[];
     statusType: string;
@@ -234,7 +233,6 @@ export default function ProfilePage() {
 
       addToast("info", "Updating your profile to professional account...");
 
-      // Prepare the update payload for /onboarding/update
       const updatePayload = {
         profileType: "professional",
         experiences: data.experiences.map((exp) => ({
@@ -248,7 +246,6 @@ export default function ProfilePage() {
           company_display: exp.company_display || exp.company?.trim() || "",
           company_canonical_id: exp.company_canonical_id || "",
         })),
-        // Only include status if there are experiences
         ...(data.experiences.length > 0 && {
           status: {
             type: data.statusType || "open_to_work",
@@ -257,14 +254,12 @@ export default function ProfilePage() {
             expectedReturn: data.statusExpectedReturn || undefined,
           },
         }),
-        // Only include notice period and company email if there's a current experience
         ...(data.experiences.some((exp) => exp.isCurrent) && {
           noticePeriod: data.noticePeriod || "",
           companyEmail: data.companyEmail || "",
         }),
       };
 
-      // Call the onboarding update API
       const response = await axios.put(
         `${backendUrl}/api/onboarding/update`,
         updatePayload,
@@ -281,13 +276,11 @@ export default function ProfilePage() {
         throw new Error("Failed to update profile");
       }
 
-      // Refresh profile data
       await refreshProfile();
 
       setSwitchModalOpen(false);
       addToast("success", "Successfully switched to professional account! 🎉");
 
-      // Redirect after a short delay
       setTimeout(() => {
         router.push("/professional/home");
       }, 1500);
@@ -309,7 +302,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Refresh profile with loading state
   const handleRefreshProfile = async () => {
     try {
       setIsRefreshing(true);
@@ -322,7 +314,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Derived / computed values
   const computed = useMemo(() => {
     if (!profile) return null;
 
@@ -374,25 +365,24 @@ export default function ProfilePage() {
     };
   }, [profile]);
 
-  // ---------- Render States ----------
   if (profileLoading) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0f16] text-white">
-        <Loader2 className="h-8 w-8 animate-spin text-[#38e878]" />
-        <p className="mt-4 text-[#94a3b8]">Loading your profile...</p>
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--background)] px-4 text-[var(--text-primary)]">
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
+        <p className="mt-4 text-sm text-[var(--text-muted)]">Loading your profile...</p>
       </div>
     );
   }
 
   if (!profile || !computed) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0f16] text-white">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--background)] px-4 text-[var(--text-primary)]">
         <div className="text-center">
-          <AlertCircle className="mx-auto h-12 w-12 text-yellow-500" />
-          <p className="mt-4 text-[#94a3b8]">No profile data found</p>
+          <AlertCircle className="mx-auto h-12 w-12 text-[var(--warning)]" />
+          <p className="mt-4 text-sm text-[var(--text-muted)]">No profile data found</p>
           <button
             onClick={handleRefreshProfile}
-            className="mt-4 rounded-lg border border-[#2a3a52] px-4 py-2 text-sm text-white transition hover:bg-[#1a2533]"
+            className="btn-secondary mt-4 rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium"
           >
             Retry
           </button>
@@ -402,9 +392,9 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#0a0f16] text-white">
+    <div className="relative min-h-screen bg-[var(--background)] text-[var(--text-primary)]">
       {/* Toast Container */}
-      <div className="fixed right-4 top-4 z-50 flex w-96 flex-col gap-3">
+      <div className="fixed right-4 top-4 z-50 flex w-[calc(100vw-2rem)] max-w-sm flex-col gap-3 sm:max-w-md md:max-w-lg lg:w-96">
         {toasts.map((toast) => (
           <ToastNotification
             key={toast.id}
@@ -416,10 +406,10 @@ export default function ProfilePage() {
 
       {/* Refresh Indicator */}
       {isRefreshing && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="rounded-xl bg-[#0f172a] p-6 shadow-2xl">
-            <Loader2 className="mx-auto h-8 w-8 animate-spin text-[#38e878]" />
-            <p className="mt-3 text-sm text-white">Refreshing profile...</p>
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-[var(--overlay)] backdrop-blur-sm">
+          <div className="surface-card rounded-xl p-6 shadow-xl">
+            <Loader2 className="mx-auto h-8 w-8 animate-spin text-[var(--primary)]" />
+            <p className="mt-3 text-sm text-[var(--text-primary)]">Refreshing profile...</p>
           </div>
         </div>
       )}
@@ -432,8 +422,9 @@ export default function ProfilePage() {
         onRefresh={handleRefreshProfile}
       />
 
-      <main className="grid gap-6 px-4 py-7 sm:px-8 xl:grid-cols-[1fr_420px]">
-        <section className="space-y-6">
+      <main className="grid gap-6 px-3 py-4 sm:px-4 sm:py-6 lg:px-6 xl:grid-cols-[1fr_420px] 2xl:px-8">
+        {/* Left Column - Main Content */}
+        <section className="space-y-4 sm:space-y-6">
           <IdentityCard
             profile={profile}
             initials={computed.initials}
@@ -444,9 +435,9 @@ export default function ProfilePage() {
           {/* Personal Details */}
           <ProfileSection
             title="Personal Details"
-            icon={<User className="h-4 w-4 text-[#38e878]" />}
+            icon={<User className="h-4 w-4 text-[var(--primary)]" />}
           >
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
               <InfoItem label="Gender" value={computed.gender || "N/A"} />
               <InfoItem label="Date of Birth" value={computed.dob || "N/A"} />
               <InfoItem label="Ethnicity" value={computed.ethnicity || "N/A"} />
@@ -460,34 +451,34 @@ export default function ProfilePage() {
           {/* Education */}
           <ProfileSection
             title="Education"
-            icon={<GraduationCap className="h-4 w-4 text-[#38e878]" />}
+            icon={<GraduationCap className="h-4 w-4 text-[var(--primary)]" />}
           >
             {computed.educations.length ? (
               <div className="space-y-4">
                 {computed.educations.map((edu, index) => (
                   <div
                     key={edu._id || index}
-                    className="border-b border-[#1a2533] pb-4 last:border-0 last:pb-0"
+                    className="border-b border-[var(--border)] pb-4 last:border-0 last:pb-0"
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
-                      <div>
-                        <h3 className="text-[15px] font-semibold text-white">
+                    <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-sm font-semibold text-[var(--text-primary)] sm:text-[15px]">
                           {edu.college || "N/A"}
                         </h3>
-                        <p className="mt-1 text-[13px] text-[#38e878]">
+                        <p className="mt-1 text-xs text-[var(--text-secondary)] sm:text-sm">
                           {[edu.degree, edu.specialization]
                             .filter(Boolean)
                             .join(" · ") || "N/A"}
                         </p>
                       </div>
                       {edu.yearOfGraduation && (
-                        <p className="mt-1 text-[13px] text-[#64748b] sm:mt-0">
+                        <p className="text-xs text-[var(--text-muted)] sm:mt-0 sm:text-sm">
                           {edu.yearOfGraduation}
                         </p>
                       )}
                     </div>
                     {edu.cgpa && (
-                      <p className="mt-1 text-[13px] text-[#64748b]">
+                      <p className="mt-1 text-xs text-[var(--text-muted)] sm:text-sm">
                         CGPA: {edu.cgpa}
                       </p>
                     )}
@@ -502,25 +493,25 @@ export default function ProfilePage() {
           {/* Experience */}
           <ProfileSection
             title="Experience"
-            icon={<Briefcase className="h-4 w-4 text-[#38e878]" />}
+            icon={<Briefcase className="h-4 w-4 text-[var(--primary)]" />}
           >
             {computed.experiences.length ? (
               <div className="space-y-4">
                 {computed.experiences.map((exp, index) => (
                   <div
                     key={exp._id || index}
-                    className="border-b border-[#1a2533] pb-4 last:border-0 last:pb-0"
+                    className="border-b border-[var(--border)] pb-4 last:border-0 last:pb-0"
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
-                      <div>
-                        <h3 className="text-[15px] font-semibold text-white">
+                    <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-sm font-semibold text-[var(--text-primary)] sm:text-[15px]">
                           {exp.role || exp.title || "Role"}
                         </h3>
-                        <p className="mt-1 text-[14px] text-[#38e878]">
+                        <p className="mt-1 text-xs text-[var(--text-secondary)] sm:text-sm">
                           {exp.company || exp.organization || "Company"}
                         </p>
                       </div>
-                      <p className="mt-1 text-[13px] text-[#64748b] sm:mt-0">
+                      <p className="text-xs text-[var(--text-muted)] sm:mt-0 sm:text-sm">
                         {formatDateRange(
                           exp.startDate,
                           exp.endDate,
@@ -530,13 +521,13 @@ export default function ProfilePage() {
                     </div>
 
                     {exp.isCurrent && exp.noticePeriod && (
-                      <p className="mt-1 text-[12px] text-[#64748b]">
+                      <p className="mt-1 text-[11px] text-[var(--text-muted)] sm:text-xs">
                         Notice Period: {exp.noticePeriod} days
                       </p>
                     )}
 
                     {getDescription(exp.description) && (
-                      <p className="mt-2 text-[13px] leading-6 text-[#94a3b8]">
+                      <p className="mt-2 text-xs leading-6 text-[var(--text-secondary)] sm:text-sm">
                         {getDescription(exp.description)}
                       </p>
                     )}
@@ -552,29 +543,29 @@ export default function ProfilePage() {
           {computed.internationalExperience.length > 0 && (
             <ProfileSection
               title="International Experience"
-              icon={<Globe className="h-4 w-4 text-[#38e878]" />}
+              icon={<Globe className="h-4 w-4 text-[var(--primary)]" />}
             >
               <div className="space-y-4">
                 {computed.internationalExperience.map((exp, idx) => (
                   <div
                     key={exp._id || idx}
-                    className="border-b border-[#1a2533] pb-4 last:border-0 last:pb-0"
+                    className="border-b border-[var(--border)] pb-4 last:border-0 last:pb-0"
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
-                      <div>
-                        <h3 className="text-[15px] font-semibold text-white">
+                    <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-sm font-semibold text-[var(--text-primary)] sm:text-[15px]">
                           {exp.role || "N/A"}
                         </h3>
-                        <p className="mt-1 text-[14px] text-[#38e878]">
+                        <p className="mt-1 text-xs text-[var(--text-secondary)] sm:text-sm">
                           {exp.organization || "N/A"} • {exp.country || "N/A"}
                         </p>
                       </div>
-                      <p className="mt-1 text-[13px] text-[#64748b] sm:mt-0">
+                      <p className="text-xs text-[var(--text-muted)] sm:mt-0 sm:text-sm">
                         {formatDateRange(exp.startDate, exp.endDate)}
                       </p>
                     </div>
                     {exp.description && (
-                      <p className="mt-2 text-[13px] text-[#94a3b8]">
+                      <p className="mt-2 text-xs text-[var(--text-secondary)] sm:text-sm">
                         {exp.description}
                       </p>
                     )}
@@ -588,29 +579,29 @@ export default function ProfilePage() {
           {computed.leadership.length > 0 && (
             <ProfileSection
               title="Leadership"
-              icon={<Trophy className="h-4 w-4 text-[#38e878]" />}
+              icon={<Trophy className="h-4 w-4 text-[var(--primary)]" />}
             >
               <div className="space-y-4">
                 {computed.leadership.map((item, idx) => (
                   <div
                     key={item._id || idx}
-                    className="border-b border-[#1a2533] pb-4 last:border-0 last:pb-0"
+                    className="border-b border-[var(--border)] pb-4 last:border-0 last:pb-0"
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
-                      <div>
-                        <h3 className="text-[15px] font-semibold text-white">
+                    <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-sm font-semibold text-[var(--text-primary)] sm:text-[15px]">
                           {item.role || "N/A"}
                         </h3>
-                        <p className="mt-1 text-[14px] text-[#38e878]">
+                        <p className="mt-1 text-xs text-[var(--text-secondary)] sm:text-sm">
                           {item.organization || item.company || "N/A"}
                         </p>
                       </div>
-                      <p className="mt-1 text-[13px] text-[#64748b] sm:mt-0">
+                      <p className="text-xs text-[var(--text-muted)] sm:mt-0 sm:text-sm">
                         {formatDateRange(item.startDate, item.endDate)}
                       </p>
                     </div>
                     {item.description && (
-                      <p className="mt-2 text-[13px] text-[#94a3b8]">
+                      <p className="mt-2 text-xs text-[var(--text-secondary)] sm:text-sm">
                         {item.description}
                       </p>
                     )}
@@ -623,14 +614,14 @@ export default function ProfilePage() {
           {/* Skills */}
           <ProfileSection
             title="Skills"
-            icon={<AwardIcon className="h-4 w-4 text-[#38e878]" />}
+            icon={<AwardIcon className="h-4 w-4 text-[var(--primary)]" />}
           >
             {computed.skills.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {computed.skills.map((skill, index) => (
                   <span
                     key={index}
-                    className="rounded-full bg-[#12381f] px-3 py-1 text-[13px] text-[#38e878]"
+                    className="badge badge-success rounded-full px-2.5 py-0.5 text-xs sm:px-3 sm:py-1 sm:text-sm"
                   >
                     {skill}
                   </span>
@@ -644,14 +635,14 @@ export default function ProfilePage() {
           {/* Languages */}
           <ProfileSection
             title="Languages"
-            icon={<Globe className="h-4 w-4 text-[#38e878]" />}
+            icon={<Globe className="h-4 w-4 text-[var(--primary)]" />}
           >
             {computed.languages.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {computed.languages.map((language, index) => (
                   <span
                     key={index}
-                    className="rounded-full bg-[#12381f] px-3 py-1 text-[13px] text-[#38e878]"
+                    className="badge badge-success rounded-full px-2.5 py-0.5 text-xs sm:px-3 sm:py-1 sm:text-sm"
                   >
                     {language}
                   </span>
@@ -665,14 +656,14 @@ export default function ProfilePage() {
           {/* Domains */}
           <ProfileSection
             title="Domains"
-            icon={<Briefcase className="h-4 w-4 text-[#38e878]" />}
+            icon={<Briefcase className="h-4 w-4 text-[var(--primary)]" />}
           >
             {computed.domains.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {computed.domains.map((domain, index) => (
                   <span
                     key={index}
-                    className="rounded-full bg-[#12381f] px-3 py-1 text-[13px] text-[#38e878]"
+                    className="badge badge-success rounded-full px-2.5 py-0.5 text-xs sm:px-3 sm:py-1 sm:text-sm"
                   >
                     {domain}
                   </span>
@@ -686,14 +677,14 @@ export default function ProfilePage() {
           {/* Tools */}
           <ProfileSection
             title="Tools & Platforms"
-            icon={<AwardIcon className="h-4 w-4 text-[#38e878]" />}
+            icon={<AwardIcon className="h-4 w-4 text-[var(--primary)]" />}
           >
             {computed.tools.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {computed.tools.map((tool, index) => (
                   <span
                     key={index}
-                    className="rounded-full bg-[#12381f] px-3 py-1 text-[13px] text-[#38e878]"
+                    className="badge badge-success rounded-full px-2.5 py-0.5 text-xs sm:px-3 sm:py-1 sm:text-sm"
                   >
                     {tool}
                   </span>
@@ -707,9 +698,9 @@ export default function ProfilePage() {
           {/* About */}
           <ProfileSection
             title="About"
-            icon={<User className="h-4 w-4 text-[#38e878]" />}
+            icon={<User className="h-4 w-4 text-[var(--primary)]" />}
           >
-            <p className="text-[14px] leading-7 text-[#94a3b8]">
+            <p className="text-sm leading-7 text-[var(--text-secondary)] sm:text-base">
               {profile.about || "No about information provided."}
             </p>
           </ProfileSection>
@@ -717,34 +708,34 @@ export default function ProfilePage() {
           {/* Achievements */}
           <ProfileSection
             title="Achievements"
-            icon={<Trophy className="h-4 w-4 text-[#38e878]" />}
+            icon={<Trophy className="h-4 w-4 text-[var(--primary)]" />}
           >
             {profile.achievements?.length ? (
               <div className="space-y-4">
                 {profile.achievements.map((item, index) => (
                   <div
                     key={item._id || index}
-                    className="border-b border-[#1a2533] pb-4 last:border-0 last:pb-0"
+                    className="border-b border-[var(--border)] pb-4 last:border-0 last:pb-0"
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
-                      <div>
-                        <h3 className="text-[15px] font-semibold text-white">
+                    <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-sm font-semibold text-[var(--text-primary)] sm:text-[15px]">
                           {item.title || "Achievement"}
                         </h3>
                         {item.event && (
-                          <p className="mt-1 text-[14px] text-[#38e878]">
+                          <p className="mt-1 text-xs text-[var(--text-secondary)] sm:text-sm">
                             {item.event}
                           </p>
                         )}
                       </div>
                       {item.date && (
-                        <p className="mt-1 text-[13px] text-[#64748b] sm:mt-0">
+                        <p className="text-xs text-[var(--text-muted)] sm:mt-0 sm:text-sm">
                           {item.date}
                         </p>
                       )}
                     </div>
                     {item.description && (
-                      <p className="mt-2 text-[13px] text-[#94a3b8]">
+                      <p className="mt-2 text-xs text-[var(--text-secondary)] sm:text-sm">
                         {item.description}
                       </p>
                     )}
@@ -759,7 +750,7 @@ export default function ProfilePage() {
           {/* Awards */}
           <ProfileSection
             title="Awards"
-            icon={<AwardIcon className="h-4 w-4 text-[#38e878]" />}
+            icon={<AwardIcon className="h-4 w-4 text-[var(--primary)]" />}
           >
             {computed.awards.length ? (
               <div className="space-y-4">
@@ -772,27 +763,27 @@ export default function ProfilePage() {
                   return (
                     <div
                       key={item._id || index}
-                      className="border-b border-[#1a2533] pb-4 last:border-0 last:pb-0"
+                      className="border-b border-[var(--border)] pb-4 last:border-0 last:pb-0"
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
-                        <div>
-                          <h3 className="text-[15px] font-semibold text-white">
+                      <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-sm font-semibold text-[var(--text-primary)] sm:text-[15px]">
                             {item.title || "Award"}
                           </h3>
                           {item.organization && (
-                            <p className="mt-1 text-[14px] text-[#38e878]">
+                            <p className="mt-1 text-xs text-[var(--text-secondary)] sm:text-sm">
                               {item.organization}
                             </p>
                           )}
                         </div>
                         {duration && (
-                          <p className="mt-1 text-[13px] text-[#64748b] sm:mt-0">
+                          <p className="text-xs text-[var(--text-muted)] sm:mt-0 sm:text-sm">
                             {duration}
                           </p>
                         )}
                       </div>
                       {item.description && (
-                        <p className="mt-2 whitespace-pre-line text-[13px] leading-6 text-[#94a3b8]">
+                        <p className="mt-2 whitespace-pre-line text-xs leading-6 text-[var(--text-secondary)] sm:text-sm">
                           {item.description}
                         </p>
                       )}
@@ -808,7 +799,7 @@ export default function ProfilePage() {
           {/* Publications */}
           <ProfileSection
             title="Publications"
-            icon={<FileText className="h-4 w-4 text-[#38e878]" />}
+            icon={<FileText className="h-4 w-4 text-[var(--primary)]" />}
           >
             {computed.publications.length ? (
               <div className="space-y-4">
@@ -818,10 +809,10 @@ export default function ProfilePage() {
                   return (
                     <div
                       key={item._id || index}
-                      className="border-b border-[#1a2533] pb-4 last:border-0 last:pb-0"
+                      className="border-b border-[var(--border)] pb-4 last:border-0 last:pb-0"
                     >
                       <div>
-                        <h3 className="text-[15px] font-semibold text-white">
+                        <h3 className="text-sm font-semibold text-[var(--text-primary)] sm:text-[15px]">
                           {item.title || "Publication"}
                         </h3>
                         {safeUrl ? (
@@ -829,13 +820,13 @@ export default function ProfilePage() {
                             href={safeUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-2 inline-flex items-center gap-2 text-[13px] text-[#38e878] hover:text-[#4af088] transition-colors"
+                            className="mt-2 inline-flex items-center gap-2 text-xs text-[var(--primary)] transition-colors hover:text-[var(--primary-hover)] sm:text-sm"
                           >
                             <ExternalLink className="h-3.5 w-3.5" />
                             View Publication
                           </a>
                         ) : (
-                          <p className="mt-2 text-[12px] text-[#94a3b8]">
+                          <p className="mt-2 text-xs text-[var(--text-secondary)] sm:text-sm">
                             Publication link not added.
                           </p>
                         )}
@@ -850,11 +841,14 @@ export default function ProfilePage() {
           </ProfileSection>
         </section>
 
-        <Sidebar
-          profile={profile}
-          resumeModalOpen={resumeModalOpen}
-          setResumeModalOpen={setResumeModalOpen}
-        />
+        {/* Right Column - Sidebar */}
+        <div className="w-full">
+          <Sidebar
+            profile={profile}
+            resumeModalOpen={resumeModalOpen}
+            setResumeModalOpen={setResumeModalOpen}
+          />
+        </div>
       </main>
 
       {resumeModalOpen && profile.resume && (

@@ -125,13 +125,13 @@ export default function LoginCallback() {
 
   if (hasLinkedInCallback) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[var(--background)]">
+      <main className="flex min-h-screen items-center justify-center bg-background">
         <div className="text-center">
-          <h2 className="text-2xl font-semibold text-white">
+          <h2 className="text-2xl font-semibold text-primary">
             Signing you in...
           </h2>
 
-          <p className="mt-2 text-gray-400">
+          <p className="mt-2 text-muted">
             Please wait while we complete
             your LinkedIn login.
           </p>
@@ -141,7 +141,7 @@ export default function LoginCallback() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[var(--background)] px-5 py-20">
+    <main className="flex min-h-screen items-center justify-center bg-background px-5 py-20">
       <div className="flex w-full max-w-5xl overflow-hidden rounded-3xl shadow-2xl">
         <LoginInfoPanel />
         <LoginForm />

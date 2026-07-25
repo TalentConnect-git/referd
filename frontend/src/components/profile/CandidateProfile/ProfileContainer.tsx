@@ -24,7 +24,7 @@ interface ProfileContainerProps {
 
 export default function ProfileContainer({ profile }: ProfileContainerProps) {
   return (
-    <div className="min-h-screen bg-[#02070b] text-[#cbd5e1]">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--text-secondary)]">
       <main className="mx-auto w-full max-w-[920px] px-4 py-6 sm:px-6 lg:px-8">
         <div className="space-y-5">
           {/* Full Width Header */}
@@ -60,9 +60,7 @@ export default function ProfileContainer({ profile }: ProfileContainerProps) {
             <JobPreferencesCard profile={profile} />
           </div>
 
-          {/* Full Width Notice Period */}
-
-          {/* Row: Personal Information + Contact (flex row) - LAST */}
+          {/* Row: Notice Period + Personal Information */}
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             <NoticePeriodCard profile={profile} />
             <PersonalInformation profile={profile} />

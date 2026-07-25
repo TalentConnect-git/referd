@@ -45,14 +45,14 @@ export function AlumniSection({
   if (alumni.length === 0) {
     return (
       <div className="space-y-6 mt-6">
-        <div className="flex flex-col items-center justify-center py-12 px-4 text-center bg-[#111827] rounded-2xl border border-[#2a3a52]">
-          <div className="w-16 h-16 rounded-full bg-[#1a2332] flex items-center justify-center mb-4">
-            <Building2 className="w-8 h-8 text-gray-500" />
+        <div className="flex flex-col items-center justify-center py-12 px-4 text-center bg-card-soft rounded-2xl border border-theme">
+          <div className="w-16 h-16 rounded-full bg-background-soft flex items-center justify-center mb-4">
+            <Building2 className="w-8 h-8 text-muted" />
           </div>
-          <h3 className="text-lg font-semibold text-white mb-2">
+          <h3 className="text-lg font-semibold text-primary mb-2">
             No Alumni or Employees Found
           </h3>
-          <p className="text-sm text-gray-400 max-w-md">
+          <p className="text-sm text-muted max-w-md">
             We couldn't find any alumni or current employees from {companyName} in our network.
           </p>
           {careerPageUrl && (
@@ -60,7 +60,7 @@ export function AlumniSection({
               href={careerPageUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 text-sm font-medium hover:bg-green-500/20 transition-all"
+              className="btn-primary mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-primary/30 bg-primary-soft text-primary text-sm font-medium hover:bg-primary-soft transition-all"
             >
               <Briefcase className="w-4 h-4" />
               Visit Career Page
@@ -84,23 +84,23 @@ export function AlumniSection({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-[var(--text-secondary)] flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-[var(--primary)]" />
+          <h2 className="text-xl font-bold text-secondary flex items-center gap-2">
+            <Building2 className="w-5 h-5 text-primary" />
             {companyName}
-            <span className="text-[var(--text-primary)] font-normal">
+            <span className="text-primary font-normal">
               {title}
             </span>
             {!isAlumni && (
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 ml-2">
+              <span className="badge badge-info text-[10px] font-medium px-2 py-0.5 rounded-full border border-info/20 ml-2">
                 Current Employees
               </span>
             )}
           </h2>
-          <p className="text-sm text-[var(--text-primary)] mt-1">
+          <p className="text-sm text-primary mt-1">
             {description}
           </p>
           {!isAlumni && (
-            <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+            <p className="text-xs text-muted mt-1 flex items-center gap-1">
               <AlertCircle className="w-3 h-3" />
               These are current employees who can help with referrals
             </p>
@@ -108,11 +108,11 @@ export function AlumniSection({
         </div>
         <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border ${
           isAlumni 
-            ? 'bg-[var(--primary-soft)] border-[var(--primary)]/20' 
-            : 'bg-blue-500/10 border-blue-500/20'
+            ? 'bg-primary-soft border-primary/20' 
+            : 'bg-info-soft border-info/20'
         }`}>
-          <Users className={`w-4 h-4 ${isAlumni ? 'text-[var(--primary)]' : 'text-blue-400'}`} />
-          <span className={`text-sm font-semibold ${isAlumni ? 'text-[var(--primary)]' : 'text-blue-400'}`}>
+          <Users className={`w-4 h-4 ${isAlumni ? 'text-primary' : 'text-info'}`} />
+          <span className={`text-sm font-semibold ${isAlumni ? 'text-primary' : 'text-info'}`}>
             {alumni.length} {isAlumni ? 'Alumni' : 'Employees'}
           </span>
         </div>
@@ -127,7 +127,7 @@ export function AlumniSection({
           return (
             <div
               key={person._id}
-              className="glass-card rounded-[var(--radius-xl)] p-5 hover:border-[var(--border-strong)] transition-all duration-300 group"
+              className="card rounded-xl p-5 hover:border-strong transition-all duration-300 group"
             >
               {/* Profile Header */}
               <div className="flex items-start gap-4 mb-4">
@@ -136,40 +136,40 @@ export function AlumniSection({
                     <img
                       src={person.profileImage}
                       alt={person.name}
-                      className="w-14 h-14 rounded-xl object-cover ring-2 ring-[var(--border)]"
+                      className="w-14 h-14 rounded-xl object-cover ring-2 ring-border"
                     />
                   ) : (
                     <div className="w-14 h-14 rounded-xl primary-gradient flex items-center justify-center">
-                      <span className="text-lg font-bold text-black">
+                      <span className="text-lg font-bold text-inverse">
                         {getInitials(person.name)}
                       </span>
                     </div>
                   )}
                   {isCurrentEmployee && (
-                    <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-blue-500 border-2 border-[#111827] flex items-center justify-center">
+                    <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-info border-2 border-card flex items-center justify-center">
                       <span className="text-[8px]">💼</span>
                     </div>
                   )}
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-[var(--text-secondary)] text-lg truncate">
+                  <h3 className="font-bold text-secondary text-lg truncate">
                     {person.name}
                   </h3>
                   <div className="flex items-center gap-1.5 mt-1">
-                    <Briefcase className="w-3.5 h-3.5 text-[var(--text-muted)] flex-shrink-0" />
-                    <p className="text-sm text-[var(--text-primary)] truncate">
+                    <Briefcase className="w-3.5 h-3.5 text-muted flex-shrink-0" />
+                    <p className="text-sm text-primary truncate">
                       {person.currentCompany || "Professional"}
                     </p>
                   </div>
                   {person.jobRoles?.[0] && (
-                    <p className="text-xs text-[var(--text-muted)] mt-1 truncate">
+                    <p className="text-xs text-muted mt-1 truncate">
                       {person.jobRoles[0]}
                     </p>
                   )}
                   {isCurrentEmployee && (
-                    <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-[8px] text-blue-400">
-                      <span className="w-1 h-1 rounded-full bg-blue-400 animate-pulse" />
+                    <span className="badge badge-info inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full border border-info/20 text-[8px]">
+                      <span className="w-1 h-1 rounded-full bg-info animate-pulse" />
                       Current Employee
                     </span>
                   )}
@@ -179,20 +179,20 @@ export function AlumniSection({
               {/* Stats */}
               <div className="space-y-2 mb-4">
                 {person.totalYearsOfExperience && (
-                  <div className="flex items-center gap-2 text-xs text-[var(--text-primary)]">
-                    <Clock className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+                  <div className="flex items-center gap-2 text-xs text-primary">
+                    <Clock className="w-3.5 h-3.5 text-muted" />
                     <span>{person.totalYearsOfExperience} experience</span>
                   </div>
                 )}
                 {person.college && (
-                  <div className="flex items-center gap-2 text-xs text-[var(--text-primary)]">
-                    <GraduationCap className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+                  <div className="flex items-center gap-2 text-xs text-primary">
+                    <GraduationCap className="w-3.5 h-3.5 text-muted" />
                     <span className="truncate">{person.college}</span>
                   </div>
                 )}
                 {person.email && (
-                  <div className="flex items-center gap-2 text-xs text-[var(--text-primary)]">
-                    <Mail className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+                  <div className="flex items-center gap-2 text-xs text-primary">
+                    <Mail className="w-3.5 h-3.5 text-muted" />
                     <span className="truncate">{person.email}</span>
                   </div>
                 )}
@@ -204,13 +204,13 @@ export function AlumniSection({
                   {person.jobRoles.slice(0, 3).map((role, i) => (
                     <span
                       key={i}
-                      className="px-2.5 py-1 text-xs rounded-lg bg-[var(--background-soft)] text-[var(--text-primary)] border border-[var(--border)]"
+                      className="badge px-2.5 py-1 text-xs rounded-lg bg-background-soft text-primary border border-theme"
                     >
                       {role}
                     </span>
                   ))}
                   {person.jobRoles.length > 3 && (
-                    <span className="px-2.5 py-1 text-xs rounded-lg bg-[var(--background-soft)] text-[var(--text-muted)] border border-[var(--border)]">
+                    <span className="badge px-2.5 py-1 text-xs rounded-lg bg-background-soft text-muted border border-theme">
                       +{person.jobRoles.length - 3}
                     </span>
                   )}
@@ -218,17 +218,17 @@ export function AlumniSection({
               )}
 
               {/* Actions */}
-              <div className="flex gap-2 pt-3 border-t border-[var(--border)]">
+              <div className="flex gap-2 pt-3 border-t border-divider">
                 <button
                   onClick={() => onViewProfile(person)}
-                  className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-[var(--border)] text-sm font-medium text-[var(--text-primary)] hover:bg-[var(--card-hover)] hover:text-[var(--text-secondary)] hover:border-[var(--border-strong)] transition-all"
+                  className="btn-secondary flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-theme text-sm font-medium text-primary hover:bg-card-hover hover:text-secondary hover:border-strong transition-all"
                 >
                   View Profile
                   <ArrowRight className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => onAskReferral(careerPageUrl, person.userId)}
-                  className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[var(--primary)] text-sm font-semibold text-black hover:bg-[var(--primary-dark)] transition-all"
+                  className="btn-primary flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-sm font-semibold text-inverse hover:bg-primary-hover transition-all"
                 >
                   <UserPlus className="w-4 h-4" />
                   Ask Referral

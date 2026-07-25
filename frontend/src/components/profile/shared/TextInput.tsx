@@ -50,10 +50,10 @@ export function TextInput({
       {/* Label with required indicator */}
       {label && (
         <div className="mb-2 flex items-center justify-between">
-          <label className="text-[13px] font-medium text-[var(--text-primary)]">
+          <label className="form-label text-[13px] font-medium">
             {label}
             {required && (
-              <span className="ml-1 text-red-500">*</span>
+              <span className="ml-1 text-danger">*</span>
             )}
           </label>
         </div>
@@ -62,12 +62,12 @@ export function TextInput({
       {/* Input wrapper with focus effects */}
       <div className={`relative rounded-xl transition-all duration-200 ${
         error 
-          ? 'border-2 border-red-500 shadow-[0_0_0_4px_rgba(239,68,68,0.1)]' 
-          : 'border border-[#2a3a52] hover:border-[var(--primary-light)] focus-within:border-[var(--primary)] focus-within:shadow-[0_0_0_4px_rgba(99,102,241,0.1)]'
+          ? 'border-2 border-danger shadow-[0_0_0_4px_rgba(239,68,68,0.1)]' 
+          : 'border border-theme hover:border-primary-light focus-within:border-primary focus-within:shadow-[0_0_0_4px_rgba(99,102,241,0.1)]'
       }`}>
         {/* Left icon */}
         {icon && iconPosition === 'left' && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted">
             {icon}
           </div>
         )}
@@ -79,10 +79,10 @@ export function TextInput({
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
-          className={`w-full rounded-xl bg-[#0f172a] text-[var(--text-primary)] 
+          className={`w-full rounded-xl bg-input-background text-primary 
             outline-none transition-colors duration-200
-            disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-[var(--background-secondary)]
-            placeholder:text-[var(--text-muted)]
+            disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-input-disabled
+            placeholder:text-muted
             ${sizeClasses[size]}
             ${icon && iconPosition === 'left' ? 'pl-10' : ''}
             ${icon && iconPosition === 'right' ? 'pr-10' : ''}
@@ -94,14 +94,14 @@ export function TextInput({
 
         {/* Right icon */}
         {icon && iconPosition === 'right' && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted">
             {icon}
           </div>
         )}
 
         {/* Error icon */}
         {error && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-danger">
             <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
             </svg>
@@ -112,7 +112,7 @@ export function TextInput({
       {/* Helper text or error message */}
       {(helperText || error) && (
         <div className={`mt-1.5 flex items-start gap-1.5 text-[12px] ${
-          error ? 'text-red-500' : 'text-[var(--text-muted)]'
+          error ? 'text-danger' : 'text-muted'
         }`}>
           {error ? (
             <svg className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">

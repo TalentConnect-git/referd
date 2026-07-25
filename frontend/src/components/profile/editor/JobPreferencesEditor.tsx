@@ -252,7 +252,6 @@ const AutocompleteField = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Fetch data from API
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
@@ -271,7 +270,6 @@ const AutocompleteField = ({
     }
   }, [type]);
 
-  // Handle click outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -282,12 +280,10 @@ const AutocompleteField = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Fetch on mount
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  // Filter options based on input
   const filteredOptions = useMemo(() => {
     return options
       .filter((opt) =>
@@ -306,7 +302,6 @@ const AutocompleteField = ({
     (opt) => opt.toLowerCase() === inputValue.toLowerCase()
   );
 
-  // Add new item via API
   const handleAddNewItem = async (itemName: string) => {
     const trimmedItem = itemName.trim();
     if (!trimmedItem) return;
@@ -367,21 +362,21 @@ const AutocompleteField = ({
 
   return (
     <div className="space-y-1.5" ref={dropdownRef}>
-      <label className="text-xs font-medium text-gray-300">
+      <label className="text-xs font-medium text-[var(--text-secondary)]">
         {label}
       </label>
       <div className="relative">
-        <div className="flex min-h-11 flex-wrap gap-2 rounded-lg border border-[#2a3a52] bg-[#0f172a] p-2 transition focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500">
+        <div className="flex min-h-11 flex-wrap gap-2 rounded-lg border border-[var(--border)] bg-[var(--background-soft)] p-2 transition focus-within:border-[var(--primary)] focus-within:ring-1 focus-within:ring-[var(--primary)]">
           {value.map((item) => (
             <span
               key={item}
-              className="inline-flex items-center gap-1 rounded-full border border-green-500/30 bg-green-500/10 px-2.5 py-0.5 text-xs font-medium text-green-400"
+              className="badge badge-primary inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium"
             >
               {item}
               <button
                 type="button"
                 onClick={() => handleRemove(item)}
-                className="hover:text-red-400 transition-colors"
+                className="hover:text-[var(--danger)] transition-colors"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -400,22 +395,22 @@ const AutocompleteField = ({
             onKeyDown={handleKeyDown}
             placeholder={loading ? "Loading..." : placeholder}
             disabled={loading || isCreating}
-            className="min-w-[120px] flex-1 bg-transparent text-sm text-white outline-none placeholder:text-gray-500"
+            className="min-w-[120px] flex-1 bg-transparent text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]"
           />
         </div>
 
         {(loading || isCreating) && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-            <Loader2 className="h-4 w-4 animate-spin text-green-400" />
+            <Loader2 className="h-4 w-4 animate-spin text-[var(--primary)]" />
           </div>
         )}
       </div>
 
       {isOpen && (inputValue.length > 0 || filteredOptions.length > 0) && (
-        <div className="absolute z-50 mt-1 w-full max-h-48 overflow-y-auto rounded-lg border border-[#2a3a52] bg-[#111827] shadow-xl">
+        <div className="surface-card absolute z-50 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-[var(--border)] shadow-xl">
           {loading ? (
-            <div className="flex items-center justify-center px-4 py-3 text-sm text-gray-400">
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            <div className="flex items-center justify-center px-4 py-3 text-sm text-[var(--text-muted)]">
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Loading...
             </div>
           ) : filteredOptions.length > 0 ? (
@@ -425,7 +420,7 @@ const AutocompleteField = ({
                   key={item}
                   type="button"
                   onClick={() => handleSelect(item)}
-                  className="w-full px-4 py-2.5 text-left text-sm text-white hover:bg-green-500/10 transition-colors border-b border-[#2a3a52] last:border-0"
+                  className="w-full border-b border-[var(--border)] px-4 py-2.5 text-left text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--primary-soft)] last:border-0"
                 >
                   {item}
                 </button>
@@ -435,7 +430,7 @@ const AutocompleteField = ({
                   type="button"
                   onClick={() => handleAddNewItem(inputValue)}
                   disabled={isCreating}
-                  className="w-full px-4 py-2.5 text-left text-sm text-green-400 hover:bg-green-500/10 transition-colors flex items-center gap-2 border-t border-[#2a3a52]"
+                  className="flex w-full items-center gap-2 border-t border-[var(--border)] px-4 py-2.5 text-left text-sm text-[var(--primary)] transition-colors hover:bg-[var(--primary-soft)]"
                 >
                   {isCreating ? (
                     <>
@@ -452,13 +447,13 @@ const AutocompleteField = ({
               )}
             </>
           ) : (
-            <div className="px-4 py-3 text-sm text-gray-400">
+            <div className="px-4 py-3 text-sm text-[var(--text-muted)]">
               {inputValue.length > 0 ? (
                 <button
                   type="button"
                   onClick={() => handleAddNewItem(inputValue)}
                   disabled={isCreating}
-                  className="text-green-400 hover:text-green-300 flex items-center gap-2 w-full"
+                  className="flex w-full items-center gap-2 text-[var(--primary)] hover:text-[var(--primary-hover)]"
                 >
                   {isCreating ? (
                     <>
@@ -474,8 +469,8 @@ const AutocompleteField = ({
                 </button>
               ) : (
                 <div className="text-center">
-                  <p className="text-gray-400">Type to search...</p>
-                  <p className="text-xs text-gray-500 mt-1">No items found</p>
+                  <p className="text-[var(--text-muted)]">Type to search...</p>
+                  <p className="mt-1 text-xs text-[var(--text-muted)]">No items found</p>
                 </div>
               )}
             </div>
@@ -486,7 +481,7 @@ const AutocompleteField = ({
   );
 };
 
-// Location Selector Component - Only State and City
+// Location Selector Component
 const LocationSelector = ({
   locations,
   onChange,
@@ -497,7 +492,6 @@ const LocationSelector = ({
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
 
-  // Get available cities based on selected state
   const availableCities = selectedState ? citiesByState[selectedState] || [] : [];
 
   const handleStateChange = (state: string) => {
@@ -508,14 +502,12 @@ const LocationSelector = ({
   const handleAddLocation = () => {
     let locationParts = [];
     if (selectedCity) locationParts.push(selectedCity);
-    // if (selectedState) locationParts.push(selectedState);
     
     const locationString = locationParts.join(", ");
     if (locationString && !locations.includes(locationString)) {
       onChange([...locations, locationString]);
     }
     
-    // Reset selections after adding
     setSelectedState("");
     setSelectedCity("");
   };
@@ -526,21 +518,20 @@ const LocationSelector = ({
 
   return (
     <div className="space-y-1.5">
-      <label className="text-xs font-medium text-gray-300">Locations</label>
+      <label className="text-xs font-medium text-[var(--text-secondary)]">Locations</label>
       
-      {/* Selected Locations */}
       {locations.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-2">
+        <div className="mb-2 flex flex-wrap gap-2">
           {locations.map((item) => (
             <span
               key={item}
-              className="inline-flex items-center gap-1 rounded-full border border-blue-500/30 bg-blue-500/10 px-2.5 py-0.5 text-xs font-medium text-blue-400"
+              className="badge badge-info inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium"
             >
               {item}
               <button
                 type="button"
                 onClick={() => removeLocation(item)}
-                className="hover:text-red-400 transition-colors"
+                className="hover:text-[var(--danger)] transition-colors"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -549,13 +540,11 @@ const LocationSelector = ({
         </div>
       )}
 
-      {/* Location Selection Dropdowns - State and City only */}
       <div className="grid grid-cols-2 gap-2">
-        {/* State */}
         <select
           value={selectedState}
           onChange={(e) => handleStateChange(e.target.value)}
-          className="h-10 rounded-lg border border-[#2a3a52] bg-[#0f172a] px-3 text-sm text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+          className="select-field h-10"
         >
           <option value="">Select State</option>
           {states.map((state) => (
@@ -565,12 +554,11 @@ const LocationSelector = ({
           ))}
         </select>
 
-        {/* City */}
         <select
           value={selectedCity}
           onChange={(e) => setSelectedCity(e.target.value)}
           disabled={!selectedState}
-          className="h-10 rounded-lg border border-[#2a3a52] bg-[#0f172a] px-3 text-sm text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="select-field h-10 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <option value="">Select City</option>
           {availableCities.map((city) => (
@@ -581,12 +569,11 @@ const LocationSelector = ({
         </select>
       </div>
 
-      {/* Add Button */}
       <button
         type="button"
         onClick={handleAddLocation}
         disabled={!selectedState}
-        className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-green-500/30 px-3 py-1.5 text-xs font-medium text-green-400 hover:bg-green-500/10 hover:border-green-500/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="btn-primary mt-2 inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
       >
         <Plus className="h-3.5 w-3.5" />
         Add Location
@@ -615,7 +602,6 @@ export function JobPreferencesEditor({
   roleOptions = [],
   industryOptions = [],
 }: JobPreferencesEditorProps) {
-  // Use refs to track if we're updating from props to avoid loops
   const isUpdatingFromProps = useRef(false);
   const isUpdatingFromUser = useRef(false);
 
@@ -641,7 +627,6 @@ export function JobPreferencesEditor({
     normalizeEmploymentType(employmentType?.[0]) || "",
   );
 
-  // Sync shift preferences from props without causing infinite loop
   useEffect(() => {
     if (!isUpdatingFromUser.current) {
       const hasChanged = JSON.stringify(localShiftPreferences) !== JSON.stringify(shiftPreferences);
@@ -655,7 +640,6 @@ export function JobPreferencesEditor({
     }
   }, [shiftPreferences, localShiftPreferences]);
 
-  // Sync salary from props without causing infinite loops
   useEffect(() => {
     if (!isUpdatingFromUser.current) {
       if (currentSalaryAmount !== undefined && currentSalaryAmount !== localCurrentSalaryAmount) {
@@ -805,25 +789,14 @@ export function JobPreferencesEditor({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      {/* <div className="flex items-center gap-3 mb-2">
-        <div className="p-2 rounded-xl bg-green-500/10 border border-green-500/20">
-          <Briefcase className="h-5 w-5 text-green-400" />
-        </div>
-        <div>
-          <h3 className="text-sm font-semibold text-white">Job Preferences</h3>
-          <p className="text-xs text-gray-400">Set your job preferences and expectations</p>
-        </div>
-      </div> */}
-
       {/* Salary Fields */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {/* Current Salary */}
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-gray-300">
+          <label className="text-xs font-medium text-[var(--text-secondary)]">
             Current Salary
           </label>
-          <div className="flex h-11 w-full items-center rounded-lg border border-[#2a3a52] bg-[#0f172a] px-3 focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500">
+          <div className="flex h-11 w-full items-center rounded-lg border border-[var(--border)] bg-[var(--background-soft)] px-3 focus-within:border-[var(--primary)] focus-within:ring-1 focus-within:ring-[var(--primary)]">
             <div className="relative">
               <button
                 type="button"
@@ -831,7 +804,7 @@ export function JobPreferencesEditor({
                   setIsCurrentCurrencyOpen((prev) => !prev);
                   setIsExpectedCurrencyOpen(false);
                 }}
-                className="flex items-center gap-1 text-sm font-bold text-green-400 transition hover:text-green-300"
+                className="flex items-center gap-1 text-sm font-bold text-[var(--primary)] transition hover:text-[var(--primary-hover)]"
               >
                 <span>{getCurrencySymbol(localCurrentSalaryCurrency)}</span>
                 <ChevronDown
@@ -842,7 +815,7 @@ export function JobPreferencesEditor({
               </button>
 
               {isCurrentCurrencyOpen && (
-                <div className="absolute left-0 top-full z-50 mt-1 min-w-[120px] overflow-hidden rounded-lg border border-[#2a3a52] bg-[#111827] shadow-xl">
+                <div className="surface-card absolute left-0 top-full z-50 mt-1 min-w-[120px] overflow-hidden rounded-lg border border-[var(--border)] shadow-xl">
                   {currencyOptions.map((option) => (
                     <button
                       key={option.value}
@@ -853,10 +826,10 @@ export function JobPreferencesEditor({
                           option.value,
                         )
                       }
-                      className={`w-full px-3 py-2 text-left text-sm transition hover:bg-green-500/10 ${
+                      className={`w-full px-3 py-2 text-left text-sm transition hover:bg-[var(--primary-soft)] ${
                         localCurrentSalaryCurrency === option.value
-                          ? "bg-green-500/10 text-green-400"
-                          : "text-white"
+                          ? "bg-[var(--primary-soft)] text-[var(--primary)]"
+                          : "text-[var(--text-primary)]"
                       }`}
                     >
                       {option.label}
@@ -873,17 +846,17 @@ export function JobPreferencesEditor({
                 handleSalaryAmountChange("currentSalaryAmount", e.target.value)
               }
               placeholder="Enter amount"
-              className="w-full bg-transparent text-sm text-white outline-none placeholder:text-gray-500"
+              className="w-full bg-transparent text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]"
             />
           </div>
         </div>
 
         {/* Expected Salary */}
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-gray-300">
+          <label className="text-xs font-medium text-[var(--text-secondary)]">
             Expected Salary
           </label>
-          <div className="flex h-11 w-full items-center rounded-lg border border-[#2a3a52] bg-[#0f172a] px-3 focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500">
+          <div className="flex h-11 w-full items-center rounded-lg border border-[var(--border)] bg-[var(--background-soft)] px-3 focus-within:border-[var(--primary)] focus-within:ring-1 focus-within:ring-[var(--primary)]">
             <div className="relative">
               <button
                 type="button"
@@ -891,7 +864,7 @@ export function JobPreferencesEditor({
                   setIsExpectedCurrencyOpen((prev) => !prev);
                   setIsCurrentCurrencyOpen(false);
                 }}
-                className="flex items-center gap-1 text-sm font-bold text-green-400 transition hover:text-green-300"
+                className="flex items-center gap-1 text-sm font-bold text-[var(--primary)] transition hover:text-[var(--primary-hover)]"
               >
                 <span>{getCurrencySymbol(localExpectedSalaryCurrency)}</span>
                 <ChevronDown
@@ -902,7 +875,7 @@ export function JobPreferencesEditor({
               </button>
 
               {isExpectedCurrencyOpen && (
-                <div className="absolute left-0 top-full z-50 mt-1 min-w-[120px] overflow-hidden rounded-lg border border-[#2a3a52] bg-[#111827] shadow-xl">
+                <div className="surface-card absolute left-0 top-full z-50 mt-1 min-w-[120px] overflow-hidden rounded-lg border border-[var(--border)] shadow-xl">
                   {currencyOptions.map((option) => (
                     <button
                       key={option.value}
@@ -913,10 +886,10 @@ export function JobPreferencesEditor({
                           option.value,
                         )
                       }
-                      className={`w-full px-3 py-2 text-left text-sm transition hover:bg-green-500/10 ${
+                      className={`w-full px-3 py-2 text-left text-sm transition hover:bg-[var(--primary-soft)] ${
                         localExpectedSalaryCurrency === option.value
-                          ? "bg-green-500/10 text-green-400"
-                          : "text-white"
+                          ? "bg-[var(--primary-soft)] text-[var(--primary)]"
+                          : "text-[var(--text-primary)]"
                       }`}
                     >
                       {option.label}
@@ -933,7 +906,7 @@ export function JobPreferencesEditor({
                 handleSalaryAmountChange("expectedSalaryAmount", e.target.value)
               }
               placeholder="Enter amount"
-              className="w-full bg-transparent text-sm text-white outline-none placeholder:text-gray-500"
+              className="w-full bg-transparent text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]"
             />
           </div>
         </div>
@@ -941,7 +914,7 @@ export function JobPreferencesEditor({
 
       {/* Shift Preferences */}
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-gray-300">
+        <label className="text-xs font-medium text-[var(--text-secondary)]">
           Shift Preferences
         </label>
         <div className="flex flex-wrap gap-2">
@@ -956,8 +929,8 @@ export function JobPreferencesEditor({
                 onClick={() => handleShiftToggle(shift)}
                 className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
                   isSelected
-                    ? "border-green-500/50 bg-green-500/10 text-green-400"
-                    : "border-[#2a3a52] bg-[#0f172a] text-gray-400 hover:border-green-500/30 hover:text-white"
+                    ? "border-[var(--primary-border)] bg-[var(--primary-soft)] text-[var(--primary)]"
+                    : "border-[var(--border)] bg-[var(--background-soft)] text-[var(--text-muted)] hover:border-[var(--primary-border)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 {option.value === "Day" && <Sun className="h-3.5 w-3.5" />}
@@ -975,7 +948,7 @@ export function JobPreferencesEditor({
 
       {/* Employment Type */}
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-gray-300">
+        <label className="text-xs font-medium text-[var(--text-secondary)]">
           Employment Type
         </label>
         <div className="flex flex-wrap gap-2">
@@ -989,8 +962,8 @@ export function JobPreferencesEditor({
                 onClick={() => handleEmploymentTypeSelect(option.value)}
                 className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
                   isSelected
-                    ? "border-green-500/50 bg-green-500/10 text-green-400"
-                    : "border-[#2a3a52] bg-[#0f172a] text-gray-400 hover:border-green-500/30 hover:text-white"
+                    ? "border-[var(--primary-border)] bg-[var(--primary-soft)] text-[var(--primary)]"
+                    : "border-[var(--border)] bg-[var(--background-soft)] text-[var(--text-muted)] hover:border-[var(--primary-border)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 {option.label}
@@ -1022,7 +995,7 @@ export function JobPreferencesEditor({
 
       {/* Looking For */}
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-gray-300">
+        <label className="text-xs font-medium text-[var(--text-secondary)]">
           Looking For
         </label>
         <div className="flex flex-wrap gap-2">
@@ -1041,8 +1014,8 @@ export function JobPreferencesEditor({
                 }}
                 className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
                   isSelected
-                    ? "border-green-500/50 bg-green-500/10 text-green-400"
-                    : "border-[#2a3a52] bg-[#0f172a] text-gray-400 hover:border-green-500/30 hover:text-white"
+                    ? "border-[var(--primary-border)] bg-[var(--primary-soft)] text-[var(--primary)]"
+                    : "border-[var(--border)] bg-[var(--background-soft)] text-[var(--text-muted)] hover:border-[var(--primary-border)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 {option.label}

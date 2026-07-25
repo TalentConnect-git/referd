@@ -50,14 +50,14 @@ export default function StageIndicator({
             key={index}
             className={`h-1.5 w-7 rounded-full ${
               index <= currentIndex
-                ? "bg-green-500"
-                : "bg-slate-700"
+                ? "bg-success"
+                : "bg-muted/30"
             }`}
           />
         ))}
       </div>
 
-      <p className="text-sm text-green-500">
+      <p className="text-sm text-success">
         {stage}
       </p>
     </div>

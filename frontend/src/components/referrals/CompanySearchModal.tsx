@@ -66,21 +66,21 @@ export const CompanySearchModal: React.FC<CompanySearchModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 px-4 backdrop-blur-sm">
-      <div className="w-full max-w-xl rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--card)] shadow-2xl">
-        <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
+    <div className="modal-overlay fixed inset-0 z-[100] flex items-center justify-center bg-overlay px-4 backdrop-blur-sm">
+      <div className="modal-content w-full max-w-xl rounded-xl border border-theme bg-card shadow-xl">
+        <div className="flex items-center justify-between border-b border-divider px-5 py-4">
           <div>
-            <h2 className="text-lg font-bold text-[var(--text-secondary)]">
+            <h2 className="text-lg font-bold text-secondary">
               Ask For Referral
             </h2>
-            <p className="mt-1 text-xs text-[var(--text-primary)]">
+            <p className="mt-1 text-xs text-primary">
               Enter a company name to discover matching jobs.
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-2 text-[var(--text-primary)] transition hover:bg-[var(--card-hover)] hover:text-white"
+            className="btn-ghost rounded-lg p-2 text-primary transition hover:bg-card-hover hover:text-secondary"
           >
             <X size={18} />
           </button>
@@ -88,13 +88,13 @@ export const CompanySearchModal: React.FC<CompanySearchModalProps> = ({
 
         <div className="space-y-4 px-5 py-5">
           <div>
-            <label className="mb-2 block text-sm font-semibold text-[var(--text-secondary)]">
+            <label className="form-label mb-2 block text-sm font-semibold">
               Company Name
             </label>
             <div className="relative">
               <Building2
                 size={18}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted"
               />
               <input
                 type="text"
@@ -102,28 +102,28 @@ export const CompanySearchModal: React.FC<CompanySearchModalProps> = ({
                 onChange={(e) => setCompanyName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && searchByCompany()}
                 placeholder="Example: Airbnb, Razorpay, Google"
-                className="w-full rounded-xl border border-[var(--border)] bg-[var(--background-soft)] py-3 pl-10 pr-4 text-sm text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)]"
+                className="input-field w-full rounded-xl py-3 pl-10 pr-4 text-sm"
                 autoFocus
               />
             </div>
-            <p className="mt-2 text-xs leading-5 text-[var(--text-primary)]">
+            <p className="form-helper mt-2 text-xs leading-5">
               Enter company name like{" "}
-              <span className="font-semibold text-[var(--text-secondary)]">
+              <span className="font-semibold text-secondary">
                 Airbnb
               </span>
               ,{" "}
-              <span className="font-semibold text-[var(--text-secondary)]">
+              <span className="font-semibold text-secondary">
                 Google
               </span>
               , or{" "}
-              <span className="font-semibold text-[var(--text-secondary)]">
+              <span className="font-semibold text-secondary">
                 Microsoft
               </span>
             </p>
           </div>
 
           {error && (
-            <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            <div className="rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger">
               {error}
             </div>
           )}
@@ -133,7 +133,7 @@ export const CompanySearchModal: React.FC<CompanySearchModalProps> = ({
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text-primary)] transition hover:bg-[var(--card-hover)] disabled:cursor-not-allowed disabled:opacity-60"
+              className="btn-secondary rounded-xl border border-theme px-4 py-2 text-sm font-semibold text-primary transition hover:bg-card-hover disabled:cursor-not-allowed disabled:opacity-60"
             >
               Cancel
             </button>
@@ -141,7 +141,7 @@ export const CompanySearchModal: React.FC<CompanySearchModalProps> = ({
               type="button"
               onClick={searchByCompany}
               disabled={loading}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-black transition hover:bg-[var(--primary-dark)] disabled:cursor-not-allowed disabled:opacity-60"
+              className="btn-primary inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-inverse transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? (
                 <>

@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Bell, ChevronRight, Users } from "lucide-react";
 import axiosInstance from "@/lib/axiosInstance";
 import IncomingRequestCard from "./IncomingRequestCard";
 import { Application } from "@/types/applications";
@@ -68,19 +68,19 @@ const IncomingRequests: React.FC<IncomingRequestsProps> = ({ limit = 3 }) => {
 
   if (loading) {
     return (
-      <div className="mt-6 mx-5 rounded-2xl border border-[#1e293b] bg-[#0d1324] p-6">
-        <div className="flex items-center justify-between mb-4">
+      <div className="mx-4 mt-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 sm:mx-5 sm:p-6">
+        <div className="mb-4 flex items-center justify-between">
           <div>
-            <div className="h-5 w-48 animate-pulse rounded bg-white/10" />
-            <div className="mt-2 h-4 w-56 animate-pulse rounded bg-white/10" />
+            <div className="h-5 w-48 animate-pulse rounded bg-[var(--shimmer-start)]" />
+            <div className="mt-2 h-4 w-56 animate-pulse rounded bg-[var(--shimmer-start)]" />
           </div>
-          <div className="h-10 w-24 animate-pulse rounded-lg bg-white/10" />
+          <div className="h-10 w-24 animate-pulse rounded-lg bg-[var(--shimmer-start)]" />
         </div>
         <div className="space-y-3">
           {[1, 2, 3].map((item) => (
             <div
               key={item}
-              className="h-20 animate-pulse rounded-lg bg-white/5"
+              className="h-20 animate-pulse rounded-lg bg-[var(--shimmer-start)]"
             />
           ))}
         </div>
@@ -90,11 +90,11 @@ const IncomingRequests: React.FC<IncomingRequestsProps> = ({ limit = 3 }) => {
 
   if (error) {
     return (
-      <div className="mt-6 mx-5 rounded-2xl border border-red-500/20 bg-red-500/10 p-6">
-        <p className="text-red-400 text-center">{error}</p>
+      <div className="mx-4 mt-4 rounded-2xl border border-[var(--danger-border)] bg-[var(--danger-soft)] p-5 sm:mx-5 sm:p-6">
+        <p className="text-center text-[var(--danger)]">{error}</p>
         <button
           onClick={handleRefresh}
-          className="mt-4 mx-auto block px-4 py-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-colors"
+          className="mx-auto mt-4 block rounded-lg bg-[var(--danger-soft)] px-4 py-2 text-[var(--danger)] transition-colors hover:bg-[var(--danger-soft)]/80"
         >
           Try Again
         </button>
@@ -106,27 +106,15 @@ const IncomingRequests: React.FC<IncomingRequestsProps> = ({ limit = 3 }) => {
   const hasMoreApplications = applications.length > limit;
 
   return (
-    <div className="mt-6  rounded-2xl border border-[#1e293b] bg-[#0d1324] overflow-hidden shadow-lg shadow-black/20">
+    <div className="mx-4 mt-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] overflow-hidden shadow-lg shadow-black/20 sm:mx-5">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-[#1e293b] flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 bg-[#0f172a]/50">
+      <div className="flex flex-col gap-3 border-b border-[var(--border)] bg-[var(--background-soft)]/50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div>
-          <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-            <svg
-              className="w-5 h-5 text-[#31aa40]"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-              />
-            </svg>
+          <h2 className="flex items-center gap-2 text-lg font-semibold text-[var(--text-primary)]">
+            <Bell className="h-5 w-5 text-[var(--primary)]" />
             Incoming Referral Requests
           </h2>
-          <p className="text-sm text-[#94a3b8] mt-0.5">
+          <p className="mt-0.5 text-sm text-[var(--text-muted)]">
             {applications.length > 0 
               ? `${applications.length} application${applications.length > 1 ? 's' : ''} received` 
               : 'No applications received yet'}
@@ -135,34 +123,22 @@ const IncomingRequests: React.FC<IncomingRequestsProps> = ({ limit = 3 }) => {
         <div className="flex items-center gap-2">
           <button
             onClick={handleRefresh}
-            className="p-2 bg-[#1a2332] text-[#94a3b8] rounded-lg hover:bg-[#1e293b] transition-colors"
+            className="rounded-lg bg-[var(--background-soft)] p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--card-hover)] hover:text-[var(--text-secondary)]"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="h-4 w-4" />
           </button>
           <Link
             href="/professional/applications"
-            className="px-4 py-2 bg-[#31aa40] text-black text-sm font-medium rounded-lg hover:bg-[#16a34a] hover:shadow-lg hover:shadow-[#31aa40]/25 transition-all duration-200 flex items-center gap-2 whitespace-nowrap"
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-medium text-black transition-all duration-200 hover:bg-[var(--primary-dark)] hover:shadow-lg hover:shadow-[var(--primary)]/25"
           >
             View All
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              strokeWidth={2.5}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
+            <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
       </div>
 
       {/* Applications List */}
-      <div className="divide-y divide-[#1e293b]">
+      <div className="divide-y divide-[var(--border)]">
         {displayApplications.length > 0 ? (
           <>
             {displayApplications.map((application) => (
@@ -174,50 +150,26 @@ const IncomingRequests: React.FC<IncomingRequestsProps> = ({ limit = 3 }) => {
             ))}
 
             {hasMoreApplications && (
-              <div className="px-6 py-4 text-center bg-gradient-to-r from-[#0a0e17] via-[#0f172a] to-[#0a0e17]">
+              <div className="bg-gradient-to-r from-[var(--background)] via-[var(--background-soft)] to-[var(--background)] px-4 py-4 text-center sm:px-6">
                 <Link
                   href="/professional/applications"
-                  className="text-[#31aa40] hover:text-[#16a34a] text-sm font-medium transition-all duration-200 hover:underline inline-flex items-center gap-1"
+                  className="inline-flex items-center gap-1 text-sm font-medium text-[var(--primary)] transition-all duration-200 hover:text-[var(--primary-dark)] hover:underline"
                 >
                   + {applications.length - limit} more application{applications.length - limit > 1 ? 's' : ''} waiting
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
+                  <ChevronRight className="h-4 w-4" />
                 </Link>
               </div>
             )}
           </>
         ) : (
-          <div className="px-6 py-12 text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#1a2332] mb-4">
-              <svg
-                className="h-8 w-8 text-[#64748b]"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                />
-              </svg>
+          <div className="px-4 py-12 text-center sm:px-6">
+            <div className="mx-auto mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-[var(--background-soft)]">
+              <Users className="h-8 w-8 text-[var(--text-muted)]" />
             </div>
-            <h3 className="text-sm font-medium text-white">
+            <h3 className="text-sm font-medium text-[var(--text-primary)]">
               No applications yet
             </h3>
-            <p className="mt-1 text-sm text-[#64748b] max-w-sm mx-auto">
+            <p className="mx-auto mt-1 max-w-sm text-sm text-[var(--text-muted)]">
               You haven't received any referral applications. Share your referral links to get started.
             </p>
           </div>

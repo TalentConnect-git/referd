@@ -5,7 +5,7 @@ export default function ApplicationTabs({ activeTab, onChange }: ApplicationTabs
   const tabs: ApplicationType[] = ["Referral", "Internship", "Off-campus"];
 
   return (
-    <div className="flex gap-6 border-b border-[#2a3a52] bg-[#0f172a]/50 rounded-t-xl px-4 pt-3">
+    <div className="flex gap-6 border-b border-theme bg-background/50 rounded-t-xl px-4 pt-3">
       {tabs.map((tab) => (
         <button
           key={tab}
@@ -20,8 +20,8 @@ export default function ApplicationTabs({ activeTab, onChange }: ApplicationTabs
             ease-in-out
             ${
               activeTab === tab
-                ? "text-green-500"
-                : "text-slate-400 hover:text-slate-300"
+                ? "text-success"
+                : "text-muted hover:text-secondary"
             }
           `}
         >
@@ -36,8 +36,8 @@ export default function ApplicationTabs({ activeTab, onChange }: ApplicationTabs
               h-0.5
               rounded-full
               bg-gradient-to-r
-              from-green-500
-              to-emerald-500
+              from-success
+              to-success-light
               transition-all
               duration-300
               ease-in-out

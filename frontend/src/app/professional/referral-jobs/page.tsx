@@ -196,71 +196,71 @@ export default function ReferralsPage() {
   const displayedAlumniCount = totalAlumniFound || alumni.length;
 
   return (
-    <div className="min-h-screen bg-[#0a0f1a]">
+    <div className="min-h-screen bg-[var(--background)]">
       {/* Notification Toast */}
       {notification?.show && (
-        <div className="fixed top-4 right-4 z-[200] max-w-sm animate-slide-in">
+        <div className="fixed right-4 top-4 z-[200] max-w-sm animate-slide-in">
           <div 
             className={`
               relative overflow-hidden rounded-xl border backdrop-blur-xl shadow-2xl
               ${notification.type === 'success' 
-                ? 'bg-[#111827] border-green-500/30' 
+                ? 'surface-card border-[var(--success-border)]' 
                 : notification.type === 'warning'
-                ? 'bg-[#111827] border-amber-500/30'
-                : 'bg-[#111827] border-red-500/30'
+                ? 'surface-card border-[var(--warning-border)]'
+                : 'surface-card border-[var(--danger-border)]'
               }
             `}
           >
-            <div className="absolute top-0 left-0 h-0.5 animate-shrink rounded-full"
+            <div className="absolute left-0 top-0 h-0.5 animate-shrink rounded-full"
               style={{
                 width: '100%',
                 background: notification.type === 'success' 
-                  ? '#22c55e' 
+                  ? 'var(--success)'
                   : notification.type === 'warning'
-                  ? '#f59e0b'
-                  : '#ef4444',
+                  ? 'var(--warning)'
+                  : 'var(--danger)',
                 animation: 'shrink 5s linear forwards'
               }}
             />
             <div className="p-4">
               <div className="flex items-start gap-3">
                 <div className={`
-                  w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0
+                  flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg
                   ${notification.type === 'success'
-                    ? 'bg-green-500/10'
+                    ? 'bg-[var(--success-soft)]'
                     : notification.type === 'warning'
-                    ? 'bg-amber-500/10'
-                    : 'bg-red-500/10'
+                    ? 'bg-[var(--warning-soft)]'
+                    : 'bg-[var(--danger-soft)]'
                   }
                 `}>
                   {notification.type === 'success' ? (
-                    <CheckCircle className="w-4 h-4 text-green-400" />
+                    <CheckCircle className="h-4 w-4 text-[var(--success)]" />
                   ) : notification.type === 'warning' ? (
-                    <Bell className="w-4 h-4 text-amber-400" />
+                    <Bell className="h-4 w-4 text-[var(--warning)]" />
                   ) : (
-                    <XCircle className="w-4 h-4 text-red-400" />
+                    <XCircle className="h-4 w-4 text-[var(--danger)]" />
                   )}
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="min-w-0 flex-1">
                   <h3 className={`text-sm font-semibold ${
                     notification.type === 'success'
-                      ? 'text-green-400'
+                      ? 'text-[var(--success)]'
                       : notification.type === 'warning'
-                      ? 'text-amber-400'
-                      : 'text-red-400'
+                      ? 'text-[var(--warning)]'
+                      : 'text-[var(--danger)]'
                   }`}>
                     {notification.title}
                   </h3>
-                  <p className="text-xs text-gray-300 mt-0.5 leading-relaxed">
+                  <p className="mt-0.5 text-xs leading-relaxed text-[var(--text-secondary)]">
                     {notification.message}
                   </p>
                   {notification.details && notification.details.length > 0 && (
-                    <div className="mt-2 pt-2 border-t border-gray-700/50">
+                    <div className="mt-2 border-t border-[var(--border)] pt-2">
                       <div className="space-y-1">
                         {notification.details.map((detail, index) => (
                           <div key={index} className="flex items-center justify-between gap-2">
-                            <span className="text-[10px] text-gray-500">{detail.label}</span>
-                            <span className="text-[10px] font-medium text-gray-300 text-right">
+                            <span className="text-[10px] text-[var(--text-muted)]">{detail.label}</span>
+                            <span className="text-right text-[10px] font-medium text-[var(--text-secondary)]">
                               {detail.value}
                             </span>
                           </div>
@@ -271,9 +271,9 @@ export default function ReferralsPage() {
                 </div>
                 <button
                   onClick={() => setNotification(null)}
-                  className="p-1 rounded-lg text-gray-500 hover:text-gray-300 hover:bg-gray-800/50 transition-all flex-shrink-0"
+                  className="flex-shrink-0 rounded-lg p-1 text-[var(--text-muted)] transition-all hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)]"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <X className="h-3.5 w-3.5" />
                 </button>
               </div>
             </div>
@@ -281,24 +281,24 @@ export default function ReferralsPage() {
         </div>
       )}
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-              <Users className="w-6 h-6 text-green-400" />
+            <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-[var(--text-primary)]">
+              <Users className="h-6 w-6 text-[var(--primary)]" />
               Referrals
             </h1>
-            <p className="text-sm text-gray-400 mt-0.5">
+            <p className="mt-0.5 text-sm text-[var(--text-muted)]">
               Find alumni and request referrals
             </p>
           </div>
           
           <button
             onClick={() => setIsAskReferralModalOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50 transition-all text-sm font-medium"
+            className="btn-primary inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95"
           >
-            <Search className="w-4 h-4" />
+            <Search className="h-4 w-4" />
             Find Alumni
           </button>
         </div>
@@ -309,38 +309,38 @@ export default function ReferralsPage() {
             {hasAlumni ? (
               <>
                 {/* Alumni result heading */}
-                <div className="mb-5 flex flex-col gap-4 rounded-xl border border-green-500/20 bg-gradient-to-r from-green-500/10 to-emerald-500/5 px-4 py-4 sm:flex-row sm:items-center sm:px-5">
+                <div className="mb-5 flex flex-col gap-4 rounded-xl border border-[var(--primary-border)] bg-gradient-to-r from-[var(--primary-soft)] to-[var(--primary-soft)]/50 px-4 py-4 sm:flex-row sm:items-center sm:px-5">
                   <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-green-500/30 bg-green-500/20">
-                      <Building className="h-5 w-5 text-green-400" />
+                    <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-[var(--primary-border)] bg-[var(--primary-soft)]">
+                      <Building className="h-5 w-5 text-[var(--primary)]" />
                     </div>
 
                     <div className="min-w-0">
                       {alumniFound ? (
                         <>
-                          <h2 className="text-base font-semibold text-white sm:text-lg">
+                          <h2 className="text-base font-semibold text-[var(--text-primary)] sm:text-lg">
                             {displayedAlumniCount} Alumni Found
                           </h2>
-                          <p className="mt-0.5 truncate text-sm text-gray-400">
+                          <p className="mt-0.5 truncate text-sm text-[var(--text-muted)]">
                             At{" "}
-                            <span className="font-medium text-green-400">
+                            <span className="font-medium text-[var(--primary)]">
                               {alumniCompanyName}
                             </span>
                           </p>
                         </>
                       ) : (
                         <>
-                          <h2 className="text-base font-semibold text-white sm:text-lg">
+                          <h2 className="text-base font-semibold text-[var(--text-primary)] sm:text-lg">
                             {displayedAlumniCount}{" "}
                             {displayedAlumniCount === 1
                               ? "alumni works"
                               : "alumni work"}{" "}
                             at{" "}
-                            <span className="text-green-400">
+                            <span className="text-[var(--primary)]">
                               {alumniCompanyName}
                             </span>
                           </h2>
-                          <p className="mt-0.5 text-sm text-gray-400">
+                          <p className="mt-0.5 text-sm text-[var(--text-muted)]">
                             These professionals may still be able to help with
                             your referral request.
                           </p>
@@ -349,9 +349,9 @@ export default function ReferralsPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 self-start rounded-lg border border-green-500/20 bg-green-500/10 px-3 py-1.5 sm:ml-auto sm:self-auto">
-                    <Sparkles className="h-3.5 w-3.5 text-green-400" />
-                    <span className="text-xs font-medium text-green-400">
+                  <div className="flex items-center gap-2 self-start rounded-lg border border-[var(--primary-border)] bg-[var(--primary-soft)] px-3 py-1.5 sm:ml-auto sm:self-auto">
+                    <Sparkles className="h-3.5 w-3.5 text-[var(--primary)]" />
+                    <span className="text-xs font-medium text-[var(--primary)]">
                       {alumniFound ? "Exact Match" : "Company Alumni"}
                     </span>
                   </div>
@@ -367,21 +367,21 @@ export default function ReferralsPage() {
               </>
             ) : (
               <div className="mt-12">
-                <div className="max-w-sm mx-auto bg-[#111827] rounded-xl border border-gray-700/50 p-8 text-center">
-                  <div className="w-14 h-14 mx-auto rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center mb-4">
-                    <Building2 className="w-7 h-7 text-green-400" />
+                <div className="surface-card mx-auto max-w-sm rounded-xl border border-[var(--border)] p-8 text-center">
+                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl border border-[var(--primary-border)] bg-[var(--primary-soft)]">
+                    <Building2 className="h-7 w-7 text-[var(--primary)]" />
                   </div>
-                  <h3 className="text-base font-semibold text-gray-300 mb-1">
+                  <h3 className="mb-1 text-base font-semibold text-[var(--text-secondary)]">
                     Find Alumni for Referrals
                   </h3>
-                  <p className="text-sm text-gray-400 mb-4">
+                  <p className="mb-4 text-sm text-[var(--text-muted)]">
                     Enter a job URL to find alumni who can refer you
                   </p>
                   <button
                     onClick={() => setIsAskReferralModalOpen(true)}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50 transition-all text-sm font-medium"
+                    className="btn-primary inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95"
                   >
-                    <Search className="w-4 h-4" />
+                    <Search className="h-4 w-4" />
                     Find Alumni
                   </button>
                 </div>
@@ -394,17 +394,17 @@ export default function ReferralsPage() {
         {loadingAlumni && (
           <div className="mt-12 flex items-center justify-center">
             <div className="text-center">
-              <div className="relative mx-auto w-16 h-16">
-                <div className="absolute inset-0 rounded-full border-2 border-gray-700/30"></div>
-                <div className="absolute inset-0 rounded-full border-2 border-t-green-400 border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
-                <div className="absolute inset-3 rounded-full bg-[#111827] border border-gray-700/30 flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-green-400 animate-pulse" />
+              <div className="relative mx-auto h-16 w-16">
+                <div className="absolute inset-0 rounded-full border-2 border-[var(--border)]"></div>
+                <div className="absolute inset-0 animate-spin rounded-full border-2 border-t-[var(--primary)] border-r-transparent border-b-transparent border-l-transparent"></div>
+                <div className="absolute inset-3 flex items-center justify-center rounded-full border border-[var(--border)] bg-[var(--card)]">
+                  <Sparkles className="h-5 w-5 animate-pulse text-[var(--primary)]" />
                 </div>
               </div>
-              <h3 className="mt-4 text-base font-semibold text-gray-300">
+              <h3 className="mt-4 text-base font-semibold text-[var(--text-secondary)]">
                 Finding Alumni
               </h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-[var(--text-muted)]">
                 Searching through our network...
               </p>
             </div>
@@ -413,16 +413,16 @@ export default function ReferralsPage() {
 
         {/* Error State */}
         {searchError && !loadingAlumni && (
-          <div className="mt-8 max-w-md mx-auto">
-            <div className="bg-[#111827] rounded-xl border border-gray-700/50 p-6 text-center">
-              <div className="w-12 h-12 mx-auto rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
-                <AlertCircle className="w-6 h-6 text-red-400" />
+          <div className="mt-8 mx-auto max-w-md">
+            <div className="surface-card rounded-xl border border-[var(--border)] p-6 text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--danger-border)] bg-[var(--danger-soft)]">
+                <AlertCircle className="h-6 w-6 text-[var(--danger)]" />
               </div>
-              <h3 className="text-base font-semibold text-gray-300 mb-1">
+              <h3 className="mb-1 text-base font-semibold text-[var(--text-secondary)]">
                 No Alumni Found
               </h3>
-              <p className="text-sm text-gray-400 mb-1">{searchError}</p>
-              <p className="text-xs text-gray-500 mb-4">
+              <p className="mb-1 text-sm text-[var(--text-muted)]">{searchError}</p>
+              <p className="mb-4 text-xs text-[var(--text-muted)]">
                 Try searching with a different job URL
               </p>
               <button
@@ -430,9 +430,9 @@ export default function ReferralsPage() {
                   setSearchError(null);
                   setIsAskReferralModalOpen(true);
                 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500 text-black font-semibold hover:bg-green-400 transition-all text-sm"
+                className="btn-primary inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200 hover:scale-105 active:scale-95"
               >
-                <Sparkles className="w-4 h-4" />
+                <Sparkles className="h-4 w-4" />
                 Try Another URL
               </button>
             </div>

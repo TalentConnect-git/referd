@@ -113,29 +113,26 @@ export function CareerDetailsEditor({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      
-
       <div className="grid gap-4 md:grid-cols-2">
         {/* Current Company - Locked/Read-only */}
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-gray-300 flex items-center gap-1.5">
-            <Briefcase className="h-3.5 w-3.5 text-gray-500" />
+          <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)]">
+            <Briefcase className="h-3.5 w-3.5 text-[var(--text-muted)]" />
             Current Company
           </label>
-          <div className="flex h-11 w-full items-center justify-between rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 text-sm text-gray-300">
+          <div className="flex h-11 w-full items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--background-soft)] px-4 text-sm text-[var(--text-secondary)]">
             <span>{displayCompany || "Not currently employed"}</span>
-            <Lock className="h-3.5 w-3.5 text-gray-500" />
+            <Lock className="h-3.5 w-3.5 text-[var(--text-muted)]" />
           </div>
-          <p className="text-[10px] text-gray-500">
+          <p className="text-[10px] text-[var(--text-muted)]">
             Auto-detected from your experience section
           </p>
         </div>
 
         {/* Company Email */}
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-gray-300 flex items-center gap-1.5">
-            <Mail className="h-3.5 w-3.5 text-gray-500" />
+          <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)]">
+            <Mail className="h-3.5 w-3.5 text-[var(--text-muted)]" />
             Company Email
           </label>
           <input
@@ -143,20 +140,20 @@ export function CareerDetailsEditor({
             value={companyEmail}
             onChange={(e) => onUpdate("companyEmail", e.target.value)}
             placeholder="yourname@company.com"
-            className="w-full h-11 rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+            className="input-field h-11"
           />
         </div>
 
         {/* Total Years of Experience */}
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-gray-300 flex items-center gap-1.5">
-            <Clock className="h-3.5 w-3.5 text-gray-500" />
+          <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)]">
+            <Clock className="h-3.5 w-3.5 text-[var(--text-muted)]" />
             Total Years of Experience
           </label>
           <select
             value={totalYearsOfExperience}
             onChange={(e) => onUpdate("totalYearsOfExperience", e.target.value)}
-            className="w-full h-11 rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+            className="select-field h-11"
           >
             <option value="">Select experience</option>
             {[
@@ -182,18 +179,18 @@ export function CareerDetailsEditor({
 
         {/* Notice Period - Manual Input with Lock */}
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-gray-300 flex items-center gap-1.5">
-            <Shield className="h-3.5 w-3.5 text-gray-500" />
+          <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)]">
+            <Shield className="h-3.5 w-3.5 text-[var(--text-muted)]" />
             Notice Period (days)
           </label>
-          <div className="flex h-11 w-full items-center rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500">
+          <div className="flex h-11 w-full items-center rounded-lg border border-[var(--border)] bg-[var(--background-soft)] px-4 focus-within:border-[var(--primary)] focus-within:ring-1 focus-within:ring-[var(--primary)]">
             <input
               type="text"
               value={localNoticePeriod}
               onChange={(e) => handleNoticePeriodChange(e.target.value)}
               placeholder="e.g., 30, 60, 90"
               disabled={isNoticePeriodLocked}
-              className={`w-full bg-transparent text-sm text-white outline-none placeholder:text-gray-500 ${
+              className={`w-full bg-transparent text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] ${
                 isNoticePeriodLocked ? "cursor-not-allowed opacity-70" : ""
               }`}
             />
@@ -201,7 +198,7 @@ export function CareerDetailsEditor({
               <button
                 type="button"
                 onClick={handleUnlockNoticePeriod}
-                className="ml-2 rounded-lg p-1 text-gray-500 transition hover:bg-[#2a3a52] hover:text-white"
+                className="ml-2 rounded-lg p-1 text-[var(--text-muted)] transition hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)]"
                 title="Unlock to edit"
               >
                 <Lock className="h-3.5 w-3.5" />
@@ -211,7 +208,7 @@ export function CareerDetailsEditor({
                 <button
                   type="button"
                   onClick={() => setIsNoticePeriodLocked(true)}
-                  className="ml-2 rounded-lg p-1 text-gray-500 transition hover:bg-[#2a3a52] hover:text-white"
+                  className="ml-2 rounded-lg p-1 text-[var(--text-muted)] transition hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)]"
                   title="Lock to prevent changes"
                 >
                   <Lock className="h-3.5 w-3.5" />
@@ -219,7 +216,7 @@ export function CareerDetailsEditor({
               )
             )}
           </div>
-          <p className="text-[10px] text-gray-500">
+          <p className="text-[10px] text-[var(--text-muted)]">
             {isNoticePeriodLocked 
               ? "🔒 Locked - Click lock icon to edit" 
               : "Enter number of days"}
@@ -228,7 +225,7 @@ export function CareerDetailsEditor({
       </div>
 
       {/* Serving Notice Period Toggle */}
-      <div className="rounded-lg border border-[#2a3a52] bg-[#0f172a] p-4 space-y-4">
+      <div className="rounded-lg border border-[var(--border)] bg-[var(--background-soft)] p-4 space-y-4">
         <div className="flex items-center gap-3">
           <CheckboxInput
             label="Currently serving notice period"
@@ -239,19 +236,19 @@ export function CareerDetailsEditor({
 
         {/* Notice Period Start Date - Only show when serving notice */}
         {localServingNotice && (
-          <div className="pt-3 border-t border-[#2a3a52]">
+          <div className="border-t border-[var(--border)] pt-3">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-gray-300 flex items-center gap-1.5">
-                <Calendar className="h-3.5 w-3.5 text-gray-500" />
+              <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)]">
+                <Calendar className="h-3.5 w-3.5 text-[var(--text-muted)]" />
                 Notice Period Start Date
               </label>
               <input
                 type="date"
                 value={localNoticeStartDate}
                 onChange={(e) => handleNoticeStartDateChange(e.target.value)}
-                className="w-full h-11 rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 text-sm text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                className="input-field h-11"
               />
-              <p className="text-[10px] text-gray-500">
+              <p className="text-[10px] text-[var(--text-muted)]">
                 Select the date when your notice period started
               </p>
             </div>
@@ -261,31 +258,31 @@ export function CareerDetailsEditor({
 
       {/* Salary Details */}
       <div>
-        <div className="flex items-center gap-2 mb-3">
-          <div className="p-1 rounded-lg bg-green-500/10 border border-green-500/20">
-            <DollarSign className="h-4 w-4 text-green-400" />
+        <div className="mb-3 flex items-center gap-2">
+          <div className="rounded-lg border border-[var(--primary-border)] bg-[var(--primary-soft)] p-1">
+            <DollarSign className="h-4 w-4 text-[var(--primary)]" />
           </div>
-          <h4 className="text-sm font-semibold text-white">Current Salary</h4>
-          <div className="flex-1 h-px bg-[#2a3a52]" />
+          <h4 className="text-sm font-semibold text-[var(--text-primary)]">Current Salary</h4>
+          <div className="h-px flex-1 bg-[var(--border)]" />
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           {/* Currency */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-gray-300">
+            <label className="text-xs font-medium text-[var(--text-secondary)]">
               Currency
             </label>
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setIsCurrentCurrencyOpen(!isCurrentCurrencyOpen)}
-                className="flex h-11 w-full items-center justify-between rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 text-sm text-white transition-colors hover:border-green-500/50 focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                className="flex h-11 w-full items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--background-soft)] px-4 text-sm text-[var(--text-primary)] transition-colors hover:border-[var(--primary-border)] focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)]"
               >
                 <span>
                   {currencyOptions.find(c => c.value === currentSalaryCurrency)?.label || "₹ INR"}
                 </span>
                 <svg
-                  className={`h-4 w-4 transition-transform text-gray-500 ${
+                  className={`h-4 w-4 transition-transform text-[var(--text-muted)] ${
                     isCurrentCurrencyOpen ? "rotate-180" : ""
                   }`}
                   fill="none"
@@ -302,7 +299,7 @@ export function CareerDetailsEditor({
               </button>
 
               {isCurrentCurrencyOpen && (
-                <div className="absolute left-0 top-full z-50 mt-1 w-full overflow-hidden rounded-lg border border-[#2a3a52] bg-[#111827] shadow-xl">
+                <div className="absolute left-0 top-full z-50 mt-1 w-full overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] shadow-xl">
                   {currencyOptions.map((option) => (
                     <button
                       key={option.value}
@@ -311,10 +308,10 @@ export function CareerDetailsEditor({
                         handleSalaryCurrencyChange(option.value);
                         setIsCurrentCurrencyOpen(false);
                       }}
-                      className={`w-full px-4 py-2.5 text-left text-sm transition hover:bg-green-500/10 ${
+                      className={`w-full px-4 py-2.5 text-left text-sm transition hover:bg-[var(--primary-soft)] ${
                         currentSalaryCurrency === option.value
-                          ? "bg-green-500/10 text-green-400"
-                          : "text-white"
+                          ? "bg-[var(--primary-soft)] text-[var(--primary)]"
+                          : "text-[var(--text-primary)]"
                       }`}
                     >
                       {option.label}
@@ -327,11 +324,11 @@ export function CareerDetailsEditor({
 
           {/* Amount */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-gray-300">
+            <label className="text-xs font-medium text-[var(--text-secondary)]">
               Amount
             </label>
-            <div className="flex h-11 w-full items-center rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500">
-              <span className="mr-2 text-sm font-semibold text-green-400">
+            <div className="flex h-11 w-full items-center rounded-lg border border-[var(--border)] bg-[var(--background-soft)] px-4 focus-within:border-[var(--primary)] focus-within:ring-1 focus-within:ring-[var(--primary)]">
+              <span className="mr-2 text-sm font-semibold text-[var(--primary)]">
                 {getCurrencySymbol(currentSalaryCurrency)}
               </span>
               <input
@@ -339,7 +336,7 @@ export function CareerDetailsEditor({
                 value={currentSalaryAmount}
                 onChange={(e) => handleSalaryAmountChange(e.target.value)}
                 placeholder="Enter amount"
-                className="w-full bg-transparent text-sm text-white outline-none placeholder:text-gray-500"
+                className="w-full bg-transparent text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]"
               />
             </div>
           </div>

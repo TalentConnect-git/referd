@@ -382,9 +382,9 @@ export function ToolsAndLanguagesEditor({
     <div className="space-y-6">
       {/* Tools and Platforms */}
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-gray-300">
+        <label className="form-label mb-1.5 block">
           Tools and Platforms
-          <span className="text-xs text-gray-500 ml-2">
+          <span className="text-subtle text-xs ml-2">
             (Select from options or type custom)
           </span>
         </label>
@@ -400,20 +400,20 @@ export function ToolsAndLanguagesEditor({
             onFocus={() => setShowToolSuggestions(true)}
             onKeyDown={handleToolKeyDown}
             placeholder="Type tool and press Enter..."
-            className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+            className="input-field w-full"
           />
 
           {/* Tool Suggestions Dropdown */}
           {showToolSuggestions && availableTools.length > 0 && (
-            <div className="absolute z-10 mt-1 w-full max-h-48 overflow-y-auto rounded-lg border border-slate-700 bg-[#0F172A] p-1 shadow-xl">
+            <div className="surface-card absolute z-10 mt-1 w-full max-h-48 overflow-y-auto p-1 shadow-lg animate-fade-in">
               {availableTools.map((tool) => (
                 <button
                   key={tool}
                   type="button"
                   onClick={() => addTool(tool)}
-                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-300 hover:bg-slate-700/50 transition-colors"
+                  className="sidebar-item w-full gap-2 rounded-md px-3 py-2 text-sm"
                 >
-                  <Plus className="h-3.5 w-3.5 text-gray-500" />
+                  <Plus className="text-muted h-3.5 w-3.5" />
                   {tool}
                 </button>
               ))}
@@ -427,7 +427,7 @@ export function ToolsAndLanguagesEditor({
                       setShowToolSuggestions(false);
                     }
                   }}
-                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-green-400 hover:bg-slate-700/50 transition-colors border-t border-slate-700"
+                  className="sidebar-item w-full gap-2 rounded-md px-3 py-2 text-sm text-primary border-t border-theme"
                 >
                   <Plus className="h-3.5 w-3.5" />
                   Create "{toolInput}"
@@ -444,13 +444,13 @@ export function ToolsAndLanguagesEditor({
               {tools.map((tool) => (
                 <span
                   key={tool}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/15 text-blue-400 border border-blue-500/30"
+                  className="badge badge-primary"
                 >
                   {tool}
                   <button
                     type="button"
                     onClick={() => removeItem("toolsAndPlatforms", tool)}
-                    className="hover:text-red-400 transition-colors"
+                    className="hover:text-danger transition-colors"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -460,16 +460,16 @@ export function ToolsAndLanguagesEditor({
           </div>
         )}
 
-        <p className="mt-1 text-xs text-gray-500">
+        <p className="form-helper mt-1">
           {tools.length} tools selected
         </p>
       </div>
 
       {/* Domain Knowledge */}
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-gray-300">
+        <label className="form-label mb-1.5 block">
           Domain Knowledge
-          <span className="text-xs text-gray-500 ml-2">
+          <span className="text-subtle text-xs ml-2">
             (Select from options or type custom)
           </span>
         </label>
@@ -485,20 +485,20 @@ export function ToolsAndLanguagesEditor({
             onFocus={() => setShowDomainSuggestions(true)}
             onKeyDown={handleDomainKeyDown}
             placeholder="Type domain and press Enter..."
-            className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+            className="input-field w-full"
           />
 
           {/* Domain Suggestions Dropdown */}
           {showDomainSuggestions && availableDomains.length > 0 && (
-            <div className="absolute z-10 mt-1 w-full max-h-48 overflow-y-auto rounded-lg border border-slate-700 bg-[#0F172A] p-1 shadow-xl">
+            <div className="surface-card absolute z-10 mt-1 w-full max-h-48 overflow-y-auto p-1 shadow-lg animate-fade-in">
               {availableDomains.map((domain) => (
                 <button
                   key={domain}
                   type="button"
                   onClick={() => addDomain(domain)}
-                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-300 hover:bg-slate-700/50 transition-colors"
+                  className="sidebar-item w-full gap-2 rounded-md px-3 py-2 text-sm"
                 >
-                  <Plus className="h-3.5 w-3.5 text-gray-500" />
+                  <Plus className="text-muted h-3.5 w-3.5" />
                   {domain}
                 </button>
               ))}
@@ -512,7 +512,7 @@ export function ToolsAndLanguagesEditor({
                       setShowDomainSuggestions(false);
                     }
                   }}
-                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-green-400 hover:bg-slate-700/50 transition-colors border-t border-slate-700"
+                  className="sidebar-item w-full gap-2 rounded-md px-3 py-2 text-sm text-primary border-t border-theme"
                 >
                   <Plus className="h-3.5 w-3.5" />
                   Create "{domainInput}"
@@ -529,13 +529,13 @@ export function ToolsAndLanguagesEditor({
               {domains.map((domain) => (
                 <span
                   key={domain}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-500/15 text-purple-400 border border-purple-500/30"
+                  className="badge badge-info"
                 >
                   {domain}
                   <button
                     type="button"
                     onClick={() => removeItem("domainKnowledge", domain)}
-                    className="hover:text-red-400 transition-colors"
+                    className="hover:text-danger transition-colors"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -545,16 +545,16 @@ export function ToolsAndLanguagesEditor({
           </div>
         )}
 
-        <p className="mt-1 text-xs text-gray-500">
+        <p className="form-helper mt-1">
           {domains.length} domains selected
         </p>
       </div>
 
       {/* Languages Known */}
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-gray-300">
+        <label className="form-label mb-1.5 block">
           Languages Known
-          <span className="text-xs text-gray-500 ml-2">
+          <span className="text-subtle text-xs ml-2">
             (Select from options or type custom)
           </span>
         </label>
@@ -570,20 +570,20 @@ export function ToolsAndLanguagesEditor({
             onFocus={() => setShowLanguageSuggestions(true)}
             onKeyDown={handleLanguageKeyDown}
             placeholder="Type language and press Enter..."
-            className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+            className="input-field w-full"
           />
 
           {/* Language Suggestions Dropdown */}
           {showLanguageSuggestions && availableLanguages.length > 0 && (
-            <div className="absolute z-10 mt-1 w-full max-h-48 overflow-y-auto rounded-lg border border-slate-700 bg-[#0F172A] p-1 shadow-xl">
+            <div className="surface-card absolute z-10 mt-1 w-full max-h-48 overflow-y-auto p-1 shadow-lg animate-fade-in">
               {availableLanguages.map((lang) => (
                 <button
                   key={lang}
                   type="button"
                   onClick={() => addLanguage(lang)}
-                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-300 hover:bg-slate-700/50 transition-colors"
+                  className="sidebar-item w-full gap-2 rounded-md px-3 py-2 text-sm"
                 >
-                  <Plus className="h-3.5 w-3.5 text-gray-500" />
+                  <Plus className="text-muted h-3.5 w-3.5" />
                   {lang}
                 </button>
               ))}
@@ -597,7 +597,7 @@ export function ToolsAndLanguagesEditor({
                       setShowLanguageSuggestions(false);
                     }
                   }}
-                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-green-400 hover:bg-slate-700/50 transition-colors border-t border-slate-700"
+                  className="sidebar-item w-full gap-2 rounded-md px-3 py-2 text-sm text-primary border-t border-theme"
                 >
                   <Plus className="h-3.5 w-3.5" />
                   Create "{languageInput}"
@@ -614,13 +614,13 @@ export function ToolsAndLanguagesEditor({
               {languages.map((lang) => (
                 <span
                   key={lang}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/15 text-green-400 border border-green-500/30"
+                  className="badge badge-success"
                 >
                   {lang}
                   <button
                     type="button"
                     onClick={() => removeItem("languagesKnown", lang)}
-                    className="hover:text-red-400 transition-colors"
+                    className="hover:text-danger transition-colors"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -630,7 +630,7 @@ export function ToolsAndLanguagesEditor({
           </div>
         )}
 
-        <p className="mt-1 text-xs text-gray-500">
+        <p className="form-helper mt-1">
           {languages.length} languages selected
         </p>
       </div>

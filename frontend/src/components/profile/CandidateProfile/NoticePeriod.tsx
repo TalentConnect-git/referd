@@ -91,29 +91,29 @@ export default function NoticePeriodCard({ profile }: NoticePeriodCardProps) {
   // If servingNoticePeriod is false, show simplified version
   if (!servingNotice) {
     return (
-      <section className="rounded-[18px] border border-white/10 bg-[#071018] px-[18px] py-[18px] shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
+      <section className="surface-card rounded-[18px] border border-[var(--border)] bg-[var(--card)] p-[18px] shadow-lg">
         <div className="flex items-center gap-3">
-          <div className="flex h-7 w-7 items-center justify-center rounded-[9px] bg-[#12381f] text-[#37e875]">
+          <div className="flex h-7 w-7 items-center justify-center rounded-[9px] bg-[var(--primary-soft)] text-[var(--primary)]">
             <Timer className="h-3.5 w-3.5" />
           </div>
 
-          <h2 className="text-[14px] font-bold text-white">
+          <h2 className="text-sm font-bold text-[var(--text-primary)]">
             Notice Period
           </h2>
         </div>
 
-        <div className="mt-[18px] border-t border-white/10" />
+        <div className="mt-[18px] border-t border-[var(--border)]" />
 
         <div className="mt-[17px] grid grid-cols-1 gap-3 md:grid-cols-1">
-          <div className="rounded-[12px] border border-white/10 bg-[#0b1621] px-4 py-4">
-            <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-[9px] bg-[#12381f] text-[#37e875]">
+          <div className="rounded-[12px] border border-[var(--border)] bg-[var(--background-soft)] px-4 py-4">
+            <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-[9px] bg-[var(--primary-soft)] text-[var(--primary)]">
               <CalendarDays className="h-3.5 w-3.5" />
             </div>
 
-            <p className="text-[14px] font-medium leading-none text-white">
+            <p className="text-sm font-medium leading-none text-[var(--text-primary)]">
               {totalNoticeDays}
             </p>
-            <p className="mt-2 text-[9px] font-normal uppercase tracking-[0.08em] text-[#7891c7]">
+            <p className="mt-2 text-[9px] font-normal uppercase tracking-[0.08em] text-[var(--text-muted)]">
               Notice Days
             </p>
           </div>
@@ -139,55 +139,55 @@ export default function NoticePeriodCard({ profile }: NoticePeriodCardProps) {
   const isComplete = remainingDays === 0 && totalNoticeDays > 0;
 
   return (
-    <section className="rounded-[18px] border border-white/10 bg-[#071018] px-[18px] py-[18px] shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
+    <section className="surface-card rounded-[18px] border border-[var(--border)] bg-[var(--card)] p-[18px] shadow-lg">
       <div className="flex items-center gap-3">
-        <div className="flex h-7 w-7 items-center justify-center rounded-[9px] bg-[#12381f] text-[#37e875]">
+        <div className="flex h-7 w-7 items-center justify-center rounded-[9px] bg-[var(--primary-soft)] text-[var(--primary)]">
           <Timer className="h-3.5 w-3.5" />
         </div>
 
-        <h2 className="text-[14px] font-bold text-white">
+        <h2 className="text-sm font-bold text-[var(--text-primary)]">
           Notice Period
         </h2>
       </div>
 
-      <div className="mt-[18px] border-t border-white/10" />
+      <div className="mt-[18px] border-t border-[var(--border)]" />
 
       <div className="mt-[17px] grid grid-cols-1 gap-3 md:grid-cols-3">
-        <div className="rounded-[12px] border border-white/10 bg-[#0b1621] px-4 py-4">
-          <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-[9px] bg-[#12381f] text-[#37e875]">
+        <div className="rounded-[12px] border border-[var(--border)] bg-[var(--background-soft)] px-4 py-4">
+          <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-[9px] bg-[var(--primary-soft)] text-[var(--primary)]">
             <CalendarDays className="h-3.5 w-3.5" />
           </div>
 
-          <p className="text-[14px] font-medium leading-none text-white">
+          <p className="text-sm font-medium leading-none text-[var(--text-primary)]">
             {totalNoticeDays}
           </p>
-          <p className="mt-2 text-[9px] font-normal uppercase tracking-[0.08em] text-[#7891c7]">
+          <p className="mt-2 text-[9px] font-normal uppercase tracking-[0.08em] text-[var(--text-muted)]">
             Notice Days
           </p>
         </div>
 
-        <div className="rounded-[12px] border border-white/10 bg-[#0b1621] px-4 py-4">
-          <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-[9px] bg-[#12381f] text-[#37e875]">
+        <div className="rounded-[12px] border border-[var(--border)] bg-[var(--background-soft)] px-4 py-4">
+          <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-[9px] bg-[var(--primary-soft)] text-[var(--primary)]">
             <CheckCircle2 className="h-3.5 w-3.5" />
           </div>
 
-          <p className="text-[14px] font-medium leading-none text-white">
+          <p className="text-sm font-medium leading-none text-[var(--text-primary)]">
             {daysServed}
           </p>
-          <p className="mt-2 text-[9px] font-normal uppercase tracking-[0.08em] text-[#7891c7]">
+          <p className="mt-2 text-[9px] font-normal uppercase tracking-[0.08em] text-[var(--text-muted)]">
             Days Served
           </p>
         </div>
 
-        <div className="rounded-[12px] border border-white/10 bg-[#0b1621] px-4 py-4">
-          <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-[9px] bg-[#12381f] text-[#37e875]">
+        <div className="rounded-[12px] border border-[var(--border)] bg-[var(--background-soft)] px-4 py-4">
+          <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-[9px] bg-[var(--primary-soft)] text-[var(--primary)]">
             <CalendarDays className="h-3.5 w-3.5" />
           </div>
 
-          <p className="text-[14px] font-medium leading-none text-white">
+          <p className="text-sm font-medium leading-none text-[var(--text-primary)]">
             {formatDate(endDate)}
           </p>
-          <p className="mt-2 text-[9px] font-normal uppercase tracking-[0.08em] text-[#7891c7]">
+          <p className="mt-2 text-[9px] font-normal uppercase tracking-[0.08em] text-[var(--text-muted)]">
             Last Day
           </p>
         </div>
@@ -195,20 +195,20 @@ export default function NoticePeriodCard({ profile }: NoticePeriodCardProps) {
 
       {/* Extra Dates */}
       <div className="mt-[17px] grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div className="rounded-[12px] border border-white/10 bg-[#0b1621] px-4 py-3">
-          <p className="text-[9px] font-normal uppercase tracking-[0.08em] text-[#7891c7]">
+        <div className="rounded-[12px] border border-[var(--border)] bg-[var(--background-soft)] px-4 py-3">
+          <p className="text-[9px] font-normal uppercase tracking-[0.08em] text-[var(--text-muted)]">
             Start Date
           </p>
-          <p className="mt-1 text-[12px] font-medium text-white">
+          <p className="mt-1 text-xs font-medium text-[var(--text-primary)]">
             {formatDate(startDate)}
           </p>
         </div>
 
-        <div className="rounded-[12px] border border-white/10 bg-[#0b1621] px-4 py-3">
-          <p className="text-[9px] font-normal uppercase tracking-[0.08em] text-[#7891c7]">
+        <div className="rounded-[12px] border border-[var(--border)] bg-[var(--background-soft)] px-4 py-3">
+          <p className="text-[9px] font-normal uppercase tracking-[0.08em] text-[var(--text-muted)]">
             Remaining Days
           </p>
-          <p className="mt-1 text-[12px] font-medium text-white">
+          <p className="mt-1 text-xs font-medium text-[var(--text-primary)]">
             {remainingDays}
           </p>
         </div>
@@ -217,18 +217,18 @@ export default function NoticePeriodCard({ profile }: NoticePeriodCardProps) {
       {/* Progress */}
       <div className="mt-[17px]">
         <div className="mb-2 flex items-center justify-between">
-          <p className="text-[9px] font-normal uppercase tracking-[0.08em] text-[#7891c7]">
+          <p className="text-[9px] font-normal uppercase tracking-[0.08em] text-[var(--text-muted)]">
             Progress
           </p>
 
-          <span className={`text-[12px] font-medium ${isComplete ? "text-[#37e875]" : "text-[#37e875]"}`}>
+          <span className={`text-xs font-medium ${isComplete ? "text-[var(--success)]" : "text-[var(--primary)]"}`}>
             {isComplete ? "Complete" : `${remainingDays} Days Remaining`}
           </span>
         </div>
 
-        <div className="h-2 w-full overflow-hidden rounded-full bg-[#0b1621]">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--background-soft)]">
           <div
-            className="h-full rounded-full bg-[#37e875] transition-all duration-500"
+            className="h-full rounded-full bg-[var(--primary)] transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>

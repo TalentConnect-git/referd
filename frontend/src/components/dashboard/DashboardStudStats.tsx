@@ -34,9 +34,9 @@ export default function DashboardStudStats({
       title: "Applications",
       value: applicationsSent,
       icon: FileText,
-      color: "text-blue-400",
-      bgColor: "bg-blue-500/10",
-      borderColor: "hover:border-blue-500/30",
+      color: "text-[var(--info)]",
+      bgColor: "bg-[var(--info-soft)]",
+      borderColor: "hover:border-[var(--info-border)]",
       redirect: `/${userType}/applications`,
       clickable: true,
     },
@@ -45,9 +45,9 @@ export default function DashboardStudStats({
       title: "Saved Jobs",
       value: savedCount,
       icon: Save,
-      color: "text-green-400",
-      bgColor: "bg-green-500/10",
-      borderColor: "hover:border-green-500/30",
+      color: "text-[var(--success)]",
+      bgColor: "bg-[var(--success-soft)]",
+      borderColor: "hover:border-[var(--success-border)]",
       redirect: `/${userType}/saved-jobs`,
       clickable: true,
     },
@@ -56,9 +56,9 @@ export default function DashboardStudStats({
       title: "Resume Score",
       value: `${resumeScore}%`,
       icon: TrendingUp,
-      color: "text-purple-400",
-      bgColor: "bg-purple-500/10",
-      borderColor: "hover:border-purple-500/30",
+      color: "text-[var(--primary)]",
+      bgColor: "bg-[var(--primary-soft)]",
+      borderColor: "hover:border-[var(--primary-border)]",
       redirect: null,
       clickable: false,
     },
@@ -67,9 +67,9 @@ export default function DashboardStudStats({
       title: "Hiring Score",
       value: `${hiringScore}%`,
       icon: BarChart,
-      color: "text-yellow-400",
-      bgColor: "bg-yellow-500/10",
-      borderColor: "hover:border-yellow-500/30",
+      color: "text-[var(--warning)]",
+      bgColor: "bg-[var(--warning-soft)]",
+      borderColor: "hover:border-[var(--warning-border)]",
       redirect: null,
       clickable: false,
     },
@@ -78,9 +78,9 @@ export default function DashboardStudStats({
       title: "Alumni Network",
       value: alumniCount,
       icon: UserCheck,
-      color: "text-pink-400",
-      bgColor: "bg-pink-500/10",
-      borderColor: "hover:border-pink-500/30",
+      color: "text-[var(--info)]",
+      bgColor: "bg-[var(--info-soft)]",
+      borderColor: "hover:border-[var(--info-border)]",
       subtitle: `${alumniCount} hiring currently`,
       redirect: `/${userType}/alumani-network`,
       clickable: true,
@@ -90,9 +90,9 @@ export default function DashboardStudStats({
       title: "Applications",
       value: applicationsSent,
       icon: Briefcase,
-      color: "text-orange-400",
-      bgColor: "bg-orange-500/10",
-      borderColor: "hover:border-orange-500/30",
+      color: "text-[var(--warning)]",
+      bgColor: "bg-[var(--warning-soft)]",
+      borderColor: "hover:border-[var(--warning-border)]",
       subtitle: `${applicationsSent} jobs applied`,
       redirect: `/${userType}/applications`,
       clickable: true,
@@ -106,30 +106,30 @@ export default function DashboardStudStats({
   };
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
       {stats.map((stat) => (
         <div
           key={stat.id}
           onClick={() => handleCardClick(stat.redirect)}
           className={`
-            group relative rounded-xl border border-slate-800 bg-[#0f172a] p-3.5 
+            surface-card group relative rounded-xl p-3.5 
             transition-all duration-200
             ${stat.clickable 
-              ? `cursor-pointer ${stat.borderColor} hover:bg-slate-800/30 hover:shadow-lg hover:shadow-slate-900/30 hover:-translate-y-0.5` 
-              : 'hover:border-slate-700'
+              ? `cursor-pointer ${stat.borderColor} hover:bg-[var(--card-hover)] hover:shadow-md hover:-translate-y-0.5` 
+              : 'hover:border-[var(--border-strong)]'
             }
           `}
         >
           <div className="flex items-start justify-between gap-2">
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider truncate">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
                 {stat.title}
               </p>
-              <p className="mt-1 text-lg font-bold text-white">
+              <p className="mt-1 text-lg font-bold text-[var(--text-primary)]">
                 {stat.value}
               </p>
               {stat.subtitle && (
-                <p className="mt-0.5 text-[9px] text-gray-500 truncate">
+                <p className="mt-0.5 truncate text-[9px] text-[var(--text-muted)]">
                   {stat.subtitle}
                 </p>
               )}
@@ -147,8 +147,8 @@ export default function DashboardStudStats({
 
           {/* Click indicator - shown on hover for clickable cards */}
           {stat.clickable && (
-            <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <ChevronRight className="h-3.5 w-3.5 text-gray-500" />
+            <div className="absolute bottom-2 right-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+              <ChevronRight className="h-3.5 w-3.5 text-[var(--text-muted)]" />
             </div>
           )}
         </div>

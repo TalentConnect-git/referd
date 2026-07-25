@@ -166,13 +166,13 @@ export default function TermsPage() {
         if (trimmed.startsWith('•') || trimmed.startsWith('-')) {
           return (
             <div key={idx} className="flex items-start gap-2 py-0.5">
-              <span className="text-green-400 font-bold select-none">•</span>
-              <span className="text-slate-300 text-sm">{trimmed.replace(/^[•\-]\s*/, '')}</span>
+              <span className="text-primary font-bold select-none">•</span>
+              <span className="text-secondary text-sm">{trimmed.replace(/^[•\-]\s*/, '')}</span>
             </div>
           );
         }
         return (
-          <p key={idx} className="text-slate-300 text-sm py-0.5">
+          <p key={idx} className="text-secondary text-sm py-0.5">
             {trimmed}
           </p>
         );
@@ -185,13 +185,13 @@ export default function TermsPage() {
       if (trimmed === '') return <div key={idx} className="h-2" />;
       if (trimmed.includes('⚠')) {
         return (
-          <div key={idx} className="bg-yellow-500/10 border border-yellow-500/30 p-3 rounded-lg my-2">
-            <span className="text-yellow-400 text-sm font-medium">{trimmed}</span>
+          <div key={idx} className="bg-warning-soft border border-warning/30 p-3 rounded-lg my-2">
+            <span className="text-warning text-sm font-medium">{trimmed}</span>
           </div>
         );
       }
       return (
-        <p key={idx} className="text-slate-300 text-sm py-0.5">
+        <p key={idx} className="text-secondary text-sm py-0.5">
           {trimmed}
         </p>
       );
@@ -201,21 +201,20 @@ export default function TermsPage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen mt-12 bg-[#0f172a] px-4 py-8 sm:px-6 lg:px-8">
+      <main className="min-h-screen mt-12 bg-background px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
           {/* Header */}
-          <div className="text-center border-b border-[#2a3a52] pb-8 mb-10">
-            <div className="inline-flex items-center gap-2 bg-green-500/10 text-green-400 text-xs font-semibold px-4 py-1.5 rounded-full border border-green-500/20 mb-4">
-              
+          <div className="text-center border-b border-divider pb-8 mb-10">
+            <div className="inline-flex items-center gap-2 bg-primary-soft text-primary text-xs font-semibold px-4 py-1.5 rounded-full border border-primary/20 mb-4">
               Terms of Service
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
+            <h1 className="text-3xl md:text-4xl font-bold text-primary tracking-tight">
               Terms of Service
             </h1>
-            <p className="text-slate-400 mt-2 text-sm">
+            <p className="text-muted mt-2 text-sm">
               Last updated: {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
             </p>
-            <p className="text-slate-500 text-sm mt-1">
+            <p className="text-subtle text-sm mt-1">
               By using Referd, you agree to these terms. Please read them carefully.
             </p>
           </div>
@@ -227,25 +226,25 @@ export default function TermsPage() {
               return (
                 <div
                   key={section.id}
-                  className="rounded-xl border border-[#2a3a52] bg-[#111827] overflow-hidden transition-all duration-200 hover:border-[#3a4a62]"
+                  className="card rounded-xl border border-theme bg-card-soft overflow-hidden transition-all duration-200 hover:border-strong"
                 >
                   <button
                     onClick={() => toggle(section.id)}
-                    className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left bg-transparent hover:bg-[#1a2332] transition-colors"
+                    className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left bg-transparent hover:bg-card-hover transition-colors"
                     aria-expanded={isOpen}
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       {section.icon && (
-                        <span className="text-green-400 flex-shrink-0">
+                        <span className="text-primary flex-shrink-0">
                           {section.icon}
                         </span>
                       )}
-                      <span className="text-white font-semibold text-sm md:text-base pr-2">
+                      <span className="text-primary font-semibold text-sm md:text-base pr-2">
                         {section.title}
                       </span>
                     </div>
                     <ChevronDown
-                      className={`w-5 h-5 text-slate-400 flex-shrink-0 transition-transform duration-200 ${
+                      className={`w-5 h-5 text-muted flex-shrink-0 transition-transform duration-200 ${
                         isOpen ? 'rotate-180' : ''
                       }`}
                       strokeWidth={2}
@@ -256,7 +255,7 @@ export default function TermsPage() {
                       isOpen ? 'max-h-[800px] pb-5' : 'max-h-0'
                     }`}
                   >
-                    <div className="text-slate-300 text-sm leading-relaxed border-t border-[#2a3a52] pt-4">
+                    <div className="text-secondary text-sm leading-relaxed border-t border-divider pt-4">
                       {renderContent(section.content)}
                     </div>
                   </div>
@@ -266,9 +265,9 @@ export default function TermsPage() {
           </div>
 
           {/* Footer */}
-          <div className="mt-8 pt-6 border-t border-[#2a3a52] text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-2">
+          <div className="mt-8 pt-6 border-t border-divider text-xs text-muted flex flex-col sm:flex-row justify-between items-center gap-2">
             <span>© {new Date().getFullYear()} Referd — operated by Referd Technologies, Inc.</span>
-            <span className="text-slate-600">⚖️ governed by laws of India</span>
+            <span className="text-muted/60">⚖️ governed by laws of India</span>
           </div>
         </div>
       </main>

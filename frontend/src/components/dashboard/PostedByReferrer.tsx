@@ -68,12 +68,12 @@ export default function PostedByReferrer({
 
   if (loading) {
     return (
-      <div className="bg-[#0F172A] rounded-2xl border border-slate-800 p-4">
+      <div className="surface-card rounded-2xl p-4">
         <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-full bg-gray-700/50 animate-pulse" />
+          <div className="skeleton h-12 w-12 rounded-full" />
           <div className="flex-1">
-            <div className="h-4 w-32 bg-gray-700/50 rounded animate-pulse mb-1.5" />
-            <div className="h-3 w-24 bg-gray-700/50 rounded animate-pulse" />
+            <div className="skeleton mb-1.5 h-4 w-32 rounded" />
+            <div className="skeleton h-3 w-24 rounded" />
           </div>
         </div>
       </div>
@@ -103,17 +103,13 @@ export default function PostedByReferrer({
   const location = profile?.locations?.[0] || "";
 
   return (
-    <div className="bg-gradient-to-br from-[#0F172A] to-[#1a2332] rounded-2xl border border-slate-800 p-5 transition-all duration-300 hover:border-green-500/40 hover:shadow-xl hover:shadow-green-500/5">
+    <div className="surface-card rounded-2xl p-5 transition-all duration-300 hover:border-[var(--primary-border)] hover:shadow-md">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           {profile.isHiring !== undefined && (
             <span
-              className={`text-[10px] px-2.5 py-0.5 rounded-full border font-medium ${
-                profile.isHiring
-                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                  : "bg-gray-500/10 text-gray-400 border-gray-500/20"
-              }`}
+              className={`badge ${profile.isHiring ? 'badge-success' : 'badge'}`}
             >
               {profile.isHiring ? "● Hiring" : "○ Not Hiring"}
             </span>
@@ -122,9 +118,9 @@ export default function PostedByReferrer({
       </div>
 
       {/* Main Content */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         {/* Left Section - Profile Info */}
-        <div className="flex items-center gap-4 min-w-0">
+        <div className="flex min-w-0 items-center gap-4">
           {/* Avatar with Profile Image */}
           <div className="relative flex-shrink-0">
             {profile.profileImage && !imageError ? (
@@ -133,12 +129,12 @@ export default function PostedByReferrer({
                 alt={profile.name || "User"}
                 width={56}
                 height={56}
-                className="h-14 w-14 rounded-full object-cover border-2 border-green-500/30 hover:border-green-500/60 transition-all duration-300"
+                className="h-14 w-14 rounded-full border-2 border-[var(--border)] object-cover transition-all duration-300 hover:border-[var(--primary-border)]"
                 onError={() => setImageError(true)}
               />
             ) : (
-              <div className="h-14 w-14 rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center border-2 border-green-500/30 hover:border-green-500/60 transition-all duration-300">
-                <span className="text-lg font-bold text-green-400">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-[var(--border)] bg-[var(--primary-soft)] transition-all duration-300 hover:border-[var(--primary-border)]">
+                <span className="text-lg font-bold text-[var(--primary)]">
                   {getInitials(profile.name)}
                 </span>
               </div>
@@ -148,38 +144,38 @@ export default function PostedByReferrer({
           {/* Profile Details */}
           <div className="min-w-0 flex-1">
             <h3
-              className="text-base font-semibold text-white hover:text-green-400 transition-colors cursor-pointer truncate"
+              className="cursor-pointer truncate text-base font-semibold text-[var(--text-primary)] transition-colors hover:text-[var(--primary)]"
               onClick={handleViewProfile}
             >
               {profile.name || "Unknown User"}
             </h3>
 
             {/* Role and Company */}
-            <div className="flex flex-wrap items-center gap-2 mt-1">
+            <div className="mt-1 flex flex-wrap items-center gap-2">
               {companyName && companyName !== "Not specified" && (
-                <div className="flex items-center gap-1 text-xs text-gray-400">
-                  <Building2 className="w-3 h-3 text-gray-500" />
+                <div className="flex items-center gap-1 text-xs text-[var(--text-secondary)]">
+                  <Building2 className="h-3 w-3 text-[var(--text-muted)]" />
                   <span>{companyName}</span>
                 </div>
               )}
             </div>
 
             {/* Additional Info - Compact */}
-            <div className="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-gray-500">
+            <div className="mt-1.5 flex flex-wrap items-center gap-3 text-xs text-[var(--text-muted)]">
               {profile.totalYearsOfExperience && (
                 <>
-                  <span className="text-gray-700">|</span>
+                  <span className="text-[var(--text-muted)]">|</span>
                   <div className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
+                    <Clock className="h-3 w-3" />
                     <span>{profile.totalYearsOfExperience} yrs exp</span>
                   </div>
                 </>
               )}
               {profile.educations && profile.educations.length > 0 && (
                 <>
-                  <span className="text-gray-700">|</span>
+                  <span className="text-[var(--text-muted)]">|</span>
                   <div className="flex items-center gap-1">
-                    <Award className="w-3 h-3" />
+                    <Award className="h-3 w-3" />
                     <span>{profile.educations[0]?.degree || "Graduate"}</span>
                   </div>
                 </>
@@ -189,41 +185,23 @@ export default function PostedByReferrer({
         </div>
 
         {/* Right Section - Actions */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex flex-shrink-0 items-center gap-2">
           {/* Message Button */}
           <button
             onClick={handleMessage}
-            className="
-              flex items-center gap-2
-              rounded-lg border border-slate-700 
-              px-3.5 py-2
-              text-xs font-medium text-gray-300
-              transition-all duration-200
-              hover:bg-slate-800/50 hover:border-slate-600 hover:text-white
-              hover:shadow-lg hover:shadow-slate-800/20
-              group
-            "
+            className="btn-secondary group flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95"
           >
-            <MessageCircle className="w-3.5 h-3.5 transition-transform duration-200 group-hover:scale-110" />
+            <MessageCircle className="h-3.5 w-3.5 transition-transform duration-200 group-hover:scale-110" />
             <span>Message</span>
           </button>
 
           {/* View Profile Button */}
           <button
             onClick={handleViewProfile}
-            className="
-              flex items-center gap-2
-              rounded-lg bg-gradient-to-r from-green-500 to-emerald-500
-              px-4 py-2
-              text-xs font-medium text-black
-              transition-all duration-200
-              hover:from-green-400 hover:to-emerald-400
-              hover:shadow-lg hover:shadow-green-500/25
-              group
-            "
+            className="btn-primary group flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95"
           >
             <span>View Profile</span>
-            <ExternalLink className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            <ExternalLink className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </button>
         </div>
       </div>

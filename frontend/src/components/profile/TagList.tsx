@@ -10,7 +10,7 @@ export default function TagList({ items }: TagListProps) {
       {items.map((item, index) => (
         <span
           key={`${item}-${index}`}
-          className="rounded-full border border-[var(--border)] bg-[var(--background)] px-4 py-2 text-[13px] font-medium text-white"
+          className="badge"
         >
           {item}
         </span>

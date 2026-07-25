@@ -23,9 +23,9 @@ export default function ReferralStats({
       label: "Candidates",
       value: metrics.totalApplicationsReceived,
       icon: Users,
-      bgColor: "bg-blue-500/10",
-      iconColor: "text-blue-400",
-      borderColor: "border-blue-500/20",
+      bgColor: "bg-info-soft",
+      iconColor: "text-info",
+      borderColor: "border-info/20",
       clickable: true,
       onClick: onCandidatesClick || onViewDetails,
     },
@@ -42,9 +42,9 @@ export default function ReferralStats({
       label: "Referred",
       value: metrics.totalReferredToCompany,
       icon: UserCheck,
-      bgColor: "bg-green-500/10",
-      iconColor: "text-green-400",
-      borderColor: "border-green-500/20",
+      bgColor: "bg-success-soft",
+      iconColor: "text-success",
+      borderColor: "border-success/20",
       clickable: false,
     },
     {
@@ -79,11 +79,11 @@ export default function ReferralStats({
             disabled={!stat.clickable}
             onClick={stat.onClick}
             className={`
-              group relative overflow-hidden rounded-lg border
+              card group relative overflow-hidden rounded-lg border
               ${stat.borderColor}
-              bg-gradient-to-br from-[var(--card)] to-[#0d0d14]
+              bg-gradient-to-br from-card to-background-soft
               px-3 py-2.5 text-left transition-all duration-200
-              hover:scale-[1.02] hover:border-green-500/30 hover:shadow-md hover:shadow-green-500/5
+              hover:scale-[1.02] hover:border-primary/30 hover:shadow-md hover:shadow-primary/5
               ${
                 stat.clickable
                   ? "cursor-pointer"
@@ -108,20 +108,20 @@ export default function ReferralStats({
                 <Icon className={`h-3.5 w-3.5 ${stat.iconColor}`} />
               </div>
 
-              <p className="text-lg font-bold leading-none tracking-tight text-white">
+              <p className="text-lg font-bold leading-none tracking-tight text-primary">
                 {stat.value}
               </p>
 
-              <p className="mt-0.5 text-[10px] font-medium uppercase tracking-wider text-gray-500">
+              <p className="mt-0.5 text-[10px] font-medium uppercase tracking-wider text-muted">
                 {stat.label}
               </p>
 
               {stat.label === "Candidates" &&
                 typeof stat.value === "number" &&
                 stat.value > 0 && (
-                  <div className="mt-1.5 h-0.5 w-full overflow-hidden rounded-full bg-[#1a1a24]">
+                  <div className="mt-1.5 h-0.5 w-full overflow-hidden rounded-full bg-background-soft">
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-400 transition-all duration-1000"
+                      className="h-full rounded-full bg-gradient-to-r from-info to-info/80 transition-all duration-1000"
                       style={{
                         width: `${Math.min(stat.value, 100)}%`,
                       }}
@@ -130,7 +130,7 @@ export default function ReferralStats({
                 )}
             </div>
 
-            <div className="absolute bottom-0 left-0 right-0 h-[1.5px] origin-left scale-x-0 bg-gradient-to-r from-green-500 to-emerald-500 transition-transform duration-300 group-hover:scale-x-100" />
+            <div className="absolute bottom-0 left-0 right-0 h-[1.5px] origin-left scale-x-0 bg-gradient-to-r from-primary to-primary-light transition-transform duration-300 group-hover:scale-x-100" />
           </button>
         );
       })}

@@ -30,25 +30,25 @@ export default function NotificationsContainer() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 h-full overflow-y-auto">
+    <div className="mx-auto h-full max-w-4xl overflow-y-auto px-4 py-6">
       {/* Header Section */}
       <div className="mb-8">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/20">
-                <Bell className="h-6 w-6 text-green-400" />
+              <div className="rounded-xl border border-[var(--primary-border)] bg-[var(--primary-soft)] p-2">
+                <Bell className="h-6 w-6 text-[var(--primary)]" />
               </div>
-              <h1 className="text-3xl font-bold text-white tracking-tight">
+              <h1 className="text-3xl font-bold tracking-tight text-[var(--text-primary)]">
                 Notifications
               </h1>
               {unreadCount > 0 && (
-                <span className="inline-flex items-center justify-center min-w-[24px] h-6 rounded-full bg-red-500 px-2 text-xs font-bold text-white shadow-lg shadow-red-500/30">
+                <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded-full bg-[var(--danger)] px-2 text-xs font-bold text-white shadow-lg shadow-[var(--danger)]/30">
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}
             </div>
-            <p className="mt-2 ml-1 text-sm text-[var(--text-primary)]">
+            <p className="mt-2 ml-1 text-sm text-[var(--text-secondary)]">
               Stay updated with referral activity, applications, interviews, and messages.
             </p>
           </div>
@@ -57,7 +57,7 @@ export default function NotificationsContainer() {
           {unreadCount > 0 && (
             <button
               onClick={handleMarkAllAsRead}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--card-hover)] border border-[var(--border)] text-xs font-medium text-[var(--text-secondary)] transition-all hover:border-green-500/30 hover:text-green-400 hover:bg-green-500/5"
+              className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--card-hover)] px-4 py-2 text-xs font-medium text-[var(--text-secondary)] transition-all hover:border-[var(--primary-border)] hover:bg-[var(--primary-soft)] hover:text-[var(--primary)]"
             >
               <CheckCheck className="h-4 w-4" />
               Mark all as read
@@ -68,29 +68,29 @@ export default function NotificationsContainer() {
 
       {/* Filter Bar */}
       <div className="mb-6 flex items-center gap-3">
-        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[var(--card)] border border-[var(--border)]">
+        <div className="flex items-center gap-1.5 rounded-xl border border-[var(--border)] bg-[var(--card)] p-1">
           <button
             onClick={() => setFilter('all')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            className={`rounded-lg px-3.5 py-1.5 text-xs font-medium transition-all ${
               filter === 'all'
                 ? 'bg-[var(--primary)] text-black'
-                : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--card-hover)]'
+                : 'text-[var(--text-muted)] hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)]'
             }`}
           >
             All
           </button>
           <button
             onClick={() => setFilter('unread')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            className={`rounded-lg px-3.5 py-1.5 text-xs font-medium transition-all ${
               filter === 'unread'
                 ? 'bg-[var(--primary)] text-black'
-                : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--card-hover)]'
+                : 'text-[var(--text-muted)] hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)]'
             }`}
           >
             Unread
             {unreadCount > 0 && (
-              <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-[9px] ${
-                filter === 'unread' ? 'bg-black/20 text-black' : 'bg-red-500 text-white'
+              <span className={`ml-1.5 rounded-full px-1.5 py-0.5 text-[9px] ${
+                filter === 'unread' ? 'bg-black/20 text-black' : 'bg-[var(--danger)] text-white'
               }`}>
                 {unreadCount}
               </span>
@@ -98,10 +98,10 @@ export default function NotificationsContainer() {
           </button>
           <button
             onClick={() => setFilter('read')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            className={`rounded-lg px-3.5 py-1.5 text-xs font-medium transition-all ${
               filter === 'read'
                 ? 'bg-[var(--primary)] text-black'
-                : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--card-hover)]'
+                : 'text-[var(--text-muted)] hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)]'
             }`}
           >
             Read
@@ -109,39 +109,39 @@ export default function NotificationsContainer() {
         </div>
 
         {/* Notification Count */}
-        <span className="text-xs text-[var(--text-muted)] ml-auto">
+        <span className="ml-auto text-xs text-[var(--text-muted)]">
           {filteredNotifications.length} notification{filteredNotifications.length !== 1 ? 's' : ''}
         </span>
       </div>
 
-      {/* Notifications List - REMOVED duplicate margin/padding that could cause scroll issues */}
+      {/* Notifications List */}
       <div>
         {notifications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+          <div className="flex flex-col items-center justify-center px-4 py-16 text-center">
             <div className="relative mb-6">
-              <div className="w-24 h-24 rounded-full bg-[var(--card-hover)] flex items-center justify-center">
+              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-[var(--card-hover)]">
                 <Bell className="h-12 w-12 text-[var(--text-muted)]" />
               </div>
-              <div className="absolute -top-1 -right-1 w-8 h-8 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center">
-                <Sparkles className="h-4 w-4 text-green-400" />
+              <div className="absolute -right-1 -top-1 flex h-8 w-8 items-center justify-center rounded-full border border-[var(--primary-border)] bg-[var(--primary-soft)]">
+                <Sparkles className="h-4 w-4 text-[var(--primary)]" />
               </div>
             </div>
-            <h3 className="text-xl font-semibold text-white mb-2">
+            <h3 className="mb-2 text-xl font-semibold text-[var(--text-primary)]">
               No notifications yet
             </h3>
-            <p className="text-sm text-[var(--text-primary)] max-w-sm">
+            <p className="max-w-sm text-sm text-[var(--text-secondary)]">
               You're all caught up! We'll notify you when there's new activity.
             </p>
           </div>
         ) : filteredNotifications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-            <div className="w-20 h-20 rounded-full bg-[var(--card-hover)] flex items-center justify-center mb-4">
+          <div className="flex flex-col items-center justify-center px-4 py-16 text-center">
+            <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-[var(--card-hover)]">
               <Inbox className="h-10 w-10 text-[var(--text-muted)]" />
             </div>
-            <h3 className="text-lg font-semibold text-white mb-1">
+            <h3 className="mb-1 text-lg font-semibold text-[var(--text-primary)]">
               No {filter === 'unread' ? 'unread' : 'read'} notifications
             </h3>
-            <p className="text-sm text-[var(--text-primary)]">
+            <p className="text-sm text-[var(--text-secondary)]">
               {filter === 'unread' 
                 ? 'You have no unread notifications. Great job! 🎉' 
                 : 'You have no read notifications yet.'}
@@ -149,7 +149,7 @@ export default function NotificationsContainer() {
             {filter !== 'all' && (
               <button
                 onClick={() => setFilter('all')}
-                className="mt-4 text-sm text-green-400 hover:text-green-300 transition-colors"
+                className="mt-4 text-sm text-[var(--primary)] transition-colors hover:text-[var(--primary-hover)]"
               >
                 View all notifications →
               </button>
@@ -170,14 +170,14 @@ export default function NotificationsContainer() {
 
       {/* Footer */}
       {notifications.length > 0 && (
-        <div className="mt-6 pt-4 border-t border-[var(--border)] flex justify-between items-center">
+        <div className="mt-6 flex items-center justify-between border-t border-[var(--border)] pt-4">
           <span className="text-xs text-[var(--text-muted)]">
             Showing {filteredNotifications.length} of {notifications.length} notifications
           </span>
           {unreadCount > 0 && (
             <button
               onClick={handleMarkAllAsRead}
-              className="text-xs text-[var(--text-muted)] hover:text-green-400 transition-colors"
+              className="text-xs text-[var(--text-muted)] transition-colors hover:text-[var(--primary)]"
             >
               Mark all as read
             </button>

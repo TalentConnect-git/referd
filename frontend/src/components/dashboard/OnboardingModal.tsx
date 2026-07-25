@@ -83,7 +83,7 @@ export default function OnboardingModal() {
     <>
       <button
         onClick={handleOpen}
-        className="fixed bottom-24 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--card)] text-[var(--primary)] shadow-lg backdrop-blur-xl transition-all hover:scale-110 hover:border-[var(--primary)] hover:shadow-[var(--primary)]/20 md:bottom-6"
+        className="fixed bottom-24 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--card)] text-[var(--primary)] shadow-lg backdrop-blur-xl transition-all hover:scale-110 hover:border-[var(--primary-border)] hover:shadow-[var(--primary)]/20 md:bottom-6"
         aria-label="Help"
       >
         <HelpCircle className="h-5 w-5" />
@@ -98,7 +98,7 @@ export default function OnboardingModal() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={handleClose}
-              className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
+              className="fixed inset-0 z-[100] bg-[var(--overlay)] backdrop-blur-sm"
             />
 
             {/* Modal */}
@@ -109,27 +109,27 @@ export default function OnboardingModal() {
               transition={{ duration: 0.3, ease: "easeOut" }}
               className="fixed left-1/2 top-1/2 z-[101] w-full max-w-md -translate-x-1/2 -translate-y-1/2"
             >
-              <div className="mx-4 rounded-3xl border border-[var(--border)] bg-[var(--card)] shadow-2xl">
+              <div className="surface-card mx-4 rounded-3xl border border-[var(--border)] shadow-2xl">
                 {/* Header */}
-                <div className="flex items-center justify-between border-b border-[var(--border)] px-6 py-4">
+                <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4 sm:px-6">
                   <div className="flex items-center gap-3">
                     <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--primary-soft)] text-[var(--primary)]">
                       <HelpCircle className="h-4 w-4" />
                     </div>
-                    <h2 className="text-[16px] font-semibold text-white">
+                    <h2 className="text-base font-semibold text-[var(--text-primary)]">
                       Welcome to Referd
                     </h2>
                   </div>
                   <button
                     onClick={handleClose}
-                    className="rounded-lg p-1.5 text-[var(--text-muted)] hover:bg-[var(--card-hover)] hover:text-white"
+                    className="rounded-lg p-1.5 text-[var(--text-muted)] transition hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)]"
                   >
                     <X className="h-4 w-4" />
                   </button>
                 </div>
 
                 {/* Progress dots */}
-                <div className="flex justify-center gap-2 px-6 pt-5">
+                <div className="flex justify-center gap-2 px-5 pt-5 sm:px-6">
                   {steps.map((_, index) => (
                     <button
                       key={index}
@@ -139,12 +139,13 @@ export default function OnboardingModal() {
                           ? "w-6 bg-[var(--primary)]"
                           : "w-1.5 bg-[var(--border)]"
                       }`}
+                      aria-label={`Go to step ${index + 1}`}
                     />
                   ))}
                 </div>
 
                 {/* Content */}
-                <div className="px-6 py-5">
+                <div className="px-5 py-5 sm:px-6 sm:py-6">
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={currentStep}
@@ -153,16 +154,16 @@ export default function OnboardingModal() {
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.25 }}
                     >
-                      <span className="mb-3 block font-mono text-[12px] text-[var(--primary)]">
+                      <span className="mb-3 block font-mono text-xs text-[var(--primary)]">
                         {steps[currentStep].num}
                       </span>
                       <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--primary-soft)] text-[var(--primary)]">
                         <StepIcon className="h-5 w-5" />
                       </div>
-                      <h3 className="mb-2 text-[18px] font-semibold text-white">
+                      <h3 className="mb-2 text-lg font-semibold text-[var(--text-primary)]">
                         {steps[currentStep].title}
                       </h3>
-                      <p className="text-[14px] leading-6 text-[var(--text-primary)]">
+                      <p className="text-sm leading-6 text-[var(--text-secondary)]">
                         {steps[currentStep].description}
                       </p>
                     </motion.div>
@@ -170,10 +171,10 @@ export default function OnboardingModal() {
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center justify-between border-t border-[var(--border)] px-6 py-4">
+                <div className="flex items-center justify-between border-t border-[var(--border)] px-5 py-4 sm:px-6">
                   <button
                     onClick={handleClose}
-                    className="text-[13px] font-medium text-[var(--text-muted)] hover:text-white"
+                    className="text-sm font-medium text-[var(--text-muted)] transition hover:text-[var(--text-primary)]"
                   >
                     Skip
                   </button>
@@ -181,14 +182,14 @@ export default function OnboardingModal() {
                     {currentStep > 0 && (
                       <button
                         onClick={handlePrev}
-                        className="rounded-lg border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-[13px] font-medium text-white transition hover:bg-[var(--card-hover)]"
+                        className="btn-secondary rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95"
                       >
                         Back
                       </button>
                     )}
                     <button
                       onClick={handleNext}
-                      className="flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2 text-[13px] font-semibold text-black transition hover:bg-[var(--primary-dark)]"
+                      className="btn-primary flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200 hover:scale-105 active:scale-95"
                     >
                       {currentStep === steps.length - 1
                         ? "Get Started"

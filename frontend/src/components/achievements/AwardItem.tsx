@@ -3,6 +3,7 @@
 
 import { AwardItemType } from "@/types/achievements";
 import { getText, formatDateRange } from "@/lib/achievements-utils";
+import { Award, Building2, Calendar } from "lucide-react";
 
 interface AwardItemProps {
   item: AwardItemType;
@@ -15,25 +16,28 @@ export default function AwardItem({ item }: AwardItemProps) {
   const description = getText(item.description);
 
   return (
-    <div className="rounded-[12px] border border-white/10 bg-[#0b1621] px-4 py-4">
-      <h3 className="text-[14px] font-medium leading-tight text-[#37e875]">
-        🏅 {title}
+    <div className="rounded-[12px] border border-[var(--border)] bg-[var(--background-soft)] px-4 py-4">
+      <h3 className="flex items-center gap-2 text-sm font-medium leading-tight text-[var(--primary)]">
+        <Award className="h-4 w-4" />
+        {title}
       </h3>
 
       {organization && (
-        <p className="mt-1.5 text-[12px] font-medium text-[#7891c7]">
-          🏢 {organization}
+        <p className="mt-1.5 flex items-center gap-2 text-xs font-medium text-[var(--text-muted)]">
+          <Building2 className="h-3.5 w-3.5" />
+          {organization}
         </p>
       )}
 
       {dateRange && (
-        <p className="mt-2 text-[12px] font-medium text-[#7891c7]">
-          📅 {dateRange}
+        <p className="mt-2 flex items-center gap-2 text-xs font-medium text-[var(--text-muted)]">
+          <Calendar className="h-3.5 w-3.5" />
+          {dateRange}
         </p>
       )}
 
       {description && (
-        <p className="mt-3 whitespace-pre-line text-[12px] font-normal leading-5 text-white">
+        <p className="mt-3 whitespace-pre-line text-xs font-normal leading-5 text-[var(--text-secondary)]">
           {description}
         </p>
       )}

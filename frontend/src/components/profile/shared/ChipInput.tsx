@@ -22,18 +22,18 @@ export function ChipInput({ label, value, onChange, placeholder = "Type and pres
 
   return (
     <div>
-      <span className="mb-2 block text-[12px] font-semibold text-[var(--text-primary)]">{label}</span>
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--background)] p-3">
+      <span className="form-label mb-2 block text-[12px]">{label}</span>
+      <div className="surface-card p-3">
         <div className="mb-3 flex flex-wrap gap-2">
           {value.map((item, idx) => (
             <span
               key={`${item}-${idx}`}
-              className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-[12px] font-semibold text-white"
+              className="badge"
             >
               {item}
               <button
                 onClick={() => onChange(value.filter((_, i) => i !== idx))}
-                className="text-[var(--text-muted)] hover:text-red-300"
+                className="text-muted hover:text-danger transition-colors"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -50,7 +50,7 @@ export function ChipInput({ label, value, onChange, placeholder = "Type and pres
             }
           }}
           placeholder={placeholder}
-          className="h-10 w-full bg-transparent px-1 text-[14px] text-white outline-none placeholder:text-[var(--text-muted)]"
+          className="w-full bg-transparent px-1 text-[14px] text-primary outline-none placeholder:text-muted"
         />
       </div>
     </div>

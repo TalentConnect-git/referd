@@ -3,16 +3,75 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import { useState, useRef, useEffect, useMemo } from "react";
 import Image from "next/image";
 import logo from "@/assets/icon.png";
+import { Moon, Sun, ChevronDown } from "lucide-react";
 
 const navLinks = [
   { label: "Product", href: "#product" },
   { label: "Referrals", href: "#referrals" },
-  { label: "Network", href: "#network" },
+  { label: "Network", href: "/network" },
   { label: "How it works", href: "#how-it-works" },
 ];
+
+// Theme toggle component using ThemeContext with error handling
+function ThemeToggle() {
+  let theme = "dark";
+  let toggleTheme = () => {};
+  
+  try {
+    const themeContext = useTheme();
+    theme = themeContext.theme;
+    toggleTheme = themeContext.toggleTheme;
+  } catch (error) {
+    // If ThemeProvider is not available, use localStorage directly
+    console.warn("ThemeProvider not found, using localStorage fallback");
+  }
+
+  // Fallback toggle function if ThemeProvider is not available
+  const handleToggle = () => {
+    try {
+      toggleTheme();
+    } catch {
+      // Fallback: toggle manually
+      const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
+      const newTheme = currentTheme === "light" ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", newTheme);
+      localStorage.setItem("theme", newTheme);
+      // Force re-render by updating a local state
+      window.dispatchEvent(new Event("themeChange"));
+    }
+  };
+
+  // Listen for theme changes from localStorage fallback
+  useEffect(() => {
+    const handleThemeChange = () => {
+      const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
+      if (savedTheme) {
+        document.documentElement.setAttribute("data-theme", savedTheme);
+      }
+    };
+    
+    window.addEventListener("themeChange", handleThemeChange);
+    return () => window.removeEventListener("themeChange", handleThemeChange);
+  }, []);
+
+  return (
+    <button
+      onClick={handleToggle}
+      className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--text-secondary)] transition-all duration-200 hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)] hover:shadow-sm focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2"
+      aria-label="Toggle theme"
+    >
+      {theme === "light" ? (
+        <Moon className="h-4 w-4" />
+      ) : (
+        <Sun className="h-4 w-4" />
+      )}
+    </button>
+  );
+}
 
 export default function Navbar() {
   const router = useRouter();
@@ -78,6 +137,10 @@ export default function Navbar() {
     }
   };
 
+  const getNetworkRoute = () => {
+    return `/${userType}/alumani-network`;
+  };
+
   const handleLogout = async () => {
     setDropdownOpen(false);
     await logout();
@@ -85,12 +148,12 @@ export default function Navbar() {
   };
 
   return (
-    <header className="fixed left-0 top-0 z-50 w-full border-b border-[var(--border)] bg-[var(--background)]/75 backdrop-blur-xl">
-      <nav className="mx-auto flex h-13 max-w-7xl items-center justify-between px-5 sm:px-8">
-        <div className="flex items-center gap-10">
-          <Link href="/" className="flex items-center gap-0.5 group">
-            {/* Logo Image */}
-            <div className="relative h-5 w-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
+    <header className="global-navbar fixed left-0 top-0 z-50 w-full">
+      <nav className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Logo Section */}
+        <div className="flex items-center gap-8 lg:gap-10">
+          <Link href="/" className="flex items-center gap-1.5 group">
+            <div className="relative h-6 w-6 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
               <Image
                 src={logo}
                 alt="Referd Logo"
@@ -100,94 +163,134 @@ export default function Navbar() {
               />
             </div>
 
-            {/* Text with dot */}
-            <span className="text-[13px] font-medium tracking-tight text-white transition-colors duration-200 group-hover:text-[var(--primary)]">
+            <span className="text-sm font-medium tracking-tight text-[var(--text-primary)] transition-colors duration-200 group-hover:text-[var(--primary)]">
               referd
               <span className="text-[var(--primary)]">.</span>
             </span>
           </Link>
 
-          <div className="hidden items-center gap-8 md:flex">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-[13px] font-medium text-[var(--text-primary)] transition hover:text-white"
-              >
-                {link.label}
-              </Link>
-            ))}
+          {/* Desktop Navigation Links */}
+          <div className="hidden items-center gap-6 lg:flex">
+            {navLinks.map((link) => {
+              if (link.label === "Network") {
+                return (
+                  <Link
+                    key={link.href}
+                    href={getNetworkRoute()}
+                    className="text-sm font-medium text-[var(--text-secondary)] transition-all duration-200 hover:text-[var(--text-primary)] hover:scale-105"
+                  >
+                    {link.label}
+                  </Link>
+                );
+              }
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm font-medium text-[var(--text-secondary)] transition-all duration-200 hover:text-[var(--text-primary)] hover:scale-105"
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
         </div>
 
-        <div className="flex items-center gap-6">
+        {/* Right Section */}
+        <div className="flex items-center gap-3 sm:gap-4">
+          <ThemeToggle />
+
           {!isAuthenticated ? (
             <>
               <Link
                 href="/login"
-                className="hidden text-[13px] font-medium text-[var(--text-primary)] transition hover:text-white sm:inline-flex"
+                className="hidden text-sm font-medium text-[var(--text-secondary)] transition-all duration-200 hover:text-[var(--text-primary)] hover:scale-105 sm:inline-flex"
               >
                 Sign in
               </Link>
+              
               <Link
                 href="/signup"
-                className="button-color rounded-lg px-4 py-2 text-[13px] font-mono transition hover:opacity-90"
+                className="btn-primary rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 Get Started
               </Link>
             </>
           ) : (
-            <div className="relative" ref={dropdownRef}>
-              <button
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--primary)] bg-[var(--primary-soft)] text-[13px] font-semibold text-white transition hover:border-[var(--primary)] hover:brightness-110"
+            <>
+              <Link
+                href={getDashboardRoute()}
+                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-[var(--text-secondary)] transition-all duration-200 hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)] lg:hidden"
               >
-                {displayName.charAt(0).toUpperCase()}
-              </button>
+                <span>Dashboard</span>
+              </Link>
 
-              {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 rounded-lg border border-[var(--border)] bg-[var(--background)] shadow-lg">
-                  <div className="border-b border-[var(--border)] px-4 py-3">
-                    <p className="text-[12px] text-[var(--text-muted)]">
-                      Logged in as
-                    </p>
-                    <p className="text-[13px] font-semibold text-white truncate">
-                      {displayName}
-                    </p>
-                    <p className="text-[12px] text-[var(--text-muted)] truncate">
-                      {displayEmail}
-                    </p>
+              {/* User Dropdown */}
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] px-2 py-1.5 pr-2 text-[var(--text-primary)] transition-all duration-200 hover:bg-[var(--card-hover)] hover:border-[var(--border-strong)] focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2 sm:px-3 sm:py-2"
+                >
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--primary-soft)] text-sm font-semibold text-[var(--primary)]">
+                    {displayName.charAt(0).toUpperCase()}
+                  </span>
+                  <span className="hidden max-w-[80px] truncate text-sm font-medium sm:inline-block">
+                    {displayName}
+                  </span>
+                  <ChevronDown 
+                    className={`h-4 w-4 text-[var(--text-muted)] transition-transform duration-200 ${
+                      dropdownOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {dropdownOpen && (
+                  <div className="animate-slide-in-up absolute right-0 mt-2 w-56 origin-top-right rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-lg">
+                    <div className="border-b border-[var(--border)] px-4 py-3">
+                      <p className="text-xs font-medium text-[var(--text-muted)]">
+                        Logged in as
+                      </p>
+                      <p className="mt-0.5 text-sm font-semibold text-[var(--text-primary)] truncate">
+                        {displayName}
+                      </p>
+                      <p className="text-xs text-[var(--text-muted)] truncate">
+                        {displayEmail}
+                      </p>
+                    </div>
+
+                    <div className="py-2">
+                      <Link
+                        href={getDashboardRoute()}
+                        onClick={() => setDropdownOpen(false)}
+                        className="sidebar-item px-4 py-2.5 text-sm"
+                      >
+                        <span className="text-base">📊</span>
+                        Dashboard
+                      </Link>
+
+                      <Link
+                        href={getProfileRoute()}
+                        onClick={() => setDropdownOpen(false)}
+                        className="sidebar-item px-4 py-2.5 text-sm"
+                      >
+                        <span className="text-base">👤</span>
+                        Profile
+                      </Link>
+                    </div>
+
+                    <div className="border-t border-[var(--border)] py-2">
+                      <button
+                        onClick={handleLogout}
+                        className="w-full px-4 py-2.5 text-left text-sm text-[var(--danger)] transition-all duration-200 hover:bg-[var(--danger-soft)]"
+                      >
+                        <span className="mr-2">🚪</span>
+                        Logout
+                      </button>
+                    </div>
                   </div>
-
-                  <div className="py-2">
-                    <Link
-                      href={getDashboardRoute()}
-                      onClick={() => setDropdownOpen(false)}
-                      className="flex items-center px-4 py-2 text-[13px] text-[var(--text-primary)] transition hover:bg-white/5 hover:text-white"
-                    >
-                      📊 Dashboard
-                    </Link>
-
-                    <Link
-                      href={getProfileRoute()}
-                      onClick={() => setDropdownOpen(false)}
-                      className="flex items-center px-4 py-2 text-[13px] text-[var(--text-primary)] transition hover:bg-white/5 hover:text-white"
-                    >
-                      👤 Profile
-                    </Link>
-                  </div>
-
-                  <div className="border-t border-[var(--border)] py-2">
-                    <button
-                      onClick={handleLogout}
-                      className="w-full px-4 py-2 text-left text-[13px] text-red-400 transition hover:bg-red-400/10"
-                    >
-                      🚪 Logout
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            </>
           )}
         </div>
       </nav>

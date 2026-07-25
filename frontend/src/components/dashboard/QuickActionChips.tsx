@@ -35,7 +35,7 @@ export default function QuickActionChips({ userType }: QuickActionChipsProps) {
           <Link
             key={action.href}
             href={`/${userType}/${action.href}`}
-            className="inline-flex h-10 items-center gap-2 rounded-full border border-[#1e293b] bg-[#0f172a] px-4 text-[13px] font-medium text-white transition hover:border-[var(--primary)] hover:bg-[var(--primary-soft)] hover:text-[var(--primary)]"
+            className="inline-flex h-10 items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)] px-4 text-sm font-medium text-[var(--text-secondary)] transition-all duration-200 hover:border-[var(--primary-border)] hover:bg-[var(--primary-soft)] hover:text-[var(--primary)] hover:shadow-sm hover:scale-[1.02] active:scale-[0.98]"
           >
             <Icon className="h-4 w-4" />
             <span>{action.label}</span>

@@ -37,9 +37,9 @@ const showInfoToast = (message: string) => {
     icon: "ℹ️",
     duration: 3000,
     style: {
-      background: "#1a2332",
-      color: "#fff",
-      border: "1px solid #3b82f6",
+      background: "var(--card)",
+      color: "var(--text-primary)",
+      border: "1px solid var(--info-border)",
       borderRadius: "8px",
       padding: "10px 16px",
     },
@@ -50,9 +50,9 @@ const showSuccessToast = (message: string) => {
   toast.success(message, {
     duration: 3000,
     style: {
-      background: "#1a2332",
-      color: "#fff",
-      border: "1px solid #22c55e",
+      background: "var(--card)",
+      color: "var(--text-primary)",
+      border: "1px solid var(--success-border)",
       borderRadius: "8px",
       padding: "10px 16px",
     },
@@ -63,9 +63,9 @@ const showErrorToast = (message: string) => {
   toast.error(message, {
     duration: 3000,
     style: {
-      background: "#1a2332",
-      color: "#fff",
-      border: "1px solid #ef4444",
+      background: "var(--card)",
+      color: "var(--text-primary)",
+      border: "1px solid var(--danger-border)",
       borderRadius: "8px",
       padding: "10px 16px",
     },
@@ -109,23 +109,23 @@ export default function JobCard({
   // Get match score color and label
   const getMatchScoreColor = (score?: number): string => {
     const numericScore = Number(score) || 0;
-    if (numericScore >= 75) return "text-green-400";
-    if (numericScore >= 40) return "text-orange-400";
-    return "text-red-400";
+    if (numericScore >= 75) return "text-[var(--success)]";
+    if (numericScore >= 40) return "text-[var(--warning)]";
+    return "text-[var(--danger)]";
   };
 
   const getMatchScoreBg = (score?: number): string => {
     const numericScore = Number(score) || 0;
-    if (numericScore >= 75) return "bg-green-500";
-    if (numericScore >= 40) return "bg-orange-500";
-    return "bg-red-500";
+    if (numericScore >= 75) return "bg-[var(--success)]";
+    if (numericScore >= 40) return "bg-[var(--warning)]";
+    return "bg-[var(--danger)]";
   };
 
   const getMatchScoreBorder = (score?: number): string => {
     const numericScore = Number(score) || 0;
-    if (numericScore >= 75) return "border-green-500/30";
-    if (numericScore >= 40) return "border-orange-500/30";
-    return "border-red-500/30";
+    if (numericScore >= 75) return "border-[var(--success-border)]";
+    if (numericScore >= 40) return "border-[var(--warning-border)]";
+    return "border-[var(--danger-border)]";
   };
 
   const getMatchScoreLabel = (score?: number): string => {
@@ -290,65 +290,47 @@ export default function JobCard({
     <div
       onClick={() => router.push(`${route}?matchScore=${matchScore ?? 0}`)}
       className={`
-        cursor-pointer
-        rounded-2xl
-        border
-        border-[var(--border)]
-        bg-[var(--card)]
-        p-4
-        transition-all
-        duration-300
-        hover:border-green-500/50
-        hover:shadow-lg
-        hover:shadow-green-500/5
-        relative
-        group
+        surface-card group relative cursor-pointer
+        rounded-2xl p-4
+        transition-all duration-300
+        hover:border-[var(--primary-border)]
+        hover:shadow-md
         ${isRemovingCard || isRemoving ? 
-          'opacity-0 scale-95 transform pointer-events-none' : 
-          'opacity-100 scale-100'
+          'pointer-events-none scale-95 opacity-0' : 
+          'scale-100 opacity-100'
         }
-        ${isRemovingCard ? 'max-h-0 overflow-hidden p-0 m-0 border-0' : ''}
+        ${isRemovingCard ? 'm-0 max-h-0 overflow-hidden border-0 p-0' : ''}
       `}
       style={{
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
       }}
     >
       {/* Row 1: Company & Title + Match Score */}
-      <div className="flex justify-between items-start">
-        <div className="flex gap-3 min-w-0 flex-1">
+      <div className="flex items-start justify-between">
+        <div className="flex min-w-0 flex-1 gap-3">
           {/* Company Avatar */}
           <div
             className="
-              h-10
-              w-10
-              rounded-xl
-              border
-              border-gray-600/30
-              text-gray-300
-              flex
-              items-center
-              justify-center
-              text-base
-              font-bold
-              bg-gray-800/30
-              flex-shrink-0
+              flex h-10 w-10 flex-shrink-0 items-center
+              justify-center rounded-xl border border-[var(--border)]
+              bg-[var(--background-soft)] text-base font-bold text-[var(--text-secondary)]
             "
           >
             {company?.charAt(0).toUpperCase() || "?"}
           </div>
 
           <div className="min-w-0 flex-1">
-            <h3 className="text-base font-semibold text-white truncate pr-2">
+            <h3 className="truncate pr-2 text-base font-semibold text-[var(--text-primary)]">
               {title}
             </h3>
-            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-              <p className="text-xs text-zinc-400 truncate">{company}</p>
+            <div className="mt-0.5 flex flex-wrap items-center gap-2">
+              <p className="truncate text-xs text-[var(--text-muted)]">{company}</p>
 
               {workMode && (
                 <>
-                  <div className="w-px h-3 bg-[var(--border)]" />
-                  <div className="flex items-center gap-1 text-zinc-400 text-xs">
-                    <Briefcase className="w-3 h-3" />
+                  <div className="h-3 w-px bg-[var(--border)]" />
+                  <div className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
+                    <Briefcase className="h-3 w-3" />
                     <span className="capitalize">{workMode}</span>
                   </div>
                 </>
@@ -356,10 +338,10 @@ export default function JobCard({
 
               {location && (
                 <>
-                  <div className="w-px h-3 bg-[var(--border)]" />
-                  <div className="flex items-center gap-1 text-zinc-400 text-xs">
-                    <MapPin className="w-3 h-3" />
-                    <span className="truncate max-w-[100px]">{location}</span>
+                  <div className="h-3 w-px bg-[var(--border)]" />
+                  <div className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
+                    <MapPin className="h-3 w-3" />
+                    <span className="max-w-[100px] truncate">{location}</span>
                   </div>
                 </>
               )}
@@ -369,18 +351,11 @@ export default function JobCard({
 
         {/* Match Score - With Color Coding */}
         {matchScore !== undefined && matchScore !== null && (
-          <div className="flex flex-col items-end gap-0.5 ml-2 flex-shrink-0">
+          <div className="ml-2 flex flex-shrink-0 flex-col items-end gap-0.5">
             <div
               className={`
-                inline-flex
-                items-center
-                rounded-full
-                border
-                px-2.5
-                py-0.5
-                text-xs
-                font-bold
-                whitespace-nowrap
+                inline-flex items-center rounded-full border
+                px-2.5 py-0.5 text-xs font-bold whitespace-nowrap
                 ${matchBorder}
                 ${matchColor}
                 bg-opacity-10
@@ -401,17 +376,17 @@ export default function JobCard({
       </div>
 
       {/* Divider */}
-      <div className="mt-2.5 pt-2.5 border-t border-[var(--border)]" />
+      <div className="mt-2.5 border-t border-[var(--border)] pt-2.5" />
       
       {/* Row 2: ALL elements in a single flex row */}
-      <div className="flex items-center justify-between gap-2 flex-wrap">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         {/* Left Side: Location, Posted By, Secondary Info */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex flex-wrap items-center gap-2">
           {postedBy && (
             <>
-              <div className="w-px h-3 bg-[var(--border)]" />
-              <div className="flex items-center gap-1 text-zinc-400 text-xs">
-                <User className="w-3 h-3" />
+              <div className="h-3 w-px bg-[var(--border)]" />
+              <div className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
+                <User className="h-3 w-3" />
                 <span>By {postedBy}</span>
               </div>
             </>
@@ -420,10 +395,10 @@ export default function JobCard({
           {/* Alumni Count */}
           {alumniCount !== undefined && alumniCount !== null && (
             <>
-              <div className="w-px h-3 bg-[var(--border)]" />
+              <div className="h-3 w-px bg-[var(--border)]" />
               <div className="flex items-center gap-1 text-xs">
-                <Users className="w-3 h-3 text-green-400" />
-                <span className="font-semibold text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full border border-green-500/20">
+                <Users className="h-3 w-3 text-[var(--primary)]" />
+                <span className="badge badge-success rounded-full px-2 py-0.5 font-semibold">
                   {alumniCount} Alumni{alumniCount !== 1 ? "s" : ""}
                 </span>
               </div>
@@ -433,48 +408,42 @@ export default function JobCard({
           {/* Package Details */}
           {packageDisplay && (
             <>
-              <div className="w-px h-3 bg-[var(--border)]" />
+              <div className="h-3 w-px bg-[var(--border)]" />
               <div className="flex items-center gap-1.5">
-                <span className="text-sm font-semibold text-white whitespace-nowrap">
+                <span className="whitespace-nowrap text-sm font-semibold text-[var(--text-primary)]">
                   {packageDisplay}
                 </span>
                 {packageDetails?.totalCTC && (
-                  <span className="text-[10px] text-zinc-500 font-medium">
+                  <span className="text-[10px] font-medium text-[var(--text-muted)]">
                     CTC
                   </span>
                 )}
               </div>
             </>
           )}
-
-          
         </div>
 
         {/* Right Side: Save Button & View Details */}
-        <div className="flex items-center gap-1.5 flex-shrink-0">
+        <div className="flex flex-shrink-0 items-center gap-1.5">
           {/* Save Button */}
           {jobId && (
             <button
               onClick={handleSaveToggle}
               disabled={isSaving || isRemovingCard}
               className="
-                p-1.5
-                rounded-full
-                transition-all
-                duration-200
-                hover:bg-white/5
-                disabled:opacity-50
-                disabled:cursor-not-allowed
-                relative
+                relative rounded-full p-1.5
+                transition-all duration-200
+                hover:bg-[var(--card-hover)]
+                disabled:cursor-not-allowed disabled:opacity-50
               "
               aria-label={saved ? "Unsave job" : "Save job"}
             >
               {isSaving ? (
-                <Loader2 className="w-3.5 h-3.5 text-zinc-400 animate-spin" />
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--text-muted)]" />
               ) : saved ? (
-                <BookmarkCheck className="w-3.5 h-3.5 text-green-500 fill-green-500" />
+                <BookmarkCheck className="h-3.5 w-3.5 fill-[var(--success)] text-[var(--success)]" />
               ) : (
-                <Bookmark className="w-3.5 h-3.5 text-zinc-500 hover:text-white transition-colors" />
+                <Bookmark className="h-3.5 w-3.5 text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]" />
               )}
             </button>
           )}
@@ -482,21 +451,15 @@ export default function JobCard({
           {/* View Details Link */}
           <span
             className="
-              text-xs
-              text-zinc-400 
-              font-medium 
-              transition-all 
-              duration-200 
-              hover:text-green-500 
-              inline-flex
-              items-center
-              gap-0.5
-              whitespace-nowrap
+              inline-flex items-center gap-0.5
+              whitespace-nowrap text-xs font-medium
+              text-[var(--text-muted)] transition-all duration-200
+              hover:text-[var(--primary)]
             "
           >
             View
             <svg
-              className="w-3 h-3 transition-transform duration-200 group-hover:translate-x-0.5"
+              className="h-3 w-3 transition-transform duration-200 group-hover:translate-x-0.5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -514,9 +477,9 @@ export default function JobCard({
 
       {/* Remove indicator badge */}
       {isRemovingCard && (
-        <div className="absolute inset-0 flex items-center justify-center bg-[var(--card)]/80 backdrop-blur-sm rounded-2xl">
-          <div className="flex items-center gap-2 text-green-400">
-            <Loader2 className="w-5 h-5 animate-spin" />
+        <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-[var(--card)]/80 backdrop-blur-sm">
+          <div className="flex items-center gap-2 text-[var(--primary)]">
+            <Loader2 className="h-5 w-5 animate-spin" />
             <span className="text-sm font-medium">Removing...</span>
           </div>
         </div>

@@ -119,17 +119,17 @@ export default function ReferralContainer() {
   // Loading State
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#0a0a0f] to-[#111118]">
+      <div className="min-h-screen bg-gradient-to-b from-background to-background-soft">
         <ReferralHeader />
         <div className="flex items-center justify-center h-[50vh]">
           <div className="flex flex-col items-center gap-3">
             <div className="relative">
-              <div className="w-12 h-12 rounded-full border-3 border-green-500/20 border-t-green-500 animate-spin"></div>
+              <div className="w-12 h-12 rounded-full border-3 border-primary/20 border-t-primary animate-spin"></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-6 h-6 rounded-full bg-green-500/10"></div>
+                <div className="w-6 h-6 rounded-full bg-primary/10"></div>
               </div>
             </div>
-            <p className="text-xs text-gray-500 animate-pulse">Loading your referrals...</p>
+            <p className="text-xs text-muted animate-pulse">Loading your referrals...</p>
           </div>
         </div>
       </div>
@@ -137,7 +137,7 @@ export default function ReferralContainer() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0a0a0f] to-[#111118]">
+    <div className="min-h-screen bg-gradient-to-b from-background to-background-soft">
       {/* Header */}
       <div className="px-4 sm:px-6 pt-4">
         <ReferralHeader />
@@ -167,42 +167,42 @@ export default function ReferralContainer() {
           <>
             {/* Stats Overview - Reduced Size */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-              <div className="bg-[#111118] rounded-lg border border-[#1a1a24] p-3 hover:border-green-500/20 transition-all duration-300">
+              <div className="card bg-background-soft rounded-lg border border-theme p-3 hover:border-primary/20 transition-all duration-300">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wider">Total Referrals</p>
-                    <p className="text-xl font-bold text-white mt-0.5">{referrals.length}</p>
+                    <p className="text-[10px] text-muted font-medium uppercase tracking-wider">Total Referrals</p>
+                    <p className="text-xl font-bold text-primary mt-0.5">{referrals.length}</p>
                   </div>
-                  <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
-                    <BarChart3 className="w-4 h-4 text-green-400" />
+                  <div className="w-8 h-8 rounded-lg bg-primary-soft flex items-center justify-center">
+                    <BarChart3 className="w-4 h-4 text-primary" />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-[#111118] rounded-lg border border-[#1a1a24] p-3 hover:border-green-500/20 transition-all duration-300">
+              <div className="card bg-background-soft rounded-lg border border-theme p-3 hover:border-primary/20 transition-all duration-300">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wider">Active</p>
-                    <p className="text-xl font-bold text-green-400 mt-0.5">
+                    <p className="text-[10px] text-muted font-medium uppercase tracking-wider">Active</p>
+                    <p className="text-xl font-bold text-success mt-0.5">
                       {referrals.filter(r => !r.inactive).length}
                     </p>
                   </div>
-                  <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
-                    <div className="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse"></div>
+                  <div className="w-8 h-8 rounded-lg bg-success-soft flex items-center justify-center">
+                    <div className="w-2.5 h-2.5 rounded-full bg-success animate-pulse"></div>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-[#111118] rounded-lg border border-[#1a1a24] p-3 hover:border-yellow-500/20 transition-all duration-300">
+              <div className="card bg-background-soft rounded-lg border border-theme p-3 hover:border-warning/20 transition-all duration-300">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wider">Paused</p>
-                    <p className="text-xl font-bold text-yellow-400 mt-0.5">
+                    <p className="text-[10px] text-muted font-medium uppercase tracking-wider">Paused</p>
+                    <p className="text-xl font-bold text-warning mt-0.5">
                       {referrals.filter(r => r.inactive).length}
                     </p>
                   </div>
-                  <div className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center">
-                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
+                  <div className="w-8 h-8 rounded-lg bg-warning-soft flex items-center justify-center">
+                    <div className="w-2.5 h-2.5 rounded-full bg-warning"></div>
                   </div>
                 </div>
               </div>
@@ -223,7 +223,7 @@ export default function ReferralContainer() {
 
             {/* Pagination */}
             {referrals.length > 0 && (
-              <div className="mt-6 pt-4 border-t border-[#1a1a24]">
+              <div className="mt-6 pt-4 border-t border-divider">
                 <ReferralPagination
                   page={page}
                   totalPages={meta.totalPages}
@@ -239,17 +239,17 @@ export default function ReferralContainer() {
           /* Empty State - Reduced Size */
           <div className="flex items-center justify-center min-h-[50vh]">
             <div className="max-w-sm w-full">
-              <div className="bg-[#111118] rounded-xl border border-[#1a1a24] p-6 sm:p-8 text-center">
-                <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-3">
-                  <Inbox className="w-8 h-8 text-green-400/60" />
+              <div className="card bg-background-soft rounded-xl border border-theme p-6 sm:p-8 text-center">
+                <div className="w-16 h-16 rounded-full bg-primary-soft flex items-center justify-center mx-auto mb-3">
+                  <Inbox className="w-8 h-8 text-primary/60" />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-1.5">No Referrals Yet</h3>
-                <p className="text-xs text-gray-400 leading-relaxed">
+                <h3 className="text-lg font-semibold text-primary mb-1.5">No Referrals Yet</h3>
+                <p className="text-xs text-muted leading-relaxed">
                   You haven't posted any referrals yet. Start by posting your first referral opportunity.
                 </p>
                 <button
                   onClick={() => window.location.href = '/professional/post-referral'}
-                  className="mt-4 inline-flex items-center gap-1.5 px-5 py-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 text-black font-semibold text-sm hover:shadow-lg hover:shadow-green-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                  className="btn-primary mt-4 inline-flex items-center gap-1.5 px-5 py-2 rounded-lg bg-gradient-to-r from-primary to-primary-light text-inverse font-semibold text-sm hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Post Your First Referral
                 </button>

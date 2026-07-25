@@ -1450,16 +1450,16 @@ export default function EditProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[var(--background)] text-white">
+      <div className="flex min-h-screen items-center justify-center bg-[var(--background)] text-[var(--text-primary)]">
         <Loader2 className="mr-2 h-5 w-5 animate-spin text-[var(--primary)]" />
-        Loading profile...
+        <span className="text-sm text-[var(--text-muted)]">Loading profile...</span>
       </div>
     );
   }
 
   if (error && !form) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[var(--background)] px-6 text-center text-red-400">
+      <div className="flex min-h-screen items-center justify-center bg-[var(--background)] px-6 text-center text-[var(--danger)]">
         {error}
       </div>
     );
@@ -1479,15 +1479,15 @@ export default function EditProfilePage() {
   console.log("Parent statusData:", statusData);
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-white">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)]">
       {toast && (
         <div
           role="alert"
           aria-live="assertive"
           className={`fixed right-4 top-4 z-[100] max-w-sm rounded-xl border px-4 py-3 text-sm font-medium shadow-2xl backdrop-blur ${
             toast.type === "success"
-              ? "border-emerald-500/40 bg-emerald-950/95 text-emerald-200"
-              : "border-red-500/40 bg-red-950/95 text-red-200"
+              ? "border-[var(--success-border)] bg-[var(--success-soft)] text-[var(--success)]"
+              : "border-[var(--danger-border)] bg-[var(--danger-soft)] text-[var(--danger)]"
           }`}
         >
           {toast.message}
@@ -1499,14 +1499,14 @@ export default function EditProfilePage() {
           <button
             type="button"
             onClick={() => router.back()}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--card)] text-white transition hover:bg-[var(--card-hover)]"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--card)] text-[var(--text-primary)] transition hover:bg-[var(--card-hover)]"
           >
             <ArrowLeft className="h-4 w-4" />
           </button>
 
           <div>
-            <h1 className="text-[16px] font-semibold">Edit Profile</h1>
-            <p className="mt-1 text-[12px] text-[var(--text-muted)]">
+            <h1 className="text-base font-semibold text-[var(--text-primary)]">Edit Profile</h1>
+            <p className="mt-1 text-xs text-[var(--text-muted)]">
               Update your information section by section
             </p>
           </div>
@@ -1515,22 +1515,22 @@ export default function EditProfilePage() {
         <button
           type="button"
           onClick={cancelChanges}
-          className="rounded-lg border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-[13px] font-semibold text-white transition hover:bg-[var(--card-hover)]"
+          className="btn-secondary rounded-lg px-4 py-2 text-sm font-semibold"
         >
           Reset
         </button>
       </header>
 
       <main className="grid gap-6 px-4 py-7 sm:px-8 lg:grid-cols-[340px_1fr]">
-        <aside className="h-fit rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 lg:sticky lg:top-6">
+        <aside className="surface-card h-fit rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 lg:sticky lg:top-6">
           <div className="mb-6">
-            <p className="text-[12px] uppercase tracking-wide text-[var(--text-muted)]">
+            <p className="text-xs uppercase tracking-wide text-[var(--text-muted)]">
               Editing
             </p>
-            <h2 className="mt-1 text-[20px] font-bold text-white">
+            <h2 className="mt-1 text-xl font-bold text-[var(--text-primary)]">
               {displayName}
             </h2>
-            <p className="mt-1 text-[13px] text-[var(--text-primary)]">
+            <p className="mt-1 text-sm text-[var(--text-secondary)]">
               Click any section to edit
             </p>
           </div>
@@ -1624,13 +1624,13 @@ export default function EditProfilePage() {
 
         <section className="space-y-4">
           {error && (
-            <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-[13px] text-red-300">
+            <div className="rounded-xl border border-[var(--danger-border)] bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-[13px] text-emerald-300">
+            <div className="rounded-xl border border-[var(--success-border)] bg-[var(--success-soft)] px-4 py-3 text-sm text-[var(--success)]">
               {success}
             </div>
           )}

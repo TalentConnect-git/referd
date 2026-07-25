@@ -65,7 +65,6 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
 
       console.log("📊 Alumni Counts:", {
         hiring: hiringCount,
-
         total: hiringCount,
       });
 
@@ -154,7 +153,7 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
         {[1, 2, 3, 4, 5, 6].map((item) => (
           <div
             key={item}
-            className="flex-1 min-w-[140px] h-28 animate-pulse rounded-2xl border border-[#1e293b] bg-[#0f172a]"
+            className="skeleton min-w-[140px] flex-1 h-28 rounded-2xl border border-[var(--border)] bg-[var(--card)]"
           />
         ))}
       </div>
@@ -186,7 +185,6 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
             alumniCount={studentAlumniCount}
             userType={userType}
           />
-          
         </>
       )}
     </>

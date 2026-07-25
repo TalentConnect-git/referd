@@ -22,7 +22,7 @@ export const MessageInput = memo(forwardRef<HTMLInputElement, MessageInputProps>
   disabled = false
 }, ref) => {
   return (
-    <div className="p-4 border-t border-[#242d3a] bg-[#111821] flex-shrink-0">
+    <div className="p-4 border-t border-divider bg-card-soft flex-shrink-0">
       <div className="flex gap-3">
         <input
           ref={ref}
@@ -32,15 +32,15 @@ export const MessageInput = memo(forwardRef<HTMLInputElement, MessageInputProps>
           onKeyDown={onKeyDown}
           placeholder={placeholder}
           disabled={disabled}
-          className="flex-1 bg-[#070b12] text-white text-sm rounded-xl px-4 py-3 border border-[#242d3a] focus:border-[#2fb344] focus:outline-none transition-colors placeholder:text-slate-500 disabled:opacity-50"
+          className="input-field flex-1 bg-background text-primary text-sm rounded-xl px-4 py-3 border border-theme focus:border-primary focus:outline-none transition-colors placeholder:text-muted disabled:opacity-50"
         />
         <button
           onClick={onSend}
           disabled={!value.trim() || disabled}
           className={`px-5 py-3 rounded-xl transition-all flex items-center gap-2 ${
             value.trim() && !disabled
-              ? "bg-[#2fb344] text-white hover:bg-[#259a3a] hover:scale-105 active:scale-95"
-              : "bg-[#1a2430] text-slate-500 cursor-not-allowed"
+              ? "btn-primary bg-primary text-inverse hover:bg-primary-hover hover:scale-105 active:scale-95"
+              : "bg-background-soft text-muted cursor-not-allowed"
           }`}
         >
           <Send className="w-4 h-4" />

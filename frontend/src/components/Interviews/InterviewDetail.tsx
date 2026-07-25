@@ -52,26 +52,26 @@ export default function InterviewDetail({
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Scheduled":
-        return "text-green-400 bg-green-500/10 border-green-500/20";
+        return "text-[var(--success)] bg-[var(--success-soft)] border-[var(--success-border)]";
       case "Completed":
-        return "text-blue-400 bg-blue-500/10 border-blue-500/20";
+        return "text-[var(--info)] bg-[var(--info-soft)] border-[var(--info-border)]";
       case "Missed":
-        return "text-red-400 bg-red-500/10 border-red-500/20";
+        return "text-[var(--danger)] bg-[var(--danger-soft)] border-[var(--danger-border)]";
       default:
-        return "text-gray-400 bg-gray-500/10 border-gray-500/20";
+        return "text-[var(--text-muted)] bg-[var(--background-soft)] border-[var(--border)]";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "Scheduled":
-        return <CalendarDays className="w-3.5 h-3.5 text-green-400" />;
+        return <CalendarDays className="h-3.5 w-3.5 text-[var(--success)]" />;
       case "Completed":
-        return <CheckCircle2 className="w-3.5 h-3.5 text-blue-400" />;
+        return <CheckCircle2 className="h-3.5 w-3.5 text-[var(--info)]" />;
       case "Missed":
-        return <XCircle className="w-3.5 h-3.5 text-red-400" />;
+        return <XCircle className="h-3.5 w-3.5 text-[var(--danger)]" />;
       default:
-        return <CalendarDays className="w-3.5 h-3.5 text-gray-400" />;
+        return <CalendarDays className="h-3.5 w-3.5 text-[var(--text-muted)]" />;
     }
   };
 
@@ -83,13 +83,13 @@ export default function InterviewDetail({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
+      <div className="flex h-96 items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="relative">
-            <Loader2 className="w-8 h-8 animate-spin text-green-400" />
-            <div className="absolute inset-0 w-8 h-8 rounded-full border-2 border-green-400/20 animate-ping" />
+            <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
+            <div className="absolute inset-0 h-8 w-8 animate-ping rounded-full border-2 border-[var(--primary)]/20" />
           </div>
-          <p className="text-gray-400 text-xs">Loading interview details...</p>
+          <p className="text-xs text-[var(--text-muted)]">Loading interview details...</p>
         </div>
       </div>
     );
@@ -97,20 +97,20 @@ export default function InterviewDetail({
 
   if (error || !interview) {
     return (
-      <div className="flex flex-col items-center justify-center h-96">
+      <div className="flex h-96 flex-col items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-3">
-            <XCircle className="w-8 h-8 text-red-400" />
+          <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--danger-soft)]">
+            <XCircle className="h-8 w-8 text-[var(--danger)]" />
           </div>
-          <h2 className="text-lg font-semibold text-white mb-1.5">Interview Not Found</h2>
-          <p className="text-gray-400 text-xs mb-4">
+          <h2 className="mb-1.5 text-lg font-semibold text-[var(--text-primary)]">Interview Not Found</h2>
+          <p className="mb-4 text-xs text-[var(--text-muted)]">
             {error || "The interview you're looking for doesn't exist."}
           </p>
           <button
             onClick={onBack}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors text-xs font-medium"
+            className="btn-secondary inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
+            <ArrowLeft className="h-3.5 w-3.5" />
             Back to Interviews
           </button>
         </div>
@@ -119,29 +119,29 @@ export default function InterviewDetail({
   }
 
   return (
-    <div className="min-h-screen bg-[#0F172A] px-3 py-4">
-      <div className="max-w-3xl mx-auto">
+    <div className="min-h-screen bg-[var(--background)] px-3 py-4">
+      <div className="mx-auto max-w-3xl">
         {/* Back Button */}
         <button
           onClick={onBack}
-          className="flex items-center gap-1.5 text-gray-400 hover:text-white transition-colors mb-4 text-xs font-medium"
+          className="group mb-4 flex items-center gap-1.5 text-xs font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
         >
-          <ArrowLeft className="w-3.5 h-3.5" />
+          <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
           <span>Back to Interviews</span>
         </button>
 
         {/* Main Card */}
-        <div className="bg-slate-800/30 rounded-xl border border-slate-700/50 overflow-hidden">
+        <div className="surface-card overflow-hidden rounded-xl border border-[var(--border)]">
           {/* Header */}
-          <div className="p-4 border-b border-slate-700/50">
+          <div className="border-b border-[var(--border)] p-4">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                  <h1 className="text-lg font-semibold text-white tracking-tight">
+                <div className="mb-1.5 flex flex-wrap items-center gap-2">
+                  <h1 className="text-lg font-semibold tracking-tight text-[var(--text-primary)]">
                     {interview.jobId?.jobTitle || "Interview"}
                   </h1>
                   <span
-                    className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-medium border ${getStatusColor(
+                    className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-medium ${getStatusColor(
                       interview.status
                     )}`}
                   >
@@ -150,8 +150,8 @@ export default function InterviewDetail({
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Building2 className="w-3.5 h-3.5 text-gray-400" />
-                  <p className="text-xs text-gray-300">
+                  <Building2 className="h-3.5 w-3.5 text-[var(--text-muted)]" />
+                  <p className="text-xs text-[var(--text-secondary)]">
                     {interview.companySnapshot?.companyName || "Company"}
                   </p>
                 </div>
@@ -160,63 +160,60 @@ export default function InterviewDetail({
           </div>
 
           {/* Details */}
-          <div className="p-4 space-y-4">
+          <div className="space-y-4 p-4">
             {/* Date & Time */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-slate-800/30 border border-slate-700/50">
-                <Calendar className="w-4 h-4 text-green-400" />
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="flex items-center gap-2.5 rounded-lg border border-[var(--border)] bg-[var(--background-soft)] p-2.5">
+                <Calendar className="h-4 w-4 text-[var(--success)]" />
                 <div>
-                  <p className="text-[10px] text-gray-400">Date</p>
-                  <p className="text-xs text-white font-medium">
+                  <p className="text-[10px] text-[var(--text-muted)]">Date</p>
+                  <p className="text-xs font-medium text-[var(--text-primary)]">
                     {formatDate(interview.date)}
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-slate-800/30 border border-slate-700/50">
-                <Clock className="w-4 h-4 text-blue-400" />
+              <div className="flex items-center gap-2.5 rounded-lg border border-[var(--border)] bg-[var(--background-soft)] p-2.5">
+                <Clock className="h-4 w-4 text-[var(--info)]" />
                 <div>
-                  <p className="text-[10px] text-gray-400">Time</p>
-                  <p className="text-xs text-white font-medium">{interview.time}</p>
+                  <p className="text-[10px] text-[var(--text-muted)]">Time</p>
+                  <p className="text-xs font-medium text-[var(--text-primary)]">{interview.time}</p>
                 </div>
               </div>
             </div>
 
-            {/* Interview Details */}
-           
-
             {/* Meeting Link */}
             {interview.meetLink && (
-              <div className="p-3 rounded-lg bg-green-500/5 border border-green-500/20">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+              <div className="rounded-lg border border-[var(--success-border)] bg-[var(--success-soft)] p-3">
+                <div className="flex flex-col items-start justify-between gap-2.5 sm:flex-row sm:items-center">
                   <div className="flex items-center gap-2.5">
-                    <Video className="w-4 h-4 text-green-400" />
+                    <Video className="h-4 w-4 text-[var(--success)]" />
                     <div>
-                      <p className="text-[10px] text-gray-400">Meeting Link</p>
-                      <p className="text-xs text-green-400 font-medium truncate max-w-[180px] sm:max-w-md">
+                      <p className="text-[10px] text-[var(--text-muted)]">Meeting Link</p>
+                      <p className="max-w-[180px] truncate text-xs font-medium text-[var(--success)] sm:max-w-md">
                         {interview.meetLink}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5 w-full sm:w-auto">
+                  <div className="flex w-full items-center gap-1.5 sm:w-auto">
                     <button
                       onClick={() => copyToClipboard(interview.meetLink!)}
-                      className="p-1.5 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 transition-colors flex-1 sm:flex-none"
+                      className="flex-1 rounded-lg bg-[var(--background-soft)] p-1.5 transition-colors hover:bg-[var(--card-hover)] sm:flex-none"
                       title="Copy link"
                     >
                       {copied ? (
-                        <Check className="w-3.5 h-3.5 text-green-400" />
+                        <Check className="h-3.5 w-3.5 text-[var(--success)]" />
                       ) : (
-                        <Copy className="w-3.5 h-3.5 text-gray-400" />
+                        <Copy className="h-3.5 w-3.5 text-[var(--text-muted)]" />
                       )}
                     </button>
                     <a
                       href={interview.meetLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500/20 hover:bg-green-500/30 transition-colors text-green-400 text-xs font-medium flex-1 sm:flex-none"
+                      className="btn-primary flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium sm:flex-none"
                     >
                       Join Meeting
-                      <ExternalLink className="w-3 h-3" />
+                      <ExternalLink className="h-3 w-3" />
                     </a>
                   </div>
                 </div>
@@ -225,21 +222,18 @@ export default function InterviewDetail({
 
             {/* Message */}
             {interview.message && (
-              <div className="p-3 rounded-lg bg-slate-800/30 border border-slate-700/50">
+              <div className="rounded-lg border border-[var(--border)] bg-[var(--background-soft)] p-3">
                 <div className="flex items-start gap-2.5">
-                  <MessageSquare className="w-4 h-4 text-gray-400 mt-0.5" />
+                  <MessageSquare className="mt-0.5 h-4 w-4 text-[var(--text-muted)]" />
                   <div>
-                    <p className="text-[10px] text-gray-400 mb-0.5">
+                    <p className="mb-0.5 text-[10px] text-[var(--text-muted)]">
                       Message from Recruiter
                     </p>
-                    <p className="text-xs text-gray-300 leading-relaxed">{interview.message}</p>
+                    <p className="text-xs leading-relaxed text-[var(--text-secondary)]">{interview.message}</p>
                   </div>
                 </div>
               </div>
             )}
-
-            
-            
           </div>
         </div>
       </div>

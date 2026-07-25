@@ -6,7 +6,7 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, User, GraduationCap, Briefcase } from "lucide-react";
 import { isAxiosError } from "axios";
 
 import GoogleOAuthButton from "./GoogleOAuthButton";
@@ -18,10 +18,10 @@ import {
 } from "@/services/auth.service";
 import { useAuth } from "@/context/AuthContext";
 
-const roles: UserType[] = [
-  "student",
-  "fresher",
-  "professional",
+const roles: { value: UserType; label: string; icon: React.ReactNode }[] = [
+  { value: "student", label: "Student", icon: <GraduationCap size={16} /> },
+  { value: "fresher", label: "Fresher", icon: <User size={16} /> },
+  { value: "professional", label: "Professional", icon: <Briefcase size={16} /> },
 ];
 
 const dashboardMap: Record<UserType, string> = {
@@ -50,10 +50,6 @@ export default function LoginForm() {
   const router = useRouter();
   const { login } = useAuth();
 
-  /*
-   * Use one role state only.
-   * This role is passed to both OAuth buttons.
-   */
   const [role, setRole] =
     useState<UserType>("student");
 
@@ -138,10 +134,6 @@ export default function LoginForm() {
         password,
       });
 
-      /*
-       * For email login, the backend role is
-       * always the source of truth.
-       */
       const authenticatedRole =
         data.user.userType;
 
@@ -188,65 +180,81 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="w-full border border-[var(--border)] bg-[var(--background)] px-7 py-8 text-white backdrop-blur-sm lg:w-[58%] lg:rounded-r-3xl lg:border-l-0 lg:px-10">
+    <div className="w-full border border-[var(--border)] bg-[var(--card)] px-5 py-6 text-[var(--text-primary)] backdrop-blur-sm sm:px-6 sm:py-8 lg:w-[58%] lg:rounded-r-3xl lg:border-l-0 lg:px-10">
       <div className="space-y-1.5">
-        <h2 className="text-[28px] font-bold tracking-[-0.02em] text-white lg:text-[32px]">
+        <h2 className="text-2xl font-bold tracking-[-0.02em] text-[var(--text-primary)] sm:text-[28px] lg:text-[32px]">
           Welcome back
         </h2>
 
-        <p className="text-[14px] text-[var(--text-primary)]">
+        <p className="text-sm text-[var(--text-secondary)]">
           Login to continue your journey
           with Referd
         </p>
       </div>
 
-      {/* Role selection */}
-      <div className="mt-6 grid grid-cols-3 gap-3">
+      {/* Role selection - Enhanced with icons and better visual hierarchy */}
+      <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-3">
         {roles.map((item) => {
-          const isSelected =
-            role === item;
+          const isSelected = role === item.value;
 
           return (
             <button
-              key={item}
+              key={item.value}
               type="button"
               disabled={isLoading}
               aria-pressed={isSelected}
               onClick={() =>
-                handleRoleChange(item)
+                handleRoleChange(item.value)
               }
-              className={`h-10 rounded-lg border font-mono text-[10px] font-semibold uppercase tracking-[0.16em] transition disabled:cursor-not-allowed disabled:opacity-60 ${
-                isSelected
-                  ? "border-[var(--primary)] bg-[var(--primary-soft)] text-white"
-                  : "border-[var(--border)] bg-transparent text-[var(--text-primary)] hover:border-white/25 hover:text-white"
-              }`}
+              className={`
+                relative flex flex-col items-center justify-center gap-1.5
+                rounded-xl border-2 px-3 py-3 text-center transition-all duration-200
+                disabled:cursor-not-allowed disabled:opacity-60
+                ${isSelected
+                  ? "border-[var(--primary)] bg-[var(--primary-soft)] shadow-lg shadow-[var(--primary)]/10 scale-[1.02]"
+                  : "border-[var(--border)] bg-[var(--background-soft)] hover:border-[var(--border-strong)] hover:bg-[var(--card-hover)] hover:scale-[1.01]"
+                }
+              `}
             >
-              {item}
+              {/* Icon */}
+              <span className={`transition-colors duration-200 ${
+                isSelected ? "text-[var(--primary)]" : "text-[var(--text-muted)]"
+              }`}>
+                {item.icon}
+              </span>
+              
+              {/* Label */}
+              <span className={`text-[10px] font-semibold uppercase tracking-[0.08em] transition-colors duration-200 sm:text-[11px] ${
+                isSelected ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]"
+              }`}>
+                {item.label}
+              </span>
+
+              {/* Active indicator bar */}
+              {isSelected && (
+                <span className="absolute -bottom-[1px] left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-[var(--primary)]" />
+              )}
             </button>
           );
         })}
       </div>
 
       {/* OAuth buttons */}
-      <div className="mt-8 space-y-3">
+      <div className="mt-6 space-y-3 sm:mt-8">
         <LinkedinLoginButton
           onClick={handleLinkedInLogin}
         />
 
-        {/*
-         * key={role} ensures that the Google
-         * component is recreated after changing role.
-         */}
         <GoogleOAuthButton
           key={role}
           userType={role}
         />
       </div>
 
-      <div className="my-7 flex items-center gap-3">
+      <div className="my-6 flex items-center gap-3 sm:my-7">
         <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[var(--border)] to-transparent" />
 
-        <span className="font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--text-muted)]">
+        <span className="whitespace-nowrap font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-[var(--text-muted)] sm:text-[11px]">
           Or continue with email
         </span>
 
@@ -256,7 +264,7 @@ export default function LoginForm() {
       {error && (
         <div
           role="alert"
-          className="mb-4 rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-3 text-[13px] text-red-300"
+          className="mb-4 rounded-xl border border-[var(--danger-border)] bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]"
         >
           {error}
         </div>
@@ -267,10 +275,10 @@ export default function LoginForm() {
         className="space-y-4"
       >
         {/* Email */}
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <label
             htmlFor="login-email"
-            className="text-[12px] font-medium text-[var(--text-primary)]"
+            className="text-xs font-medium text-[var(--text-secondary)]"
           >
             Email
           </label>
@@ -287,23 +295,23 @@ export default function LoginForm() {
               setEmail(event.target.value);
               setError("");
             }}
-            className="h-11 w-full rounded-lg border border-white/10 bg-white/5 px-4 text-[14px] text-white outline-none transition-all duration-200 placeholder:text-[13px] placeholder:text-[var(--text-muted)] hover:border-white/20 focus:border-[var(--primary)] focus:bg-white/8 focus:ring-2 focus:ring-[var(--primary)]/20 disabled:cursor-not-allowed disabled:opacity-60"
+            className="input-field h-11 w-full rounded-xl px-4 text-sm placeholder:text-sm placeholder:text-[var(--text-muted)] focus:ring-2 focus:ring-[var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-60"
           />
         </div>
 
         {/* Password */}
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <label
               htmlFor="login-password"
-              className="text-[12px] font-medium text-[var(--text-primary)]"
+              className="text-xs font-medium text-[var(--text-secondary)]"
             >
               Password
             </label>
 
             <Link
               href="/reset-password"
-              className="text-[12px] text-[var(--text-muted)] transition-all duration-200 hover:text-[var(--primary)] hover:underline"
+              className="text-xs text-[var(--text-muted)] transition-all duration-200 hover:text-[var(--text-primary)] hover:underline"
             >
               Forgot password?
             </Link>
@@ -328,7 +336,7 @@ export default function LoginForm() {
                 );
                 setError("");
               }}
-              className="h-11 w-full rounded-lg border border-white/10 bg-white/5 px-4 pr-12 text-[14px] text-white outline-none transition-all duration-200 placeholder:text-[13px] placeholder:text-[var(--text-muted)] hover:border-white/20 focus:border-[var(--primary)] focus:bg-white/8 focus:ring-2 focus:ring-[var(--primary)]/20 disabled:cursor-not-allowed disabled:opacity-60"
+              className="input-field h-11 w-full rounded-xl px-4 pr-12 text-sm placeholder:text-sm placeholder:text-[var(--text-muted)] focus:ring-2 focus:ring-[var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-60"
             />
 
             <button
@@ -345,7 +353,7 @@ export default function LoginForm() {
                   (current) => !current,
                 )
               }
-              className="absolute right-0 top-0 flex h-11 w-11 items-center justify-center text-[var(--text-muted)] transition hover:text-white focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              className="absolute right-0 top-0 flex h-11 w-11 items-center justify-center text-[var(--text-muted)] transition hover:text-[var(--text-primary)] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             >
               {showPassword ? (
                 <EyeOff size={18} />
@@ -360,7 +368,7 @@ export default function LoginForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="group relative mt-2 h-11 w-full overflow-hidden rounded-lg bg-gradient-to-r from-[var(--primary)] to-[#2d9e3e] text-[14px] font-semibold text-black transition-all duration-300 hover:scale-[1.02] hover:brightness-110 hover:shadow-[0_0_22px_rgba(49,170,64,0.35)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:scale-100"
+          className="btn-primary group relative mt-2 h-11 w-full overflow-hidden rounded-xl bg-gradient-to-r from-[var(--primary)] to-[var(--primary-hover)] text-sm font-semibold text-black transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_22px_rgba(49,170,64,0.35)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:scale-100"
         >
           <span
             className={`flex items-center justify-center gap-2 transition-opacity duration-200 ${
@@ -401,13 +409,13 @@ export default function LoginForm() {
         </button>
       </form>
 
-      <div className="my-7 h-px w-full bg-gradient-to-r from-transparent via-[var(--border)] to-transparent" />
+      <div className="my-6 h-px w-full bg-gradient-to-r from-transparent via-[var(--border)] to-transparent sm:my-7" />
 
-      <p className="text-center text-[13px] text-[var(--text-primary)]">
+      <p className="text-center text-sm text-[var(--text-secondary)]">
         Don&apos;t have an account?{" "}
         <Link
           href="/signup"
-          className="ml-1 font-semibold text-white underline-offset-4 transition-all duration-200 hover:text-[var(--primary)] hover:underline"
+          className="ml-1 font-semibold text-[var(--primary)] underline-offset-4 transition-all duration-200 hover:text-[var(--primary-hover)] hover:underline"
         >
           Create account
         </Link>

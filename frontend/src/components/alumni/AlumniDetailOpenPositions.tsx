@@ -36,13 +36,13 @@ export default function AlumniDetailOpenPositions({
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
       case "approved":
-        return "bg-green-500/10 text-green-400 border-green-500/20";
+        return "badge-success";
       case "pending":
-        return "bg-yellow-500/10 text-yellow-400 border-yellow-500/20";
+        return "badge-warning";
       case "rejected":
-        return "bg-red-500/10 text-red-400 border-red-500/20";
+        return "badge-danger";
       default:
-        return "bg-gray-500/10 text-gray-400 border-gray-500/20";
+        return "badge";
     }
   };
 
@@ -59,12 +59,12 @@ export default function AlumniDetailOpenPositions({
   };
 
   return (
-    <div className="rounded-2xl border border-[#2a3a52] bg-gradient-to-r from-[#111827] to-[#1a2332] p-4 shadow-xl shadow-black/20 backdrop-blur-sm">
-      <h2 className="mb-3.5 flex items-center gap-2 text-sm font-bold text-white">
-        <BriefcaseBusiness size={16} className="text-blue-400" />
+    <div className="card rounded-2xl border border-theme bg-gradient-to-r from-card to-card-soft p-4 shadow-xl shadow-black/20 backdrop-blur-sm">
+      <h2 className="mb-3.5 flex items-center gap-2 text-sm font-bold text-primary">
+        <BriefcaseBusiness size={16} className="text-info" />
         Open Positions
         {jobs.length > 0 && (
-          <span className="ml-auto text-xs text-gray-500 bg-slate-800/50 px-2 py-0.5 rounded-full">
+          <span className="ml-auto text-xs text-muted bg-background-soft/50 px-2 py-0.5 rounded-full">
             {jobs.length}
           </span>
         )}
@@ -84,11 +84,11 @@ export default function AlumniDetailOpenPositions({
                 group
                 rounded-xl 
                 border 
-                border-[#2a3a52] 
-                bg-[#0f172a]
+                border-theme 
+                bg-background
                 p-3.5
-                hover:border-green-500/30
-                hover:bg-[#1a2332]
+                hover:border-primary/30
+                hover:bg-card-soft
                 transition-all 
                 duration-200
                 cursor-pointer
@@ -98,30 +98,30 @@ export default function AlumniDetailOpenPositions({
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold text-white truncate group-hover:text-green-400 transition-colors">
+                    <h3 className="text-sm font-semibold text-primary truncate group-hover:text-primary transition-colors">
                       {job.jobTitle?.join(", ") || "Untitled Position"}
                     </h3>
                     <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-medium border flex-shrink-0 ${getStatusColor(job.jobStatus)}`}
+                      className={`badge inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-medium border flex-shrink-0 ${getStatusColor(job.jobStatus)}`}
                     >
                       {job.jobStatus || "Draft"}
                     </span>
                   </div>
 
-                  <p className="mt-1 text-xs text-slate-400 line-clamp-1">
+                  <p className="mt-1 text-xs text-secondary line-clamp-1">
                     {job.description || "No description available"}
                   </p>
 
-                  <div className="mt-1.5 flex flex-wrap items-center gap-3 text-[10px] text-slate-500">
+                  <div className="mt-1.5 flex flex-wrap items-center gap-3 text-[10px] text-muted">
                     {job.companyName && (
                       <span className="flex items-center gap-1">
-                        <Building2 size={11} className="text-slate-500" />
+                        <Building2 size={11} className="text-muted" />
                         {job.companyName}
                       </span>
                     )}
 
                     <span className="flex items-center gap-1">
-                      <Calendar size={11} className="text-slate-500" />
+                      <Calendar size={11} className="text-muted" />
                       {formatDate(job.createdAt)}
                     </span>
                   </div>
@@ -129,7 +129,7 @@ export default function AlumniDetailOpenPositions({
 
                 <ChevronRight
                   size={16}
-                  className="text-slate-600 group-hover:text-green-400 group-hover:translate-x-0.5 transition-all flex-shrink-0 mt-1"
+                  className="text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all flex-shrink-0 mt-1"
                 />
               </div>
             </div>
@@ -138,20 +138,20 @@ export default function AlumniDetailOpenPositions({
           {jobs.length > 5 && (
             <button
               onClick={() => router.push(`/${userType}/jobs`)}
-              className="w-full text-center text-xs text-slate-400 hover:text-green-400 transition-colors py-1.5 border-t border-[#2a3a52] mt-1"
+              className="w-full text-center text-xs text-muted hover:text-primary transition-colors py-1.5 border-t border-divider mt-1"
             >
               View all {jobs.length} positions →
             </button>
           )}
         </div>
       ) : (
-        <div className="rounded-xl border border-dashed border-[#2a3a52] py-8 text-center bg-[#0f172a]">
+        <div className="rounded-xl border border-dashed border-theme py-8 text-center bg-background">
           <BriefcaseBusiness
             size={28}
-            className="mx-auto mb-2 text-slate-600"
+            className="mx-auto mb-2 text-muted"
           />
-          <p className="text-xs text-slate-400">No open positions available.</p>
-          <p className="text-[10px] text-slate-500 mt-0.5">
+          <p className="text-xs text-muted">No open positions available.</p>
+          <p className="text-[10px] text-muted/60 mt-0.5">
             Check back later for updates
           </p>
         </div>

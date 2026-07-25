@@ -78,15 +78,15 @@ export const ConversationList = memo(
 
     if (isLoading && conversations.length === 0) {
       return (
-        <div className="flex h-screen w-[420px] flex-col border-r border-[var(--border)] bg-[var(--card)]">
-          <div className="border-b border-[var(--border)] p-6">
-            <h1 className="text-2xl font-bold text-white">Messages</h1>
+        <div className="flex h-screen w-[420px] flex-col border-r border-theme bg-card">
+          <div className="border-b border-divider p-6">
+            <h1 className="text-2xl font-bold text-primary">Messages</h1>
           </div>
 
           <div className="flex flex-1 items-center justify-center">
             <div className="space-y-4 text-center">
-              <div className="mx-auto h-16 w-16 animate-spin rounded-full border-4 border-[var(--primary)] border-t-transparent" />
-              <p className="text-[var(--text-muted)]">Loading chats...</p>
+              <div className="mx-auto h-16 w-16 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+              <p className="text-muted">Loading chats...</p>
             </div>
           </div>
         </div>
@@ -94,13 +94,13 @@ export const ConversationList = memo(
     }
 
     return (
-      <div className="flex h-screen w-[420px] flex-col border-r border-[var(--border)] bg-[var(--card)]">
-        <div className="flex-shrink-0 border-b border-[var(--border)] bg-[var(--card)] p-6">
-          <h1 className="mb-5 text-2xl font-bold text-white">Messages</h1>
+      <div className="flex h-screen w-[420px] flex-col border-r border-theme bg-card">
+        <div className="flex-shrink-0 border-b border-divider bg-card p-6">
+          <h1 className="mb-5 text-2xl font-bold text-primary">Messages</h1>
 
           <div className="relative">
             <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
-              <Search className="h-4 w-4 text-[var(--text-muted)]" />
+              <Search className="h-4 w-4 text-muted" />
             </div>
 
             <input
@@ -108,20 +108,20 @@ export const ConversationList = memo(
               placeholder="Search conversations..."
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
-              className="w-full rounded-xl border border-[var(--border)] bg-[var(--background)] py-3 pl-10 pr-4 text-sm text-white transition-all placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:outline-none"
+              className="input-field w-full rounded-xl py-3 pl-10 pr-4 text-sm"
             />
           </div>
         </div>
 
-        <div className="flex-shrink-0 border-b border-[var(--border)] bg-[var(--background-soft)] px-6 py-3">
+        <div className="flex-shrink-0 border-b border-divider bg-background-soft px-6 py-3">
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setShowUnreadOnly(false)}
               className={`rounded-full px-4 py-1.5 text-xs font-medium transition-all ${
                 !showUnreadOnly
-                  ? "bg-[var(--primary)] text-black"
-                  : "bg-[var(--card-hover)] text-[var(--text-muted)] hover:text-white"
+                  ? "btn-primary bg-primary text-inverse"
+                  : "bg-card-hover text-muted hover:text-primary"
               }`}
             >
               All Chats
@@ -132,8 +132,8 @@ export const ConversationList = memo(
               onClick={() => setShowUnreadOnly(true)}
               className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium transition-all ${
                 showUnreadOnly
-                  ? "bg-[var(--primary)] text-black"
-                  : "bg-[var(--card-hover)] text-[var(--text-muted)] hover:text-white"
+                  ? "btn-primary bg-primary text-inverse"
+                  : "bg-card-hover text-muted hover:text-primary"
               }`}
             >
               <Bell className="h-3 w-3" />
@@ -142,8 +142,8 @@ export const ConversationList = memo(
                 <span
                   className={`rounded-full px-1.5 py-0.5 text-xs ${
                     showUnreadOnly
-                      ? "bg-black/20 text-black"
-                      : "bg-red-500 text-white"
+                      ? "bg-black/20 text-inverse"
+                      : "bg-danger text-inverse"
                   }`}
                 >
                   {totalUnread > 99 ? "99+" : totalUnread}
@@ -155,7 +155,7 @@ export const ConversationList = memo(
               <button
                 type="button"
                 onClick={() => setShowUnreadOnly(false)}
-                className="ml-2 rounded-lg p-1.5 text-[var(--text-muted)] transition-colors hover:bg-[var(--card-hover)] hover:text-white"
+                className="btn-ghost ml-2 rounded-lg p-1.5 text-muted transition-colors hover:bg-card-hover hover:text-primary"
                 title="Show all chats"
               >
                 <X className="h-4 w-4" />
@@ -167,15 +167,15 @@ export const ConversationList = memo(
         <div className="flex-1 overflow-y-auto">
           {conversations.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center p-8 text-center">
-              <div className="mb-5 flex h-24 w-24 items-center justify-center rounded-full bg-[var(--card-hover)]">
-                <Inbox className="h-12 w-12 text-[var(--text-muted)]" />
+              <div className="mb-5 flex h-24 w-24 items-center justify-center rounded-full bg-card-hover">
+                <Inbox className="h-12 w-12 text-muted" />
               </div>
 
-              <h3 className="mb-2 text-xl font-semibold text-white">
+              <h3 className="mb-2 text-xl font-semibold text-primary">
                 No conversations yet
               </h3>
 
-              <p className="max-w-xs text-sm leading-relaxed text-[var(--text-muted)]">
+              <p className="max-w-xs text-sm leading-relaxed text-muted">
                 Start a new conversation by messaging someone.
               </p>
             </div>
@@ -183,26 +183,26 @@ export const ConversationList = memo(
             <div className="py-16 text-center">
               {showUnreadOnly ? (
                 <>
-                  <Bell className="mx-auto mb-4 h-16 w-16 text-[var(--text-muted)]" />
-                  <p className="mb-2 text-lg font-medium text-white">
+                  <Bell className="mx-auto mb-4 h-16 w-16 text-muted" />
+                  <p className="mb-2 text-lg font-medium text-primary">
                     No unread messages
                   </p>
-                  <p className="text-sm text-[var(--text-muted)]">
+                  <p className="text-sm text-muted">
                     You're all caught up!
                   </p>
 
                   <button
                     type="button"
                     onClick={() => setShowUnreadOnly(false)}
-                    className="mt-4 text-sm font-medium text-[var(--primary)] transition-colors hover:text-[#259a3a]"
+                    className="mt-4 text-sm font-medium text-primary transition-colors hover:text-primary-hover"
                   >
                     Show all conversations
                   </button>
                 </>
               ) : (
                 <>
-                  <Search className="mx-auto mb-4 h-16 w-16 text-[var(--text-muted)]" />
-                  <p className="font-medium text-[var(--text-muted)]">
+                  <Search className="mx-auto mb-4 h-16 w-16 text-muted" />
+                  <p className="font-medium text-muted">
                     No conversations found
                   </p>
                 </>

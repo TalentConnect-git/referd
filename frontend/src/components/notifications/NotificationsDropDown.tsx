@@ -22,18 +22,18 @@ export default function NotificationsDropdown({ onClick }: NotificationsDropdown
     switch (topic) {
       case "Jobs":
       case "Job Detail":
-        return <Briefcase className="h-4 w-4 text-blue-400" />;
+        return <Briefcase className="h-4 w-4 text-[var(--info)]" />;
       case "Referrals":
       case "Referrer":
-        return <Users className="h-4 w-4 text-green-400" />;
+        return <Users className="h-4 w-4 text-[var(--success)]" />;
       case "Scheduled Interviews":
-        return <Calendar className="h-4 w-4 text-purple-400" />;
+        return <Calendar className="h-4 w-4 text-[var(--primary)]" />;
       case "Alumni Network":
-        return <UserPlus className="h-4 w-4 text-orange-400" />;
+        return <UserPlus className="h-4 w-4 text-[var(--warning)]" />;
       case "Chat":
-        return <MessageCircle className="h-4 w-4 text-pink-400" />;
+        return <MessageCircle className="h-4 w-4 text-[var(--info)]" />;
       default:
-        return <Bell className="h-4 w-4 text-gray-400" />;
+        return <Bell className="h-4 w-4 text-[var(--text-muted)]" />;
     }
   };
 
@@ -41,23 +41,23 @@ export default function NotificationsDropdown({ onClick }: NotificationsDropdown
     switch (topic) {
       case "Jobs":
       case "Job Detail":
-        return "border-blue-500/20 bg-blue-500/5";
+        return "border-[var(--info-border)] bg-[var(--info-soft)]";
       case "Referrals":
       case "Referrer":
-        return "border-green-500/20 bg-green-500/5";
+        return "border-[var(--success-border)] bg-[var(--success-soft)]";
       case "Scheduled Interviews":
-        return "border-purple-500/20 bg-purple-500/5";
+        return "border-[var(--primary-border)] bg-[var(--primary-soft)]";
       case "Alumni Network":
-        return "border-orange-500/20 bg-orange-500/5";
+        return "border-[var(--warning-border)] bg-[var(--warning-soft)]";
       case "Chat":
-        return "border-pink-500/20 bg-pink-500/5";
+        return "border-[var(--info-border)] bg-[var(--info-soft)]";
       default:
-        return "border-gray-500/20 bg-gray-500/5";
+        return "border-[var(--border)] bg-[var(--background-soft)]";
     }
   };
 
   const handleNotificationClick = async (notification: Notification) => {
-    // ✅ Close dropdown when notification is clicked
+    // Close dropdown when notification is clicked
     if (onClick) onClick();
 
     // Mark as read
@@ -137,10 +137,10 @@ export default function NotificationsDropdown({ onClick }: NotificationsDropdown
     }
   };
 
-  // ✅ Handle "Mark all as read" with onClick
+  // Handle "Mark all as read" with onClick
   const handleMarkAllAsRead = async () => {
     await markAllAsRead();
-    // ✅ Close dropdown after marking all as read
+    // Close dropdown after marking all as read
     if (onClick) onClick();
   };
 
@@ -152,9 +152,9 @@ export default function NotificationsDropdown({ onClick }: NotificationsDropdown
       <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3">
         <div className="flex items-center gap-2">
           <Bell className="h-4 w-4 text-[var(--text-secondary)]" />
-          <h3 className="text-sm font-semibold text-white">Notifications</h3>
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">Notifications</h3>
           {unreadCount > 0 && (
-            <span className="rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white">
+            <span className="rounded-full bg-[var(--danger)] px-2 py-0.5 text-[10px] font-bold text-white">
               {unreadCount}
             </span>
           )}
@@ -164,14 +164,14 @@ export default function NotificationsDropdown({ onClick }: NotificationsDropdown
         </span>
       </div>
 
-      {/* Notification List - REMOVED max-h and overflow-y-auto */}
+      {/* Notification List */}
       <div>
         {notifications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+          <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
             <div className="mb-3 rounded-full bg-[var(--card-hover)] p-4">
               <Bell className="h-8 w-8 text-[var(--text-muted)]" />
             </div>
-            <p className="text-sm font-medium text-white">No notifications</p>
+            <p className="text-sm font-medium text-[var(--text-primary)]">No notifications</p>
             <p className="mt-1 text-xs text-[var(--text-muted)]">
               You're all caught up!
             </p>
@@ -183,12 +183,10 @@ export default function NotificationsDropdown({ onClick }: NotificationsDropdown
                 key={notification._id}
                 onClick={() => handleNotificationClick(notification)}
                 className={`
-                  group relative cursor-pointer transition-all duration-200
+                  group relative cursor-pointer border-l-4 transition-all duration-200
                   hover:bg-[var(--card-hover)]
-                  ${!notification.read ? 'bg-[var(--primary-soft)]' : ''}
+                  ${!notification.read ? 'border-l-[var(--primary)] bg-[var(--primary-soft)]' : 'border-l-transparent'}
                   ${getNotificationColor(notification.meta?.topic)}
-                  border-l-4 
-                  ${!notification.read ? 'border-l-[var(--primary)]' : 'border-l-transparent'}
                 `}
               >
                 <div className="flex items-start gap-3 px-4 py-3">
@@ -206,7 +204,7 @@ export default function NotificationsDropdown({ onClick }: NotificationsDropdown
                   <div className="min-w-0 flex-1">
                     <p className={`
                       text-sm leading-relaxed
-                      ${!notification.read ? 'font-semibold text-white' : 'text-[var(--text-secondary)]'}
+                      ${!notification.read ? 'font-semibold text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}
                     `}>
                       {notification.message}
                     </p>
