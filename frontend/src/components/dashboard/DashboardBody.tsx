@@ -7,7 +7,7 @@ import axiosInstance from "@/lib/axiosInstance";
 import { useAuth } from "@/context/AuthContext";
 import { getCandidateApplications, getProfessionalApplications } from "@/services/application.service";
 import { UserType } from "@/types/dashboard";
-import {Job} from "@/types/dashboard";
+import { Job } from "@/types/dashboard";
 
 export default function DashboardBody() {
   const [allJobs, setAllJobs] = useState<any[]>([]);
@@ -51,53 +51,41 @@ export default function DashboardBody() {
           const internships = internshipRes.data?.data || [];
           const offCampus = offCampusRes.data?.data || [];
 
-          setReferralJobs(referrals.slice(0,2));
-          setInternshipJobs(internships.slice(0,2));
-          setOffCampusJobs(offCampus.slice(0,2));
+          setReferralJobs(referrals.slice(0, 2));
+          setInternshipJobs(internships.slice(0, 2));
+          setOffCampusJobs(offCampus.slice(0, 2));
 
           const allJobs = [...referrals, ...internships, ...offCampus];
           setAllJobs(allJobs);
-          const 
-          [offCampusApplications,
-            internshipApplications,
-            referralApplications,] = await Promise.all([
-                                        getCandidateApplications("Off-campus"),
-                                        getCandidateApplications("Internship"),
-                                        getCandidateApplications("Referral"),
-                                        ]);
-
-            setApplications([...(offCampusApplications.data || []),
-                          ...(internshipApplications.data || []),
-                          ...(referralApplications.data || []),]);}
           
+          const [offCampusApplications, internshipApplications, referralApplications] = await Promise.all([
+            getCandidateApplications("Off-campus"),
+            getCandidateApplications("Internship"),
+            getCandidateApplications("Referral"),
+          ]);
 
-        // if (userType === "professional") {
-        //   const [ referralRes] = await Promise.all([
-        //     axiosInstance.get("/api/student-dashboard/referral-jobs"),
-        //   ]);
-
-        //   if (!isMounted) return;
-
-        //   setReferralJobs(referralRes.data?.data || []);
-        //   const referrals = referralRes.data?.data || [];
-        //   setAllJobs(referrals);
-        //   setApplications(referralRes.data?.data || []);
-        // }
-
+          setApplications([
+            ...(offCampusApplications.data || []),
+            ...(internshipApplications.data || []),
+            ...(referralApplications.data || []),
+          ]);
+        }
 
         if (userType === "professional") {
-        const [referralRes, applicationsRes] = await Promise.all(
-          [axiosInstance.get("/api/student-dashboard/referral-jobs"),getProfessionalApplications(),]);
+          const [referralRes, applicationsRes] = await Promise.all([
+            axiosInstance.get("/api/student-dashboard/referral-jobs"),
+            getProfessionalApplications(),
+          ]);
 
-        if (!isMounted) return;
+          if (!isMounted) return;
 
-        const referrals = referralRes.data?.data || [];
+          const referrals = referralRes.data?.data || [];
 
-        setReferralJobs(referrals.slice(0,4));
-        setAllJobs(referrals);
+          setReferralJobs(referrals.slice(0, 4));
+          setAllJobs(referrals);
 
-      setApplications(applicationsRes.data || []);
-      }
+          setApplications(applicationsRes.data || []);
+        }
       } catch (err) {
         console.error("Error fetching dashboard body data:", err);
 
@@ -122,15 +110,17 @@ export default function DashboardBody() {
   if (loading) {
     return (
       <div className="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="h-80 animate-pulse rounded-2xl border border-[var(--border)] bg-[var(--card)] lg:col-span-2" />
-        <div className="h-80 animate-pulse rounded-2xl border border-[var(--border)] bg-[var(--card)]" />
+        <div className="skeleton h-80 rounded-2xl border border-[var(--border)] bg-[var(--card)] lg:col-span-2" />
+        <div className="skeleton h-80 rounded-2xl border border-[var(--border)] bg-[var(--card)]" />
       </div>
     );
   }
+
   const dashboardJobs = referralJobs.slice(0, 5);
+
   return (
-    <div className="mt-0 grid grid-cols-1 gap-6 lg:grid-cols-3 items-stretch">
-      { (userType == "student"||userType == "fresher") && (
+    <div className="mt-0 grid grid-cols-1 items-stretch gap-6 lg:grid-cols-3">
+      {(userType === "student" || userType === "fresher") && (
         <div className="lg:col-span-2">
           <DashboardJobs
             referralJobs={referralJobs}
@@ -140,7 +130,8 @@ export default function DashboardBody() {
           />
         </div>
       )}
-      {userType == "professional" && (
+      
+      {userType === "professional" && (
         <div className="lg:col-span-2">
           <DashboardJobs
             referralJobs={referralJobs}

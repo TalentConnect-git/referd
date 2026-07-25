@@ -115,14 +115,14 @@ export default function ResumeModal({ resumeUrl, onClose }: ResumeModalProps) {
   if (!resumeUrl) return null;
 
   return (
-    <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 px-4 backdrop-blur-sm">
-      <div className="relative flex h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-2xl">
-        <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+    <div className="modal-overlay fixed inset-0 z-[120] flex items-center justify-center bg-overlay px-4 backdrop-blur-sm">
+      <div className="modal-content relative flex h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-theme bg-card shadow-xl">
+        <div className="flex items-center justify-between border-b border-divider px-5 py-4">
           <div>
-            <h2 className="text-[18px] font-bold text-white">
+            <h2 className="text-[18px] font-bold text-primary">
               Resume Preview
             </h2>
-            <p className="text-[12px] text-[var(--text-primary)]">
+            <p className="text-[12px] text-muted">
               Resume loaded from PDF file
             </p>
           </div>
@@ -131,7 +131,7 @@ export default function ResumeModal({ resumeUrl, onClose }: ResumeModalProps) {
             <button
               type="button"
               onClick={handleDownload}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+              className="btn-secondary inline-flex items-center gap-2 rounded-xl border border-theme px-3 py-2 text-sm font-semibold text-primary transition hover:bg-card-hover"
             >
               <Download className="h-4 w-4" />
               Download
@@ -140,7 +140,7 @@ export default function ResumeModal({ resumeUrl, onClose }: ResumeModalProps) {
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl border border-white/10 p-2 text-white transition hover:bg-white/10"
+              className="btn-ghost rounded-xl p-2 text-primary transition hover:bg-card-hover"
               aria-label="Close resume preview"
             >
               <X className="h-5 w-5" />
@@ -148,10 +148,10 @@ export default function ResumeModal({ resumeUrl, onClose }: ResumeModalProps) {
           </div>
         </div>
 
-        <div className="relative flex-1 overflow-auto bg-black/40 p-4">
+        <div className="relative flex-1 overflow-auto bg-background/40 p-4">
           {loading && (
             <div className="absolute inset-0 z-10 flex items-center justify-center">
-              <div className="flex items-center gap-2 rounded-xl bg-black/80 px-4 py-3 text-sm font-semibold text-white">
+              <div className="glass-card flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-primary">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Loading PDF...
               </div>
@@ -161,14 +161,14 @@ export default function ResumeModal({ resumeUrl, onClose }: ResumeModalProps) {
           {error ? (
             <div className="flex h-full items-center justify-center text-center">
               <div>
-                <p className="mb-4 text-sm font-semibold text-red-400">
+                <p className="mb-4 text-sm font-semibold text-danger">
                   {error}
                 </p>
 
                 <button
                   type="button"
                   onClick={handleDownload}
-                  className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                  className="btn-primary inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-inverse transition"
                 >
                   <Download className="h-4 w-4" />
                   Download Resume
@@ -179,7 +179,7 @@ export default function ResumeModal({ resumeUrl, onClose }: ResumeModalProps) {
             <div className="flex min-h-full justify-center">
               <canvas
                 ref={canvasRef}
-                className="h-fit max-w-full rounded-lg bg-white shadow-2xl"
+                className="h-fit max-w-full rounded-lg bg-white shadow-lg"
               />
             </div>
           )}

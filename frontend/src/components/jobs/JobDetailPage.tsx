@@ -77,53 +77,53 @@ export default function JobDetailPage({ job }: LeftPanelProps) {
   ];
 
   return (
-    <div className="w-full overflow-y-auto p-3 sm:p-4 bg-gradient-to-br from-[#0F172A] to-[#1a2332] min-h-screen">
+    <div className="min-h-screen w-full overflow-y-auto bg-gradient-to-br from-[var(--background)] to-[var(--background-soft)] p-3 sm:p-4">
       {/* Back Button */}
       <button
         onClick={() => router.back()}
-        className="group flex items-center gap-1.5 text-gray-400 hover:text-white transition-all duration-200 mb-3"
+        className="group mb-3 flex items-center gap-1.5 text-[var(--text-muted)] transition-all duration-200 hover:text-[var(--text-primary)]"
       >
-        <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform duration-200" />
+        <ArrowLeft size={14} className="transition-transform duration-200 group-hover:-translate-x-1" />
         <span className="text-xs font-medium">Back</span>
       </button>
 
       {/* Header Card */}
-      <div className="mb-4 rounded-xl border border-slate-800 bg-gradient-to-br from-[#111827] to-[#1a2332] p-4 shadow-lg hover:border-slate-700 transition-all duration-300">
+      <div className="surface-card mb-4 rounded-xl border border-[var(--border)] p-4 shadow-lg transition-all duration-300 hover:border-[var(--border-strong)]">
         {/* Top Row - Company Info & Action Buttons */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           {/* Left Section - Company & Job Info */}
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-lg bg-gradient-to-br from-green-500/20 to-blue-500/20 border border-green-500/30 flex-shrink-0">
-              <span className="text-base sm:text-lg font-bold text-green-400">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-[var(--primary-border)] bg-[var(--primary-soft)] sm:h-12 sm:w-12">
+              <span className="text-base font-bold text-[var(--primary)] sm:text-lg">
                 {job.candidatePosted?.currentCompany?.charAt(0) || "J"}
               </span>
             </div>
 
             <div className="min-w-0">
-              <h2 className="text-base sm:text-lg font-bold text-white truncate">
+              <h2 className="truncate text-base font-bold text-[var(--text-primary)] sm:text-lg">
                 {job.jobTitle?.[0] || job.jobRoles?.[0] || "Untitled Job"}
               </h2>
 
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-0.5">
-                <div className="flex items-center gap-1 text-xs text-gray-400">
-                  <Building2 size={12} className="text-gray-500" />
+              <div className="mt-0.5 flex flex-wrap items-center gap-1.5 sm:gap-2">
+                <div className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
+                  <Building2 size={12} className="text-[var(--text-muted)]" />
                   <span>{job.candidatePosted?.currentCompany || "Company"}</span>
                 </div>
 
-                <span className="text-gray-600 text-[10px]">•</span>
+                <span className="text-[10px] text-[var(--text-muted)]">•</span>
 
-                <div className="flex items-center gap-1 text-xs text-gray-400">
-                  <MapPin size={12} className="text-gray-500" />
+                <div className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
+                  <MapPin size={12} className="text-[var(--text-muted)]" />
                   <span>{job.location?.[0] || "Location"}</span>
                 </div>
 
                 {job.jobType && (
                   <>
-                    <span className="text-gray-600 text-[10px]">•</span>
-                    <span className={`text-[9px] font-medium px-2 py-0.5 rounded-full border ${
+                    <span className="text-[10px] text-[var(--text-muted)]">•</span>
+                    <span className={`badge rounded-full px-2 py-0.5 text-[9px] font-medium ${
                       job.jobType === "Referral" 
-                        ? "bg-purple-500/10 text-purple-400 border-purple-500/30" 
-                        : "bg-blue-500/10 text-blue-400 border-blue-500/30"
+                        ? "badge-primary" 
+                        : "badge-info"
                     }`}>
                       {job.jobType}
                     </span>
@@ -133,13 +133,13 @@ export default function JobDetailPage({ job }: LeftPanelProps) {
             </div>
           </div>
 
-          {/* Right Section - Action Buttons (Save, Share, Apply in row) */}
-          <div className="flex items-center gap-1.5 flex-shrink-0">
+          {/* Right Section - Action Buttons */}
+          <div className="flex flex-shrink-0 items-center gap-1.5">
             {/* Apply Button */}
             <button
               onClick={handleApply}
               disabled={isApplying}
-              className="group flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 px-3 py-1.5 text-xs font-medium text-black transition-all duration-200 hover:from-green-400 hover:to-emerald-400 hover:shadow-lg hover:shadow-green-500/25 disabled:opacity-70 disabled:cursor-not-allowed"
+              className="btn-primary group flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-[var(--primary)]/25 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isApplying ? (
                 <>
@@ -158,12 +158,12 @@ export default function JobDetailPage({ job }: LeftPanelProps) {
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="group flex items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-1.5 text-xs font-medium text-gray-300 transition-all duration-200 hover:bg-slate-800/50 hover:border-slate-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-secondary group flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSaved ? (
-                <BookmarkCheck size={13} className="text-green-400" />
+                <BookmarkCheck size={13} className="text-[var(--success)]" />
               ) : (
-                <Bookmark size={13} className="group-hover:text-green-400 transition-colors" />
+                <Bookmark size={13} className="transition-colors group-hover:text-[var(--primary)]" />
               )}
               <span>{isSaving ? "Saving..." : isSaved ? "Saved" : "Save"}</span>
             </button>
@@ -171,35 +171,35 @@ export default function JobDetailPage({ job }: LeftPanelProps) {
             {/* Share Button */}
             <button
               onClick={handleShare}
-              className="group flex items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-1.5 text-xs font-medium text-gray-300 transition-all duration-200 hover:bg-slate-800/50 hover:border-slate-600 hover:text-white"
+              className="btn-secondary group flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95"
             >
-              <Share2 size={13} className="group-hover:scale-110 transition-transform" />
+              <Share2 size={13} className="transition-transform group-hover:scale-110" />
               <span className="hidden sm:inline">Share</span>
             </button>
           </div>
         </div>
 
-        {/* Bottom Row - Quick Stats (Openings & Employment Type) */}
-        <div className="mt-3 pt-3 border-t border-slate-800/50 flex flex-wrap items-center gap-3 text-xs text-gray-400">
+        {/* Bottom Row - Quick Stats */}
+        <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-[var(--border)] pt-3 text-xs text-[var(--text-muted)]">
           {job.numberOfOpenings && (
-            <div className="flex items-center gap-1.5 bg-slate-800/30 rounded-lg px-2.5 py-1">
-              <Briefcase size={12} className="text-green-400" />
-              <span className="text-white font-medium">{job.numberOfOpenings}</span>
+            <div className="flex items-center gap-1.5 rounded-lg bg-[var(--background-soft)] px-2.5 py-1">
+              <Briefcase size={12} className="text-[var(--primary)]" />
+              <span className="font-medium text-[var(--text-primary)]">{job.numberOfOpenings}</span>
               <span>Openings</span>
             </div>
           )}
 
           {job.employmentType && job.employmentType.length > 0 && (
-            <div className="flex items-center gap-1.5 bg-slate-800/30 rounded-lg px-2.5 py-1">
-              <Clock size={12} className="text-blue-400" />
-              <span className="text-white font-medium">{job.employmentType.join(", ")}</span>
+            <div className="flex items-center gap-1.5 rounded-lg bg-[var(--background-soft)] px-2.5 py-1">
+              <Clock size={12} className="text-[var(--info)]" />
+              <span className="font-medium text-[var(--text-primary)]">{job.employmentType.join(", ")}</span>
             </div>
           )}
 
-          {job.workMode && (
-            <div className="flex items-center gap-1.5 bg-slate-800/30 rounded-lg px-2.5 py-1">
-              <Eye size={12} className="text-purple-400" />
-              <span className="text-white font-medium">{job.views}</span>
+          {job.views !== undefined && (
+            <div className="flex items-center gap-1.5 rounded-lg bg-[var(--background-soft)] px-2.5 py-1">
+              <Eye size={12} className="text-[var(--primary)]" />
+              <span className="font-medium text-[var(--text-primary)]">{job.views}</span>
             </div>
           )}
         </div>
@@ -215,10 +215,10 @@ export default function JobDetailPage({ job }: LeftPanelProps) {
               key={tab.id}
               onClick={() => setSelectedTab(tab.id)}
               className={`
-                flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] sm:text-xs font-medium transition-all duration-200
+                flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-medium transition-all duration-200 sm:text-xs
                 ${isActive 
-                  ? "bg-gradient-to-r from-green-500 to-emerald-500 text-black shadow-lg shadow-green-500/20" 
-                  : "border border-slate-700 text-gray-400 hover:bg-slate-800/50 hover:text-white hover:border-slate-600"
+                  ? "btn-primary shadow-lg shadow-[var(--primary)]/20" 
+                  : "btn-secondary"
                 }
               `}
             >
@@ -236,7 +236,7 @@ export default function JobDetailPage({ job }: LeftPanelProps) {
       </div>
 
       {/* Content Sections */}
-      <div className="rounded-xl border border-slate-800 bg-gradient-to-br from-[#111827] to-[#1a2332] p-4 shadow-lg">
+      <div className="surface-card rounded-xl border border-[var(--border)] p-4 shadow-lg">
         {selectedTab === "overview" && <OverviewSection job={job} />}
         {selectedTab === "requirements" && <RequirementSection job={job} />}
         {selectedTab === "compensation" && <CompensationSection job={job} />}

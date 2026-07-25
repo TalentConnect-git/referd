@@ -23,7 +23,7 @@ const items = [
 
 export default function LoginInfoPanel() {
   return (
-    <div className="hidden w-[40%] rounded-l-3xl bg-[var(--card)] px-9 py-8 lg:block">
+    <div className="hidden w-[40%] rounded-l-3xl bg-card px-9 py-8 lg:block">
       <Link href="/" className="flex items-center gap-0.5 group">
         {/* Logo Image */}
         <div className="relative h-6 w-6 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
@@ -37,31 +37,31 @@ export default function LoginInfoPanel() {
         </div>
 
         {/* Text with dot */}
-        <span className="text-lg font-medium tracking-tight text-white transition-colors duration-200 group-hover:text-[var(--primary)]">
+        <span className="text-lg font-medium tracking-tight text-primary transition-colors duration-200 group-hover:text-primary">
           referd
-          <span className="text-[var(--primary)]">.</span>
+          <span className="text-primary">.</span>
         </span>
       </Link>
 
-      <h1 className="mt-10 text-[24px] font-bold tracking-[-0.04em] text-white">
+      <h1 className="mt-10 text-[24px] font-bold tracking-[-0.04em] text-primary">
         Welcome Back
       </h1>
 
-      <p className="mt-3 max-w-[260px] text-[13px] leading-6 text-[var(--text-primary)]">
+      <p className="mt-3 max-w-[260px] text-[13px] leading-6 text-primary">
         Continue your referral or hiring journey seamlessly.
       </p>
 
       <div className="mt-10 space-y-7">
         {items.map((item) => (
           <div key={item.title} className="flex gap-3">
-            <div className="mt-[2px] text-[var(--primary)]">{item.icon}</div>
+            <div className="mt-[2px] text-primary">{item.icon}</div>
 
             <div>
-              <h3 className="text-[13px] font-semibold text-white">
+              <h3 className="text-[13px] font-semibold text-primary">
                 {item.title}
               </h3>
 
-              <p className="mt-1 max-w-[230px] text-[11px] leading-5 text-[var(--text-primary)]">
+              <p className="mt-1 max-w-[230px] text-[11px] leading-5 text-primary">
                 {item.text}
               </p>
             </div>
@@ -69,9 +69,9 @@ export default function LoginInfoPanel() {
         ))}
       </div>
 
-      <div className="mt-8 h-px w-full bg-[var(--border)]" />
+      <div className="mt-8 h-px w-full bg-divider" />
 
-      <p className="mt-6 font-mono text-[10px] text-[var(--text-primary)]">
+      <p className="mt-6 font-mono text-[10px] text-primary">
         Alumni Referral Network
       </p>
     </div>

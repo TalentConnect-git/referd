@@ -1,5 +1,6 @@
 import { ProcessSectionProps } from "@/types/dashboard";
 import { useEffect, useMemo, useState } from "react";
+import { Calendar, Clock, Users, CheckCircle2 } from "lucide-react";
 
 export default function ProcessSection({ job }: ProcessSectionProps) {
   const radius = 42;
@@ -21,10 +22,10 @@ export default function ProcessSection({ job }: ProcessSectionProps) {
 
   // Get color based on match score
   const getScoreColor = (score: number) => {
-    if (score >= 75) return "#22c55e"; // Green
-    if (score >= 50) return "#eab308"; // Yellow
-    if (score >= 30) return "#f97316"; // Orange
-    return "#ef4444"; // Red
+    if (score >= 75) return "var(--success)"; // Green
+    if (score >= 50) return "var(--warning)"; // Yellow
+    if (score >= 30) return "var(--warning)"; // Orange
+    return "var(--danger)"; // Red
   };
 
   const getScoreLabel = (score: number) => {
@@ -35,34 +36,34 @@ export default function ProcessSection({ job }: ProcessSectionProps) {
   };
 
   const getScoreTextColor = (score: number) => {
-    if (score >= 75) return "text-green-400";
-    if (score >= 50) return "text-yellow-400";
-    if (score >= 30) return "text-orange-400";
-    return "text-red-400";
+    if (score >= 75) return "text-[var(--success)]";
+    if (score >= 50) return "text-[var(--warning)]";
+    if (score >= 30) return "text-[var(--warning)]";
+    return "text-[var(--danger)]";
   };
 
   return (
     <div className="space-y-4">
       {/* Match & Referral Insights */}
-      <div className="rounded-lg border border-[#1e293b] bg-[#111827] p-4">
-        <h3 className="mb-3 text-base font-semibold text-white">
+      <div className="surface-card rounded-lg p-4">
+        <h3 className="mb-3 text-base font-semibold text-[var(--text-primary)]">
           Match & Referral Insights
         </h3>
 
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <span className="text-sm">📦</span>
-              <span className="text-xs text-gray-400">Openings:</span>
-              <span className="text-sm font-semibold text-white">
+              <Users className="h-4 w-4 text-[var(--text-muted)]" />
+              <span className="text-xs text-[var(--text-muted)]">Openings:</span>
+              <span className="text-sm font-semibold text-[var(--text-primary)]">
                 {job.numberOfOpenings ?? "N/A"}
               </span>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm">✔️</span>
-              <span className="text-xs text-gray-400">Selection Rounds:</span>
-              <span className="text-sm font-semibold text-white">
+              <CheckCircle2 className="h-4 w-4 text-[var(--text-muted)]" />
+              <span className="text-xs text-[var(--text-muted)]">Selection Rounds:</span>
+              <span className="text-sm font-semibold text-[var(--text-primary)]">
                 {job.rounds?.[0] || 0}
               </span>
             </div>
@@ -78,13 +79,13 @@ export default function ProcessSection({ job }: ProcessSectionProps) {
               }}
             />
             
-            <svg width="100" height="100" className="-rotate-90 relative z-10">
+            <svg width="100" height="100" className="relative z-10 -rotate-90">
               {/* Background circle */}
               <circle
                 cx="50"
                 cy="50"
                 r={radius}
-                stroke="#1e293b"
+                stroke="var(--border)"
                 strokeWidth="7"
                 fill="none"
               />
@@ -116,35 +117,36 @@ export default function ProcessSection({ job }: ProcessSectionProps) {
       </div>
 
       {/* Selection Process */}
-      <div className="rounded-lg border border-[#1e293b] bg-[#111827] p-4">
-        <h3 className="mb-2 text-base font-semibold text-white">
+      <div className="surface-card rounded-lg p-4">
+        <h3 className="mb-2 text-base font-semibold text-[var(--text-primary)]">
           Selection Process
         </h3>
 
         {job.selectionProcess?.length ? (
-          <div className="p-3">
+          <div className="space-y-1.5 p-2">
             {job.selectionProcess.map((step: string, index: number) => (
-              <p key={index} className="text-sm text-gray-300">
+              <p key={index} className="text-sm text-[var(--text-secondary)]">
                 {index + 1}. {step}
               </p>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-400">No selection process specified</p>
+          <p className="text-sm text-[var(--text-muted)]">No selection process specified</p>
         )}
       </div>
 
       {/* Important Dates */}
-      <div className="rounded-lg border border-[#1e293b] bg-[#111827] p-4">
-        <h3 className="mb-2 text-base font-semibold text-white">
+      <div className="surface-card rounded-lg p-4">
+        <h3 className="mb-2 text-base font-semibold text-[var(--text-primary)]">
           Important Dates
         </h3>
 
-        <div className="rounded-lg border border-[#334155] bg-[#161f2f] p-3">
-          <p className="text-xs font-medium text-blue-400">
+        <div className="rounded-lg border border-[var(--border)] bg-[var(--background-soft)] p-3">
+          <p className="flex items-center gap-1.5 text-xs font-medium text-[var(--info)]">
+            <Calendar className="h-3.5 w-3.5" />
             Application Deadline
           </p>
-          <p className="mt-1 text-sm font-semibold text-white">
+          <p className="mt-1 text-sm font-semibold text-[var(--text-primary)]">
             {job.endDate
               ? new Date(job.endDate).toLocaleDateString("en-IN", {
                   day: "numeric",

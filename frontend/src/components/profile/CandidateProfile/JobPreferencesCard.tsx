@@ -101,48 +101,48 @@ export default function JobPreferencesCard({
   const preferredRoles = getList(profile.jobRoles);
 
   return (
-    <section className="rounded-[14px] border border-white/10 bg-[#071018] px-[14px] py-[14px] shadow-[0_12px_30px_rgba(0,0,0,0.25)]">
+    <section className="surface-card rounded-[14px] border border-[var(--border)] bg-[var(--card)] p-[14px] shadow-md">
       {/* Header */}
       <div className="flex items-center gap-2.5">
-        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[8px] bg-[#12381f] text-[#37e875]">
+        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[8px] bg-[var(--primary-soft)] text-[var(--primary)]">
           <SlidersHorizontal className="h-3 w-3" />
         </div>
 
-        <h2 className="text-[13px] font-bold text-white tracking-wide">
+        <h2 className="text-sm font-bold tracking-wide text-[var(--text-primary)]">
           Job Preferences
         </h2>
       </div>
 
-      <div className="mt-[14px] border-t border-white/10" />
+      <div className="mt-[14px] border-t border-[var(--border)]" />
 
       {/* Salary & Shift Grid */}
       <div className="mt-[14px] grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-        <div className="rounded-[10px] border border-white/10 bg-[#0b1621] px-3 py-2.5">
-          <p className="text-[8px] font-normal uppercase tracking-[0.1em] text-[#7891c7]">
+        <div className="rounded-[10px] border border-[var(--border)] bg-[var(--background-soft)] px-3 py-2.5">
+          <p className="text-[8px] font-normal uppercase tracking-[0.1em] text-[var(--text-muted)]">
             CURRENT SALARY
           </p>
 
-          <p className="mt-0.5 text-[13px] font-medium leading-5 text-white">
+          <p className="mt-0.5 text-sm font-medium leading-5 text-[var(--text-primary)]">
             {currentSalary}
           </p>
         </div>
 
-        <div className="rounded-[10px] border border-white/10 bg-[#0b1621] px-3 py-2.5">
-          <p className="text-[8px] font-normal uppercase tracking-[0.1em] text-[#7891c7]">
+        <div className="rounded-[10px] border border-[var(--border)] bg-[var(--background-soft)] px-3 py-2.5">
+          <p className="text-[8px] font-normal uppercase tracking-[0.1em] text-[var(--text-muted)]">
             EXPECTED SALARY
           </p>
 
-          <p className="mt-0.5 text-[13px] font-medium leading-5 text-[#37e875]">
+          <p className="mt-0.5 text-sm font-medium leading-5 text-[var(--primary)]">
             {expectedSalary}
           </p>
         </div>
 
-        <div className="rounded-[10px] border border-white/10 bg-[#0b1621] px-3 py-2.5">
-          <p className="text-[8px] font-normal uppercase tracking-[0.1em] text-[#7891c7]">
+        <div className="rounded-[10px] border border-[var(--border)] bg-[var(--background-soft)] px-3 py-2.5">
+          <p className="text-[8px] font-normal uppercase tracking-[0.1em] text-[var(--text-muted)]">
             OPEN TO SHIFT
           </p>
 
-          <p className="mt-0.5 text-[13px] font-medium leading-5 text-white">
+          <p className="mt-0.5 text-sm font-medium leading-5 text-[var(--text-primary)]">
             {openToShift}
           </p>
         </div>
@@ -151,7 +151,7 @@ export default function JobPreferencesCard({
       {/* Locations & Roles Grid */}
       <div className="mt-[14px] grid grid-cols-1 gap-x-4 gap-y-3 md:grid-cols-2">
         <div>
-          <p className="text-[8px] font-normal uppercase tracking-[0.1em] text-[#7891c7]">
+          <p className="text-[8px] font-normal uppercase tracking-[0.1em] text-[var(--text-muted)]">
             PREFERRED LOCATIONS
           </p>
 
@@ -160,13 +160,13 @@ export default function JobPreferencesCard({
               preferredLocations.map((location) => (
                 <span
                   key={location}
-                  className="inline-flex h-5 items-center rounded-full bg-[#0b1621] px-2.5 text-[11px] font-medium text-white"
+                  className="inline-flex h-5 items-center rounded-full bg-[var(--background-soft)] px-2.5 text-[11px] font-medium text-[var(--text-primary)]"
                 >
                   {location}
                 </span>
               ))
             ) : (
-              <span className="inline-flex h-5 items-center rounded-full bg-[#0b1621] px-2.5 text-[11px] font-medium text-white">
+              <span className="inline-flex h-5 items-center rounded-full bg-[var(--background-soft)] px-2.5 text-[11px] font-medium text-[var(--text-muted)]">
                 -
               </span>
             )}
@@ -174,7 +174,7 @@ export default function JobPreferencesCard({
         </div>
 
         <div>
-          <p className="text-[8px] font-normal uppercase tracking-[0.1em] text-[#7891c7]">
+          <p className="text-[8px] font-normal uppercase tracking-[0.1em] text-[var(--text-muted)]">
             PREFERRED JOB ROLES
           </p>
 
@@ -183,14 +183,14 @@ export default function JobPreferencesCard({
               preferredRoles.map((role) => (
                 <span
                   key={role}
-                  className="inline-flex h-5 items-center gap-1 rounded-full border border-[#37e875]/45 bg-[#12381f] px-2.5 text-[11px] font-medium text-[#37e875]"
+                  className="badge badge-primary inline-flex h-5 items-center gap-1 rounded-full border border-[var(--primary-border)] bg-[var(--primary-soft)] px-2.5 text-[11px] font-medium text-[var(--primary)]"
                 >
                   <BriefcaseBusiness className="h-2.5 w-2.5" />
                   {role}
                 </span>
               ))
             ) : (
-              <span className="inline-flex h-5 items-center gap-1 rounded-full border border-[#37e875]/45 bg-[#12381f] px-2.5 text-[11px] font-medium text-[#37e875]">
+              <span className="badge badge-primary inline-flex h-5 items-center gap-1 rounded-full border border-[var(--primary-border)] bg-[var(--primary-soft)] px-2.5 text-[11px] font-medium text-[var(--primary)]">
                 <BriefcaseBusiness className="h-2.5 w-2.5" />
                 -
               </span>

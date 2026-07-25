@@ -4,7 +4,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { ChevronDown, X, Plus, Loader2 } from "lucide-react";
 
-// ✅ Export the Option type
+// Export the Option type
 export type Option = {
   value: string;
   label: string;
@@ -113,7 +113,7 @@ export function SelectInput({
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
       {label && (
-        <label className="mb-1.5 block text-xs font-medium text-gray-300">
+        <label className="form-label mb-1.5 block text-xs">
           {label}
         </label>
       )}
@@ -121,9 +121,9 @@ export function SelectInput({
       <div
         className={`relative flex min-h-11 w-full cursor-pointer items-center rounded-lg border ${
           disabled
-            ? "border-[#2a3a52] bg-[#0a0f1a] opacity-60"
-            : "border-[#2a3a52] bg-[#0f172a] hover:border-[#3a4a5a]"
-        } transition-all focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500`}
+            ? "border-theme bg-input-disabled opacity-60"
+            : "border-theme bg-input-background hover:border-strong"
+        } transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary`}
         onClick={() => !disabled && setIsOpen(true)}
       >
         <input
@@ -148,7 +148,7 @@ export function SelectInput({
           }}
           placeholder={placeholder}
           disabled={disabled}
-          className="w-full bg-transparent px-3 py-2.5 text-sm text-white outline-none placeholder:text-gray-500 disabled:cursor-not-allowed"
+          className="w-full bg-transparent px-3 py-2.5 text-sm text-primary outline-none placeholder:text-muted disabled:cursor-not-allowed"
         />
 
         <div className="flex items-center gap-1 pr-2">
@@ -159,13 +159,13 @@ export function SelectInput({
                 e.stopPropagation();
                 handleClear();
               }}
-              className="rounded-full p-0.5 text-gray-500 hover:text-white transition-colors"
+              className="rounded-full p-0.5 text-muted hover:text-primary transition-colors"
             >
               <X className="h-3.5 w-3.5" />
             </button>
           )}
           <ChevronDown
-            className={`h-4 w-4 text-gray-500 transition-transform ${
+            className={`h-4 w-4 text-muted transition-transform duration-200 ${
               isOpen ? "rotate-180" : ""
             }`}
           />
@@ -173,9 +173,9 @@ export function SelectInput({
       </div>
 
       {isOpen && !disabled && (
-        <div className="absolute z-50 mt-1 max-h-52 w-full overflow-y-auto rounded-lg border border-[#2a3a52] bg-[#111827] shadow-xl">
+        <div className="surface-card absolute z-50 mt-1 max-h-52 w-full overflow-y-auto p-1 shadow-lg animate-fade-in">
           {options.length === 0 && !searchTerm ? (
-            <div className="px-4 py-3 text-center text-sm text-gray-400">
+            <div className="px-4 py-3 text-center text-sm text-muted">
               No options available
             </div>
           ) : filteredOptions.length > 0 ? (
@@ -185,14 +185,14 @@ export function SelectInput({
                   key={option.value}
                   type="button"
                   onClick={() => handleSelect(option.value)}
-                  className="w-full px-4 py-2.5 text-left text-sm text-white hover:bg-green-500/10 transition-colors border-b border-[#2a3a52] last:border-0"
+                  className="sidebar-item w-full rounded-md px-4 py-2.5 text-left text-sm transition-colors"
                 >
                   {option.label}
                 </button>
               ))}
             </>
           ) : (
-            <div className="px-4 py-3 text-center text-sm text-gray-400">
+            <div className="px-4 py-3 text-center text-sm text-muted">
               No matching options found
             </div>
           )}
@@ -202,7 +202,7 @@ export function SelectInput({
               type="button"
               onClick={handleCreate}
               disabled={isCreating || loading}
-              className="w-full px-4 py-2.5 text-left text-sm text-green-400 hover:bg-green-500/10 transition-colors flex items-center gap-2 border-t border-[#2a3a52] disabled:opacity-50"
+              className="sidebar-item w-full rounded-md px-4 py-2.5 text-left text-sm text-primary transition-colors flex items-center gap-2 border-t border-theme disabled:opacity-50"
             >
               {isCreating || loading ? (
                 <>

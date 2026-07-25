@@ -13,31 +13,32 @@ import { RevealItem } from "@/components/ui/RevealSection";
 
 export default function Features() {
   const iconClass =
-    "mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-[rgba(49,170,64,0.20)] bg-[var(--primary-soft)] text-[var(--primary)]";
+    "mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-[var(--primary-border)] bg-[var(--primary-soft)] text-[var(--primary)]";
 
   return (
     <section
       id="product"
-      className="bg-[var(--background)] px-6 py-14 sm:px-8 lg:px-10"
+      className="bg-[var(--background)] px-4 py-12 sm:px-6 lg:px-8"
     >
       <div className="mx-auto max-w-7xl">
-        <p className="mb-4 font-mono text-[12px] font-semibold uppercase tracking-[0.35em] text-[var(--primary)]">
+        {/* Section Header */}
+        <p className="mb-3 font-mono text-xs font-semibold uppercase tracking-[0.35em] text-[var(--primary)] sm:mb-4">
           The Platform
         </p>
 
-        <h2 className="max-w-4xl text-[32px] font-bold leading-tight tracking-[-0.04em] text-white md:text-[40px]">
+        <h2 className="max-w-4xl text-3xl font-bold leading-tight tracking-[-0.04em] text-[var(--text-primary)] sm:text-4xl md:text-[40px]">
           What exactly is Referd?
         </h2>
 
-        <p className="mt-4 font-mono text-[15px] leading-7 text-[var(--text-primary)]">
+        <p className="mt-3 font-mono text-sm leading-7 text-[var(--text-secondary)] sm:mt-4 sm:text-[15px]">
           A focused network for one thing: turning your school alumni into
           actual job offers.
         </p>
 
         <div
           className="
-            mt-10 grid grid-cols-1 gap-5
-
+            mt-8 grid grid-cols-1 gap-4
+            sm:mt-10 sm:gap-5
             lg:grid-cols-4
             lg:grid-rows-[185px_245px_215px]
           "
@@ -52,10 +53,11 @@ export default function Features() {
               lg:row-start-1
             "
           >
-            <div className="relative h-full overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--card)]/70 p-6 sm:p-8">
+            <div className="surface-card relative h-full overflow-hidden rounded-3xl p-5 sm:p-6 lg:p-8">
+              {/* Glow Effect */}
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full bg-[var(--primary)]/10 blur-[80px]"
+                className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full bg-[var(--primary-soft)] blur-[80px]"
               />
 
               <div className="relative z-10 grid h-full gap-6 xl:grid-cols-[1fr_0.92fr] xl:items-center">
@@ -65,18 +67,18 @@ export default function Features() {
                       <Users size={24} />
                     </div>
 
-                    <h3 className="mb-3 text-[21px] font-semibold tracking-[-0.03em] text-white">
+                    <h3 className="mb-2 text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)] sm:mb-3 sm:text-[21px]">
                       Alumni Network
                     </h3>
 
-                    <p className="max-w-sm text-[14px] leading-6 text-[var(--text-primary)]">
+                    <p className="max-w-sm text-sm leading-6 text-[var(--text-secondary)]">
                       Find alumni — from your college or your past companies —
                       working where you want to be next. Verified identity keeps
                       every conversation warm, relevant, and trusted.
                     </p>
                   </div>
 
-                  <p className="mt-6 font-mono text-[11px] leading-5 tracking-wide text-[var(--text-primary)]">
+                  <p className="mt-4 font-mono text-[11px] leading-5 tracking-wide text-[var(--text-muted)] sm:mt-6">
                     Warm introductions from people who know you — from campus or
                     from your last job.
                   </p>
@@ -96,13 +98,13 @@ export default function Features() {
                         <GraduationCap size={16} />
                       </div>
 
-                      <p className="text-[12px] leading-5 text-white/85">
+                      <p className="text-xs leading-5 text-[var(--text-primary)]">
                         {profile}
                       </p>
                     </div>
                   ))}
 
-                  <div className="mt-3 rounded-xl border border-[rgba(49,170,64,0.24)] bg-[var(--primary-soft)] px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--primary)]">
+                  <div className="mt-3 rounded-xl border border-[var(--primary-border)] bg-[var(--primary-soft)] px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--primary)]">
                     Verified alumni network
                   </div>
                 </div>
@@ -119,15 +121,15 @@ export default function Features() {
               lg:row-start-1
             "
           >
-            <div className="relative h-full overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--card)]/70 p-5">
-              <div className="grid h-full gap-5 sm:grid-cols-[minmax(0,1fr)_176px] sm:items-center">
+            <div className="surface-card relative h-full overflow-hidden rounded-3xl p-4 sm:p-5">
+              <div className="grid h-full gap-4 sm:grid-cols-[minmax(0,1fr)_176px] sm:items-center sm:gap-5">
                 <div className="min-w-0">
                   <div
                     className="
                       mb-3 flex h-9 w-9
                       items-center justify-center
                       rounded-xl
-                      border border-[rgba(49,170,64,0.20)]
+                      border border-[var(--primary-border)]
                       bg-[var(--primary-soft)]
                       text-[var(--primary)]
                     "
@@ -135,11 +137,11 @@ export default function Features() {
                     <Briefcase size={20} />
                   </div>
 
-                  <h3 className="mb-1.5 text-[18px] font-semibold tracking-[-0.03em] text-white">
+                  <h3 className="mb-1.5 text-lg font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
                     Referral Jobs
                   </h3>
 
-                  <p className="max-w-md text-[14px] leading-5 text-[var(--text-primary)]">
+                  <p className="max-w-md text-sm leading-5 text-[var(--text-secondary)]">
                     Discover active roles posted by employees willing to refer
                     candidates from their network.
                   </p>
@@ -155,7 +157,7 @@ export default function Features() {
                         border border-[var(--border)]
                         bg-[var(--background-soft)]
                         font-mono text-[10px] font-semibold
-                        text-white/80
+                        text-[var(--text-muted)]
                       "
                     >
                       {label}
@@ -176,11 +178,11 @@ export default function Features() {
           >
             <div
               className="
-                relative h-full w-full overflow-hidden
+                surface-card relative h-full w-full overflow-hidden
                 rounded-3xl
-                border border-[rgba(49,170,64,0.32)]
-                bg-[linear-gradient(135deg,rgba(49,170,64,0.20),rgba(13,19,36,0.72))]
-                p-5
+                border border-[var(--primary-border)]
+                bg-gradient-to-br from-[var(--primary-soft)] to-[var(--background-soft)]
+                p-4 sm:p-5
               "
             >
               <div
@@ -189,7 +191,7 @@ export default function Features() {
                   pointer-events-none absolute
                   -bottom-14 -right-14
                   h-44 w-44 rounded-full
-                  bg-[var(--primary)]/15
+                  bg-[var(--primary-soft)]
                   blur-[60px]
                 "
               />
@@ -200,24 +202,24 @@ export default function Features() {
                     mb-2 flex h-8 w-8
                     items-center justify-center
                     rounded-xl
-                    border border-[rgba(49,170,64,0.26)]
-                    bg-[var(--background)]/70
+                    border border-[var(--primary-border)]
+                    bg-[var(--card)]/70
                     text-[var(--primary)]
                   "
                 >
                   <CheckCircle2 size={15} />
                 </div>
 
-                <h3 className="mb-2 text-[16px] font-semibold tracking-[-0.03em] text-white">
+                <h3 className="mb-2 text-base font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
                   The Outcome
                 </h3>
 
-                <p className="text-[14px] leading-5 text-[var(--text-primary)]">
+                <p className="text-sm leading-5 text-[var(--text-secondary)]">
                   The hiring system was built around applications. But careers
                   are built around relationships. Millions of candidates apply
                   every day. Most never reach the right person. Referd changes
                   hiring from:{" "}
-                  <strong className="font-bold text-white">
+                  <strong className="font-bold text-[var(--text-primary)]">
                     Cold application → Trusted introduction.
                   </strong>
                 </p>
@@ -234,22 +236,22 @@ export default function Features() {
               lg:row-start-2
             "
           >
-            <div className="flex h-full flex-col rounded-3xl border border-[var(--border)] bg-[var(--card)]/70 p-6">
+            <div className="surface-card flex h-full flex-col rounded-3xl p-5 sm:p-6">
               <div className={iconClass}>
                 <ShieldCheck size={24} />
               </div>
 
-              <h3 className="mb-3 text-[20px] font-semibold tracking-[-0.03em] text-white">
+              <h3 className="mb-2 text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)] sm:mb-3 sm:text-[20px]">
                 Trusted Referrals
               </h3>
 
-              <p className="text-[14px] leading-6 text-[var(--text-primary)]">
+              <p className="text-sm leading-6 text-[var(--text-secondary)]">
                 Every request is screened by a Referd Expert — a real interview,
                 a rating, a written review. Only vetted candidates reach the
                 referrer.
               </p>
 
-              <div className="mt-6 flex flex-1 flex-col justify-end gap-2.5">
+              <div className="mt-4 flex flex-1 flex-col justify-end gap-2.5 sm:mt-6">
                 {[
                   "Referd Expert Interview",
                   "Verified Candidature",
@@ -264,7 +266,7 @@ export default function Features() {
                       className="shrink-0 text-[var(--primary)]"
                     />
 
-                    <span className="text-[13px] text-white/82">
+                    <span className="text-sm text-[var(--text-secondary)]">
                       {item}
                     </span>
                   </div>
@@ -282,18 +284,18 @@ export default function Features() {
               lg:row-start-3
             "
           >
-            <div className="flex h-full flex-col justify-between rounded-3xl border border-[var(--border)] bg-[var(--card)]/70 p-6">
+            <div className="surface-card flex h-full flex-col justify-between rounded-3xl p-5 sm:p-6">
               <div className="grid gap-6 lg:grid-cols-[0.9fr_1.2fr] lg:items-center">
                 <div>
                   <div className={iconClass}>
                     <Activity size={24} />
                   </div>
 
-                  <h3 className="mb-2 text-[20px] font-semibold tracking-[-0.03em] text-white">
+                  <h3 className="mb-2 text-xl font-semibold tracking-[-0.03em] text-[var(--text-primary)] sm:text-[20px]">
                     End-to-End Tracking
                   </h3>
 
-                  <p className="max-w-md text-[14px] leading-6 text-[var(--text-primary)]">
+                  <p className="max-w-md text-sm leading-6 text-[var(--text-secondary)]">
                     Track every step from request accepted to final internal
                     submission, without wondering where things stand.
                   </p>
@@ -313,7 +315,7 @@ export default function Features() {
                         {index + 1}
                       </div>
 
-                      <p className="text-[13px] font-medium leading-5 text-white/85">
+                      <p className="text-sm font-medium leading-5 text-[var(--text-secondary)]">
                         {step}
                       </p>
                     </div>

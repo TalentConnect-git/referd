@@ -32,17 +32,17 @@ export default function TermsModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-      <div className="flex max-h-[75vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--background)] text-white shadow-2xl">
-        <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
-          <h2 className="text-[22px] font-bold tracking-[-0.04em] text-white">
+    <div className="modal-overlay fixed inset-0 z-[200] flex items-center justify-center bg-overlay p-4 backdrop-blur-sm">
+      <div className="modal-content flex max-h-[75vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-theme bg-background text-primary shadow-xl">
+        <div className="flex items-center justify-between border-b border-divider px-5 py-4">
+          <h2 className="text-[22px] font-bold tracking-[-0.04em] text-primary">
             Terms & Conditions
           </h2>
 
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full p-2 text-[var(--text-primary)] transition hover:bg-white/10 hover:text-white"
+            className="btn-ghost rounded-full p-2 text-primary transition hover:bg-card-hover hover:text-secondary"
             aria-label="Close terms modal"
           >
             <X className="h-5 w-5" />
@@ -50,9 +50,9 @@ export default function TermsModal({
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 py-5">
-          <div className="space-y-5 text-[13px] leading-6 text-[var(--text-primary)]">
+          <div className="space-y-5 text-[13px] leading-6 text-primary">
             <section>
-              <h3 className="mb-2 text-[16px] font-semibold text-white">
+              <h3 className="mb-2 text-[16px] font-semibold text-secondary">
                 Acceptance of Terms
               </h3>
               <p>
@@ -63,7 +63,7 @@ export default function TermsModal({
             </section>
 
             <section>
-              <h3 className="mb-2 text-[16px] font-semibold text-white">
+              <h3 className="mb-2 text-[16px] font-semibold text-secondary">
                 Platform Usage
               </h3>
               <p>
@@ -74,7 +74,7 @@ export default function TermsModal({
             </section>
 
             <section>
-              <h3 className="mb-2 text-[16px] font-semibold text-white">
+              <h3 className="mb-2 text-[16px] font-semibold text-secondary">
                 User Responsibilities
               </h3>
               <ul className="ml-5 list-disc space-y-1">
@@ -86,7 +86,7 @@ export default function TermsModal({
             </section>
 
             <section>
-              <h3 className="mb-2 text-[16px] font-semibold text-white">
+              <h3 className="mb-2 text-[16px] font-semibold text-secondary">
                 Account Suspension
               </h3>
               <p>
@@ -97,7 +97,7 @@ export default function TermsModal({
             </section>
 
             <section>
-              <h3 className="mb-2 text-[16px] font-semibold text-white">
+              <h3 className="mb-2 text-[16px] font-semibold text-secondary">
                 Intellectual Property
               </h3>
               <p>
@@ -108,7 +108,7 @@ export default function TermsModal({
             </section>
 
             <section>
-              <h3 className="mb-2 text-[16px] font-semibold text-white">
+              <h3 className="mb-2 text-[16px] font-semibold text-secondary">
                 Third-Party Links
               </h3>
               <p>
@@ -119,7 +119,7 @@ export default function TermsModal({
             </section>
 
             <section>
-              <h3 className="mb-2 text-[16px] font-semibold text-white">
+              <h3 className="mb-2 text-[16px] font-semibold text-secondary">
                 Limitation of Liability
               </h3>
               <ul className="ml-5 list-disc space-y-1">
@@ -130,7 +130,7 @@ export default function TermsModal({
             </section>
 
             <section>
-              <h3 className="mb-2 text-[16px] font-semibold text-white">
+              <h3 className="mb-2 text-[16px] font-semibold text-secondary">
                 Governing Law
               </h3>
               <p>
@@ -140,14 +140,14 @@ export default function TermsModal({
             </section>
 
             <section>
-              <h3 className="mb-2 text-[16px] font-semibold text-white">
+              <h3 className="mb-2 text-[16px] font-semibold text-secondary">
                 Contact Information
               </h3>
               <p>
                 For questions related to Terms & Conditions, contact{" "}
                 <a
                   href="mailto:support@rawrecruit.com"
-                  className="font-semibold text-[var(--primary)] hover:underline"
+                  className="font-semibold text-primary hover:underline"
                 >
                   support@rawrecruit.com
                 </a>
@@ -157,11 +157,11 @@ export default function TermsModal({
           </div>
         </div>
 
-        <div className="flex gap-3 border-t border-[var(--border)] px-5 py-4">
+        <div className="flex gap-3 border-t border-divider px-5 py-4">
           <button
             type="button"
             onClick={onClose}
-            className="h-10 flex-1 rounded-lg border border-white/10 text-[13px] font-semibold text-white transition hover:bg-white/10"
+            className="btn-secondary h-10 flex-1 rounded-lg border border-theme text-[13px] font-semibold text-primary transition hover:bg-card-hover"
           >
             Close
           </button>
@@ -169,7 +169,7 @@ export default function TermsModal({
           <button
             type="button"
             onClick={handleAgree}
-            className="button-color flex h-10 flex-1 items-center justify-center rounded-lg text-[13px] font-semibold text-black transition hover:brightness-110"
+            className="btn-primary flex h-10 flex-1 items-center justify-center rounded-lg text-[13px] font-semibold text-inverse transition hover:brightness-110"
           >
             <CheckCircle className="mr-2 h-4 w-4" />
             I Agree

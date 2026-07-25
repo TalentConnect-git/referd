@@ -43,19 +43,19 @@ export default function EmptyStateStepper({
       : "Start your first referral";
 
   return (
-    <div className="mx-4 mt-4 rounded-2xl border border-[#1e293b] bg-[#0f172a] ">
+    <div className="surface-card mx-4 mt-4 rounded-2xl p-4 sm:p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-[var(--primary)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--primary)]">
             Get started
           </p>
-          <h3 className="mt-1 text-[16px] font-semibold text-white">
+          <h3 className="mt-1 text-base font-semibold text-[var(--text-primary)]">
             {heading}
           </h3>
         </div>
         <Link
           href={`/${userType}/referral-jobs`}
-          className="inline-flex h-9 items-center rounded-full bg-[var(--primary)] px-4 text-[12px] font-semibold text-black transition hover:bg-[var(--primary-dark)]"
+          className="btn-primary inline-flex h-9 items-center rounded-full px-4 text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95"
         >
           Browse jobs
         </Link>
@@ -69,18 +69,22 @@ export default function EmptyStateStepper({
             <Link
               key={step.title}
               href={`/${userType}/${step.href}`}
-              className="group relative overflow-hidden rounded-xl border border-[#1e293b] bg-[#111827] p-4 transition hover:border-[var(--primary)]/70 hover:bg-[#142018]"
+              className="group relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 transition-all duration-200 hover:border-[var(--primary-border)] hover:bg-[var(--card-hover)] hover:shadow-sm"
             >
-              <span className="absolute right-3 top-2 select-none font-mono text-[42px] font-bold leading-none text-white opacity-[0.04]">
+              {/* Background number */}
+              <span className="absolute right-3 top-2 select-none font-mono text-[42px] font-bold leading-none text-[var(--text-primary)] opacity-[0.04]">
                 {String(index + 1).padStart(2, "0")}
               </span>
-              <div className="relative z-10 flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--primary-soft)] text-[var(--primary)]">
+              
+              <div className="relative z-10 flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--primary-soft)] text-[var(--primary)] transition-transform duration-200 group-hover:scale-110">
                 <Icon className="h-4 w-4" />
               </div>
-              <h4 className="relative z-10 mt-3 text-[14px] font-semibold text-white">
+              
+              <h4 className="relative z-10 mt-3 text-sm font-semibold text-[var(--text-primary)] transition-colors duration-200 group-hover:text-[var(--primary)]">
                 {step.title}
               </h4>
-              <p className="relative z-10 mt-1 text-[12px] leading-5 text-gray-400">
+              
+              <p className="relative z-10 mt-1 text-xs leading-5 text-[var(--text-secondary)]">
                 {step.description}
               </p>
             </Link>

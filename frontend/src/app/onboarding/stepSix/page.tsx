@@ -81,7 +81,6 @@ const toolsAndPlatforms = [
 ];
 
 const certificationOptions = [
-  // AWS Certifications
   "AWS Certified Cloud Practitioner",
   "AWS Certified Solutions Architect - Associate",
   "AWS Certified Solutions Architect - Professional",
@@ -94,8 +93,6 @@ const certificationOptions = [
   "AWS Certified Advanced Networking - Specialty",
   "AWS Certified Database - Specialty",
   "AWS Certified SAP on AWS - Specialty",
-
-  // Google Cloud Certifications
   "Google Cloud Digital Leader",
   "Google Cloud Associate Cloud Engineer",
   "Google Cloud Professional Cloud Architect",
@@ -105,8 +102,6 @@ const certificationOptions = [
   "Google Cloud Professional Cloud Network Engineer",
   "Google Cloud Professional Machine Learning Engineer",
   "Google Cloud Professional Collaboration Engineer",
-
-  // Microsoft Azure Certifications
   "Microsoft Azure Fundamentals",
   "Microsoft Azure Administrator Associate",
   "Microsoft Azure Developer Associate",
@@ -116,13 +111,9 @@ const certificationOptions = [
   "Microsoft Azure Data Scientist Associate",
   "Microsoft Azure AI Engineer Associate",
   "Microsoft Azure Database Administrator Associate",
-
-  // Other Cloud Certifications
   "Oracle Cloud Infrastructure Certified",
   "IBM Cloud Certified",
   "VMware Certified Professional",
-
-  // Other Popular Certifications
   "Certified Kubernetes Administrator (CKA)",
   "Certified Kubernetes Application Developer (CKAD)",
   "Red Hat Certified Engineer (RHCE)",
@@ -214,7 +205,6 @@ export default function SkillsAchievementsForm() {
   const [loadingSkills, setLoadingSkills] = useState(false);
   const [isCreatingSkill, setIsCreatingSkill] = useState(false);
 
-  // Certification states
   const [certSearchTerm, setCertSearchTerm] = useState("");
   const [isCertDropdownOpen, setIsCertDropdownOpen] = useState(false);
 
@@ -233,7 +223,6 @@ export default function SkillsAchievementsForm() {
     currentSalaryAmount: "",
   });
 
-  // Load saved data from localStorage
   useEffect(() => {
     const parsedResume = localStorage.getItem("parsedResume");
     const savedSkills = localStorage.getItem("skillsAchievements");
@@ -252,7 +241,6 @@ export default function SkillsAchievementsForm() {
 
     const parsedData: ParsedResume = JSON.parse(parsedResume);
 
-    // Handle certifications - could be array or string
     let certs: string[] = [];
     if (Array.isArray(parsedData.certifications)) {
       certs = parsedData.certifications;
@@ -270,7 +258,6 @@ export default function SkillsAchievementsForm() {
     }));
   }, []);
 
-  // Fetch skills from API
   useEffect(() => {
     const fetchSkills = async () => {
       try {
@@ -301,7 +288,6 @@ export default function SkillsAchievementsForm() {
     fetchSkills();
   }, [API_URL]);
 
-  // Handle click outside for skills dropdown
   useEffect(() => {
     const closeDropdown = (e: MouseEvent) => {
       if (!dropdownRef.current?.contains(e.target as Node)) {
@@ -312,7 +298,6 @@ export default function SkillsAchievementsForm() {
     return () => document.removeEventListener("mousedown", closeDropdown);
   }, []);
 
-  // Handle click outside for certification dropdown
   useEffect(() => {
     const closeCertDropdown = (e: MouseEvent) => {
       if (!certDropdownRef.current?.contains(e.target as Node)) {
@@ -337,7 +322,6 @@ export default function SkillsAchievementsForm() {
       .sort();
   }, [skillOptions, customSkillSearch, formData.skills]);
 
-  // Filter certifications
   const filteredCertifications = useMemo(() => {
     return certificationOptions
       .filter((cert) =>
@@ -352,7 +336,6 @@ export default function SkillsAchievementsForm() {
       .sort();
   }, [certSearchTerm, formData.certifications]);
 
-  // Add new skill via API
   const handleAddNewSkill = async (skillName: string) => {
     const trimmedSkill = skillName.trim();
     if (!trimmedSkill) return;
@@ -433,7 +416,6 @@ export default function SkillsAchievementsForm() {
     setIsDropdownOpen(false);
   };
 
-  // Certification handlers
   const handleSelectCertification = (cert: string) => {
     if (formData.certifications.includes(cert)) return;
     setFormData((prev) => ({
@@ -575,36 +557,36 @@ export default function SkillsAchievementsForm() {
   };
 
   return (
-    <div className="min-h-screen bg-black px-5 py-8 text-white">
+    <div className="min-h-screen bg-[var(--background)] px-4 py-6 text-[var(--text-primary)] sm:px-5 sm:py-8">
       <div className="mx-auto flex min-h-[calc(100vh-64px)] max-w-3xl items-center justify-center">
-        <div className="w-full rounded-3xl border border-[#2a3a52] bg-[#0f172a] p-7 shadow-2xl lg:p-10">
-          <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-green-500/10 border border-green-500/20">
-              <Award className="h-8 w-8 text-green-400" />
+        <div className="surface-card w-full rounded-3xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-2xl sm:p-7 lg:p-10">
+          <div className="mb-6 text-center sm:mb-8">
+            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-[var(--primary-border)] bg-[var(--primary-soft)] sm:mb-4 sm:h-16 sm:w-16">
+              <Award className="h-6 w-6 text-[var(--primary)] sm:h-8 sm:w-8" />
             </div>
 
-            <h1 className="text-[26px] font-bold tracking-[-0.04em] text-white">
+            <h1 className="text-2xl font-bold tracking-[-0.04em] text-[var(--text-primary)] sm:text-[26px]">
               Skills & Achievements
             </h1>
 
-            <p className="mt-2 text-[13px] text-gray-400">
+            <p className="mt-1 text-xs text-[var(--text-muted)] sm:mt-2 sm:text-sm">
               Highlight your skills and achievements to stand out to employers.
             </p>
           </div>
 
-          <div className="space-y-5">
+          <div className="space-y-4 sm:space-y-5">
             {/* Skills */}
             <div ref={dropdownRef}>
-              <label className="mb-2 block text-[13px] font-medium text-white">
+              <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)] sm:mb-2 sm:text-sm">
                 Skills
               </label>
 
               <div className="relative">
-                <div className="flex min-h-12 flex-wrap gap-2 rounded-lg border border-[#2a3a52] bg-[#0f172a] p-3 transition focus-within:border-green-500 focus-within:ring-2 focus-within:ring-green-500/15">
+                <div className="flex min-h-12 flex-wrap gap-2 rounded-lg border border-[var(--border)] bg-[var(--background-soft)] p-3 transition focus-within:border-[var(--primary)] focus-within:ring-2 focus-within:ring-[var(--focus-ring)]">
                   {formData.skills.map((skill) => (
                     <span
                       key={skill}
-                      className="flex items-center gap-1 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-[12px] font-medium text-green-400"
+                      className="badge badge-primary flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium"
                     >
                       {skill}
                       <button type="button" onClick={() => removeSkill(skill)}>
@@ -626,15 +608,15 @@ export default function SkillsAchievementsForm() {
                         ? "Loading skills..."
                         : "Search skills like React, Node.js"
                     }
-                    className="min-w-[160px] flex-1 bg-transparent text-[13px] text-white outline-none placeholder:text-gray-500"
+                    className="min-w-[160px] flex-1 bg-transparent text-xs text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] sm:text-sm"
                   />
                 </div>
 
                 {isDropdownOpen && (
-                  <div className="absolute z-50 mt-2 max-h-60 w-full overflow-y-auto rounded-xl border border-[#2a3a52] bg-[#0f172a] shadow-2xl">
+                  <div className="surface-card absolute z-50 mt-2 max-h-60 w-full overflow-y-auto rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-2xl">
                     {isCreatingSkill && (
-                      <div className="flex items-center gap-2 px-4 py-3 text-[13px] text-gray-400">
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                      <div className="flex items-center gap-2 px-4 py-3 text-xs text-[var(--text-muted)] sm:text-sm">
+                        <Loader2 className="h-4 w-4 animate-spin text-[var(--primary)]" />
                         Adding skill...
                       </div>
                     )}
@@ -644,7 +626,7 @@ export default function SkillsAchievementsForm() {
                         key={skill}
                         type="button"
                         onClick={() => handleSelectOrAddSkill(skill)}
-                        className="block w-full border-b border-[#2a3a52] px-4 py-3 text-left text-[13px] text-white transition last:border-none hover:bg-green-500/10"
+                        className="block w-full border-b border-[var(--border)] px-4 py-3 text-left text-xs text-[var(--text-primary)] transition last:border-none hover:bg-[var(--primary-soft)] sm:text-sm"
                       >
                         {skill}
                       </button>
@@ -661,12 +643,12 @@ export default function SkillsAchievementsForm() {
                           onClick={() =>
                             handleSelectOrAddSkill(customSkillSearch)
                           }
-                          className="block w-full px-4 py-3 text-left text-[13px] font-medium text-green-400 transition hover:bg-green-500/10"
+                          className="block w-full px-4 py-3 text-left text-xs font-medium text-[var(--primary)] transition hover:bg-[var(--primary-soft)] sm:text-sm"
                           disabled={isCreatingSkill}
                         >
                           {isCreatingSkill ? (
                             <span className="flex items-center gap-2">
-                              <Loader2 className="h-4 w-4 animate-spin" />
+                              <Loader2 className="h-4 w-4 animate-spin text-[var(--primary)]" />
                               Adding...
                             </span>
                           ) : (
@@ -678,7 +660,7 @@ export default function SkillsAchievementsForm() {
                     {!loadingSkills &&
                       !customSkillSearch &&
                       filteredSkillOptions.length === 0 && (
-                        <p className="px-4 py-3 text-[13px] text-gray-400">
+                        <p className="px-4 py-3 text-xs text-[var(--text-muted)] sm:text-sm">
                           No skills available. Type to add new skill.
                         </p>
                       )}
@@ -687,18 +669,18 @@ export default function SkillsAchievementsForm() {
               </div>
             </div>
 
-            {/* Certifications - New Multi-Select with Hardcoded Options */}
+            {/* Certifications */}
             <div ref={certDropdownRef}>
-              <label className="mb-2 block text-[13px] font-medium text-white">
+              <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)] sm:mb-2 sm:text-sm">
                 Certifications
               </label>
 
               <div className="relative">
-                <div className="flex min-h-12 flex-wrap gap-2 rounded-lg border border-[#2a3a52] bg-[#0f172a] p-3 transition focus-within:border-green-500 focus-within:ring-2 focus-within:ring-green-500/15">
+                <div className="flex min-h-12 flex-wrap gap-2 rounded-lg border border-[var(--border)] bg-[var(--background-soft)] p-3 transition focus-within:border-[var(--primary)] focus-within:ring-2 focus-within:ring-[var(--focus-ring)]">
                   {formData.certifications.map((cert) => (
                     <span
                       key={cert}
-                      className="flex items-center gap-1 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-[12px] font-medium text-green-400"
+                      className="badge badge-primary flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium"
                     >
                       <Award className="h-3 w-3" />
                       {cert}
@@ -724,21 +706,21 @@ export default function SkillsAchievementsForm() {
                         ? "Search certifications like AWS, Google Cloud..."
                         : "Add more certifications..."
                     }
-                    className="min-w-[160px] flex-1 bg-transparent text-[13px] text-white outline-none placeholder:text-gray-500"
+                    className="min-w-[160px] flex-1 bg-transparent text-xs text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] sm:text-sm"
                   />
                 </div>
 
                 {isCertDropdownOpen && (
-                  <div className="absolute z-50 mt-2 max-h-60 w-full overflow-y-auto rounded-xl border border-[#2a3a52] bg-[#0f172a] shadow-2xl">
+                  <div className="surface-card absolute z-50 mt-2 max-h-60 w-full overflow-y-auto rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-2xl">
                     {filteredCertifications.length > 0 ? (
                       filteredCertifications.slice(0, 20).map((cert) => (
                         <button
                           key={cert}
                           type="button"
                           onClick={() => handleSelectCertification(cert)}
-                          className="flex w-full items-center gap-2 border-b border-[#2a3a52] px-4 py-3 text-left text-[13px] text-white transition last:border-none hover:bg-green-500/10"
+                          className="flex w-full items-center gap-2 border-b border-[var(--border)] px-4 py-3 text-left text-xs text-[var(--text-primary)] transition last:border-none hover:bg-[var(--primary-soft)] sm:text-sm"
                         >
-                          <Award className="h-4 w-4 text-green-400" />
+                          <Award className="h-4 w-4 text-[var(--primary)]" />
                           {cert}
                         </button>
                       ))
@@ -748,13 +730,13 @@ export default function SkillsAchievementsForm() {
                           <button
                             type="button"
                             onClick={handleAddCustomCertification}
-                            className="flex w-full items-center gap-2 text-[13px] text-green-400 hover:bg-green-500/10 rounded-lg px-2 py-2 transition"
+                            className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-xs text-[var(--primary)] transition hover:bg-[var(--primary-soft)] sm:text-sm"
                           >
                             <Plus className="h-4 w-4" />
                             Add "{certSearchTerm}"
                           </button>
                         ) : (
-                          <p className="text-[13px] text-gray-400">
+                          <p className="text-xs text-[var(--text-muted)] sm:text-sm">
                             Type to search certifications
                           </p>
                         )}
@@ -767,7 +749,7 @@ export default function SkillsAchievementsForm() {
 
             {/* Tools & Platforms */}
             <div>
-              <label className="mb-2 block text-[13px] font-medium text-white">
+              <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)] sm:mb-2 sm:text-sm">
                 Tools & Platforms Known
               </label>
 
@@ -776,7 +758,7 @@ export default function SkillsAchievementsForm() {
                   {formData.toolsAndPlatforms.map((tool) => (
                     <span
                       key={tool}
-                      className="flex items-center gap-1 rounded-full border border-[#2a3a52] bg-[#0f172a] px-3 py-1 text-[12px] text-white"
+                      className="badge flex items-center gap-1 rounded-full border border-[var(--border)] bg-[var(--background-soft)] px-3 py-1 text-xs text-[var(--text-primary)]"
                     >
                       {tool}
                       <button type="button" onClick={() => removeTool(tool)}>
@@ -788,11 +770,11 @@ export default function SkillsAchievementsForm() {
               )}
 
               <div className="flex items-center">
-                <Wrench className="mr-3 h-5 w-5 text-gray-500" />
+                <Wrench className="mr-3 h-5 w-5 text-[var(--text-muted)]" />
                 <select
                   onChange={handleToolsSelect}
                   value=""
-                  className="h-11 w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 text-[13px] text-white outline-none transition focus:border-green-500 focus:ring-2 focus:ring-green-500/15"
+                  className="select-field h-10 text-xs sm:h-11 sm:text-sm"
                 >
                   <option value="">Select a tool or platform</option>
                   {toolsAndPlatforms.map((tool) => (
@@ -805,9 +787,9 @@ export default function SkillsAchievementsForm() {
             </div>
 
             {/* Expected Salary */}
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
               <div>
-                <label className="mb-2 block text-[13px] font-medium text-white">
+                <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)] sm:mb-2 sm:text-sm">
                   Expected Salary
                 </label>
                 <div className="flex gap-2">
@@ -815,7 +797,7 @@ export default function SkillsAchievementsForm() {
                     name="expectedSalaryCurrency"
                     value={formData.expectedSalaryCurrency}
                     onChange={handleChange}
-                    className="w-24 rounded-lg border border-[#2a3a52] bg-[#0f172a] px-3 py-2 text-[13px] text-white outline-none transition focus:border-green-500 focus:ring-2 focus:ring-green-500/15"
+                    className="w-24 rounded-lg border border-[var(--border)] bg-[var(--background-soft)] px-3 py-2 text-xs text-[var(--text-primary)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--focus-ring)] sm:text-sm"
                   >
                     {currencyOptions.map((curr) => (
                       <option key={curr.value} value={curr.value}>
@@ -831,18 +813,18 @@ export default function SkillsAchievementsForm() {
                     value={formData.expectedSalaryAmount}
                     onChange={handleChange}
                     placeholder="e.g. 1200000"
-                    className="flex-1 rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2 text-[13px] text-white outline-none transition placeholder:text-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-500/15"
+                    className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--background-soft)] px-4 py-2 text-xs text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--focus-ring)] sm:text-sm"
                   />
                 </div>
                 {errors.expectedSalaryAmount && (
-                  <p className="mt-1 text-[12px] text-red-400">
+                  <p className="mt-1 text-xs text-[var(--danger)]">
                     {errors.expectedSalaryAmount}
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="mb-2 block text-[13px] font-medium text-white">
+                <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)] sm:mb-2 sm:text-sm">
                   Current Salary
                 </label>
                 <div className="flex gap-2">
@@ -850,7 +832,7 @@ export default function SkillsAchievementsForm() {
                     name="currentSalaryCurrency"
                     value={formData.currentSalaryCurrency}
                     onChange={handleChange}
-                    className="w-24 rounded-lg border border-[#2a3a52] bg-[#0f172a] px-3 py-2 text-[13px] text-white outline-none transition focus:border-green-500 focus:ring-2 focus:ring-green-500/15"
+                    className="w-24 rounded-lg border border-[var(--border)] bg-[var(--background-soft)] px-3 py-2 text-xs text-[var(--text-primary)] outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--focus-ring)] sm:text-sm"
                   >
                     {currencyOptions.map((curr) => (
                       <option key={curr.value} value={curr.value}>
@@ -866,11 +848,11 @@ export default function SkillsAchievementsForm() {
                     value={formData.currentSalaryAmount}
                     onChange={handleChange}
                     placeholder="e.g. 800000"
-                    className="flex-1 rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2 text-[13px] text-white outline-none transition placeholder:text-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-500/15"
+                    className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--background-soft)] px-4 py-2 text-xs text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--focus-ring)] sm:text-sm"
                   />
                 </div>
                 {errors.currentSalaryAmount && (
-                  <p className="mt-1 text-[12px] text-red-400">
+                  <p className="mt-1 text-xs text-[var(--danger)]">
                     {errors.currentSalaryAmount}
                   </p>
                 )}
@@ -879,11 +861,11 @@ export default function SkillsAchievementsForm() {
 
             {/* LinkedIn */}
             <div>
-              <label className="mb-2 block text-[13px] font-medium text-white">
+              <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)] sm:mb-2 sm:text-sm">
                 LinkedIn Profile
               </label>
               <div className="flex items-center">
-                <Link className="mr-3 h-5 w-5 text-gray-500" />
+                <Link className="mr-3 h-5 w-5 text-[var(--text-muted)]" />
                 <div className="w-full">
                   <input
                     name="linkedin"
@@ -891,10 +873,10 @@ export default function SkillsAchievementsForm() {
                     value={formData.linkedin}
                     onChange={handleChange}
                     placeholder="linkedin.com/in/username"
-                    className="h-11 w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 text-[13px] text-white outline-none transition placeholder:text-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-500/15"
+                    className="input-field h-10 text-xs sm:h-11 sm:text-sm"
                   />
                   {errors.linkedin && (
-                    <p className="mt-1 text-[12px] text-red-400">
+                    <p className="mt-1 text-xs text-[var(--danger)]">
                       {errors.linkedin}
                     </p>
                   )}
@@ -904,11 +886,11 @@ export default function SkillsAchievementsForm() {
 
             {/* GitHub */}
             <div>
-              <label className="mb-2 block text-[13px] font-medium text-white">
+              <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)] sm:mb-2 sm:text-sm">
                 GitHub Profile
               </label>
               <div className="flex items-center">
-                <FileCode className="mr-3 h-5 w-5 text-gray-500" />
+                <FileCode className="mr-3 h-5 w-5 text-[var(--text-muted)]" />
                 <div className="w-full">
                   <input
                     name="github"
@@ -916,10 +898,10 @@ export default function SkillsAchievementsForm() {
                     value={formData.github}
                     onChange={handleChange}
                     placeholder="github.com/username"
-                    className="h-11 w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 text-[13px] text-white outline-none transition placeholder:text-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-500/15"
+                    className="input-field h-10 text-xs sm:h-11 sm:text-sm"
                   />
                   {errors.github && (
-                    <p className="mt-1 text-[12px] text-red-400">
+                    <p className="mt-1 text-xs text-[var(--danger)]">
                       {errors.github}
                     </p>
                   )}
@@ -929,11 +911,11 @@ export default function SkillsAchievementsForm() {
 
             {/* Portfolio */}
             <div>
-              <label className="mb-2 block text-[13px] font-medium text-white">
+              <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)] sm:mb-2 sm:text-sm">
                 Portfolio Website
               </label>
               <div className="flex items-center">
-                <Link className="mr-3 h-5 w-5 text-gray-500" />
+                <Link className="mr-3 h-5 w-5 text-[var(--text-muted)]" />
                 <div className="w-full">
                   <input
                     name="portfolio"
@@ -941,10 +923,10 @@ export default function SkillsAchievementsForm() {
                     value={formData.portfolio}
                     onChange={handleChange}
                     placeholder="https://yourportfolio.com"
-                    className="h-11 w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 text-[13px] text-white outline-none transition placeholder:text-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-500/15"
+                    className="input-field h-10 text-xs sm:h-11 sm:text-sm"
                   />
                   {errors.portfolio && (
-                    <p className="mt-1 text-[12px] text-red-400">
+                    <p className="mt-1 text-xs text-[var(--danger)]">
                       {errors.portfolio}
                     </p>
                   )}
@@ -954,14 +936,14 @@ export default function SkillsAchievementsForm() {
 
             {/* Project Upload */}
             <div>
-              <label className="mb-2 block text-[13px] font-medium text-white">
+              <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)] sm:mb-2 sm:text-sm">
                 Upload a Project{" "}
-                <span className="text-gray-400">(Optional)</span>
+                <span className="text-[var(--text-muted)]">(Optional)</span>
               </label>
 
-              <label className="flex h-14 cursor-pointer items-center rounded-lg border-2 border-dashed border-[#2a3a52] bg-[#0f172a] px-4 transition hover:border-green-500 hover:bg-green-500/5">
-                <UploadIcon className="mr-3 h-5 w-5 text-gray-500" />
-                <span className="truncate text-[13px] text-gray-400">
+              <label className="flex h-12 cursor-pointer items-center rounded-lg border-2 border-dashed border-[var(--border)] bg-[var(--background-soft)] px-3 transition hover:border-[var(--primary-border)] hover:bg-[var(--primary-soft)] sm:h-14 sm:px-4">
+                <UploadIcon className="mr-2 h-4 w-4 text-[var(--text-muted)] sm:mr-3 sm:h-5 sm:w-5" />
+                <span className="truncate text-xs text-[var(--text-muted)] sm:text-sm">
                   {formData.project
                     ? formData.project.name
                     : "Click to upload project file (PDF, PPT, PPTX, JPG, PNG)"}
@@ -974,38 +956,35 @@ export default function SkillsAchievementsForm() {
                 />
               </label>
 
-              {/* File type instructions */}
               <div className="mt-1.5 space-y-1">
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-[var(--text-muted)]">
                   Supported formats: PDF, PPT, PPTX, JPG, PNG
                 </p>
-                <p className="text-xs text-yellow-400/70 flex items-center gap-1">
+                <p className="flex items-center gap-1 text-xs text-[var(--warning)]">
                   <AlertCircle className="h-3 w-3" />
                   ⚠️ DOC, DOCX and ZIP files are not supported
                 </p>
               </div>
 
-              {/* Show file info after upload */}
               {formData.project && (
-                <div className="mt-2 flex items-center gap-2 rounded-lg bg-green-500/10 border border-green-500/30 px-3 py-2">
-                  <FileIcon className="h-4 w-4 text-green-400" />
-                  <span className="text-sm text-green-400 truncate flex-1">
+                <div className="mt-2 flex items-center gap-2 rounded-lg border border-[var(--primary-border)] bg-[var(--primary-soft)] px-3 py-2">
+                  <FileIcon className="h-4 w-4 text-[var(--primary)]" />
+                  <span className="flex-1 truncate text-sm text-[var(--primary)]">
                     {formData.project.name}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-[var(--text-muted)]">
                     {(formData.project.size / 1024 / 1024).toFixed(2)} MB
                   </span>
                   <button
                     type="button"
                     onClick={() => {
                       setFormData({ ...formData, project: null });
-                      // Reset file input
                       const fileInput = document.querySelector(
                         'input[type="file"]',
                       ) as HTMLInputElement;
                       if (fileInput) fileInput.value = "";
                     }}
-                    className="text-red-400 hover:text-red-300 transition-colors"
+                    className="text-[var(--danger)] transition-colors hover:text-[var(--danger)]/80"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -1015,23 +994,23 @@ export default function SkillsAchievementsForm() {
           </div>
 
           {/* Buttons */}
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row">
             <button
               type="button"
               onClick={() => router.back()}
-              className="flex h-10 flex-1 items-center justify-center rounded-lg border border-[#2a3a52] bg-[#0f172a] text-[13px] font-semibold text-gray-300 transition hover:border-green-500/30 hover:bg-green-500/5 hover:text-white"
+              className="btn-secondary flex h-10 flex-1 items-center justify-center rounded-lg text-xs font-semibold sm:h-11 sm:text-sm"
             >
-              <ChevronLeft className="mr-2 h-4 w-4" />
+              <ChevronLeft className="mr-1.5 h-3.5 w-3.5 sm:mr-2 sm:h-4 sm:w-4" />
               Back
             </button>
 
             <button
               type="button"
               onClick={handleNext}
-              className="flex h-10 flex-1 items-center justify-center rounded-lg bg-green-500 text-[13px] font-semibold text-black transition-all duration-300 hover:bg-green-400 active:scale-[0.99]"
+              className="btn-primary flex h-10 flex-1 items-center justify-center rounded-lg text-xs font-semibold transition-all duration-300 active:scale-[0.99] sm:h-11 sm:text-sm"
             >
               Next
-              <ChevronRight className="ml-2 h-4 w-4" />
+              <ChevronRight className="ml-1.5 h-3.5 w-3.5 sm:ml-2 sm:h-4 sm:w-4" />
             </button>
           </div>
         </div>

@@ -25,17 +25,17 @@ export default function PrivacyModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-      <div className="flex max-h-[75vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--background)] text-white shadow-2xl">
-        <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
-          <h2 className="text-[22px] font-bold tracking-[-0.04em] text-white">
+    <div className="modal-overlay fixed inset-0 z-[200] flex items-center justify-center bg-overlay p-4 backdrop-blur-sm">
+      <div className="modal-content flex max-h-[75vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-theme bg-background text-primary shadow-xl">
+        <div className="flex items-center justify-between border-b border-divider px-5 py-4">
+          <h2 className="text-[22px] font-bold tracking-[-0.04em] text-primary">
             Privacy Policy
           </h2>
 
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full p-2 text-[var(--text-primary)] transition hover:bg-white/10 hover:text-white"
+            className="btn-ghost rounded-full p-2 text-primary transition hover:bg-card-hover hover:text-secondary"
             aria-label="Close privacy modal"
           >
             <X className="h-5 w-5" />
@@ -43,9 +43,9 @@ export default function PrivacyModal({
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 py-5">
-          <div className="space-y-5 text-[13px] leading-6 text-[var(--text-primary)]">
+          <div className="space-y-5 text-[13px] leading-6 text-primary">
             <section>
-              <h3 className="mb-2 text-[16px] font-semibold text-white">
+              <h3 className="mb-2 text-[16px] font-semibold text-secondary">
                 Introduction
               </h3>
               <p>
@@ -60,11 +60,11 @@ export default function PrivacyModal({
             </section>
 
             <section>
-              <h3 className="mb-2 text-[16px] font-semibold text-white">
+              <h3 className="mb-2 text-[16px] font-semibold text-secondary">
                 Information We Collect
               </h3>
 
-              <p className="font-medium text-white">Information You Provide</p>
+              <p className="font-medium text-secondary">Information You Provide</p>
               <ul className="ml-5 mt-1 list-disc space-y-1">
                 <li>Name, email address, and phone number.</li>
                 <li>Educational details for students.</li>
@@ -73,7 +73,7 @@ export default function PrivacyModal({
                 <li>Messages, support requests, and feedback.</li>
               </ul>
 
-              <p className="mt-4 font-medium text-white">
+              <p className="mt-4 font-medium text-secondary">
                 Information Collected Automatically
               </p>
               <ul className="ml-5 mt-1 list-disc space-y-1">
@@ -85,7 +85,7 @@ export default function PrivacyModal({
             </section>
 
             <section>
-              <h3 className="mb-2 text-[16px] font-semibold text-white">
+              <h3 className="mb-2 text-[16px] font-semibold text-secondary">
                 How We Use Your Information
               </h3>
               <ul className="ml-5 list-disc space-y-1">
@@ -98,7 +98,7 @@ export default function PrivacyModal({
             </section>
 
             <section>
-              <h3 className="mb-2 text-[16px] font-semibold text-white">
+              <h3 className="mb-2 text-[16px] font-semibold text-secondary">
                 Information Sharing
               </h3>
               <p>We do not sell personal data.</p>
@@ -114,7 +114,7 @@ export default function PrivacyModal({
             </section>
 
             <section>
-              <h3 className="mb-2 text-[16px] font-semibold text-white">
+              <h3 className="mb-2 text-[16px] font-semibold text-secondary">
                 Data Security
               </h3>
               <p>
@@ -125,7 +125,7 @@ export default function PrivacyModal({
             </section>
 
             <section>
-              <h3 className="mb-2 text-[16px] font-semibold text-white">
+              <h3 className="mb-2 text-[16px] font-semibold text-secondary">
                 Cookies Policy
               </h3>
               <p>RawRecruit uses cookies to:</p>
@@ -140,7 +140,7 @@ export default function PrivacyModal({
             </section>
 
             <section>
-              <h3 className="mb-2 text-[16px] font-semibold text-white">
+              <h3 className="mb-2 text-[16px] font-semibold text-secondary">
                 Your Rights
               </h3>
               <ul className="ml-5 list-disc space-y-1">
@@ -152,7 +152,7 @@ export default function PrivacyModal({
                 Requests can be sent to{" "}
                 <a
                   href="mailto:privacy@rawrecruit.com"
-                  className="font-semibold text-[var(--primary)] hover:underline"
+                  className="font-semibold text-primary hover:underline"
                 >
                   privacy@rawrecruit.com
                 </a>
@@ -161,7 +161,7 @@ export default function PrivacyModal({
             </section>
 
             <section>
-              <h3 className="mb-2 text-[16px] font-semibold text-white">
+              <h3 className="mb-2 text-[16px] font-semibold text-secondary">
                 Changes to This Policy
               </h3>
               <p>
@@ -171,14 +171,14 @@ export default function PrivacyModal({
             </section>
 
             <section>
-              <h3 className="mb-2 text-[16px] font-semibold text-white">
+              <h3 className="mb-2 text-[16px] font-semibold text-secondary">
                 Contact Us
               </h3>
               <p>
                 For privacy-related questions, contact{" "}
                 <a
                   href="mailto:support@rawrecruit.com"
-                  className="font-semibold text-[var(--primary)] hover:underline"
+                  className="font-semibold text-primary hover:underline"
                 >
                   support@rawrecruit.com
                 </a>
@@ -188,11 +188,11 @@ export default function PrivacyModal({
           </div>
         </div>
 
-        <div className="border-t border-[var(--border)] px-5 py-4">
+        <div className="border-t border-divider px-5 py-4">
           <button
             type="button"
             onClick={onClose}
-            className="button-color h-10 w-full rounded-lg text-[13px] font-semibold text-black transition hover:brightness-110"
+            className="btn-primary h-10 w-full rounded-lg text-[13px] font-semibold text-inverse transition hover:brightness-110"
           >
             Close
           </button>

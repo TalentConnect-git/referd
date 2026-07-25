@@ -14,8 +14,8 @@ export default function DashboardContainer() {
   const userRole = role || profile?.profileType || "student";
 
   return (
-    <div className="min-h-screen ">
-      <div className="container mx-auto px-2 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 max-w-7xl">
+    <div className="min-h-screen bg-[var(--background)]">
+      <div className="container mx-auto max-w-7xl px-2 py-4 sm:px-4 sm:py-6 lg:px-6 lg:py-8">
         {/* Header Section */}
         <div className="mb-2 sm:mb-4">
           <DashboardHeader userName={userName} userType={userRole} />

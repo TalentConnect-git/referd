@@ -25,9 +25,9 @@ export default function ReferralDetails({
   }, [initialTab]);
 
   return (
-    <div className="fixed inset-0 z-50">
+    <div className="modal-overlay fixed inset-0 z-50">
       <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        className="absolute inset-0 bg-overlay backdrop-blur-sm"
         onClick={onClose}
       />
 
@@ -35,33 +35,33 @@ export default function ReferralDetails({
         <div
           onClick={(e) => e.stopPropagation()}
           className="
-            relative max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-xl
-            border border-[#1e293b] bg-[#111827] p-5 shadow-2xl
+            modal-content relative max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-xl
+            border border-theme bg-card p-5 shadow-xl
           "
         >
           <button
             type="button"
             onClick={onClose}
-            className="absolute right-3 top-3 text-gray-400 transition-colors hover:text-white"
+            className="btn-ghost absolute right-3 top-3 text-muted transition-colors hover:text-primary"
           >
             <X size={18} />
           </button>
 
-          {/* ✅ Pass setActiveTab to header */}
+          {/* Pass setActiveTab to header */}
           <ReferralDetailsHeader 
             referral={referral} 
             setActiveTab={setActiveTab}
           />
 
-          {/* ✅ Tab Buttons */}
-          <div className="mb-4 flex w-fit rounded-lg bg-[#1e293b] p-1">
+          {/* Tab Buttons */}
+          <div className="mb-4 flex w-fit rounded-lg bg-background-soft p-1">
             <button
               type="button"
               onClick={() => setActiveTab("overview")}
               className={`rounded-md px-4 py-1.5 text-xs font-medium transition-all duration-200 ${
                 activeTab === "overview"
-                  ? "bg-gradient-to-r from-green-500 to-emerald-500 text-black"
-                  : "text-gray-300 hover:text-white"
+                  ? "btn-primary bg-gradient-to-r from-primary to-primary-light text-inverse"
+                  : "text-secondary hover:text-primary"
               }`}
             >
               Overview
@@ -72,15 +72,15 @@ export default function ReferralDetails({
               onClick={() => setActiveTab("candidates")}
               className={`rounded-md px-4 py-1.5 text-xs font-medium transition-all duration-200 ${
                 activeTab === "candidates"
-                  ? "bg-gradient-to-r from-green-500 to-emerald-500 text-black"
-                  : "text-gray-300 hover:text-white"
+                  ? "btn-primary bg-gradient-to-r from-primary to-primary-light text-inverse"
+                  : "text-secondary hover:text-primary"
               }`}
             >
               Candidates
             </button>
           </div>
 
-          {/* ✅ Tab Content */}
+          {/* Tab Content */}
           {activeTab === "overview" && (
             <ReferralDetailsOverview referral={referral} />
           )}

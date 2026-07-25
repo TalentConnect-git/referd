@@ -38,12 +38,14 @@ export default function StudentInterviewDetailPage() {
   };
 
   return (
-    <InterviewDetail
-      interview={interview}
-      loading={loading}
-      error={error}
-      userType={userType}
-      onBack={handleBack}
-    />
+    <div className="min-h-screen bg-[var(--background)]">
+      <InterviewDetail
+        interview={interview}
+        loading={loading}
+        error={error}
+        userType={userType}
+        onBack={handleBack}
+      />
+    </div>
   );
 }

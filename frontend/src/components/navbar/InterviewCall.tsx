@@ -93,26 +93,26 @@ export default function InterviewCall({ onClose }: InterviewCallProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Scheduled":
-        return "text-green-400 bg-green-500/10 border-green-500/20";
+        return "text-[var(--success)] bg-[var(--success-soft)] border-[var(--success-border)]";
       case "Completed":
-        return "text-blue-400 bg-blue-500/10 border-blue-500/20";
+        return "text-[var(--info)] bg-[var(--info-soft)] border-[var(--info-border)]";
       case "Missed":
-        return "text-red-400 bg-red-500/10 border-red-500/20";
+        return "text-[var(--danger)] bg-[var(--danger-soft)] border-[var(--danger-border)]";
       default:
-        return "text-gray-400 bg-gray-500/10 border-gray-500/20";
+        return "text-[var(--text-muted)] bg-[var(--background-soft)] border-[var(--border)]";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "Scheduled":
-        return <Circle className="w-2 h-2 fill-green-400 text-green-400" />;
+        return <Circle className="h-2 w-2 fill-[var(--success)] text-[var(--success)]" />;
       case "Completed":
-        return <CheckCircle2 className="w-3 h-3 text-blue-400" />;
+        return <CheckCircle2 className="h-3 w-3 text-[var(--info)]" />;
       case "Missed":
-        return <XCircle className="w-3 h-3 text-red-400" />;
+        return <XCircle className="h-3 w-3 text-[var(--danger)]" />;
       default:
-        return <Circle className="w-2 h-2 fill-gray-400 text-gray-400" />;
+        return <Circle className="h-2 w-2 fill-[var(--text-muted)] text-[var(--text-muted)]" />;
     }
   };
 
@@ -147,13 +147,13 @@ export default function InterviewCall({ onClose }: InterviewCallProps) {
 
   if (loading) {
     return (
-      <div className="flex min-h-52 w-full items-center justify-center rounded-2xl border border-slate-800 bg-[#071018] px-4 py-10">
+      <div className="flex min-h-52 w-full items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--background)] px-4 py-10">
         <div className="flex flex-col items-center gap-3">
           <div className="relative">
-            <Loader2 className="h-6 w-6 animate-spin text-green-400" />
-            <div className="absolute inset-0 h-6 w-6 rounded-full border-2 border-green-400/20 animate-ping" />
+            <Loader2 className="h-6 w-6 animate-spin text-[var(--primary)]" />
+            <div className="absolute inset-0 h-6 w-6 animate-ping rounded-full border-2 border-[var(--primary)]/20" />
           </div>
-          <p className="text-xs text-gray-400">Loading interviews...</p>
+          <p className="text-xs text-[var(--text-muted)]">Loading interviews...</p>
         </div>
       </div>
     );
@@ -161,26 +161,26 @@ export default function InterviewCall({ onClose }: InterviewCallProps) {
 
   if (interviews.length === 0) {
     return (
-      <div className="w-full overflow-hidden rounded-2xl border border-slate-800 bg-[#071018] shadow-2xl">
+      <div className="w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--background)] shadow-2xl">
         <div className="flex min-h-56 flex-col items-center justify-center px-5 py-8 text-center">
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl border border-green-500/20 bg-[#12381f]">
-            <CalendarDays className="h-5 w-5 text-green-400" />
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--primary-border)] bg-[var(--primary-soft)]">
+            <CalendarDays className="h-5 w-5 text-[var(--primary)]" />
           </div>
 
-          <h3 className="text-sm font-semibold text-white">
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">
             No interviews yet
           </h3>
 
-          <p className="mt-1 max-w-xs text-xs leading-5 text-[#94a3b8]">
+          <p className="mt-1 max-w-xs text-xs leading-5 text-[var(--text-muted)]">
             Your scheduled and completed interviews will appear here.
           </p>
         </div>
 
-        <div className="border-t border-slate-800 bg-[#0b1621] p-3">
+        <div className="border-t border-[var(--border)] bg-[var(--background-soft)] p-3">
           <button
             type="button"
             onClick={handleViewAll}
-            className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 text-sm font-semibold text-green-400 transition hover:bg-green-500/20"
+            className="btn-primary flex h-10 w-full items-center justify-center gap-2 rounded-lg text-sm font-semibold"
           >
             View All Interviews
             <ChevronRight className="h-4 w-4" />
@@ -191,33 +191,33 @@ export default function InterviewCall({ onClose }: InterviewCallProps) {
   }
 
   return (
-    <div className="flex w-full max-w-[420px] flex-col overflow-hidden rounded-2xl border border-slate-800 bg-[#071018] shadow-2xl">
+    <div className="flex w-full max-w-[420px] flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--background)] shadow-2xl">
       {/* Header */}
-      <div className="border-b border-slate-800 bg-[#0b1621] px-4 py-3">
+      <div className="border-b border-[var(--border)] bg-[var(--background-soft)] px-4 py-3">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2.5">
-            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-green-500/20 bg-[#12381f]">
-              <Calendar className="h-4 w-4 text-green-400" />
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-[var(--primary-border)] bg-[var(--primary-soft)]">
+              <Calendar className="h-4 w-4 text-[var(--primary)]" />
             </div>
 
             <div className="min-w-0">
-              <h2 className="truncate text-sm font-semibold text-white">
+              <h2 className="truncate text-sm font-semibold text-[var(--text-primary)]">
                 Interviews
               </h2>
-              <p className="truncate text-[11px] text-[#94a3b8]">
+              <p className="truncate text-[11px] text-[var(--text-muted)]">
                 {upcomingInterviews.length} upcoming · {completedInterviews.length} completed
               </p>
             </div>
           </div>
 
-          <div className="flex flex-shrink-0 rounded-lg border border-slate-700/60 bg-[#071018] p-1">
+          <div className="flex flex-shrink-0 rounded-lg border border-[var(--border)] bg-[var(--background)] p-1">
             <button
               type="button"
               onClick={() => setActiveTab("upcoming")}
               className={`rounded-md px-2.5 py-1.5 text-[10px] font-semibold transition ${
                 activeTab === "upcoming"
-                  ? "bg-green-500/15 text-green-400"
-                  : "text-[#94a3b8] hover:text-white"
+                  ? "bg-[var(--primary-soft)] text-[var(--primary)]"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               }`}
             >
               Upcoming
@@ -228,8 +228,8 @@ export default function InterviewCall({ onClose }: InterviewCallProps) {
               onClick={() => setActiveTab("past")}
               className={`rounded-md px-2.5 py-1.5 text-[10px] font-semibold transition ${
                 activeTab === "past"
-                  ? "bg-blue-500/15 text-blue-400"
-                  : "text-[#94a3b8] hover:text-white"
+                  ? "bg-[var(--info-soft)] text-[var(--info)]"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               }`}
             >
               Past
@@ -238,7 +238,7 @@ export default function InterviewCall({ onClose }: InterviewCallProps) {
         </div>
       </div>
 
-      {/* Content with dividers instead of borders */}
+      {/* Content */}
       <div 
         className="max-h-[min(62vh,520px)] overflow-y-auto"
         style={{
@@ -267,20 +267,19 @@ export default function InterviewCall({ onClose }: InterviewCallProps) {
                     onInterviewClick={handleInterviewClick}
                     isUnread={unreadInterviews.includes(interview._id)}
                   />
-                  {/* Divider between interviews */}
                   {index < sortedUpcoming.length - 1 && (
-                    <div className="mx-4 h-px bg-slate-800/60" />
+                    <div className="mx-4 h-px bg-[var(--border)]" />
                   )}
                 </div>
               ))}
             </div>
           ) : (
             <div className="flex min-h-40 flex-col items-center justify-center px-4 text-center">
-              <CheckCircle2 className="mb-2 h-6 w-6 text-green-400/60" />
-              <p className="text-xs font-medium text-white">
+              <CheckCircle2 className="mb-2 h-6 w-6 text-[var(--success)]/60" />
+              <p className="text-xs font-medium text-[var(--text-primary)]">
                 No upcoming interviews
               </p>
-              <p className="mt-1 text-[11px] text-[#94a3b8]">
+              <p className="mt-1 text-[11px] text-[var(--text-muted)]">
                 You are all caught up.
               </p>
             </div>
@@ -299,20 +298,19 @@ export default function InterviewCall({ onClose }: InterviewCallProps) {
                   onInterviewClick={handleInterviewClick}
                   isPast
                 />
-                {/* Divider between interviews */}
                 {index < sortedCompleted.length - 1 && (
-                  <div className="mx-4 h-px bg-slate-800/60" />
+                  <div className="mx-4 h-px bg-[var(--border)]" />
                 )}
               </div>
             ))}
           </div>
         ) : (
           <div className="flex min-h-40 flex-col items-center justify-center px-4 text-center">
-            <CalendarDays className="mb-2 h-6 w-6 text-slate-500" />
-            <p className="text-xs font-medium text-white">
+            <CalendarDays className="mb-2 h-6 w-6 text-[var(--text-muted)]" />
+            <p className="text-xs font-medium text-[var(--text-primary)]">
               No past interviews
             </p>
-            <p className="mt-1 text-[11px] text-[#94a3b8]">
+            <p className="mt-1 text-[11px] text-[var(--text-muted)]">
               Interview history will appear here.
             </p>
           </div>
@@ -320,11 +318,11 @@ export default function InterviewCall({ onClose }: InterviewCallProps) {
       </div>
 
       {/* Footer */}
-      <div className="border-t border-slate-800 bg-[#0b1621] p-3">
+      <div className="border-t border-[var(--border)] bg-[var(--background-soft)] p-3">
         <button
           type="button"
           onClick={handleViewAll}
-          className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 text-sm font-semibold text-green-400 transition hover:bg-green-500/20 active:scale-[0.99]"
+          className="btn-primary flex h-10 w-full items-center justify-center gap-2 rounded-lg text-sm font-semibold active:scale-[0.99]"
         >
           View All Interviews
           <ChevronRight className="h-4 w-4" />
@@ -334,7 +332,7 @@ export default function InterviewCall({ onClose }: InterviewCallProps) {
   );
 }
 
-// Interview Card Component - No border, just content
+// Interview Card Component
 const InterviewCard = ({
   interview,
   userType,
@@ -361,8 +359,8 @@ const InterviewCard = ({
 
   return (
     <div
-      className={`group cursor-pointer transition-all duration-200 hover:bg-slate-800/50 ${
-        isUpcoming && isUnread ? "border-l-4 border-l-yellow-400" : ""
+      className={`group cursor-pointer transition-all duration-200 hover:bg-[var(--card-hover)] ${
+        isUpcoming && isUnread ? "border-l-4 border-l-[var(--warning)]" : ""
       }`}
       onClick={() => onInterviewClick(interview._id)}
       onMouseEnter={() => setIsHovered(true)}
@@ -371,44 +369,44 @@ const InterviewCard = ({
       <div className="px-4 py-3">
         <div className="flex min-w-0 items-start gap-3">
           {/* Left - Icon */}
-          <div className="flex-shrink-0 self-start sm:self-auto relative">
+          <div className="relative flex-shrink-0 self-start sm:self-auto">
             <div
               className={`flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-200 ${
                 isUpcoming
-                  ? "bg-gradient-to-br from-green-500/20 to-emerald-500/10 border border-green-500/20 group-hover:scale-105"
-                  : "bg-slate-700/30 border border-slate-600/20"
+                  ? "border border-[var(--primary-border)] bg-[var(--primary-soft)] group-hover:scale-105"
+                  : "border border-[var(--border)] bg-[var(--background-soft)]"
               }`}
             >
               {isUpcoming ? (
-                <Briefcase className="h-4 w-4 text-green-400" />
+                <Briefcase className="h-4 w-4 text-[var(--primary)]" />
               ) : (
-                <CheckCircle2 className="h-4 w-4 text-gray-500" />
+                <CheckCircle2 className="h-4 w-4 text-[var(--text-muted)]" />
               )}
             </div>
             {isUnread && isUpcoming && (
-              <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-yellow-400 rounded-full animate-pulse" />
+              <div className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 animate-pulse rounded-full bg-[var(--warning)]" />
             )}
           </div>
 
           {/* Content */}
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             <div className="flex min-w-0 items-start justify-between gap-2">
               <div className="min-w-0">
-                <h4 className="truncate text-xs font-semibold text-white transition-colors group-hover:text-green-400">
+                <h4 className="truncate text-xs font-semibold text-[var(--text-primary)] transition-colors group-hover:text-[var(--primary)]">
                   {interview.jobId?.jobTitle || "Interview"}
                 </h4>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <Building2 className="w-3 h-3 text-gray-400 flex-shrink-0" />
-                  <p className="text-xs text-gray-400 truncate">
+                <div className="mt-0.5 flex items-center gap-1.5">
+                  <Building2 className="h-3 w-3 flex-shrink-0 text-[var(--text-muted)]" />
+                  <p className="truncate text-xs text-[var(--text-muted)]">
                     {interview.companySnapshot?.companyName || "Company"}
                   </p>
                 </div>
               </div>
               {isUpcoming && (
-                <div className="flex-shrink-0 self-start sm:self-auto flex items-center gap-2">
+                <div className="flex flex-shrink-0 items-center gap-2 self-start sm:self-auto">
                   {isUnread && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-[10px] text-yellow-400 font-medium">
-                      <Eye className="w-2.5 h-2.5" />
+                    <span className="inline-flex items-center gap-1 rounded-full border border-[var(--warning-border)] bg-[var(--warning-soft)] px-2 py-0.5 text-[10px] font-medium text-[var(--warning)]">
+                      <Eye className="h-2.5 w-2.5" />
                       New
                     </span>
                   )}
@@ -419,22 +417,22 @@ const InterviewCard = ({
             {/* Details */}
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
               <div className="flex items-center gap-1.5">
-                <Calendar className="w-3 h-3 text-gray-400 flex-shrink-0" />
-                <span className="text-xs text-gray-300 truncate">
+                <Calendar className="h-3 w-3 flex-shrink-0 text-[var(--text-muted)]" />
+                <span className="truncate text-xs text-[var(--text-secondary)]">
                   {formatDate(interview.date)}
                 </span>
               </div>
               <div className="flex items-center gap-1.5">
-                <Clock className="w-3 h-3 text-gray-400 flex-shrink-0" />
-                <span className="text-xs text-gray-300">{interview.time}</span>
+                <Clock className="h-3 w-3 flex-shrink-0 text-[var(--text-muted)]" />
+                <span className="text-xs text-[var(--text-secondary)]">{interview.time}</span>
               </div>
             </div>
 
-            <div className="mt-2.5 flex flex-col gap-2 border-t border-slate-700/40 pt-2.5">
+            <div className="mt-2.5 flex flex-col gap-2 border-t border-[var(--border)] pt-2.5">
               {interview.message ? (
                 <div className="flex min-w-0 items-start gap-1.5">
-                  <MessageSquare className="mt-0.5 h-3 w-3 flex-shrink-0 text-slate-500" />
-                  <p className="line-clamp-1 text-[11px] text-[#94a3b8]">
+                  <MessageSquare className="mt-0.5 h-3 w-3 flex-shrink-0 text-[var(--text-muted)]" />
+                  <p className="line-clamp-1 text-[11px] text-[var(--text-muted)]">
                     {interview.message}
                   </p>
                 </div>
@@ -445,7 +443,7 @@ const InterviewCard = ({
                   href={interview.meetLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex h-8 w-full items-center justify-center gap-1.5 rounded-md border border-green-500/30 bg-green-500 text-[11px] font-semibold text-black transition hover:bg-green-400"
+                  className="btn-primary inline-flex h-8 w-full items-center justify-center gap-1.5 rounded-md text-[11px] font-semibold"
                   onClick={(event) => event.stopPropagation()}
                 >
                   <Video className="h-3.5 w-3.5" />
@@ -459,7 +457,7 @@ const InterviewCard = ({
           {/* Right - Status & Time */}
           <div className="flex flex-shrink-0 flex-col items-end gap-1">
             <span
-              className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium border ${getStatusColor(
+              className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-medium ${getStatusColor(
                 interview.status
               )}`}
             >
@@ -470,13 +468,13 @@ const InterviewCard = ({
               </span>
             </span>
             {isUpcoming && !isPast && (
-              <span className="text-[10px] text-yellow-400/70 bg-yellow-500/10 px-2 py-0.5 rounded-full border border-yellow-500/20 whitespace-nowrap">
+              <span className="whitespace-nowrap rounded-full border border-[var(--warning-border)] bg-[var(--warning-soft)] px-2 py-0.5 text-[10px] text-[var(--warning)]/70">
                 {getTimeRemaining(interview.date, interview.time)}
               </span>
             )}
             <ChevronRight
-              className={`h-3.5 w-3.5 text-gray-500 transition-all duration-200 ${
-                isHovered ? "translate-x-1 text-gray-300" : ""
+              className={`h-3.5 w-3.5 text-[var(--text-muted)] transition-all duration-200 ${
+                isHovered ? "translate-x-1 text-[var(--text-secondary)]" : ""
               }`}
             />
           </div>
@@ -484,9 +482,9 @@ const InterviewCard = ({
 
         {/* Progress bar */}
         {isUpcoming && (
-          <div className="mt-2 h-0.5 w-full overflow-hidden rounded-full bg-slate-700/30">
+          <div className="mt-2 h-0.5 w-full overflow-hidden rounded-full bg-[var(--border)]">
             <div
-              className="h-full bg-gradient-to-r from-green-400 to-emerald-300 rounded-full transition-all duration-1000"
+              className="h-full rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--primary-light)] transition-all duration-1000"
               style={{
                 width: `${Math.min(
                   100,

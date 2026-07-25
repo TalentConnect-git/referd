@@ -24,26 +24,16 @@ export default function ApplicationDetailContainer({
   console.log("Applicant ",applicant);
 
   return (
-    <div className="p-6 space-y-6">
-        {/* Back Button */}
-
+    <div className="mx-auto max-w-7xl space-y-6 bg-[var(--background)] px-3 py-4 sm:px-4 sm:py-6 lg:px-6">
+      {/* Back Button */}
       <button
-
         onClick={() => router.back()}
-        className="
-          flex
-          items-center
-          gap-2
-          text-slate-400
-          hover:text-white
-          transition-colors
-          cursor-pointer">
-
-        <ArrowLeft size={18} />
-
-        <span>Back to Applications</span>
-
+        className="group flex items-center gap-2 text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)] cursor-pointer"
+      >
+        <ArrowLeft size={18} className="transition-transform group-hover:-translate-x-0.5" />
+        <span className="text-sm font-medium">Back to Applications</span>
       </button>
+
       <ApplicationDetailHeader
         applicant={applicant}
         application={application}
@@ -69,8 +59,6 @@ export default function ApplicationDetailContainer({
         }
       />
 
-      
-
       {/* <ApplicationDetailReferralRequest
         job={application?.job}
       /> */}
@@ -80,9 +68,6 @@ export default function ApplicationDetailContainer({
           application?.statusHistory
         }
       />
-
-      
-
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, useState } from "react";
-import { Upload, X, User, Mail, Phone, Calendar, Link, Globe, FileText, Image, Info, Briefcase, Shield,Loader2 } from "lucide-react";
+import { Upload, X, User, Mail, Phone, Calendar, Link, Globe, FileText, Image, Info, Briefcase, Shield, Loader2 } from "lucide-react";
 
 import { TextArea } from "../shared/TextArea";
 import { TextInput } from "../shared/TextInput";
@@ -207,7 +207,6 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
     <div className="space-y-6">
       {/* Personal Information */}
       <div>
-        
         <div className="grid gap-4 sm:grid-cols-2">
           <TextInput
             label="Full Name"
@@ -293,12 +292,12 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
 
       {/* Social & Professional Links */}
       <div>
-        <div className="flex items-center gap-2 mb-3">
-          <Link className="h-4 w-4 text-green-400" />
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+        <div className="mb-3 flex items-center gap-2">
+          <Link className="h-4 w-4 text-[var(--primary)]" />
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
             Social & Professional Links
           </h4>
-          <div className="flex-1 h-px bg-[#2a3a52]" />
+          <div className="h-px flex-1 bg-[var(--border)]" />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="relative">
@@ -310,7 +309,7 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
               }
               placeholder="https://linkedin.com/in/username"
             />
-            <div className="absolute right-3 top-[38px] text-gray-500">
+            <div className="absolute right-3 top-[38px] text-[var(--text-muted)]">
               <LinkedInIcon />
             </div>
           </div>
@@ -324,7 +323,7 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
               }
               placeholder="https://github.com/username"
             />
-            <div className="absolute right-3 top-[38px] text-gray-500">
+            <div className="absolute right-3 top-[38px] text-[var(--text-muted)]">
               <GitHubIcon />
             </div>
           </div>
@@ -338,7 +337,7 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
               }
               placeholder="https://yourportfolio.com"
             />
-            <div className="absolute right-3 top-[38px] text-gray-500">
+            <div className="absolute right-3 top-[38px] text-[var(--text-muted)]">
               <Globe className="h-4 w-4" />
             </div>
           </div>
@@ -347,12 +346,12 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
 
       {/* About */}
       <div>
-        <div className="flex items-center gap-2 mb-3">
-          <Info className="h-4 w-4 text-green-400" />
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+        <div className="mb-3 flex items-center gap-2">
+          <Info className="h-4 w-4 text-[var(--primary)]" />
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
             About
           </h4>
-          <div className="flex-1 h-px bg-[#2a3a52]" />
+          <div className="h-px flex-1 bg-[var(--border)]" />
         </div>
         <TextArea
           label="About"
@@ -367,20 +366,20 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
 
       {/* Files & Media */}
       <div>
-        <div className="flex items-center gap-2 mb-3">
-          <FileText className="h-4 w-4 text-green-400" />
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+        <div className="mb-3 flex items-center gap-2">
+          <FileText className="h-4 w-4 text-[var(--primary)]" />
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
             Files & Media
           </h4>
-          <div className="flex-1 h-px bg-[#2a3a52]" />
+          <div className="h-px flex-1 bg-[var(--border)]" />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           {/* Profile Image */}
-          <div className="rounded-xl border border-[#2a3a52] bg-[#111827] p-4 hover:border-green-500/30 transition-all duration-300">
+          <div className="surface-card rounded-xl border border-[var(--border)] p-4 transition-all duration-300 hover:border-[var(--primary-border)]">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Image className="h-4 w-4 text-green-400" />
-                <span className="text-sm font-semibold text-white">Profile Image</span>
+                <Image className="h-4 w-4 text-[var(--primary)]" />
+                <span className="text-sm font-semibold text-[var(--text-primary)]">Profile Image</span>
               </div>
               {form.profileImage && (
                 <button
@@ -389,7 +388,7 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
                     updateField("profileImage", "" as EditForm["profileImage"]);
                     setProfileImageMessage(null);
                   }}
-                  className="rounded-lg p-1 text-red-400 transition hover:bg-red-500/10 hover:text-red-300"
+                  className="rounded-lg p-1 text-[var(--danger)] transition hover:bg-[var(--danger-soft)] hover:text-[var(--danger)]"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -401,9 +400,9 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
                 <img
                   src={form.profileImage}
                   alt="Profile"
-                  className="h-16 w-16 rounded-full object-cover ring-2 ring-green-500/30 ring-offset-2 ring-offset-[#111827]"
+                  className="h-16 w-16 rounded-full object-cover ring-2 ring-[var(--primary-border)] ring-offset-2 ring-offset-[var(--card)]"
                 />
-                <span className="text-xs text-gray-400 break-all flex-1">
+                <span className="flex-1 break-all text-xs text-[var(--text-muted)]">
                   {form.profileImage.length > 50 
                     ? form.profileImage.substring(0, 50) + "..." 
                     : form.profileImage}
@@ -412,7 +411,7 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
             )}
 
             <div className="mt-3">
-              <label className="relative flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-[#2a3a52] bg-[#0f172a] px-4 py-3 transition hover:border-green-500/50 hover:bg-green-500/5">
+              <label className="relative flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-[var(--border)] bg-[var(--background-soft)] px-4 py-3 transition hover:border-[var(--primary-border)] hover:bg-[var(--primary-soft)]">
                 <input
                   type="file"
                   accept="image/*"
@@ -421,8 +420,8 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
                   className="absolute inset-0 cursor-pointer opacity-0"
                 />
                 <div className="flex items-center gap-2">
-                  <Upload className="h-4 w-4 text-green-400" />
-                  <span className="text-sm font-medium text-white">
+                  <Upload className="h-4 w-4 text-[var(--primary)]" />
+                  <span className="text-sm font-medium text-[var(--text-primary)]">
                     {isUploadingProfileImage ? "Uploading..." : "Upload Image"}
                   </span>
                 </div>
@@ -430,7 +429,7 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
             </div>
 
             {isUploadingProfileImage && (
-              <p className="mt-2 flex items-center gap-2 text-xs text-green-400">
+              <p className="mt-2 flex items-center gap-2 text-xs text-[var(--primary)]">
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 Uploading profile image…
               </p>
@@ -439,24 +438,24 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
             {profileImageMessage && !isUploadingProfileImage && (
               <p className={`mt-2 text-xs ${
                 profileImageMessage.type === "success"
-                  ? "text-emerald-400"
-                  : "text-red-400"
+                  ? "text-[var(--success)]"
+                  : "text-[var(--danger)]"
               }`}>
                 {profileImageMessage.text}
               </p>
             )}
 
-            <p className="mt-2 text-xs text-gray-500">
+            <p className="mt-2 text-xs text-[var(--text-muted)]">
               Accepted formats: JPG, PNG, GIF, SVG • Max size: 5MB
             </p>
           </div>
 
           {/* Resume */}
-          <div className="rounded-xl border border-[#2a3a52] bg-[#111827] p-4 hover:border-green-500/30 transition-all duration-300">
+          <div className="surface-card rounded-xl border border-[var(--border)] p-4 transition-all duration-300 hover:border-[var(--primary-border)]">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4 text-green-400" />
-                <span className="text-sm font-semibold text-white">Resume</span>
+                <FileText className="h-4 w-4 text-[var(--primary)]" />
+                <span className="text-sm font-semibold text-[var(--text-primary)]">Resume</span>
               </div>
               {form.resume && (
                 <button
@@ -465,7 +464,7 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
                     updateField("resume", "" as EditForm["resume"]);
                     setResumeMessage(null);
                   }}
-                  className="rounded-lg p-1 text-red-400 transition hover:bg-red-500/10 hover:text-red-300"
+                  className="rounded-lg p-1 text-[var(--danger)] transition hover:bg-[var(--danger-soft)] hover:text-[var(--danger)]"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -473,17 +472,17 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
             </div>
 
             {form.resume && (
-              <div className="mt-3 flex items-center gap-2 rounded-lg bg-[#0f172a] px-3 py-2 border border-[#2a3a52]">
-                <FileText className="h-4 w-4 text-green-400" />
-                <span className="text-sm text-white truncate flex-1">
+              <div className="mt-3 flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--background-soft)] px-3 py-2">
+                <FileText className="h-4 w-4 text-[var(--primary)]" />
+                <span className="flex-1 truncate text-sm text-[var(--text-primary)]">
                   {form.resume.length > 50 ? form.resume.substring(0, 50) + "..." : form.resume}
                 </span>
-                <span className="text-xs text-gray-500">PDF</span>
+                <span className="text-xs text-[var(--text-muted)]">PDF</span>
               </div>
             )}
 
             <div className="mt-3">
-              <label className="relative flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-[#2a3a52] bg-[#0f172a] px-4 py-3 transition hover:border-green-500/50 hover:bg-green-500/5">
+              <label className="relative flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-[var(--border)] bg-[var(--background-soft)] px-4 py-3 transition hover:border-[var(--primary-border)] hover:bg-[var(--primary-soft)]">
                 <input
                   type="file"
                   accept=".pdf,application/pdf"
@@ -492,8 +491,8 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
                   className="absolute inset-0 cursor-pointer opacity-0"
                 />
                 <div className="flex items-center gap-2">
-                  <Upload className="h-4 w-4 text-green-400" />
-                  <span className="text-sm font-medium text-white">
+                  <Upload className="h-4 w-4 text-[var(--primary)]" />
+                  <span className="text-sm font-medium text-[var(--text-primary)]">
                     {isUploadingResume ? "Uploading..." : "Upload Resume"}
                   </span>
                 </div>
@@ -501,7 +500,7 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
             </div>
 
             {isUploadingResume && (
-              <p className="mt-2 flex items-center gap-2 text-xs text-green-400">
+              <p className="mt-2 flex items-center gap-2 text-xs text-[var(--primary)]">
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 Uploading resume…
               </p>
@@ -510,14 +509,14 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
             {resumeMessage && !isUploadingResume && (
               <p className={`mt-2 text-xs ${
                 resumeMessage.type === "success"
-                  ? "text-emerald-400"
-                  : "text-red-400"
+                  ? "text-[var(--success)]"
+                  : "text-[var(--danger)]"
               }`}>
                 {resumeMessage.text}
               </p>
             )}
 
-            <p className="mt-2 text-xs text-gray-500">
+            <p className="mt-2 text-xs text-[var(--text-muted)]">
               Accepted format: PDF • Max size: 5MB
             </p>
           </div>

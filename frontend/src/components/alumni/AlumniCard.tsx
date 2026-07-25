@@ -104,13 +104,13 @@ export function AlumniCard({
 
   return (
     <article
-      className="rounded-2xl border border-[#242d3a] bg-[#111821] p-4 shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition hover:border-[#2fb344]/40 cursor-pointer"
+      className="card rounded-2xl border border-theme bg-card-soft p-4 shadow-lg transition hover:border-primary/40 cursor-pointer"
       onClick={handleCardClick}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
           {/* Profile Image with Fallback */}
-          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[#123321]">
+          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-primary-soft">
             {profile.profileImage ? (
               <Image
                 src={profile.profileImage}
@@ -120,40 +120,40 @@ export function AlumniCard({
                 sizes="40px"
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-sm font-bold text-[#2fb344]">
+              <div className="flex h-full w-full items-center justify-center text-sm font-bold text-primary">
                 {initials}
               </div>
             )}
           </div>
 
           <div>
-            <h3 className="text-sm font-bold leading-tight text-white">
+            <h3 className="text-sm font-bold leading-tight text-primary">
               {name}
             </h3>
-            <p className="mt-0.5 text-xs text-sky-100/80">{role}</p>
+            <p className="mt-0.5 text-xs text-secondary">{role}</p>
           </div>
         </div>
 
         {isHiring && (
-          <span className="rounded-full border border-[#2fb344]/20 bg-[#123321] px-2 py-0.5 text-[10px] font-medium text-[#2fb344] flex-shrink-0">
+          <span className="badge badge-success rounded-full border border-success/20 px-2 py-0.5 text-[10px] font-medium flex-shrink-0">
             Hiring
           </span>
         )}
       </div>
 
-      <div className="mt-4 space-y-1.5 text-xs text-sky-100/80">
+      <div className="mt-4 space-y-1.5 text-xs text-secondary">
         <div className="flex items-center gap-2">
-          <Building2 className="h-3.5 w-3.5 text-slate-400" />
+          <Building2 className="h-3.5 w-3.5 text-muted" />
           <span className="truncate">{company}</span>
         </div>
 
         <div className="flex items-center gap-2">
-          <GraduationCap className="h-3.5 w-3.5 text-slate-400" />
+          <GraduationCap className="h-3.5 w-3.5 text-muted" />
           <span className="truncate">{collegeDisplay}</span>
         </div>
 
         <div className="flex items-center gap-2">
-          <BriefcaseBusiness className="h-3.5 w-3.5 text-slate-400" />
+          <BriefcaseBusiness className="h-3.5 w-3.5 text-muted" />
           <span>
             {jobsCount > 0
               ? `${jobsCount} referral job${jobsCount > 1 ? "s" : ""}`
@@ -162,7 +162,7 @@ export function AlumniCard({
         </div>
 
         <div className="flex items-center gap-2">
-          <Users className="h-3.5 w-3.5 text-slate-400" />
+          <Users className="h-3.5 w-3.5 text-muted" />
           <span>
             {profile.referralMetrics?.totalReferrals ||
               profile.referralMetrics?.totalReferralsPosted ||
@@ -172,14 +172,14 @@ export function AlumniCard({
         </div>
       </div>
 
-      <div className="my-3.5 h-px bg-white/10" />
+      <div className="my-3.5 h-px bg-divider" />
 
       <div className="grid grid-cols-2 gap-2">
         <button
           type="button"
           onClick={handleMessageClick}
           disabled={isMessageLoading}
-          className="flex h-8 items-center justify-center gap-1.5 rounded-lg border border-[#263241] bg-transparent text-xs font-semibold text-white transition hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn-secondary flex h-8 items-center justify-center gap-1.5 rounded-lg border border-theme bg-transparent text-xs font-semibold text-primary transition hover:bg-card-hover disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isMessageLoading ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -192,7 +192,7 @@ export function AlumniCard({
         <button
           type="button"
           onClick={handleCardClick}
-          className="flex h-8 items-center justify-center rounded-lg bg-[#2fb344] text-xs font-semibold text-black transition hover:bg-[#35c94d] disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
+          className="btn-primary flex h-8 items-center justify-center rounded-lg bg-primary text-xs font-semibold text-inverse transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
         >
           View Profile
         </button>

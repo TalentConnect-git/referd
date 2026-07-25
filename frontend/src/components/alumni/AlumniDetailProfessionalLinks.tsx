@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { AlumniDetailProfileProps } from "@/types/alumni";
-import ResumeModal from "@/components/profile/ResumeModal"; // Adjust the import path as needed
+import ResumeModal from "@/components/profile/ResumeModal";
 
 export default function AlumniDetailProfessionalLinks({
   profile,
@@ -46,7 +46,6 @@ export default function AlumniDetailProfessionalLinks({
     },
   ].filter((item) => item.value);
 
-  // Get display filename for resume button
   const getResumeDisplayName = (url: string): string => {
     if (!url) return "No resume";
     let fileName = url.split("/").pop()?.split("?")[0] || "resume";
@@ -63,14 +62,12 @@ export default function AlumniDetailProfessionalLinks({
     return fileName.length > 40 ? `${fileName.substring(0, 37)}...` : fileName;
   };
 
-  // Handle resume view - opens the ResumeModal
   const handleResumeClick = (e: React.MouseEvent, url: string) => {
     e.preventDefault();
     setResumeUrl(url);
     setResumeModalOpen(true);
   };
 
-  // Close modal handler
   const handleCloseModal = () => {
     setResumeModalOpen(false);
     setResumeUrl(null);
@@ -78,12 +75,12 @@ export default function AlumniDetailProfessionalLinks({
 
   return (
     <>
-      <div className="rounded-3xl border border-[#242d3a] bg-[#111821] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition hover:border-[#2fb344]/40">
+      <div className="surface-card rounded-3xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-lg transition hover:border-[var(--primary-border)]">
         <div className="mb-6 flex items-center gap-3">
-          <span className="text-[#2fb344] [&_svg]:h-5 [&_svg]:w-5">
+          <span className="text-[var(--primary)] [&_svg]:h-5 [&_svg]:w-5">
             <Link className="h-5 w-5" />
           </span>
-          <h2 className="text-[16px] font-bold text-white">Professional Links</h2>
+          <h2 className="text-base font-bold text-[var(--text-primary)]">Professional Links</h2>
         </div>
 
         {links.length ? (
@@ -96,22 +93,22 @@ export default function AlumniDetailProfessionalLinks({
                   <button
                     key={item.label}
                     onClick={(e) => handleResumeClick(e, item.href)}
-                    className="group flex w-full items-center gap-4 rounded-xl border border-[#242d3a] bg-[#0a0f16] p-4 transition-all duration-300 hover:border-[#2fb344] hover:bg-[#2fb344]/5 hover:shadow-md hover:shadow-[#2fb344]/5"
+                    className="group flex w-full items-center gap-4 rounded-xl border border-[var(--border)] bg-[var(--background-soft)] p-4 transition-all duration-300 hover:border-[var(--primary-border)] hover:bg-[var(--primary-soft)] hover:shadow-md"
                   >
-                    <div className="rounded-lg bg-[#2fb344]/10 p-2 text-[#2fb344] transition group-hover:bg-[#2fb344]/20">
+                    <div className="rounded-lg bg-[var(--primary-soft)] p-2 text-[var(--primary)] transition group-hover:bg-[var(--primary-soft)]/80">
                       <Icon size={20} />
                     </div>
 
                     <div className="min-w-0 flex-1 text-left">
-                      <p className="text-sm text-[#94a3b8]">{item.label}</p>
-                      <p className="truncate text-[13px] text-white group-hover:text-[#2fb344] transition">
+                      <p className="text-sm text-[var(--text-muted)]">{item.label}</p>
+                      <p className="truncate text-sm text-[var(--text-primary)] transition group-hover:text-[var(--primary)]">
                         {getResumeDisplayName(item.href)}
                       </p>
                     </div>
 
                     <div className="flex items-center gap-2 opacity-0 transition group-hover:opacity-100">
-                      <Eye className="h-4 w-4 text-[#2fb344]" />
-                      <span className="text-xs text-[#2fb344]">View</span>
+                      <Eye className="h-4 w-4 text-[var(--primary)]" />
+                      <span className="text-xs text-[var(--primary)]">View</span>
                     </div>
                   </button>
                 );
@@ -123,33 +120,31 @@ export default function AlumniDetailProfessionalLinks({
                   href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-center gap-4 rounded-xl border border-[#242d3a] bg-[#0a0f16] p-4 transition-all duration-300 hover:border-[#2fb344] hover:bg-[#2fb344]/5 hover:shadow-md hover:shadow-[#2fb344]/5"
+                  className="group flex items-center gap-4 rounded-xl border border-[var(--border)] bg-[var(--background-soft)] p-4 transition-all duration-300 hover:border-[var(--primary-border)] hover:bg-[var(--primary-soft)] hover:shadow-md"
                 >
-                  <div className="rounded-lg bg-[#2fb344]/10 p-2 text-[#2fb344] transition group-hover:bg-[#2fb344]/20">
+                  <div className="rounded-lg bg-[var(--primary-soft)] p-2 text-[var(--primary)] transition group-hover:bg-[var(--primary-soft)]/80">
                     <Icon size={20} />
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm text-[#94a3b8]">{item.label}</p>
-                    <p className="truncate text-[13px] text-white group-hover:text-[#2fb344] transition">
+                    <p className="text-sm text-[var(--text-muted)]">{item.label}</p>
+                    <p className="truncate text-sm text-[var(--text-primary)] transition group-hover:text-[var(--primary)]">
                       {item.value}
                     </p>
                   </div>
-
-                  
                 </a>
               );
             })}
           </div>
         ) : (
           <div className="py-8 text-center">
-            <Link className="mx-auto h-8 w-8 text-[#64748b]/30 mb-2" />
-            <p className="text-[#94a3b8]">No professional links available.</p>
+            <Link className="mx-auto mb-2 h-8 w-8 text-[var(--text-muted)]/30" />
+            <p className="text-[var(--text-muted)]">No professional links available.</p>
           </div>
         )}
       </div>
 
-      {/* Resume Modal - ResumeModal handles everything */}
+      {/* Resume Modal */}
       {resumeModalOpen && resumeUrl && (
         <ResumeModal
           resumeUrl={resumeUrl}

@@ -23,8 +23,8 @@ export default function AwardCard({ profile }: AwardCardProps) {
           />
         ))
       ) : (
-        <div className="rounded-[12px] border border-white/10 bg-[#0b1621] px-4 py-6 text-center">
-          <p className="text-[12px] text-[#7891c7]">No awards added yet</p>
+        <div className="rounded-[12px] border border-[var(--border)] bg-[var(--background-soft)] px-4 py-6 text-center">
+          <p className="text-xs text-[var(--text-muted)]">No awards added yet</p>
         </div>
       )}
     </SectionCard>

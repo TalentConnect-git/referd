@@ -86,8 +86,8 @@ export default function JobRow({
     if (company) {
       details.push(
         <div key="company" className="flex items-center gap-1">
-          <Building2 className="w-3 h-3 text-gray-500 flex-shrink-0" />
-          <span className="text-xs text-gray-300 truncate">{company}</span>
+          <Building2 className="h-3 w-3 flex-shrink-0 text-[var(--text-muted)]" />
+          <span className="truncate text-xs text-[var(--text-secondary)]">{company}</span>
         </div>
       );
     }
@@ -96,8 +96,8 @@ export default function JobRow({
     if (location) {
       details.push(
         <div key="location" className="flex items-center gap-1">
-          <MapPin className="w-3 h-3 text-gray-500 flex-shrink-0" />
-          <span className="text-xs text-gray-400 truncate">{location}</span>
+          <MapPin className="h-3 w-3 flex-shrink-0 text-[var(--text-muted)]" />
+          <span className="truncate text-xs text-[var(--text-muted)]">{location}</span>
         </div>
       );
     }
@@ -106,8 +106,8 @@ export default function JobRow({
     if (workModeDisplay) {
       details.push(
         <div key="workmode" className="flex items-center gap-1">
-          <Briefcase className="w-3 h-3 text-gray-500 flex-shrink-0" />
-          <span className="text-xs text-gray-400 truncate">{workModeDisplay}</span>
+          <Briefcase className="h-3 w-3 flex-shrink-0 text-[var(--text-muted)]" />
+          <span className="truncate text-xs text-[var(--text-muted)]">{workModeDisplay}</span>
         </div>
       );
     }
@@ -117,7 +117,7 @@ export default function JobRow({
       <div key={index} className="flex items-center">
         {item}
         {index < details.length - 1 && (
-          <span className="text-gray-600 text-[10px] mx-1.5">•</span>
+          <span className="mx-1.5 text-[10px] text-[var(--text-muted)]">•</span>
         )}
       </div>
     ));
@@ -126,29 +126,29 @@ export default function JobRow({
   return (
     <div 
       onClick={handleRowClick} 
-      className="group flex cursor-pointer items-center justify-between border-b border-slate-800/50 px-4 py-3 transition-all duration-200 hover:bg-slate-800/20 last:border-b-0"
+      className="group flex cursor-pointer items-center justify-between border-b border-[var(--border)] px-3 py-3 transition-all duration-200 hover:bg-[var(--card-hover)] last:border-b-0 sm:px-4"
     >
       <div className="flex min-w-0 items-center gap-3">
         {/* Logo */}
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-700/50 bg-[#1e293b] text-xs font-bold text-white group-hover:border-slate-600 transition-colors duration-200">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--background-soft)] text-xs font-bold text-[var(--text-secondary)] transition-colors duration-200 group-hover:border-[var(--border-strong)]">
           {logoLetter || "J"}
         </div>
 
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="truncate text-[13px] font-semibold text-white group-hover:text-green-400 transition-colors duration-200">
+            <h3 className="truncate text-sm font-semibold text-[var(--text-primary)] transition-colors duration-200 group-hover:text-[var(--primary)]">
               {title}
             </h3>
 
             {matchScore > 0 && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-green-500/10 px-2 py-0.5 text-[10px] font-medium text-green-400">
-                <span className="w-1 h-1 rounded-full bg-green-400"></span>
+              <span className="badge badge-success inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium">
+                <span className="h-1 w-1 rounded-full bg-[var(--success)]"></span>
                 {matchScore}% match
               </span>
             )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-1 mt-0.5">
+          <div className="mt-0.5 flex flex-wrap items-center gap-1">
             {renderDetails()}
           </div>
         </div>
@@ -160,16 +160,16 @@ export default function JobRow({
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-[#1e293b] px-3 py-1.5 text-[11px] font-medium text-white transition-all duration-200 hover:border-slate-500 hover:bg-[#263449] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--background-soft)] px-3 py-1.5 text-[11px] font-medium text-[var(--text-secondary)] transition-all duration-200 hover:border-[var(--border-strong)] hover:bg-[var(--card-hover)] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSaving ? (
               <>
-                <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                <span className="h-3 w-3 animate-spin rounded-full border-2 border-[var(--text-muted)] border-t-[var(--text-primary)]"></span>
                 Saving...
               </>
             ) : (
               <>
-                <Bookmark className="w-3.5 h-3.5" />
+                <Bookmark className="h-3.5 w-3.5" />
                 Save
               </>
             )}
@@ -178,16 +178,16 @@ export default function JobRow({
 
         {/* Applied Badge */}
         {applied && (
-          <span className="inline-flex items-center gap-1.5 rounded-lg border border-green-500/30 bg-green-500/10 px-3 py-1.5 text-[11px] font-medium text-green-400">
-            <CheckCircle className="w-3.5 h-3.5" />
+          <span className="badge badge-success inline-flex items-center gap-1.5 rounded-lg border border-[var(--success-border)] bg-[var(--success-soft)] px-3 py-1.5 text-[11px] font-medium text-[var(--success)]">
+            <CheckCircle className="h-3.5 w-3.5" />
             Applied
           </span>
         )}
 
         {/* Saved Badge */}
         {saved && !applied && (
-          <span className="inline-flex items-center gap-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-1.5 text-[11px] font-medium text-blue-400">
-            <Bookmark className="w-3.5 h-3.5 fill-blue-400" />
+          <span className="badge badge-info inline-flex items-center gap-1.5 rounded-lg border border-[var(--info-border)] bg-[var(--info-soft)] px-3 py-1.5 text-[11px] font-medium text-[var(--info)]">
+            <Bookmark className="h-3.5 w-3.5 fill-[var(--info)]" />
             Saved
           </span>
         )}
@@ -197,16 +197,16 @@ export default function JobRow({
           <button
             onClick={handleApply}
             disabled={isApplying}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 px-3 py-1.5 text-[11px] font-semibold text-black transition-all duration-200 hover:shadow-lg hover:shadow-green-500/25 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-primary inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isApplying ? (
               <>
-                <span className="w-3 h-3 border-2 border-black/30 border-t-black rounded-full animate-spin"></span>
+                <span className="h-3 w-3 animate-spin rounded-full border-2 border-black/30 border-t-black"></span>
                 Applying...
               </>
             ) : (
               <>
-                <Send className="w-3.5 h-3.5" />
+                <Send className="h-3.5 w-3.5" />
                 Apply
               </>
             )}

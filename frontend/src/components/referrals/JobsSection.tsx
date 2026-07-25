@@ -11,17 +11,17 @@ interface JobsSectionProps {
 
 export const JobsSection: React.FC<JobsSectionProps> = ({ jobs, onViewJob }) => {
   return (
-    <div className="mt-6 rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--card)] p-5 shadow-xl">
+    <div className="card mt-6 rounded-xl border border-theme bg-card p-5 shadow-xl">
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg font-bold text-[var(--text-secondary)]">
+          <h2 className="text-lg font-bold text-secondary">
             Referral Jobs
           </h2>
-          <p className="mt-1 text-sm text-[var(--text-primary)]">
+          <p className="mt-1 text-sm text-primary">
             Top matching jobs ranked by alumni count and match score.
           </p>
         </div>
-        <span className="rounded-full border border-[var(--border)] bg-[var(--background-soft)] px-3 py-1 text-xs font-semibold text-[var(--text-primary)]">
+        <span className="badge rounded-full border border-theme bg-background-soft px-3 py-1 text-xs font-semibold text-primary">
           {jobs.length} jobs found
         </span>
       </div>
@@ -30,25 +30,25 @@ export const JobsSection: React.FC<JobsSectionProps> = ({ jobs, onViewJob }) => 
         {jobs.map((job, index) => (
           <div
             key={job._id || job.jobUrl || index}
-            className="rounded-2xl border border-[var(--border)] bg-[var(--background-soft)] p-4 transition hover:bg-[var(--card-hover)]"
+            className="card rounded-2xl border border-theme bg-background-soft p-4 transition hover:bg-card-hover"
           >
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="min-w-0">
-                <h3 className="text-base font-bold text-[var(--text-secondary)]">
+                <h3 className="text-base font-bold text-secondary">
                   {job.title || "Untitled Job"}
                 </h3>
 
-                <div className="mt-2 flex flex-wrap gap-3 text-sm text-[var(--text-primary)]">
+                <div className="mt-2 flex flex-wrap gap-3 text-sm text-primary">
                   <span className="inline-flex items-center gap-1">
-                    <Building2 size={14} />
+                    <Building2 size={14} className="text-muted" />
                     {job.companyName || "Company not given"}
                   </span>
                   <span className="inline-flex items-center gap-1">
-                    <MapPin size={14} />
+                    <MapPin size={14} className="text-muted" />
                     {job.location || "Location not given"}
                   </span>
                   <span className="inline-flex items-center gap-1">
-                    <Briefcase size={14} />
+                    <Briefcase size={14} className="text-muted" />
                     {job.department || "Department not given"}
                   </span>
                 </div>
@@ -65,7 +65,7 @@ export const JobsSection: React.FC<JobsSectionProps> = ({ jobs, onViewJob }) => 
 
                 {Array.isArray(job.matchedSkills) && job.matchedSkills.length > 0 && (
                   <div className="mt-4">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted">
                       Matched Skills
                     </p>
                     <div className="mt-2 flex flex-wrap gap-2">
@@ -83,7 +83,7 @@ export const JobsSection: React.FC<JobsSectionProps> = ({ jobs, onViewJob }) => 
               <button
                 type="button"
                 onClick={() => onViewJob(job)}
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-black transition hover:bg-[var(--primary-dark)]"
+                className="btn-primary inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-inverse transition hover:bg-primary-hover"
               >
                 View Job
                 <ExternalLink size={15} />

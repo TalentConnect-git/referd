@@ -18,7 +18,7 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
     const fetchAlumni = async () => {
       try {
         const company = job.candidatePosted?.currentCompany || job.companyName || "";
-        const response = await getAlumniWhoCanHelp(job.candidatePosted.userId,company);
+        const response = await getAlumniWhoCanHelp(job.candidatePosted.userId, company);
         setAlumni(response.data || []);
       } catch (err) {
         console.error("Error fetching alumni:", err);
@@ -51,10 +51,10 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-[#1e293b] bg-[#111827] p-4">
+      <div className="surface-card rounded-xl p-4">
         <div className="flex items-center justify-center gap-3 py-4">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-green-500/30 border-t-green-500" />
-          <span className="text-sm text-gray-400">Loading alumni...</span>
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-[var(--primary-border)] border-t-[var(--primary)]" />
+          <span className="text-sm text-[var(--text-secondary)]">Loading alumni...</span>
         </div>
       </div>
     );
@@ -62,34 +62,34 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
 
   if (alumni.length === 0) {
     return (
-      <div className="rounded-xl border border-[#1e293b] bg-[#111827] p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <Users size={16} className="text-gray-500" />
-          <h3 className="text-sm font-semibold text-white">Alumni Who Can Help</h3>
+      <div className="surface-card rounded-xl p-4">
+        <div className="mb-3 flex items-center gap-2">
+          <Users size={16} className="text-[var(--text-muted)]" />
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">Alumni Who Can Help</h3>
         </div>
         <div className="flex flex-col items-center justify-center py-6 text-center">
-          <div className="rounded-full bg-gray-800/50 p-3 mb-3">
-            <Users size={20} className="text-gray-500" />
+          <div className="mb-3 rounded-full bg-[var(--background-soft)] p-3">
+            <Users size={20} className="text-[var(--text-muted)]" />
           </div>
-          <p className="text-sm text-gray-400">No alumni found for this company</p>
-          <p className="text-xs text-gray-500 mt-1">Check back later for updates</p>
+          <p className="text-sm text-[var(--text-secondary)]">No alumni found for this company</p>
+          <p className="mt-1 text-xs text-[var(--text-muted)]">Check back later for updates</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-[#1e293b] bg-[#111827] p-4">
+    <div className="surface-card rounded-xl p-4">
       {/* Header */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Users size={16} className="text-green-400" />
-          <h3 className="text-sm font-semibold text-white">Alumni Who Can Help</h3>
-          <span className="text-[10px] bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full border border-green-500/20">
+          <Users size={16} className="text-[var(--primary)]" />
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">Alumni Who Can Help</h3>
+          <span className="rounded-full border border-[var(--primary-border)] bg-[var(--primary-soft)] px-2 py-0.5 text-[10px] text-[var(--primary)]">
             {alumni.length}
           </span>
         </div>
-        <span className="text-[10px] text-gray-500">Click to view profile</span>
+        <span className="text-[10px] text-[var(--text-muted)]">Click to view profile</span>
       </div>
 
       {/* Alumni List */}
@@ -103,23 +103,23 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
             <div
               key={person.userId}
               onClick={() => handleProfileClick(person.userId)}
-              className="group flex items-center justify-between rounded-xl border border-[#1e293b] bg-[#0f172a] p-3 hover:border-green-500/30 hover:bg-[#1a2332] transition-all duration-200 cursor-pointer"
+              className="group flex cursor-pointer items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--card)] p-3 transition-all duration-200 hover:border-[var(--primary-border)] hover:bg-[var(--card-hover)]"
             >
               {/* Left Section */}
-              <div className="flex items-center gap-3 min-w-0">
+              <div className="flex min-w-0 items-center gap-3">
                 {/* Avatar with Profile Image */}
-                <div className="relative h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
+                <div className="relative h-10 w-10 flex-shrink-0 sm:h-12 sm:w-12">
                   {person.profileImage && !hasImageError ? (
                     <Image
                       src={person.profileImage}
                       alt={person.name}
                       fill
-                      className="rounded-full object-cover border-2 border-green-500/30 group-hover:border-green-500/60 transition-all duration-200"
+                      className="rounded-full border-2 border-[var(--border)] object-cover transition-all duration-200 group-hover:border-[var(--primary-border)]"
                       onError={() => handleImageError(person.userId)}
                     />
                   ) : (
-                    <div className="h-full w-full rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 border-2 border-green-500/30 group-hover:border-green-500/60 transition-all duration-200 flex items-center justify-center">
-                      <span className="text-sm sm:text-base font-bold text-green-400">
+                    <div className="flex h-full w-full items-center justify-center rounded-full border-2 border-[var(--border)] bg-[var(--primary-soft)] transition-all duration-200 group-hover:border-[var(--primary-border)]">
+                      <span className="text-sm font-bold text-[var(--primary)] sm:text-base">
                         {initials}
                       </span>
                     </div>
@@ -128,15 +128,15 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
 
                 {/* Info */}
                 <div className="min-w-0">
-                  <h4 className="text-sm font-semibold text-white group-hover:text-green-400 transition-colors truncate">
+                  <h4 className="truncate text-sm font-semibold text-[var(--text-primary)] transition-colors group-hover:text-[var(--primary)]">
                     {person.name}
                   </h4>
 
-                  <div className="flex flex-wrap items-center gap-2 mt-0.5">
+                  <div className="mt-0.5 flex flex-wrap items-center gap-2">
                     {person.currentCompany && (
                       <div className="flex items-center gap-1">
-                        <Building2 size={11} className="text-gray-500" />
-                        <span className="text-[10px] text-gray-400 truncate max-w-[100px] sm:max-w-[150px]">
+                        <Building2 size={11} className="text-[var(--text-muted)]" />
+                        <span className="max-w-[100px] truncate text-[10px] text-[var(--text-secondary)] sm:max-w-[150px]">
                           {person.currentCompany}
                         </span>
                       </div>
@@ -144,10 +144,10 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
 
                     {jobsCount > 0 && (
                       <>
-                        <span className="text-gray-600 text-[10px]">•</span>
+                        <span className="text-[10px] text-[var(--text-muted)]">•</span>
                         <div className="flex items-center gap-1">
-                          <Briefcase size={11} className="text-gray-500" />
-                          <span className="text-[10px] text-gray-400">
+                          <Briefcase size={11} className="text-[var(--text-muted)]" />
+                          <span className="text-[10px] text-[var(--text-secondary)]">
                             {jobsCount} job{jobsCount > 1 ? "s" : ""}
                           </span>
                         </div>
@@ -158,13 +158,13 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
               </div>
 
               {/* Right Section */}
-              <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+              <div className="ml-2 flex flex-shrink-0 items-center gap-2">
                 {/* Hiring Status */}
                 <span
-                  className={`hidden sm:inline-block text-[9px] font-medium px-2 py-1 rounded-full border ${
+                  className={`hidden rounded-full border px-2 py-1 text-[9px] font-medium sm:inline-block ${
                     person.isHiring
-                      ? "bg-green-500/10 text-green-400 border-green-500/30"
-                      : "bg-gray-500/10 text-gray-400 border-gray-500/30"
+                      ? "border-[var(--primary-border)] bg-[var(--primary-soft)] text-[var(--primary)]"
+                      : "border-[var(--border)] bg-[var(--background-soft)] text-[var(--text-muted)]"
                   }`}
                 >
                   {person.isHiring ? "● Hiring" : "○ Not Hiring"}
@@ -173,7 +173,7 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
                 {/* Message Button */}
                 <button
                   onClick={(e) => handleMessage(e, person.userId, person.name, person.profileImage)}
-                  className="flex items-center gap-1.5 rounded-lg bg-green-500 px-3 py-1.5 text-xs font-medium text-black transition-all duration-200 hover:bg-green-400 hover:shadow-lg hover:shadow-green-500/25 group/btn"
+                  className="btn-primary group/btn flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95"
                 >
                   <MessageCircle size={13} className="transition-transform duration-200 group-hover/btn:scale-110" />
                   <span className="hidden sm:inline">Message</span>
@@ -185,7 +185,7 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
                     e.stopPropagation();
                     handleProfileClick(person.userId);
                   }}
-                  className="sm:hidden p-1.5 rounded-lg border border-slate-700 text-gray-400 hover:text-white hover:border-slate-600 transition-colors"
+                  className="rounded-lg border border-[var(--border)] p-1.5 text-[var(--text-muted)] transition-colors hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] sm:hidden"
                 >
                   <ExternalLink size={13} />
                 </button>
@@ -197,10 +197,10 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
 
       {/* Footer */}
       {alumni.length > 3 && (
-        <div className="mt-3 pt-3 border-t border-[#1e293b]">
+        <div className="mt-3 border-t border-[var(--border)] pt-3">
           <button
             onClick={() => router.push(`/${userType}/alumni-network`)}
-            className="w-full text-center text-xs text-green-400 hover:text-green-300 transition-colors font-medium"
+            className="w-full text-center text-xs font-medium text-[var(--primary)] transition-colors hover:text-[var(--primary-hover)]"
           >
             View all {alumni.length} alumni →
           </button>

@@ -184,40 +184,40 @@ export default function SelectionCriteriaSection({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-2 mb-6">
-        <FileCheck className="w-5 h-5 text-green-400" />
-        <h2 className="text-xl font-semibold text-white">Selection Criteria</h2>
-        <span className="text-sm text-gray-400 ml-auto">Step 2 of 2</span>
+      <div className="mb-6 flex items-center gap-2">
+        <FileCheck className="h-5 w-5 text-[var(--primary)]" />
+        <h2 className="text-xl font-semibold text-[var(--text-primary)]">Selection Criteria</h2>
+        <span className="ml-auto text-sm text-[var(--text-muted)]">Step 2 of 2</span>
       </div>
 
       {/* Info Bar */}
-      <div className="bg-slate-800/30 rounded-lg p-3 flex items-center justify-between">
+      <div className="rounded-lg bg-[var(--background-soft)] p-3 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-purple-400" />
-            <span className="text-xs text-gray-400">Rounds:</span>
-            <span className="text-sm font-medium text-white">
+            <Users className="h-4 w-4 text-[var(--info)]" />
+            <span className="text-xs text-[var(--text-muted)]">Rounds:</span>
+            <span className="text-sm font-medium text-[var(--text-primary)]">
               {totalRounds}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <Award className="w-4 h-4 text-blue-400" />
-            <span className="text-xs text-gray-400">Selection Process:</span>
-            <span className="text-sm font-medium text-white">
+            <Award className="h-4 w-4 text-[var(--primary)]" />
+            <span className="text-xs text-[var(--text-muted)]">Selection Process:</span>
+            <span className="text-sm font-medium text-[var(--text-primary)]">
               {selectionCount}
             </span>
           </div>
         </div>
         {totalRounds > 0 && (
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-[var(--text-muted)]">
             {selectionCount > totalRounds ? (
-              <span className="text-red-400">
+              <span className="text-[var(--danger)]">
                 ⚠️ Selection process exceeds rounds
               </span>
             ) : selectionCount === totalRounds ? (
-              <span className="text-green-400">✓ Matched</span>
+              <span className="text-[var(--success)]">✓ Matched</span>
             ) : (
-              <span className="text-yellow-400">
+              <span className="text-[var(--warning)]">
                 ⏳ {totalRounds - selectionCount} more needed
               </span>
             )}
@@ -225,17 +225,17 @@ export default function SelectionCriteriaSection({
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         {/* Work Authorization */}
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1.5">
-            <ShieldCheck className="w-4 h-4 inline mr-1.5" />
+          <label className="mb-1.5 block text-sm font-medium text-[var(--text-secondary)]">
+            <ShieldCheck className="mr-1.5 inline h-4 w-4" />
             Work Authorization
           </label>
           <select
             value={formData.workAuthorization || ""}
             onChange={(e) => handleChange("workAuthorization", e.target.value)}
-            className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+            className="select-field"
           >
             <option value="">Select Work Authorization</option>
             <option value="Citizens Only">Citizens Only</option>
@@ -247,8 +247,8 @@ export default function SelectionCriteriaSection({
 
         {/* Eligibility Criteria - String type */}
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1.5">
-            <FileText className="w-4 h-4 inline mr-1.5" />
+          <label className="mb-1.5 block text-sm font-medium text-[var(--text-secondary)]">
+            <FileText className="mr-1.5 inline h-4 w-4" />
             Eligibility Criteria
           </label>
           <textarea
@@ -258,25 +258,25 @@ export default function SelectionCriteriaSection({
             }
             placeholder="e.g., B.Tech with 60% or above. Must have relevant experience."
             rows={3}
-            className="w-full rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2.5 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 resize-none"
+            className="textarea-field resize-none"
           />
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="form-helper mt-1">
             Enter the eligibility criteria as a single text description
           </p>
         </div>
 
         {/* Rounds - Predefined + Custom */}
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-300 mb-1.5">
-            <Users className="w-4 h-4 inline mr-1.5" />
+          <label className="mb-1.5 block text-sm font-medium text-[var(--text-secondary)]">
+            <Users className="mr-1.5 inline h-4 w-4" />
             Rounds
-            <span className="text-xs text-gray-500 ml-2">
+            <span className="ml-2 text-xs text-[var(--text-muted)]">
               (Select from options or add custom)
             </span>
           </label>
 
           {/* Predefined Round Buttons */}
-          <div className="flex flex-wrap gap-2 mb-3">
+          <div className="mb-3 flex flex-wrap gap-2">
             {PREDEFINED_ROUNDS.map((round) => (
               <button
                 key={round}
@@ -286,12 +286,12 @@ export default function SelectionCriteriaSection({
                   (formData.rounds || []).includes(round) ||
                   (formData.rounds || []).length >= 10
                 }
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                   (formData.rounds || []).includes(round)
-                    ? "bg-green-500/20 text-green-400 border border-green-500/30 cursor-not-allowed"
+                    ? "badge badge-success cursor-not-allowed"
                     : (formData.rounds || []).length >= 10
-                    ? "bg-slate-700/30 text-gray-500 border border-slate-700 cursor-not-allowed"
-                    : "bg-slate-700/50 text-gray-300 border border-slate-600 hover:bg-slate-600/50 hover:border-slate-500"
+                    ? "cursor-not-allowed bg-[var(--background-soft)] text-[var(--text-muted)] border border-[var(--border)]"
+                    : "badge cursor-pointer hover:bg-[var(--card-hover)]"
                 }`}
               >
                 {round}
@@ -300,16 +300,16 @@ export default function SelectionCriteriaSection({
             <button
               type="button"
               onClick={() => setShowCustomRoundInput(!showCustomRoundInput)}
-              className="px-3 py-1.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 transition-colors flex items-center gap-1"
+              className="badge badge-info flex items-center gap-1 cursor-pointer"
             >
-              <Plus className="w-3 h-3" />
+              <Plus className="h-3 w-3" />
               Custom
             </button>
           </div>
 
           {/* Custom Round Input */}
           {showCustomRoundInput && (
-            <div className="flex gap-2 mb-3">
+            <div className="mb-3 flex gap-2">
               <input
                 type="text"
                 value={roundsInput}
@@ -321,12 +321,12 @@ export default function SelectionCriteriaSection({
                   }
                 }}
                 placeholder="Enter custom round name..."
-                className="flex-1 rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                className="input-field flex-1"
               />
               <button
                 type="button"
                 onClick={handleAddCustomRound}
-                className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg border border-green-500/30 hover:bg-green-500/30 transition-colors"
+                className="btn-primary rounded-lg px-4 py-2"
               >
                 Add
               </button>
@@ -336,7 +336,7 @@ export default function SelectionCriteriaSection({
                   setShowCustomRoundInput(false);
                   setRoundsInput("");
                 }}
-                className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg border border-red-500/30 hover:bg-red-500/30 transition-colors"
+                className="btn-danger rounded-lg px-4 py-2"
               >
                 Cancel
               </button>
@@ -349,15 +349,15 @@ export default function SelectionCriteriaSection({
               {formData.rounds.map((item: string, index: number) => (
                 <span
                   key={index}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20"
+                  className="badge badge-info inline-flex items-center gap-1"
                 >
                   {item}
                   <button
                     type="button"
                     onClick={() => removeRoundsItem(item)}
-                    className="hover:text-red-400 transition-colors"
+                    className="hover:text-[var(--danger)] transition-colors"
                   >
-                    <X className="w-3 h-3" />
+                    <X className="h-3 w-3" />
                   </button>
                 </span>
               ))}
@@ -365,29 +365,29 @@ export default function SelectionCriteriaSection({
           )}
 
           {roundsError && (
-            <div className="mt-2 flex items-start gap-1.5 text-xs text-red-400">
-              <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+            <div className="form-error mt-2 flex items-start gap-1.5 text-xs">
+              <AlertCircle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
               <span>{roundsError}</span>
             </div>
           )}
 
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="form-helper mt-1">
             Select predefined rounds or add custom ones. Maximum 10 rounds total.
           </p>
         </div>
 
         {/* Selection Process - Predefined + Custom */}
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-300 mb-1.5">
-            <Award className="w-4 h-4 inline mr-1.5" />
+          <label className="mb-1.5 block text-sm font-medium text-[var(--text-secondary)]">
+            <Award className="mr-1.5 inline h-4 w-4" />
             Selection Process
-            <span className="text-xs text-gray-500 ml-2">
+            <span className="ml-2 text-xs text-[var(--text-muted)]">
               (Select from options or add custom)
             </span>
           </label>
 
           {/* Predefined Selection Buttons */}
-          <div className="flex flex-wrap gap-2 mb-3">
+          <div className="mb-3 flex flex-wrap gap-2">
             {PREDEFINED_SELECTION.map((item) => (
               <button
                 key={item}
@@ -398,12 +398,12 @@ export default function SelectionCriteriaSection({
                   (formData.selectionProcess || []).length >= totalRoundsCount ||
                   totalRoundsCount === 0
                 }
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                   (formData.selectionProcess || []).includes(item)
-                    ? "bg-green-500/20 text-green-400 border border-green-500/30 cursor-not-allowed"
+                    ? "badge badge-success cursor-not-allowed"
                     : (formData.selectionProcess || []).length >= totalRoundsCount || totalRoundsCount === 0
-                    ? "bg-slate-700/30 text-gray-500 border border-slate-700 cursor-not-allowed"
-                    : "bg-slate-700/50 text-gray-300 border border-slate-600 hover:bg-slate-600/50 hover:border-slate-500"
+                    ? "cursor-not-allowed bg-[var(--background-soft)] text-[var(--text-muted)] border border-[var(--border)]"
+                    : "badge cursor-pointer hover:bg-[var(--card-hover)]"
                 }`}
               >
                 {item}
@@ -413,20 +413,20 @@ export default function SelectionCriteriaSection({
               type="button"
               onClick={() => setShowCustomSelectionInput(!showCustomSelectionInput)}
               disabled={totalRoundsCount === 0}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center gap-1 ${
+              className={`badge badge-info flex items-center gap-1 ${
                 totalRoundsCount === 0
-                  ? "bg-slate-700/30 text-gray-500 border border-slate-700 cursor-not-allowed"
-                  : "bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20"
+                  ? "cursor-not-allowed opacity-50"
+                  : "cursor-pointer"
               }`}
             >
-              <Plus className="w-3 h-3" />
+              <Plus className="h-3 w-3" />
               Custom
             </button>
           </div>
 
           {/* Custom Selection Input */}
           {showCustomSelectionInput && totalRoundsCount > 0 && (
-            <div className="flex gap-2 mb-3">
+            <div className="mb-3 flex gap-2">
               <input
                 type="text"
                 value={selectionInput}
@@ -438,12 +438,12 @@ export default function SelectionCriteriaSection({
                   }
                 }}
                 placeholder="Enter custom selection process..."
-                className="flex-1 rounded-lg border border-slate-700 bg-[#0F172A] px-4 py-2 text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                className="input-field flex-1"
               />
               <button
                 type="button"
                 onClick={handleAddCustomSelection}
-                className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg border border-green-500/30 hover:bg-green-500/30 transition-colors"
+                className="btn-primary rounded-lg px-4 py-2"
               >
                 Add
               </button>
@@ -453,7 +453,7 @@ export default function SelectionCriteriaSection({
                   setShowCustomSelectionInput(false);
                   setSelectionInput("");
                 }}
-                className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg border border-red-500/30 hover:bg-red-500/30 transition-colors"
+                className="btn-danger rounded-lg px-4 py-2"
               >
                 Cancel
               </button>
@@ -462,18 +462,18 @@ export default function SelectionCriteriaSection({
 
           {/* Selection Process Count Info */}
           {totalRounds > 0 && (
-            <div className="mt-1.5 text-xs text-gray-400">
+            <div className="mt-1.5 text-xs text-[var(--text-muted)]">
               {selectionCount} of {totalRounds} selection process items added
               {selectionCount < totalRounds && (
-                <span className="text-yellow-400 ml-1">
+                <span className="ml-1 text-[var(--warning)]">
                   ({totalRounds - selectionCount} more needed)
                 </span>
               )}
               {selectionCount === totalRounds && (
-                <span className="text-green-400 ml-1">✓ Complete</span>
+                <span className="ml-1 text-[var(--success)]">✓ Complete</span>
               )}
               {selectionCount > totalRounds && (
-                <span className="text-red-400 ml-1">
+                <span className="ml-1 text-[var(--danger)]">
                   ⚠️ Exceeds rounds limit
                 </span>
               )}
@@ -488,19 +488,19 @@ export default function SelectionCriteriaSection({
                   (item: string, index: number) => (
                     <span
                       key={index}
-                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${
+                      className={`badge inline-flex items-center gap-1 ${
                         index < totalRounds
-                          ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                          : "bg-red-500/10 text-red-400 border border-red-500/20"
+                          ? "badge-info"
+                          : "badge-danger"
                       }`}
                     >
                       {item}
                       <button
                         type="button"
                         onClick={() => removeSelectionItem(item)}
-                        className="hover:text-red-400 transition-colors"
+                        className="hover:text-[var(--danger)] transition-colors"
                       >
-                        <X className="w-3 h-3" />
+                        <X className="h-3 w-3" />
                       </button>
                     </span>
                   ),
@@ -509,13 +509,13 @@ export default function SelectionCriteriaSection({
             )}
 
           {selectionError && (
-            <div className="mt-2 flex items-start gap-1.5 text-xs text-red-400">
-              <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+            <div className="form-error mt-2 flex items-start gap-1.5 text-xs">
+              <AlertCircle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
               <span>{selectionError}</span>
             </div>
           )}
 
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="form-helper mt-1">
             {totalRounds === 0
               ? "Please add rounds first. Selection process items must match the number of rounds."
               : `Select predefined items or add custom ones. You can add up to ${totalRounds} selection process item${totalRounds > 1 ? "s" : ""}.`}
@@ -524,10 +524,10 @@ export default function SelectionCriteriaSection({
       </div>
 
       {/* Navigation Buttons */}
-      <div className="flex justify-between pt-4 border-t border-slate-800">
+      <div className="flex justify-between border-t border-[var(--border)] pt-4">
         <button
           onClick={onPrev}
-          className="px-6 py-2.5 border border-slate-700 text-white font-medium rounded-lg hover:bg-slate-800 transition-colors"
+          className="btn-secondary rounded-lg px-6 py-2.5 font-medium"
         >
           ← Previous
         </button>
@@ -539,7 +539,7 @@ export default function SelectionCriteriaSection({
             !!selectionError ||
             (totalRounds > 0 && selectionCount !== totalRounds)
           }
-          className="px-6 py-2.5 bg-green-500 text-black font-medium rounded-lg hover:bg-green-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          className="btn-primary flex items-center gap-2 rounded-lg px-6 py-2.5 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? (
             <>

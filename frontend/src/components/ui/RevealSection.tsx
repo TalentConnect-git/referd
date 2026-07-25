@@ -18,8 +18,17 @@ type RevealItemProps = {
 /**
  * Wraps a section with a scroll-triggered fade + slide-up animation.
  * Respects prefers-reduced-motion: skips the y-offset, only fades.
+ * 
+ * @example
+ * <RevealSection className="bg-[var(--background)] px-4">
+ *   <h2>Your content</h2>
+ * </RevealSection>
  */
-export function RevealSection({ children, className, delay = 0 }: RevealSectionProps) {
+export function RevealSection({ 
+  children, 
+  className = "", 
+  delay = 0 
+}: RevealSectionProps) {
   const shouldReduceMotion = useReducedMotion();
 
   return (
@@ -28,7 +37,11 @@ export function RevealSection({ children, className, delay = 0 }: RevealSectionP
       initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.15 }}
-      transition={{ duration: 0.7, ease: "easeOut", delay }}
+      transition={{ 
+        duration: 0.7, 
+        ease: [0.25, 0.1, 0.25, 1], // Smooth easing curve
+        delay 
+      }}
     >
       {children}
     </motion.div>
@@ -38,8 +51,19 @@ export function RevealSection({ children, className, delay = 0 }: RevealSectionP
 /**
  * For staggering individual items inside a revealed section (cards, steps, etc.).
  * Use delay={index * 0.1} at the call site.
+ * 
+ * @example
+ * {items.map((item, index) => (
+ *   <RevealItem key={item.id} delay={index * 0.08}>
+ *     <Card {...item} />
+ *   </RevealItem>
+ * ))}
  */
-export function RevealItem({ children, className, delay = 0 }: RevealItemProps) {
+export function RevealItem({ 
+  children, 
+  className = "", 
+  delay = 0 
+}: RevealItemProps) {
   const shouldReduceMotion = useReducedMotion();
 
   return (
@@ -48,7 +72,11 @@ export function RevealItem({ children, className, delay = 0 }: RevealItemProps) 
       initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.55, ease: "easeOut", delay }}
+      transition={{ 
+        duration: 0.55, 
+        ease: [0.25, 0.1, 0.25, 1], // Smooth easing curve
+        delay 
+      }}
     >
       {children}
     </motion.div>

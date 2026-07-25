@@ -251,26 +251,26 @@ export default function CareerPreferencesForm() {
   };
 
   return (
-    <div className="min-h-screen bg-black px-5 py-8 text-white">
+    <div className="min-h-screen bg-[var(--background)] px-4 py-6 text-[var(--text-primary)] sm:px-5 sm:py-8">
       <div className="mx-auto flex min-h-[calc(100vh-64px)] max-w-3xl items-center justify-center">
-        <div className="w-full rounded-3xl border border-[var(--border)] bg-[var(--background)] p-7 shadow-2xl lg:p-10">
-          <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--primary-soft)]">
-              <Target className="h-8 w-8 text-[var(--primary)]" />
+        <div className="surface-card w-full rounded-3xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-2xl sm:p-7 lg:p-10">
+          <div className="mb-6 text-center sm:mb-8">
+            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--primary-soft)] sm:mb-4 sm:h-16 sm:w-16">
+              <Target className="h-6 w-6 text-[var(--primary)] sm:h-8 sm:w-8" />
             </div>
 
-            <h1 className="text-[26px] font-bold tracking-[-0.04em] text-white">
+            <h1 className="text-2xl font-bold tracking-[-0.04em] text-[var(--text-primary)] sm:text-[26px]">
               Career Goals & Preferences
             </h1>
 
-            <p className="mt-2 text-[13px] text-[var(--text-primary)]">
+            <p className="mt-1 text-xs text-[var(--text-muted)] sm:mt-2 sm:text-sm">
               Tell us your job interests and preferred locations.
             </p>
           </div>
 
-          <div className="space-y-5">
+          <div className="space-y-4 sm:space-y-5">
             <div>
-              <label className="mb-2 block text-[13px] font-medium text-white">
+              <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)] sm:mb-2 sm:text-sm">
                 Interested Industry Type
               </label>
 
@@ -297,7 +297,7 @@ export default function CareerPreferencesForm() {
             </div>
 
             <div>
-              <label className="mb-2 flex items-center text-[13px] font-medium text-white">
+              <label className="mb-1.5 flex items-center text-xs font-medium text-[var(--text-secondary)] sm:mb-2 sm:text-sm">
                 <Briefcase className="mr-2 h-4 w-4 text-[var(--primary)]" />
                 Interested Job Roles
               </label>
@@ -325,7 +325,7 @@ export default function CareerPreferencesForm() {
             </div>
 
             <div>
-              <label className="mb-2 flex items-center text-[13px] font-medium text-white">
+              <label className="mb-1.5 flex items-center text-xs font-medium text-[var(--text-secondary)] sm:mb-2 sm:text-sm">
                 <MapPin className="mr-2 h-4 w-4 text-[var(--primary)]" />
                 Preferred Job Locations
               </label>
@@ -352,11 +352,11 @@ export default function CareerPreferencesForm() {
             </div>
 
             <div>
-              <label className="mb-2 block text-[13px] font-medium text-white">
+              <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)] sm:mb-2 sm:text-sm">
                 Looking For
               </label>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {["Job", "Internship", "Both"].map((option) => {
                   const isActive = formData.lookingFor[0] === option;
 
@@ -365,10 +365,10 @@ export default function CareerPreferencesForm() {
                       key={option}
                       type="button"
                       onClick={() => handleLookingForClick(option)}
-                      className={`h-10 rounded-lg border text-[13px] font-semibold transition ${
+                      className={`h-9 rounded-lg border text-xs font-semibold transition sm:h-10 sm:text-sm ${
                         isActive
-                          ? "border-[var(--primary)] bg-[var(--primary-soft)] text-white"
-                          : "border-white/10 bg-transparent text-[var(--text-primary)] hover:border-[var(--primary)] hover:text-white"
+                          ? "border-[var(--primary-border)] bg-[var(--primary-soft)] text-[var(--text-primary)]"
+                          : "border-[var(--border)] bg-transparent text-[var(--text-muted)] hover:border-[var(--primary-border)] hover:text-[var(--text-primary)]"
                       }`}
                     >
                       {option}
@@ -379,11 +379,11 @@ export default function CareerPreferencesForm() {
             </div>
 
             <div>
-              <label className="mb-2 block text-[13px] font-medium text-white">
+              <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)] sm:mb-2 sm:text-sm">
                 Employment Type
               </label>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {employmentTypeOptions.map((type) => {
                   const isActive = formData.employmentType.includes(type);
 
@@ -392,10 +392,10 @@ export default function CareerPreferencesForm() {
                       key={type}
                       type="button"
                       onClick={() => handleEmploymentTypeClick(type)}
-                      className={`h-10 rounded-lg border text-[13px] font-semibold capitalize transition ${
+                      className={`h-9 rounded-lg border text-xs font-semibold capitalize transition sm:h-10 sm:text-sm ${
                         isActive
-                          ? "border-[var(--primary)] bg-[var(--primary-soft)] text-white"
-                          : "border-white/10 bg-transparent text-[var(--text-primary)] hover:border-[var(--primary)] hover:text-white"
+                          ? "border-[var(--primary-border)] bg-[var(--primary-soft)] text-[var(--text-primary)]"
+                          : "border-[var(--border)] bg-transparent text-[var(--text-muted)] hover:border-[var(--primary-border)] hover:text-[var(--text-primary)]"
                       }`}
                     >
                       {type}
@@ -406,23 +406,23 @@ export default function CareerPreferencesForm() {
             </div>
           </div>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row">
             <button
               type="button"
               onClick={() => router.back()}
-              className="flex h-10 flex-1 items-center justify-center rounded-lg border border-white/10 text-[13px] font-semibold text-white transition hover:bg-white/10"
+              className="btn-secondary flex h-10 flex-1 items-center justify-center rounded-lg text-xs font-semibold sm:h-11 sm:text-sm"
             >
-              <ChevronLeft className="mr-2 h-4 w-4" />
+              <ChevronLeft className="mr-1.5 h-3.5 w-3.5 sm:mr-2 sm:h-4 sm:w-4" />
               Back
             </button>
 
             <button
               type="button"
               onClick={handleNext}
-              className="button-color flex h-10 flex-1 items-center justify-center rounded-lg text-[13px] font-semibold text-black transition-all duration-300 hover:brightness-110 active:scale-[0.99]"
+              className="btn-primary flex h-10 flex-1 items-center justify-center rounded-lg text-xs font-semibold transition-all duration-300 active:scale-[0.99] sm:h-11 sm:text-sm"
             >
               Next
-              <ChevronRight className="ml-2 h-4 w-4" />
+              <ChevronRight className="ml-1.5 h-3.5 w-3.5 sm:ml-2 sm:h-4 sm:w-4" />
             </button>
           </div>
         </div>
@@ -436,30 +436,30 @@ const customSelectStyles: StylesConfig<OptionType, false> = {
     ...base,
     minHeight: "44px",
     borderRadius: "8px",
-    backgroundColor: "var(--background)",
-    borderColor: state.isFocused ? "var(--primary)" : "rgba(255,255,255,0.1)",
+    backgroundColor: "var(--background-soft)",
+    borderColor: state.isFocused ? "var(--primary)" : "var(--border)",
     boxShadow: state.isFocused
-      ? "0 0 0 2px rgba(49,170,64,0.15)"
+      ? "0 0 0 2px var(--focus-ring)"
       : "none",
   }),
   menu: (base) => ({
     ...base,
-    backgroundColor: "var(--background)",
-    border: "1px solid rgba(255,255,255,0.1)",
+    backgroundColor: "var(--card)",
+    border: "1px solid var(--border)",
   }),
   option: (base, state) => ({
     ...base,
     backgroundColor: state.isFocused ? "var(--primary-soft)" : "transparent",
-    color: "white",
+    color: "var(--text-primary)",
     fontSize: "13px",
   }),
   singleValue: (base) => ({
     ...base,
-    color: "white",
+    color: "var(--text-primary)",
   }),
   input: (base) => ({
     ...base,
-    color: "white",
+    color: "var(--text-primary)",
   }),
   placeholder: (base) => ({
     ...base,
@@ -478,16 +478,16 @@ const customMultiSelectStyles: StylesConfig<OptionType, true> = {
 
   multiValueLabel: (base) => ({
     ...base,
-    color: "white",
+    color: "var(--text-primary)",
   }),
 
   multiValueRemove: (base) => ({
     ...base,
-    color: "white",
+    color: "var(--text-primary)",
 
     ":hover": {
-      backgroundColor: "rgba(255,255,255,0.1)",
-      color: "white",
+      backgroundColor: "var(--primary-soft)",
+      color: "var(--text-primary)",
     },
   }),
 };

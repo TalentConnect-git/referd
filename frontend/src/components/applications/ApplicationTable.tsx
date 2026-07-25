@@ -56,42 +56,31 @@ type RequestError = {
 };
 
 const statusColors: Record<ApplicationStatus, string> = {
-  [ApplicationStatus.ApplicationSent]:
-    "border-indigo-500/20 bg-indigo-500/10 text-indigo-400",
-  [ApplicationStatus.AwaitingRecruiterAction]:
-    "border-yellow-500/20 bg-yellow-500/10 text-yellow-400",
-  [ApplicationStatus.Shortlisted]:
-    "border-purple-500/20 bg-purple-500/10 text-purple-400",
-  [ApplicationStatus.InterviewScheduled]:
-    "border-cyan-500/20 bg-cyan-500/10 text-cyan-400",
-  [ApplicationStatus.OfferExtended]:
-    "border-emerald-500/20 bg-emerald-500/10 text-emerald-400",
-  [ApplicationStatus.Accepted]:
-    "border-green-500/20 bg-green-500/10 text-green-400",
-  [ApplicationStatus.Rejected]:
-    "border-red-500/20 bg-red-500/10 text-red-400",
-  [ApplicationStatus.ReferredToCompany]:
-    "border-orange-500/20 bg-orange-500/10 text-orange-400",
-  [ApplicationStatus.OfferAccepted]:
-    "border-green-600/20 bg-green-600/10 text-green-500",
-  [ApplicationStatus.OfferRejected]:
-    "border-red-600/20 bg-red-600/10 text-red-500",
-  [ApplicationStatus.JoinedTheCompany]:
-    "border-teal-500/20 bg-teal-500/10 text-teal-400",
+  [ApplicationStatus.ApplicationSent]: "badge-info",
+  [ApplicationStatus.AwaitingRecruiterAction]: "badge-warning",
+  [ApplicationStatus.Shortlisted]: "badge-primary",
+  [ApplicationStatus.InterviewScheduled]: "badge-info",
+  [ApplicationStatus.OfferExtended]: "badge-success",
+  [ApplicationStatus.Accepted]: "badge-success",
+  [ApplicationStatus.Rejected]: "badge-danger",
+  [ApplicationStatus.ReferredToCompany]: "badge-warning",
+  [ApplicationStatus.OfferAccepted]: "badge-success",
+  [ApplicationStatus.OfferRejected]: "badge-danger",
+  [ApplicationStatus.JoinedTheCompany]: "badge-success",
 };
 
 const statusDotColors: Record<ApplicationStatus, string> = {
-  [ApplicationStatus.ApplicationSent]: "bg-indigo-400",
-  [ApplicationStatus.AwaitingRecruiterAction]: "bg-yellow-400",
+  [ApplicationStatus.ApplicationSent]: "bg-info",
+  [ApplicationStatus.AwaitingRecruiterAction]: "bg-warning",
   [ApplicationStatus.Shortlisted]: "bg-purple-400",
   [ApplicationStatus.InterviewScheduled]: "bg-cyan-400",
   [ApplicationStatus.OfferExtended]: "bg-emerald-400",
-  [ApplicationStatus.Accepted]: "bg-green-400",
-  [ApplicationStatus.Rejected]: "bg-red-400",
-  [ApplicationStatus.ReferredToCompany]: "bg-orange-400",
-  [ApplicationStatus.OfferAccepted]: "bg-green-500",
-  [ApplicationStatus.OfferRejected]: "bg-red-500",
-  [ApplicationStatus.JoinedTheCompany]: "bg-teal-400",
+  [ApplicationStatus.Accepted]: "bg-success",
+  [ApplicationStatus.Rejected]: "bg-danger",
+  [ApplicationStatus.ReferredToCompany]: "bg-warning",
+  [ApplicationStatus.OfferAccepted]: "bg-success",
+  [ApplicationStatus.OfferRejected]: "bg-danger",
+  [ApplicationStatus.JoinedTheCompany]: "bg-success",
 };
 
 const statusOptions = Object.values(
@@ -100,16 +89,16 @@ const statusOptions = Object.values(
 
 const getMatchScoreColor = (score?: number): string => {
   const numericScore = Number(score) || 0;
-  if (numericScore >= 75) return "text-green-400";
-  if (numericScore >= 40) return "text-orange-400";
-  return "text-red-400";
+  if (numericScore >= 75) return "text-success";
+  if (numericScore >= 40) return "text-warning";
+  return "text-danger";
 };
 
 const getMatchBarColor = (score?: number): string => {
   const numericScore = Number(score) || 0;
-  if (numericScore >= 75) return "bg-green-500";
-  if (numericScore >= 40) return "bg-orange-500";
-  return "bg-red-500";
+  if (numericScore >= 75) return "bg-success";
+  if (numericScore >= 40) return "bg-warning";
+  return "bg-danger";
 };
 
 const getMatchLevel = (score?: number): string => {
@@ -122,17 +111,15 @@ const getMatchLevel = (score?: number): string => {
 const StatusBadge = ({ status }: { status: string }) => {
   const statusKey = status as ApplicationStatus;
   const colorClass =
-    statusColors[statusKey] ||
-    "border-gray-500/20 bg-gray-500/10 text-gray-400";
+    statusColors[statusKey] || "badge";
 
   return (
     <span
       className={`
-        inline-flex max-w-[180px] items-center
+        badge inline-flex max-w-[180px] items-center
         truncate whitespace-nowrap rounded-full
-        border px-2 py-0.5
+        px-2 py-0.5
         text-[10px] font-medium
-        ${colorClass}
       `}
       title={status}
     >
@@ -503,13 +490,13 @@ export default function ApplicationTable({
   return (
     <div
       className="
-        rounded-3xl border border-slate-800
+        card rounded-3xl border border-theme
         overflow-hidden min-h-[420px] flex flex-col ml-5
       "
     >
       {/* Success Toast */}
       {showSuccessToast && (
-        <div className="fixed top-4 right-4 z-[10000] bg-green-500/10 border border-green-500/30 text-green-400 px-3.5 py-2.5 rounded-lg shadow-lg max-w-md animate-in slide-in-from-top-2">
+        <div className="fixed top-4 right-4 z-[10000] bg-success-soft border border-success/30 text-success px-3.5 py-2.5 rounded-lg shadow-lg max-w-md animate-in slide-in-from-top-2">
           <div className="flex items-center gap-2">
             <Check className="h-4 w-4" />
             <span className="text-[12px] font-medium">{showSuccessToast}</span>
@@ -518,8 +505,8 @@ export default function ApplicationTable({
       )}
 
       <table className="w-full">
-        <thead className="bg-[#111827]">
-          <tr className="text-left text-gray-400">
+        <thead className="bg-background">
+          <tr className="text-left text-muted">
             <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wider">
               Applicant
             </th>
@@ -546,10 +533,10 @@ export default function ApplicationTable({
             <tr>
               <td colSpan={6} className="h-[320px] text-center">
                 <div className="flex flex-col items-center justify-center">
-                  <p className="text-base font-medium text-gray-300">
+                  <p className="text-base font-medium text-secondary">
                     No {applicationType} applications found
                   </p>
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-muted">
                     You haven't applied to any {applicationType?.toLowerCase()}{" "}
                     opportunities yet.
                   </p>
@@ -581,7 +568,7 @@ export default function ApplicationTable({
               return (
                 <tr
                   key={application._id}
-                  className="border-t border-slate-800 hover:bg-slate-800/30 transition-colors cursor-pointer"
+                  className="border-t border-divider hover:bg-card-hover transition-colors cursor-pointer"
                   onClick={() => handleRowClick(application._id)}
                 >
                   {/* Applicant Column */}
@@ -596,17 +583,17 @@ export default function ApplicationTable({
                           alt={applicantName}
                           width={32}
                           height={32}
-                          className="h-8 w-8 rounded-full object-cover border border-gray-600/30"
+                          className="h-8 w-8 rounded-full object-cover border border-theme"
                         />
                       ) : (
-                        <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center border border-gray-600/30">
-                          <span className="text-blue-400 font-medium text-[11px]">
+                        <div className="h-8 w-8 rounded-full bg-info-soft flex items-center justify-center border border-theme">
+                          <span className="text-info font-medium text-[11px]">
                             {getInitials(applicantName)}
                           </span>
                         </div>
                       )}
                       <div>
-                        <span className="text-white font-medium text-[13px] hover:text-blue-400 transition-colors">
+                        <span className="text-primary font-medium text-[13px] hover:text-info transition-colors">
                           {applicantName}
                         </span>
                       </div>
@@ -616,12 +603,12 @@ export default function ApplicationTable({
                   {/* Company Column */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1.5">
-                      <Building2 className="w-3.5 h-3.5 text-gray-500" />
-                      <span className="text-white text-[13px]">
+                      <Building2 className="w-3.5 h-3.5 text-muted" />
+                      <span className="text-primary text-[13px]">
                         {referralCompany}
                       </span>
                       {jobDetails.isAskForReferral && (
-                        <span className="text-[9px] bg-purple-500/10 text-purple-400 px-1.5 py-0.5 rounded-full border border-purple-500/20">
+                        <span className="badge badge-primary text-[9px] px-1.5 py-0.5 rounded-full border border-primary/20">
                           Referral
                         </span>
                       )}
@@ -636,8 +623,8 @@ export default function ApplicationTable({
                   {/* Applied Date Column */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-gray-500" />
-                      <span className="text-gray-300 text-[13px]">
+                      <Calendar className="w-3.5 h-3.5 text-muted" />
+                      <span className="text-secondary text-[13px]">
                         {formatDate(appliedDate)}
                       </span>
                     </div>
@@ -646,21 +633,21 @@ export default function ApplicationTable({
                   {/* Match Score Column */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1.5">
-                      <Target className="w-3.5 h-3.5 text-gray-500" />
+                      <Target className="w-3.5 h-3.5 text-muted" />
                       <span
                         className={`font-semibold text-[13px] ${getMatchScoreColor(matchScore)}`}
                       >
                         {matchScore}%
                       </span>
                       {matchScore > 0 && (
-                        <div className="w-10 h-1 bg-[#1e293b] rounded-full overflow-hidden">
+                        <div className="w-10 h-1 bg-background-soft rounded-full overflow-hidden">
                           <div
                             className={`h-full rounded-full ${
                               matchScore >= 75
-                                ? "bg-green-500"
+                                ? "bg-success"
                                 : matchScore >= 40
-                                  ? "bg-orange-500"
-                                  : "bg-red-500"
+                                  ? "bg-warning"
+                                  : "bg-danger"
                             }`}
                             style={{ width: `${Math.min(matchScore, 100)}%` }}
                           />
@@ -685,7 +672,7 @@ export default function ApplicationTable({
                         data-status-dropdown-trigger="true"
                         onClick={(e) => handleUpdateClick(e, application._id)}
                         disabled={isUpdating}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-[#0F1115] px-3 py-1.5 text-[12px] font-medium text-white transition-all hover:bg-[#171A20] hover:border-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="btn-secondary inline-flex items-center gap-1.5 rounded-lg border border-theme bg-background-soft px-3 py-1.5 text-[12px] font-medium text-primary transition-all hover:bg-card-hover hover:border-strong disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {isUpdating ? (
                           <>
@@ -713,13 +700,13 @@ export default function ApplicationTable({
                             width: dropdownPosition.width,
                             maxHeight: dropdownPosition.maxHeight,
                           }}
-                          className="fixed z-[9999] overflow-y-auto rounded-lg border border-slate-700 bg-[#0F1115] shadow-xl py-1"
+                          className="card fixed z-[9999] overflow-y-auto rounded-lg border border-theme bg-card shadow-xl py-1"
                           onClick={(e) => e.stopPropagation()}
                           // Allow scroll events to propagate without closing
                           onWheel={(e) => e.stopPropagation()}
                           onScroll={(e) => e.stopPropagation()}
                         >
-                          <div className="px-3 py-1.5 text-[10px] text-gray-500 border-b border-slate-700 sticky top-0 bg-[#0F1115]">
+                          <div className="px-3 py-1.5 text-[10px] text-muted border-b border-divider sticky top-0 bg-card">
                             Change Status
                           </div>
                           {statusOptions.map((status) => {
@@ -731,22 +718,22 @@ export default function ApplicationTable({
                                 onClick={(e) =>
                                   handleStatusUpdate(e, application._id, status)
                                 }
-                                className={`w-full flex items-center justify-between px-3 py-2 text-[12px] transition-colors hover:bg-slate-800/50 ${
+                                className={`w-full flex items-center justify-between px-3 py-2 text-[12px] transition-colors hover:bg-card-hover ${
                                   isSelected
-                                    ? "text-white bg-slate-800/30"
-                                    : "text-gray-300"
+                                    ? "text-primary bg-card-hover"
+                                    : "text-secondary"
                                 }`}
                               >
                                 <span className="flex items-center gap-2">
                                   <span
                                     className={`w-1.5 h-1.5 rounded-full ${
-                                      statusDotColors[status] || "bg-gray-500"
+                                      statusDotColors[status] || "bg-muted"
                                     }`}
                                   />
                                   {status}
                                 </span>
                                 {isSelected && (
-                                  <Check className="h-3.5 w-3.5 text-green-400" />
+                                  <Check className="h-3.5 w-3.5 text-success" />
                                 )}
                               </button>
                             );
@@ -763,15 +750,15 @@ export default function ApplicationTable({
       </table>
 
       {/* Pagination */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-2.5 border-t border-slate-800 bg-[#0F172A]">
-        <div className="text-[11px] text-gray-400 order-2 sm:order-1">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-2.5 border-t border-divider bg-background">
+        <div className="text-[11px] text-muted order-2 sm:order-1">
           Showing {startIndex} to {endIndex} of {totalItems} results
         </div>
         <div className="flex items-center gap-1.5 order-1 sm:order-2">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={!hasPrev}
-            className="px-3 py-1 rounded-md border border-slate-700 text-[11px] font-medium text-gray-400 hover:bg-slate-700/30 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="btn-secondary px-3 py-1 rounded-md border border-theme text-[11px] font-medium text-muted hover:bg-card-hover hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             Previous
           </button>
@@ -787,9 +774,9 @@ export default function ApplicationTable({
               disabled={typeof pageNum !== "number"}
               className={`
                 min-w-[28px] h-7 rounded-md text-[11px] font-medium transition-colors
-                ${typeof pageNum === "number" ? "hover:bg-slate-700/30 hover:text-white cursor-pointer" : "cursor-default"}
-                ${currentPage === pageNum ? "bg-green-500/20 text-green-400 border border-green-500/30" : "text-gray-400"}
-                ${typeof pageNum !== "number" ? "text-gray-500" : ""}
+                ${typeof pageNum === "number" ? "hover:bg-card-hover hover:text-primary cursor-pointer" : "cursor-default"}
+                ${currentPage === pageNum ? "badge-primary text-primary border border-primary/30" : "text-muted"}
+                ${typeof pageNum !== "number" ? "text-muted" : ""}
               `}
             >
               {pageNum}
@@ -799,7 +786,7 @@ export default function ApplicationTable({
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={!hasNext}
-            className="px-3 py-1 rounded-md border border-slate-700 text-[11px] font-medium text-gray-400 hover:bg-slate-700/30 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="btn-secondary px-3 py-1 rounded-md border border-theme text-[11px] font-medium text-muted hover:bg-card-hover hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             Next
           </button>

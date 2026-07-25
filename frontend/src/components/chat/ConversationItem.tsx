@@ -43,8 +43,8 @@ export const ConversationItem = memo(
       <button
         type="button"
         onClick={handleClick}
-        className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-all hover:bg-[var(--card-hover)] ${
-          isSelected ? "bg-[var(--card-hover)] border-l-4 border-[var(--primary)]" : "border-l-4 border-transparent"
+        className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-all hover:bg-card-hover ${
+          isSelected ? "bg-card-hover border-l-4 border-primary" : "border-l-4 border-transparent"
         }`}
       >
         <div className="relative flex-shrink-0">
@@ -55,15 +55,15 @@ export const ConversationItem = memo(
               alt={displayName}
               width={48}
               height={48}
-              className="h-12 w-12 rounded-full object-cover border-2 border-[var(--border)] shadow-lg"
+              className="h-12 w-12 rounded-full object-cover border-2 border-theme shadow-lg"
               onError={() => setImageError(true)}
             />
           ) : (
             /* Fallback Avatar with Gradient */
-            <div className={`h-12 w-12 rounded-full flex items-center justify-center text-lg font-semibold text-white shadow-lg ${
+            <div className={`h-12 w-12 rounded-full flex items-center justify-center text-lg font-semibold text-inverse shadow-lg ${
               isSelected 
-                ? "bg-gradient-to-br from-[#22c55e] to-[#16a34a]" 
-                : "bg-gradient-to-br from-[#22c55e]/80 to-[#16a34a]/80"
+                ? "bg-gradient-to-br from-primary to-primary-dark" 
+                : "bg-gradient-to-br from-primary/80 to-primary-dark/80"
             }`}>
               {initials || <User className="h-5 w-5" />}
             </div>
@@ -72,13 +72,13 @@ export const ConversationItem = memo(
           {/* Online Status Indicator */}
           {isOnline && (
             <div className="absolute -bottom-0.5 -right-0.5">
-              <div className="h-3.5 w-3.5 animate-pulse rounded-full border-2 border-[var(--card)] bg-green-500" />
+              <div className="h-3.5 w-3.5 animate-pulse rounded-full border-2 border-card bg-success" />
             </div>
           )}
 
           {/* Unread Count Badge */}
           {unreadCount > 0 && (
-            <div className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white shadow-lg shadow-red-500/30">
+            <div className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-danger px-1.5 text-[10px] font-bold text-inverse shadow-lg shadow-danger/30">
               {unreadCount > 99 ? "99+" : unreadCount}
             </div>
           )}
@@ -89,15 +89,15 @@ export const ConversationItem = memo(
             <h3
               className={`truncate text-sm ${
                 unreadCount > 0
-                  ? "font-bold text-white"
-                  : "font-medium text-white"
+                  ? "font-bold text-primary"
+                  : "font-medium text-primary"
               }`}
             >
               {displayName}
             </h3>
 
             {lastMessageTime && (
-              <span className="ml-2 flex-shrink-0 text-[10px] text-[var(--text-muted)]">
+              <span className="ml-2 flex-shrink-0 text-[10px] text-muted">
                 {lastMessageTime}
               </span>
             )}
@@ -106,8 +106,8 @@ export const ConversationItem = memo(
           <p
             className={`truncate text-sm ${
               unreadCount > 0
-                ? "font-semibold text-white"
-                : "text-[var(--text-muted)]"
+                ? "font-semibold text-primary"
+                : "text-muted"
             }`}
           >
             {lastMessage}
@@ -116,7 +116,7 @@ export const ConversationItem = memo(
 
         <ChevronRight
           className={`h-4 w-4 flex-shrink-0 transition-all ${
-            isSelected ? "text-[var(--primary)]" : "text-[var(--text-muted)]"
+            isSelected ? "text-primary" : "text-muted"
           }`}
         />
       </button>

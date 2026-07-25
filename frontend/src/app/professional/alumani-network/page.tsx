@@ -570,15 +570,15 @@ export default function AlumniPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#070b12] px-4 py-6 text-white sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-[var(--background)] px-4 py-6 text-[var(--text-primary)] sm:px-6 lg:px-8">
       <section className="mx-auto max-w-7xl">
         <div className="mb-6 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">
+            <h1 className="text-2xl font-bold text-[var(--text-primary)]">
               Alumni Network
             </h1>
 
-            <p className="mt-1 text-sm text-slate-400">
+            <p className="mt-1 text-sm text-[var(--text-muted)]">
               Connect with alumni from your college,
               companies, and hiring network.
             </p>
@@ -586,7 +586,7 @@ export default function AlumniPage() {
             {(activeTab === "college" ||
               activeTab === "hiring") &&
               collegeDisplayName && (
-                <p className="mt-2 text-sm text-green-400">
+                <p className="mt-2 text-sm text-[var(--primary)]">
                   Colleges: {collegeDisplayName}
                 </p>
               )}
@@ -594,14 +594,14 @@ export default function AlumniPage() {
             {(activeTab === "company" ||
               activeTab === "hiring") &&
               companiesDisplay && (
-                <p className="mt-2 text-sm text-green-400">
+                <p className="mt-2 text-sm text-[var(--primary)]">
                   Companies checked:{" "}
                   {companiesDisplay}
                 </p>
               )}
           </div>
 
-          <div className="flex w-full rounded-2xl border border-white/10 bg-[#111821] p-1 sm:w-fit">
+          <div className="flex w-full rounded-2xl border border-[var(--border)] bg-[var(--card)] p-1 sm:w-fit">
             {tabs.map((tab) => {
               const isActive =
                 activeTab === tab.key;
@@ -616,8 +616,8 @@ export default function AlumniPage() {
                   }
                   className={`flex-1 rounded-xl px-5 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-70 sm:flex-none ${
                     isActive
-                      ? "bg-[#2fb344] text-black"
-                      : "text-slate-300 hover:bg-white/5 hover:text-white"
+                      ? "bg-[var(--primary)] text-black"
+                      : "text-[var(--text-muted)] hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)]"
                   }`}
                 >
                   {tab.label}
@@ -628,9 +628,9 @@ export default function AlumniPage() {
         </div>
 
         {loading && (
-          <div className="flex min-h-[350px] items-center justify-center rounded-3xl border border-[#242d3a] bg-[#111821]">
-            <div className="flex items-center gap-3 text-slate-300">
-              <Loader2 className="h-5 w-5 animate-spin" />
+          <div className="flex min-h-[350px] items-center justify-center rounded-3xl border border-[var(--border)] bg-[var(--card)]">
+            <div className="flex items-center gap-3 text-[var(--text-muted)]">
+              <Loader2 className="h-5 w-5 animate-spin text-[var(--primary)]" />
 
               <span className="text-sm">
                 Loading alumni...
@@ -640,15 +640,15 @@ export default function AlumniPage() {
         )}
 
         {!loading && error && (
-          <div className="rounded-3xl border border-red-500/20 bg-red-500/10 p-6">
-            <p className="text-sm text-red-300">
+          <div className="rounded-3xl border border-[var(--danger-border)] bg-[var(--danger-soft)] p-6">
+            <p className="text-sm text-[var(--danger)]">
               {error}
             </p>
 
             <button
               type="button"
               onClick={() => void fetchAlumni()}
-              className="mt-4 rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-200 transition hover:bg-red-500/20"
+              className="btn-primary mt-4 rounded-xl px-4 py-2 text-sm font-semibold"
             >
               Try again
             </button>
@@ -658,12 +658,12 @@ export default function AlumniPage() {
         {!loading &&
           !error &&
           alumni.length === 0 && (
-            <div className="rounded-3xl border border-[#242d3a] bg-[#111821] p-10 text-center">
-              <h2 className="text-lg font-semibold text-white">
+            <div className="rounded-3xl border border-[var(--border)] bg-[var(--card)] p-10 text-center">
+              <h2 className="text-lg font-semibold text-[var(--text-primary)]">
                 No alumni found
               </h2>
 
-              <p className="mt-2 text-sm text-slate-400">
+              <p className="mt-2 text-sm text-[var(--text-muted)]">
                 Try another tab or check again
                 later.
               </p>

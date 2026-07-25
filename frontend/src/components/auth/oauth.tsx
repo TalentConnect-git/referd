@@ -80,12 +80,9 @@ export default function GoogleOAuthButton() {
       type="button"
       onClick={handleGoogleClick}
       disabled={loading}
-      className="flex h-11 w-full items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[14px] font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+      className="btn-secondary flex h-11 w-full items-center justify-center rounded-lg border border-theme bg-background-soft/50 text-[14px] font-semibold text-primary transition hover:bg-card-hover disabled:cursor-not-allowed disabled:opacity-60"
     >
       {loading ? "Connecting..." : "Continue with Google"}
     </button>
   );
 }
-
-
-

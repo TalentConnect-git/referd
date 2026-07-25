@@ -7,9 +7,12 @@ import BasicJobDetails from "./BasicJobDetails";
 import SelectionCriteriaSection from "./SelectionCriteriaSection";
 import { createReferralPosting } from "@/services/referral.service";
 import { ReferralPostingPayload } from "@/types/referral";
+import { useAuth } from "@/context/AuthContext";
+import { ChevronRight, ChevronLeft, Briefcase, CheckCircle } from "lucide-react";
 
 export default function PostReferralForm() {
   const router = useRouter();
+  const { profile } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<ReferralPostingPayload>({
@@ -73,7 +76,6 @@ export default function PostReferralForm() {
     },
   ];
 
-  // Reset form to initial state
   const resetForm = () => {
     setFormData({
       jobTitle: [],
@@ -127,9 +129,40 @@ export default function PostReferralForm() {
     setCurrentStep(0);
   };
 
+  const validateCurrentCompany = () => {
+    if (!profile) {
+      toast.error("Please login to post a referral");
+      return false;
+    }
+
+    if (profile.profileType !== "professional") {
+      toast.error("Only professional accounts can post referrals");
+      return false;
+    }
+
+    const hasCurrentCompany = profile.currentCompany && profile.currentCompany.trim().length > 0;
+    
+    if (!hasCurrentCompany) {
+      toast.error(
+        "Please add your current company before posting a referral. " +
+        "Go to your profile settings to update your current employment.",
+        {
+          duration: 5000,
+          icon: '🏢',
+        }
+      );
+      return false;
+    }
+
+    return true;
+  };
+
   const handleNext = () => {
-    // Validate required fields for step 1
     if (currentStep === 0) {
+      if (!validateCurrentCompany()) {
+        return;
+      }
+
       if (!formData.jobTitle || formData.jobTitle.length === 0) {
         toast.error("Please enter a job title");
         return;
@@ -148,7 +181,6 @@ export default function PostReferralForm() {
         return;
       }
       
-      // Validate location if broadcast type is Location
       if (formData.broadcastType === "Location") {
         if (!formData.city || !formData.state) {
           toast.error("Please enter city and state for location-based broadcast");
@@ -169,13 +201,15 @@ export default function PostReferralForm() {
   };
 
   const handleSubmit = async () => {
-    // Validate required fields for step 2
+    if (!validateCurrentCompany()) {
+      return;
+    }
+
     if (!formData.workAuthorization) {
       toast.error("Please select work authorization");
       return;
     }
 
-    // Validate rounds and selection process match
     const totalRounds = (formData.rounds || []).length;
     const selectionCount = (formData.selectionProcess || []).length;
     
@@ -188,15 +222,9 @@ export default function PostReferralForm() {
       toast.error("Please add selection process items");
       return;
     }
-    
-    // if (selectionCount !== totalRounds) {
-    //   toast.error(`Selection process items (${selectionCount}) must match the number of rounds (${totalRounds})`);
-    //   return;
-    // }
 
     setIsLoading(true);
     try {
-      // Prepare location array - combine city, state, country
       const locationArray = [];
       if (formData.city && formData.city.trim()) {
         locationArray.push(formData.city.trim());
@@ -208,7 +236,6 @@ export default function PostReferralForm() {
         locationArray.push(formData.country.trim());
       }
 
-      // Prepare workLocation array
       const workLocationArray = [];
       if (formData.city && formData.city.trim()) {
         workLocationArray.push(formData.city.trim());
@@ -217,12 +244,10 @@ export default function PostReferralForm() {
         workLocationArray.push(formData.state.trim());
       }
 
-      // Handle degree - store as array of strings
       const degreeArray = formData.degree && formData.degree.length > 0 
         ? formData.degree 
         : [];
 
-      // Handle minEducation - use the first degree or empty string
       const minEducationValue = degreeArray.length > 0 
         ? degreeArray[0] 
         : formData.minEducation || "";
@@ -278,15 +303,15 @@ export default function PostReferralForm() {
   const StepComponent = steps[currentStep].component;
 
   return (
-    <div className="bg-[#0F172A] rounded-3xl border border-slate-800 p-6 ml-5">
+    <div className="mx-4 rounded-3xl border border-[var(--border)] bg-[var(--card)] p-4 sm:mx-5 sm:p-6">
       {/* Progress Bar */}
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-2">
+        <div className="mb-2 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-gray-400">
+            <span className="text-sm font-medium text-[var(--text-muted)]">
               Step {currentStep + 1} of {steps.length}
             </span>
-            <span className="text-sm font-medium text-white">
+            <span className="text-sm font-medium text-[var(--text-primary)]">
               {steps[currentStep].title}
             </span>
           </div>
@@ -296,16 +321,16 @@ export default function PostReferralForm() {
                 key={index}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
                   index <= currentStep
-                    ? "w-6 bg-green-500"
-                    : "w-4 bg-slate-700"
+                    ? "w-6 bg-[var(--primary)]"
+                    : "w-4 bg-[var(--border)]"
                 }`}
               />
             ))}
           </div>
         </div>
-        <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+        <div className="h-1 w-full overflow-hidden rounded-full bg-[var(--border)]">
           <div
-            className="h-full bg-gradient-to-r from-green-500 to-emerald-400 transition-all duration-500"
+            className="h-full bg-gradient-to-r from-[var(--primary)] to-[var(--primary-light)] transition-all duration-500"
             style={{
               width: `${((currentStep + 1) / steps.length) * 100}%`,
             }}

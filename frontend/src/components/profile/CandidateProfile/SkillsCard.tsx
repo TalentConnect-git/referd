@@ -53,7 +53,7 @@ const toStringList = (value: unknown): string[] => {
 
 const SkillPill = ({ label }: { label: string }) => {
   return (
-    <span className="inline-flex h-[27px] items-center rounded-full bg-[#0d1924] px-3 text-[11px] font-black leading-none text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+    <span className="inline-flex h-[27px] items-center rounded-full bg-[var(--background-soft)] px-3 text-[11px] font-black leading-none text-[var(--text-primary)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
       {label}
     </span>
   );
@@ -68,7 +68,7 @@ const SkillSection = ({
 }) => {
   return (
     <div>
-      <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[#7891c7]">
+      <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
         {title}
       </p>
 
@@ -91,18 +91,18 @@ export default function SkillsCard({ profile }: SkillsCardProps) {
   const toolsAndPlatforms = toStringList(profile.toolsAndPlatforms);
 
   return (
-    <section className="rounded-[18px] border border-white/10 bg-[#071018] px-[18px] py-[18px] shadow-[0_18px_45px_rgba(0,0,0,0.28)]">
+    <section className="surface-card rounded-[18px] border border-[var(--border)] bg-[var(--card)] p-[18px] shadow-lg">
       <div className="flex items-center gap-3">
-        <div className="flex h-7 w-7 items-center justify-center rounded-[9px] bg-[#12381f] text-[#37e875]">
+        <div className="flex h-7 w-7 items-center justify-center rounded-[9px] bg-[var(--primary-soft)] text-[var(--primary)]">
           <Code2 className="h-3.5 w-3.5" />
         </div>
 
-        <h2 className="text-[14px] font-black text-white">
+        <h2 className="text-sm font-black text-[var(--text-primary)]">
           Skills &amp; Expertise
         </h2>
       </div>
 
-      <div className="mt-[18px] border-t border-white/10" />
+      <div className="mt-[18px] border-t border-[var(--border)]" />
 
       <div className="mt-[17px] grid grid-cols-1 gap-x-14 gap-y-6 lg:grid-cols-2">
         {/* Left Column */}

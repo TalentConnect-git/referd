@@ -18,12 +18,12 @@ interface JobDetailModalProps {
 
 // Info Card Component
 const InfoCard = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number | undefined }) => (
-  <div className="rounded-xl border border-[var(--border)] bg-[var(--background-soft)] p-4">
+  <div className="card rounded-xl p-4">
     <div className="flex items-center gap-2">
       {icon}
-      <span className="text-xs font-medium text-[var(--text-muted)]">{label}</span>
+      <span className="text-xs font-medium text-muted">{label}</span>
     </div>
-    <p className="mt-2 text-lg font-bold text-[var(--text-secondary)]">{value || "N/A"}</p>
+    <p className="mt-2 text-lg font-bold text-secondary">{value || "N/A"}</p>
   </div>
 );
 
@@ -32,18 +32,18 @@ const SkillBadge = ({ skill, type }: { skill: string; type: 'required' | 'matche
   const getStyles = () => {
     switch (type) {
       case 'required':
-        return "border-sky-400/30 bg-sky-400/10 text-sky-300";
+        return "badge-info";
       case 'matched':
-        return "border-[var(--primary)]/30 bg-[var(--primary-soft)]/40 text-[var(--primary)]";
+        return "badge-primary";
       case 'missing':
-        return "border-rose-400/30 bg-rose-400/10 text-rose-300";
+        return "badge-danger";
       default:
-        return "border-[var(--border)] bg-[var(--background-soft)] text-[var(--text-primary)]";
+        return "badge";
     }
   };
 
   return (
-    <span className={`rounded-full border px-3 py-1 text-xs font-medium ${getStyles()}`}>
+    <span className={`badge rounded-full px-3 py-1 text-xs font-medium ${getStyles()}`}>
       {skill}
     </span>
   );
@@ -76,31 +76,31 @@ export const JobDetailModal = ({
     : "Not available";
 
   return (
-    <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 px-4 backdrop-blur-sm">
-      <div className="glass-card max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-[var(--radius-xl)]">
-        <div className="flex items-start justify-between border-b border-[var(--border)] bg-[var(--card)] px-6 py-5">
+    <div className="modal-overlay fixed inset-0 z-[120] flex items-center justify-center bg-overlay px-4 backdrop-blur-sm">
+      <div className="modal-content max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-xl border border-theme bg-card shadow-xl">
+        <div className="flex items-start justify-between border-b border-divider bg-card px-6 py-5">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--primary)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
               Job Details
             </p>
 
-            <h2 className="mt-2 text-2xl font-bold text-[var(--text-secondary)]">
+            <h2 className="mt-2 text-2xl font-bold text-secondary">
               {job.title}
             </h2>
 
-            <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-[var(--text-primary)]">
+            <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-primary">
               <span className="flex items-center gap-1">
-                <Building2 size={15} className="text-[var(--primary)]" />
+                <Building2 size={15} className="text-primary" />
                 {job.companyName}
               </span>
 
               <span className="flex items-center gap-1">
-                <MapPin size={15} className="text-[var(--primary)]" />
+                <MapPin size={15} className="text-primary" />
                 {job.location || "Location not available"}
               </span>
 
               <span className="flex items-center gap-1">
-                <BriefcaseBusiness size={15} className="text-[var(--primary)]" />
+                <BriefcaseBusiness size={15} className="text-primary" />
                 {job.workMode || "Work mode not specified"}
               </span>
             </div>
@@ -108,22 +108,22 @@ export const JobDetailModal = ({
 
           <button
             onClick={onClose}
-            className="rounded-xl border border-[var(--border)] p-2 text-[var(--text-muted)] transition hover:border-rose-400/40 hover:bg-rose-400/10 hover:text-rose-300"
+            className="btn-ghost rounded-xl border border-theme p-2 text-muted transition hover:border-danger/40 hover:bg-danger-soft hover:text-danger"
           >
             <X size={20} />
           </button>
         </div>
 
-        <div className="max-h-[calc(92vh-180px)] overflow-y-auto bg-[var(--card)] p-6">
+        <div className="max-h-[calc(92vh-180px)] overflow-y-auto bg-card p-6">
           <div className="grid gap-4 md:grid-cols-4">
             <InfoCard
-              icon={<Star size={16} className="text-[var(--primary)]" />}
+              icon={<Star size={16} className="text-primary" />}
               label="Match Score"
               value={`${job.matchScore || 0}%`}
             />
 
             <InfoCard
-              icon={<Users size={16} className="text-[var(--primary)]" />}
+              icon={<Users size={16} className="text-primary" />}
               label="Alumni"
               value={`${job.alumniCount || 0} available`}
             />
@@ -132,7 +132,7 @@ export const JobDetailModal = ({
               icon={
                 <BriefcaseBusiness
                   size={16}
-                  className="text-[var(--primary)]"
+                  className="text-primary"
                 />
               }
               label="Experience"
@@ -140,25 +140,25 @@ export const JobDetailModal = ({
             />
 
             <InfoCard
-              icon={<CalendarDays size={16} className="text-[var(--primary)]" />}
+              icon={<CalendarDays size={16} className="text-primary" />}
               label="Posted"
               value={postedDate}
             />
           </div>
 
-          <div className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--background-soft)] p-5">
-            <h3 className="mb-3 text-base font-bold text-[var(--text-secondary)]">
+          <div className="mt-5 rounded-2xl border border-theme bg-background-soft p-5">
+            <h3 className="mb-3 text-base font-bold text-secondary">
               Job Description
             </h3>
 
-            <p className="whitespace-pre-line text-sm leading-7 text-[var(--text-primary)]">
+            <p className="whitespace-pre-line text-sm leading-7 text-primary">
               {job.description || job.jdSnippet || "No description available."}
             </p>
           </div>
 
           <div className="mt-5 grid gap-4 lg:grid-cols-3">
-            <div className="rounded-2xl border border-sky-400/20 bg-sky-400/5 p-5">
-              <h3 className="mb-3 text-sm font-bold text-sky-200">
+            <div className="rounded-2xl border border-info/20 bg-info-soft p-5">
+              <h3 className="mb-3 text-sm font-bold text-info">
                 Required Skills
               </h3>
 
@@ -169,14 +169,14 @@ export const JobDetailModal = ({
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-[var(--text-muted)]">
+                <p className="text-sm text-muted">
                   No required skills available.
                 </p>
               )}
             </div>
 
-            <div className="rounded-2xl border border-[var(--primary)]/20 bg-[var(--primary-soft)]/40 p-5">
-              <h3 className="mb-3 text-sm font-bold text-[var(--primary)]">
+            <div className="rounded-2xl border border-primary/20 bg-primary-soft p-5">
+              <h3 className="mb-3 text-sm font-bold text-primary">
                 Matched Skills
               </h3>
 
@@ -187,14 +187,14 @@ export const JobDetailModal = ({
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-[var(--text-muted)]">
+                <p className="text-sm text-muted">
                   No matched skills found.
                 </p>
               )}
             </div>
 
-            <div className="rounded-2xl border border-rose-400/20 bg-rose-400/5 p-5">
-              <h3 className="mb-3 text-sm font-bold text-rose-200">
+            <div className="rounded-2xl border border-danger/20 bg-danger-soft p-5">
+              <h3 className="mb-3 text-sm font-bold text-danger">
                 Missing Skills
               </h3>
 
@@ -205,7 +205,7 @@ export const JobDetailModal = ({
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-[var(--text-muted)]">
+                <p className="text-sm text-muted">
                   No missing skills found.
                 </p>
               )}
@@ -213,8 +213,8 @@ export const JobDetailModal = ({
           </div>
 
           {job.scoreBreakdown && (
-            <div className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--background-soft)] p-5">
-              <h3 className="mb-4 text-base font-bold text-[var(--text-secondary)]">
+            <div className="mt-5 rounded-2xl border border-theme bg-background-soft p-5">
+              <h3 className="mb-4 text-base font-bold text-secondary">
                 Score Breakdown
               </h3>
 
@@ -222,12 +222,12 @@ export const JobDetailModal = ({
                 {Object.entries(job.scoreBreakdown).map(([key, value]) => (
                   <div
                     key={key}
-                    className="rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-3"
+                    className="card rounded-xl border border-theme bg-card px-4 py-3"
                   >
-                    <p className="text-xs capitalize text-[var(--text-muted)]">
+                    <p className="text-xs capitalize text-muted">
                       {key}
                     </p>
-                    <p className="mt-1 text-lg font-bold text-[var(--text-secondary)]">
+                    <p className="mt-1 text-lg font-bold text-secondary">
                       {Number(value) || 0}
                     </p>
                   </div>
@@ -237,13 +237,13 @@ export const JobDetailModal = ({
           )}
         </div>
 
-        <div className="flex flex-col gap-3 border-t border-[var(--border)] bg-[var(--card)] px-6 py-4 sm:flex-row sm:justify-end">
+        <div className="flex flex-col gap-3 border-t border-divider bg-card px-6 py-4 sm:flex-row sm:justify-end">
           {job.applyUrl && (
             <a
               href={job.applyUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--border-strong)] px-5 py-2.5 text-sm font-semibold text-[var(--text-secondary)] transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
+              className="btn-secondary inline-flex items-center justify-center gap-2 rounded-xl border border-strong px-5 py-2.5 text-sm font-semibold text-secondary transition hover:border-primary hover:text-primary"
             >
               Apply on Company Site
               <ExternalLink size={16} />
@@ -253,7 +253,7 @@ export const JobDetailModal = ({
           <button
             onClick={() => onRequestReferral(job)}
             disabled={requestLoading}
-            className="primary-gradient inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="btn-primary primary-gradient inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-inverse transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {requestLoading ? (
               <>

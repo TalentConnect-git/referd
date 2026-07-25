@@ -20,11 +20,11 @@ export function AlumniPagination({
   totalCount,
 }: AlumniPaginationProps) {
   return (
-    <div className="mt-8 flex flex-col items-center justify-between gap-4 rounded-2xl border border-white/10 bg-[#111821] p-4 sm:flex-row">
-      <p className="text-sm text-slate-400">
+    <div className="card mt-8 flex flex-col items-center justify-between gap-4 rounded-2xl border border-theme bg-card-soft p-4 sm:flex-row">
+      <p className="text-sm text-muted">
         Showing{" "}
-        <span className="font-semibold text-white">{currentCount}</span> of{" "}
-        <span className="font-semibold text-white">{totalCount}</span> alumni
+        <span className="font-semibold text-primary">{currentCount}</span> of{" "}
+        <span className="font-semibold text-primary">{totalCount}</span> alumni
       </p>
 
       <div className="flex items-center gap-3">
@@ -32,22 +32,22 @@ export function AlumniPagination({
           type="button"
           onClick={() => onPageChange(page - 1)}
           disabled={page === 1 || loading}
-          className="flex h-10 items-center gap-2 rounded-xl border border-white/10 px-4 text-sm font-semibold text-white transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-40"
+          className="btn-secondary flex h-10 items-center gap-2 rounded-xl border border-theme px-4 text-sm font-semibold text-primary transition hover:bg-card-hover disabled:cursor-not-allowed disabled:opacity-40"
         >
           <ChevronLeft className="h-4 w-4" />
           Previous
         </button>
 
-        <div className="rounded-xl border border-white/10 px-4 py-2 text-sm text-slate-300">
-          Page <span className="font-semibold text-white">{page}</span> of{" "}
-          <span className="font-semibold text-white">{totalPages}</span>
+        <div className="badge rounded-xl border border-theme px-4 py-2 text-sm text-secondary">
+          Page <span className="font-semibold text-primary">{page}</span> of{" "}
+          <span className="font-semibold text-primary">{totalPages}</span>
         </div>
 
         <button
           type="button"
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages || loading}
-          className="flex h-10 items-center gap-2 rounded-xl border border-white/10 px-4 text-sm font-semibold text-white transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-40"
+          className="btn-secondary flex h-10 items-center gap-2 rounded-xl border border-theme px-4 text-sm font-semibold text-primary transition hover:bg-card-hover disabled:cursor-not-allowed disabled:opacity-40"
         >
           Next
           <ChevronRight className="h-4 w-4" />
@@ -56,5 +56,3 @@ export function AlumniPagination({
     </div>
   );
 }
-
-

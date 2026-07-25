@@ -36,20 +36,31 @@ export default function StudentApplications() {
     setPage(newPage);
   };
 
+  if (loading) {
+    return (
+      <div className="mx-4 flex min-h-[calc(100vh-120px)] flex-col items-center justify-center sm:mx-5">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--primary)] border-t-transparent" />
+          <p className="text-sm text-[var(--text-muted)]">Loading applications...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-[calc(100vh-120px)] flex flex-col">
-      <div className="ml-5 mr-5">
+    <div className="mx-4 flex min-h-[calc(100vh-120px)] flex-col sm:mx-5">
+      <div className="mb-4">
         <ApplicationStats
           applicationType={activeTab}
           applications={applications}
         />
       </div>
 
-      <div className="pt-6 mt-5 ml-5 mb-5">
+      <div className="mb-4">
         <ApplicationTabs activeTab={activeTab} onChange={setActiveTab} />
       </div>
 
-      {/* Applications List - Replaces ApplicationTable */}
+      {/* Applications List */}
       <ApplicationsList
         applicationType={activeTab}
         applications={applications}
@@ -57,8 +68,6 @@ export default function StudentApplications() {
         meta={meta}
         onPageChange={handlePageChange}
       />
-
-      {/* Application Stats */}
     </div>
   );
 }

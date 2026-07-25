@@ -7,8 +7,8 @@ interface EmptyItemProps {
 
 export default function EmptyItem({ text }: EmptyItemProps) {
   return (
-    <div className="rounded-[12px] border border-white/10 bg-[#0b1621] px-4 py-4">
-      <p className="text-[12px] font-normal text-[#7891c7]">{text}</p>
+    <div className="rounded-[12px] border border-[var(--border)] bg-[var(--background-soft)] px-4 py-4">
+      <p className="text-xs font-normal text-[var(--text-muted)]">{text}</p>
     </div>
   );
 }

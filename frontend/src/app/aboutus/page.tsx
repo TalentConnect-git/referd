@@ -103,18 +103,17 @@ export default function AboutPage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen mt-12 bg-[#0f172a] px-4 py-8 sm:px-6 lg:px-8">
+      <main className="min-h-screen mt-12 bg-background px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
           {/* Hero Section */}
-          <div className="text-center border-b border-[#2a3a52] pb-8 mb-10">
-            <div className="inline-flex items-center gap-2 bg-green-500/10 text-green-400 text-xs font-semibold px-4 py-1.5 rounded-full border border-green-500/20 mb-4">
-             
+          <div className="text-center border-b border-divider pb-8 mb-10">
+            <div className="inline-flex items-center gap-2 bg-primary-soft text-primary text-xs font-semibold px-4 py-1.5 rounded-full border border-primary/20 mb-4">
               India's first alumni-powered referral hiring network
             </div>
-            <h1 className="text-3xl md:text-5xl font-bold text-white tracking-tight leading-tight">
+            <h1 className="text-3xl md:text-5xl font-bold text-primary tracking-tight leading-tight">
               About Referd
             </h1>
-            <p className="text-lg text-slate-400 mt-4 max-w-2xl mx-auto">
+            <p className="text-lg text-secondary mt-4 max-w-2xl mx-auto">
               The hiring system was built around applications. Careers are built around relationships.
             </p>
           </div>
@@ -122,23 +121,23 @@ export default function AboutPage() {
           {/* The Problem */}
           <div className="mb-10">
             <div className="grid md:grid-cols-2 gap-4">
-              <div className="rounded-2xl border border-[#2a3a52] bg-[#111827] p-5">
-                <div className="flex items-center gap-2 text-red-400 mb-3">
+              <div className="card rounded-2xl border border-theme bg-card-soft p-5">
+                <div className="flex items-center gap-2 text-danger mb-3">
                   <span className="text-xl">😔</span>
-                  <span className="font-semibold text-white text-sm">The reality</span>
+                  <span className="font-semibold text-primary text-sm">The reality</span>
                 </div>
-                <p className="text-slate-300 text-sm leading-relaxed">
+                <p className="text-secondary text-sm leading-relaxed">
                   Every day, thousands of candidates apply to jobs they're genuinely qualified for — and most of those 
                   applications never reach a real person. They sit in a queue behind hundreds of others, filtered by keywords, 
                   and never get read the way a warm introduction would be.
                 </p>
               </div>
-              <div className="rounded-2xl border border-[#2a3a52] bg-[#111827] p-5">
-                <div className="flex items-center gap-2 text-orange-400 mb-3">
+              <div className="card rounded-2xl border border-theme bg-card-soft p-5">
+                <div className="flex items-center gap-2 text-warning mb-3">
                   <span className="text-xl">🤖</span>
-                  <span className="font-semibold text-white text-sm">The challenge</span>
+                  <span className="font-semibold text-primary text-sm">The challenge</span>
                 </div>
-                <p className="text-slate-300 text-sm leading-relaxed">
+                <p className="text-secondary text-sm leading-relaxed">
                   Hiring has never been harder to trust. AI makes it easier than ever to fake a resume, rehearse answers, 
                   or misrepresent experience — which makes referrers more cautious, and honest candidates harder to tell 
                   apart from the rest.
@@ -146,27 +145,27 @@ export default function AboutPage() {
               </div>
             </div>
             <div className="mt-4 text-center">
-              <p className="text-sm font-medium text-green-400">
+              <p className="text-sm font-medium text-primary">
                 Referd exists to fix both problems at once.
               </p>
             </div>
           </div>
 
           {/* What we do */}
-          <div className="mb-10 rounded-2xl border border-green-500/20 bg-green-500/5 p-6 md:p-8">
-            <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-              <Zap className="w-5 h-5 text-green-400" />
+          <div className="mb-10 card rounded-2xl border border-primary/20 bg-primary-soft/10 p-6 md:p-8">
+            <h2 className="text-lg font-bold text-primary mb-3 flex items-center gap-2">
+              <Zap className="w-5 h-5 text-primary" />
               What we do
             </h2>
-            <p className="text-slate-300 text-sm leading-relaxed mb-3">
+            <p className="text-secondary text-sm leading-relaxed mb-3">
               Referd turns your alumni network — your college and the companies you've worked at — into your fastest, 
               most trusted path to a job. Instead of a cold application, you get a warm introduction from someone who 
               actually knows your school or your work.
             </p>
-            <p className="text-slate-300 text-sm leading-relaxed">
+            <p className="text-secondary text-sm leading-relaxed">
               But a warm introduction alone isn't enough to earn trust on both sides. So every referral request on Referd 
-              goes through a <span className="font-semibold text-green-400">Referd Expert Interview</span> and{' '}
-              <span className="font-semibold text-green-400">Verified Candidature</span> check before it ever reaches a 
+              goes through a <span className="font-semibold text-primary">Referd Expert Interview</span> and{' '}
+              <span className="font-semibold text-primary">Verified Candidature</span> check before it ever reaches a 
               referrer — a real interview, a rating, and a written review from a human subject-matter expert. Referrers 
               refer with confidence. Candidates get judged on substance, not just a resume.
             </p>
@@ -174,23 +173,23 @@ export default function AboutPage() {
 
           {/* Who it's for */}
           <div className="mb-10">
-            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-              <Users className="w-5 h-5 text-green-400" />
+            <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+              <Users className="w-5 h-5 text-primary" />
               Who it's for
             </h2>
             <div className="grid md:grid-cols-2 gap-4">
               {audience.map((item, index) => (
                 <div 
                   key={index}
-                  className="rounded-2xl border border-[#2a3a52] bg-[#111827] p-5 hover:border-green-500/30 transition-all hover:bg-[#1a2332]"
+                  className="card rounded-2xl border border-theme bg-card-soft p-5 hover:border-primary/30 transition-all hover:bg-card-hover"
                 >
                   <div className="flex items-center gap-3 mb-2">
-                    <span className="text-green-400 bg-green-500/10 p-2 rounded-xl border border-green-500/20">
+                    <span className="text-primary bg-primary-soft p-2 rounded-xl border border-primary/20">
                       {item.icon}
                     </span>
-                    <h3 className="font-semibold text-white text-sm">{item.title}</h3>
+                    <h3 className="font-semibold text-primary text-sm">{item.title}</h3>
                   </div>
-                  <p className="text-slate-400 text-sm leading-relaxed">{item.description}</p>
+                  <p className="text-muted text-sm leading-relaxed">{item.description}</p>
                 </div>
               ))}
             </div>
@@ -198,48 +197,48 @@ export default function AboutPage() {
 
           {/* Our approach */}
           <div className="mb-10">
-            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-              <Award className="w-5 h-5 text-green-400" />
+            <h2 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+              <Award className="w-5 h-5 text-primary" />
               Our approach
             </h2>
             <div className="grid md:grid-cols-3 gap-4">
               {values.map((item, index) => (
                 <div 
                   key={index}
-                  className="rounded-2xl border border-[#2a3a52] bg-[#111827] p-5 hover:border-green-500/30 transition-all hover:bg-[#1a2332]"
+                  className="card rounded-2xl border border-theme bg-card-soft p-5 hover:border-primary/30 transition-all hover:bg-card-hover"
                 >
                   <div className="flex items-center gap-3 mb-2">
-                    <span className="text-green-400 bg-green-500/10 p-2 rounded-xl border border-green-500/20">
+                    <span className="text-primary bg-primary-soft p-2 rounded-xl border border-primary/20">
                       {item.icon}
                     </span>
-                    <h3 className="font-semibold text-white text-sm">{item.title}</h3>
+                    <h3 className="font-semibold text-primary text-sm">{item.title}</h3>
                   </div>
-                  <p className="text-slate-400 text-sm leading-relaxed">{item.description}</p>
+                  <p className="text-muted text-sm leading-relaxed">{item.description}</p>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Stats */}
-          <div className="mb-8 rounded-2xl bg-gradient-to-r from-green-600 to-emerald-600 p-6 md:p-8">
+          <div className="mb-8 card rounded-2xl bg-gradient-to-r from-primary to-primary-light p-6 md:p-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               {stats.map((stat, index) => (
                 <div key={index} className="space-y-0.5">
-                  <p className="text-2xl md:text-3xl font-bold text-white">{stat.value}</p>
-                  <p className="text-emerald-100 text-xs">{stat.label}</p>
+                  <p className="text-2xl md:text-3xl font-bold text-inverse">{stat.value}</p>
+                  <p className="text-inverse/80 text-xs">{stat.label}</p>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Social Links */}
-          <div className="flex items-center justify-center gap-4 py-4 border-t border-[#2a3a52]">
-            <p className="text-slate-500 text-xs">Connect with us:</p>
+          <div className="flex items-center justify-center gap-4 py-4 border-t border-divider">
+            <p className="text-muted text-xs">Connect with us:</p>
             <a
               href="https://linkedin.com/company/referd"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-slate-400 hover:text-blue-400 transition-colors"
+              className="text-muted hover:text-info transition-colors"
               aria-label="LinkedIn"
             >
               <LinkedInIcon className="w-5 h-5" />
@@ -248,7 +247,7 @@ export default function AboutPage() {
               href="https://github.com/referd"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-slate-400 hover:text-white transition-colors"
+              className="text-muted hover:text-primary transition-colors"
               aria-label="GitHub"
             >
               <GitHubIcon className="w-5 h-5" />
@@ -256,8 +255,8 @@ export default function AboutPage() {
           </div>
 
           {/* Footer CTA */}
-          <div className="text-center pt-4 border-t border-[#2a3a52]">
-            <p className="text-slate-500 text-xs">
+          <div className="text-center pt-4 border-t border-divider">
+            <p className="text-muted text-xs">
               Built with ❤️ for students, professionals, and the relationships that connect them.
             </p>
           </div>

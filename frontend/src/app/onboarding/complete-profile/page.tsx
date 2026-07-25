@@ -376,15 +376,13 @@ export default function ConfirmationPage() {
         hasUsefulEducationData,
       );
 
-    // ✅ Extract and parse status from experienceStepData
+    // Extract and parse status from experienceStepData
     let statusData: StatusData | null = null;
     
     if (experienceStepData.status) {
-      // If status is already an object, use it directly
       if (typeof experienceStepData.status === 'object' && !Array.isArray(experienceStepData.status)) {
         statusData = experienceStepData.status as StatusData;
       } 
-      // If status is a string, try to parse it
       else if (typeof experienceStepData.status === 'string') {
         try {
           const parsed = JSON.parse(experienceStepData.status);
@@ -427,7 +425,7 @@ export default function ConfirmationPage() {
         "",
     };
 
-    // ✅ Add status data as an object if it exists
+    // Add status data as an object if it exists
     if (statusData && typeof statusData === 'object') {
       finalData.status = statusData;
     }
@@ -596,36 +594,38 @@ export default function ConfirmationPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-black px-5 py-8 text-white">
+      <div className="min-h-screen bg-[var(--background)] px-4 py-6 text-[var(--text-primary)] sm:px-5 sm:py-8">
         <div className="mx-auto flex min-h-[calc(100vh-64px)] max-w-2xl items-center justify-center">
-          <div className="relative w-full overflow-hidden rounded-3xl border border-[#2a3a52] bg-[#0f172a] p-8 shadow-2xl lg:p-10">
-            <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-green-500/20 blur-3xl" />
-            <div className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-green-500/10 blur-3xl" />
+          <div className="surface-card relative w-full overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-2xl sm:p-8 lg:p-10">
+            {/* Background Glow Effects */}
+            <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-[var(--primary)]/20 blur-3xl" />
+            <div className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-[var(--primary)]/10 blur-3xl" />
 
             <div className="relative z-10">
-              <div className="mb-8 text-center">
-                <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl border border-green-500/20 bg-green-500/10">
-                  <Shield className="h-10 w-10 text-green-400" />
+              <div className="mb-6 text-center sm:mb-8">
+                <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl border border-[var(--primary-border)] bg-[var(--primary-soft)] sm:mb-4 sm:h-20 sm:w-20">
+                  <Shield className="h-8 w-8 text-[var(--primary)] sm:h-10 sm:w-10" />
                 </div>
 
-                <h1 className="text-[30px] font-bold tracking-[-0.05em] text-white">
+                <h1 className="text-2xl font-bold tracking-[-0.05em] text-[var(--text-primary)] sm:text-[30px]">
                   Almost There!
                 </h1>
 
-                <p className="mt-3 text-[14px] leading-6 text-gray-400">
+                <p className="mt-2 text-sm leading-6 text-[var(--text-muted)] sm:mt-3 sm:text-sm">
                   Review and accept the terms to
                   complete your profile setup.
                 </p>
               </div>
 
               {error ? (
-                <div className="mb-5 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-[13px] text-red-400">
+                <div className="mb-4 rounded-xl border border-[var(--danger-border)] bg-[var(--danger-soft)] p-3 text-sm text-[var(--danger)]">
                   {error}
                 </div>
               ) : null}
 
-              <div className="rounded-2xl border border-[#2a3a52] bg-white/[0.04] p-5">
+              <div className="rounded-2xl border border-[var(--border)] bg-[var(--background-soft)] p-4 sm:p-5">
                 <div className="flex items-start gap-4">
+                  {/* Fixed Checkbox - Now visible in both light and dark modes */}
                   <button
                     type="button"
                     onClick={() =>
@@ -633,26 +633,26 @@ export default function ConfirmationPage() {
                         (previous) => !previous,
                       )
                     }
-                    className={`mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border transition ${
+                    className={`mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-all duration-200 ${
                       agreed
-                        ? "border-green-500 bg-green-500"
-                        : "border-[#2a3a52] bg-[#0f172a]"
+                        ? "border-[var(--primary)] bg-[var(--primary)] shadow-sm shadow-[var(--primary)]/20"
+                        : "border-[var(--border)] bg-[var(--background)] hover:border-[var(--primary-border)] hover:bg-[var(--primary-soft)]"
                     }`}
                     aria-label="Accept terms and privacy policy"
                   >
                     {agreed ? (
-                      <CheckCircle className="h-4 w-4 text-black" />
+                      <CheckCircle className="h-4 w-4 text-white" />
                     ) : null}
                   </button>
 
-                  <p className="text-[13px] leading-6 text-gray-300">
+                  <p className="text-sm leading-6 text-[var(--text-secondary)]">
                     I agree to the{" "}
                     <button
                       type="button"
                       onClick={() =>
                         setShowTermsModal(true)
                       }
-                      className="font-semibold text-green-400 underline underline-offset-4 transition hover:opacity-80"
+                      className="font-semibold text-[var(--primary)] underline underline-offset-4 transition hover:opacity-80"
                     >
                       Terms & Conditions
                     </button>{" "}
@@ -662,7 +662,7 @@ export default function ConfirmationPage() {
                       onClick={() =>
                         setShowPrivacyModal(true)
                       }
-                      className="font-semibold text-green-400 underline underline-offset-4 transition hover:opacity-80"
+                      className="font-semibold text-[var(--primary)] underline underline-offset-4 transition hover:opacity-80"
                     >
                       Privacy Policy
                     </button>
@@ -670,16 +670,16 @@ export default function ConfirmationPage() {
                   </p>
                 </div>
 
-                <div className="mt-6 rounded-xl border border-[#2a3a52] bg-black/20 p-4">
+                <div className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--background)]/20 p-4 sm:mt-6">
                   <div className="flex items-center gap-3">
-                    <FileText className="h-5 w-5 text-green-400" />
+                    <FileText className="h-5 w-5 text-[var(--primary)]" />
 
                     <div>
-                      <p className="text-[11px] uppercase tracking-[0.18em] text-gray-400">
+                      <p className="text-[11px] uppercase tracking-[0.18em] text-[var(--text-muted)]">
                         Profile Type
                       </p>
 
-                      <p className="text-[15px] font-semibold capitalize text-white">
+                      <p className="text-sm font-semibold capitalize text-[var(--text-primary)] sm:text-[15px]">
                         {accountType} Account
                       </p>
                     </div>
@@ -687,12 +687,12 @@ export default function ConfirmationPage() {
                 </div>
               </div>
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row">
                 <button
                   type="button"
                   onClick={() => router.back()}
                   disabled={loading}
-                  className="h-10 flex-1 rounded-lg border border-[#2a3a52] bg-[#0f172a] text-[13px] font-semibold text-gray-300 transition hover:border-green-500/30 hover:bg-green-500/5 hover:text-white disabled:opacity-60"
+                  className="btn-secondary h-10 flex-1 rounded-lg text-sm font-semibold disabled:opacity-60"
                 >
                   Back
                 </button>
@@ -701,7 +701,7 @@ export default function ConfirmationPage() {
                   type="button"
                   onClick={() => void handleSubmit()}
                   disabled={!agreed || loading}
-                  className="flex h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-green-500 text-[13px] font-semibold text-black transition-all duration-300 hover:bg-green-400 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="btn-primary flex h-10 flex-1 items-center justify-center gap-2 rounded-lg text-sm font-semibold transition-all duration-300 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {loading ? (
                     <>

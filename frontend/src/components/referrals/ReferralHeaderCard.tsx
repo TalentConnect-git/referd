@@ -135,18 +135,18 @@ export default function ReferralHeaderCard({
 
   return (
     <>
-      <div className="glass-card relative overflow-hidden rounded-[var(--radius-xl)] p-5">
+      <div className="card relative overflow-hidden rounded-xl p-5 border border-theme bg-card shadow-lg">
         <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
           <div className="pr-0 md:pr-72">
-            <p className="text-sm font-semibold text-[var(--primary)]">
+            <p className="text-sm font-semibold text-primary">
               Referral Network
             </p>
 
-            <h1 className="mt-2 text-2xl font-bold text-[var(--text-secondary)]">
+            <h1 className="mt-2 text-2xl font-bold text-secondary">
               Find referrals from alumni and employees
             </h1>
 
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--text-primary)]">
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-primary">
               Search a company, discover matching jobs from the official career
               page, and request referrals for the best matched roles.
             </p>
@@ -156,7 +156,7 @@ export default function ReferralHeaderCard({
             <button
               type="button"
               onClick={onPostReferralClick}
-              className="inline-flex items-center gap-2 rounded-xl border border-[var(--border-strong)] bg-[rgba(148,163,184,0.08)] px-4 py-2 text-sm font-semibold text-[var(--text-secondary)] transition hover:bg-[var(--card-hover)]"
+              className="btn-secondary inline-flex items-center gap-2 rounded-xl border border-strong bg-background-soft/50 px-4 py-2 text-sm font-semibold text-secondary transition hover:bg-card-hover"
             >
               <PlusCircle size={16} />
               Post Referral
@@ -165,7 +165,7 @@ export default function ReferralHeaderCard({
 
             <button
              onClick={openAskModal}
-            className="inline-flex items-center gap-2 rounded-lg border border-white/30 bg-transparent px-4 py-2.5 font-medium text-white transition-all duration-200 hover:border-white hover:bg-white/10"
+            className="btn-primary inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-primary-soft px-4 py-2.5 font-medium text-primary transition-all duration-200 hover:bg-primary-soft hover:border-primary/50"
           >
             <UserPlus className="h-5 w-5" />
             <span>Ask for Referral</span>
@@ -177,14 +177,14 @@ export default function ReferralHeaderCard({
       </div>
 
       {isAskModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 px-4 backdrop-blur-sm">
-          <div className="w-full max-w-xl rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--card)] shadow-2xl">
-            <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
+        <div className="modal-overlay fixed inset-0 z-[100] flex items-center justify-center bg-overlay px-4 backdrop-blur-sm">
+          <div className="modal-content w-full max-w-xl rounded-xl border border-theme bg-card shadow-xl">
+            <div className="flex items-center justify-between border-b border-divider px-5 py-4">
               <div>
-                <h2 className="text-lg font-bold text-[var(--text-secondary)]">
+                <h2 className="text-lg font-bold text-secondary">
                   Ask For Referral
                 </h2>
-                <p className="mt-1 text-xs text-[var(--text-primary)]">
+                <p className="mt-1 text-xs text-primary">
                   Enter company name to discover referral jobs.
                 </p>
               </div>
@@ -192,7 +192,7 @@ export default function ReferralHeaderCard({
               <button
                 type="button"
                 onClick={closeAskModal}
-                className="rounded-lg p-2 text-[var(--text-primary)] transition hover:bg-[var(--card-hover)] hover:text-white"
+                className="btn-ghost rounded-lg p-2 text-primary transition hover:bg-card-hover hover:text-secondary"
               >
                 <X size={18} />
               </button>
@@ -200,14 +200,14 @@ export default function ReferralHeaderCard({
 
             <div className="space-y-4 px-5 py-5">
               <div>
-                <label className="mb-2 block text-sm font-semibold text-[var(--text-secondary)]">
+                <label className="form-label mb-2 block text-sm font-semibold">
                   Company Name
                 </label>
 
                 <div className="relative">
                   <Search
                     size={18}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted"
                   />
 
                   <input
@@ -215,17 +215,17 @@ export default function ReferralHeaderCard({
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
                     placeholder="Example: Razorpay Private Limited"
-                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--background-soft)] py-3 pl-10 pr-4 text-sm text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)]"
+                    className="input-field w-full rounded-xl py-3 pl-10 pr-4 text-sm"
                   />
                 </div>
 
-                <p className="mt-2 text-xs leading-5 text-[var(--text-primary)]">
+                <p className="form-helper mt-2 text-xs leading-5">
                   Suggestion: write full company name if you know it, like{" "}
-                  <span className="font-semibold text-[var(--text-secondary)]">
+                  <span className="font-semibold text-secondary">
                     Razorpay Private Limited
                   </span>
                   . Short names like{" "}
-                  <span className="font-semibold text-[var(--text-secondary)]">
+                  <span className="font-semibold text-secondary">
                     Razorpay
                   </span>{" "}
                   can also work.
@@ -233,9 +233,9 @@ export default function ReferralHeaderCard({
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-[var(--text-secondary)]">
+                <label className="form-label mb-2 block text-sm font-semibold">
                   Company Career Page URL
-                  <span className="ml-1 text-xs font-normal text-[var(--text-muted)]">
+                  <span className="ml-1 text-xs font-normal text-muted">
                     optional
                   </span>
                 </label>
@@ -243,7 +243,7 @@ export default function ReferralHeaderCard({
                 <div className="relative">
                   <LinkIcon
                     size={18}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted"
                   />
 
                   <input
@@ -251,24 +251,24 @@ export default function ReferralHeaderCard({
                     value={companyCareerPageUrl}
                     onChange={(e) => setCompanyCareerPageUrl(e.target.value)}
                     placeholder="Example: https://careers.airbnb.com/jobs"
-                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--background-soft)] py-3 pl-10 pr-4 text-sm text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)]"
+                    className="input-field w-full rounded-xl py-3 pl-10 pr-4 text-sm"
                   />
                 </div>
 
-                <p className="mt-2 text-xs leading-5 text-[var(--text-primary)]">
+                <p className="form-helper mt-2 text-xs leading-5">
                   Paste company career page URL here. Functionality for this URL
                   will be added later.
                 </p>
               </div>
 
               {error && (
-                <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+                <div className="rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm text-danger">
                   {error}
                 </div>
               )}
 
               {cacheMessage && (
-                <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-300">
+                <div className="rounded-xl border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-warning">
                   {cacheMessage}
                 </div>
               )}
@@ -278,7 +278,7 @@ export default function ReferralHeaderCard({
                   type="button"
                   onClick={closeAskModal}
                   disabled={loading || refreshLoading}
-                  className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text-primary)] transition hover:bg-[var(--card-hover)] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="btn-secondary rounded-xl border border-theme px-4 py-2 text-sm font-semibold text-primary transition hover:bg-card-hover disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   Cancel
                 </button>
@@ -287,7 +287,7 @@ export default function ReferralHeaderCard({
                   type="button"
                   onClick={() => discoverJobs(true)}
                   disabled={loading || refreshLoading}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-[rgba(49,170,64,0.35)] bg-[var(--primary-soft)] px-4 py-2 text-sm font-semibold text-[var(--primary)] transition hover:bg-[rgba(34,197,94,0.22)] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="btn-primary inline-flex items-center justify-center gap-2 rounded-xl border border-primary/35 bg-primary-soft px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary-soft/80 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {refreshLoading ? (
                     <>
@@ -306,7 +306,7 @@ export default function ReferralHeaderCard({
                   type="button"
                   onClick={() => discoverJobs(false)}
                   disabled={loading || refreshLoading}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-black transition hover:bg-[var(--primary-dark)] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="btn-primary inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-inverse transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {loading ? (
                     <>

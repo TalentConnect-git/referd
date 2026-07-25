@@ -164,7 +164,6 @@ export default function EducationForm() {
           [key]: value,
         };
 
-        // When isCurrent is true, clear end date
         if (key === "isCurrent" && value === true) {
           updated.endDate = "";
         }
@@ -223,7 +222,7 @@ export default function EducationForm() {
     setEducationList(formattedEducation);
   }, []);
 
-  // ✅ Fetch colleges from /api/colleges/all
+  // Fetch colleges from /api/colleges/all
   useEffect(() => {
     const fetchColleges = async () => {
       try {
@@ -256,7 +255,7 @@ export default function EducationForm() {
     fetchColleges();
   }, [API_URL]);
 
-  // ✅ Fetch degrees from /api/master-data?type=DEGREE
+  // Fetch degrees from /api/master-data?type=DEGREE
   useEffect(() => {
     const fetchDegrees = async () => {
       try {
@@ -294,7 +293,7 @@ export default function EducationForm() {
     fetchDegrees();
   }, [API_URL]);
 
-  // ✅ Fetch streams from /api/master-data?type=STREAM&parent={degreeId}
+  // Fetch streams from /api/master-data?type=STREAM&parent={degreeId}
   const fetchStreams = async (index: number, degreeId: string) => {
     try {
       setLoadingStreams((prev) => ({ ...prev, [index]: true }));
@@ -334,7 +333,7 @@ export default function EducationForm() {
     }
   };
 
-  // ✅ Create college using /api/colleges/register
+  // Create college using /api/colleges/register
   const createCollege = async (index: number, name: string) => {
     try {
       setLoadingColleges(true);
@@ -374,7 +373,7 @@ export default function EducationForm() {
     }
   };
 
-  // ✅ Create master data (DEGREE or STREAM) using /api/master-data POST
+  // Create master data (DEGREE or STREAM) using /api/master-data POST
   const createMasterData = async (
     type: "DEGREE" | "STREAM",
     value: string,
@@ -404,7 +403,7 @@ export default function EducationForm() {
     return data.data || data;
   };
 
-  // ✅ Handle degree creation using master data API
+  // Handle degree creation using master data API
   const handleDegreeCreate = async (index: number, value: string) => {
     try {
       const created = await createMasterData("DEGREE", value);
@@ -429,7 +428,7 @@ export default function EducationForm() {
     }
   };
 
-  // ✅ Handle stream creation using master data API
+  // Handle stream creation using master data API
   const handleStreamCreate = async (index: number, value: string) => {
     try {
       const degreeId = selectedDegreeIds[index];
@@ -552,47 +551,47 @@ export default function EducationForm() {
   };
 
   return (
-    <div className="min-h-screen bg-black px-5 py-8 text-white">
+    <div className="min-h-screen bg-[var(--background)] px-4 py-6 text-[var(--text-primary)] sm:px-5 sm:py-8">
       {toast ? (
         <div
           role="alert"
           aria-live="assertive"
           className={`fixed right-4 top-4 z-[100] max-w-sm rounded-xl border px-4 py-3 text-sm font-medium shadow-2xl backdrop-blur ${
             toast.type === "success"
-              ? "border-emerald-500/40 bg-emerald-950/95 text-emerald-200"
-              : "border-red-500/40 bg-red-950/95 text-red-200"
+              ? "border-[var(--success-border)] bg-[var(--success-soft)] text-[var(--success)]"
+              : "border-[var(--danger-border)] bg-[var(--danger-soft)] text-[var(--danger)]"
           }`}
         >
           {toast.message}
         </div>
       ) : null}
       <div className="mx-auto flex min-h-[calc(100vh-64px)] max-w-3xl items-center justify-center">
-        <div className="w-full rounded-3xl border border-[var(--border)] bg-[var(--background)] p-7 shadow-2xl lg:p-10">
-          <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--primary-soft)]">
-              <GraduationCap className="h-8 w-8 text-[var(--primary)]" />
+        <div className="surface-card w-full rounded-3xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-2xl sm:p-7 lg:p-10">
+          <div className="mb-6 text-center sm:mb-8">
+            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--primary-soft)] sm:mb-4 sm:h-16 sm:w-16">
+              <GraduationCap className="h-6 w-6 text-[var(--primary)] sm:h-8 sm:w-8" />
             </div>
 
-            <h1 className="text-[26px] font-bold tracking-[-0.04em] text-white">
+            <h1 className="text-2xl font-bold tracking-[-0.04em] text-[var(--text-primary)] sm:text-[26px]">
               Educational Background
             </h1>
 
-            <p className="mt-2 text-[13px] text-[var(--text-primary)]">
+            <p className="mt-1 text-xs text-[var(--text-muted)] sm:mt-2 sm:text-sm">
               Add one or more education details.
             </p>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {educationList.map((education, index) => {
               const showSemester = showSemesterField && education.isCurrent;
 
               return (
                 <div
                   key={index}
-                  className="rounded-2xl border border-white/10 bg-white/[0.02] p-5"
+                  className="rounded-2xl border border-[var(--border)] bg-[var(--background-soft)] p-4 sm:p-5"
                 >
-                  <div className="mb-5 flex items-center justify-between gap-3">
-                    <h2 className="text-sm font-semibold text-white">
+                  <div className="mb-4 flex items-center justify-between gap-3 sm:mb-5">
+                    <h2 className="text-sm font-semibold text-[var(--text-primary)]">
                       Education {index + 1}
                     </h2>
 
@@ -600,7 +599,7 @@ export default function EducationForm() {
                       <button
                         type="button"
                         onClick={() => removeEducation(index)}
-                        className="flex h-9 items-center gap-2 rounded-lg border border-red-500/30 px-3 text-xs font-semibold text-red-400 transition hover:bg-red-500/10"
+                        className="btn-danger flex h-9 items-center gap-2 rounded-lg px-3 text-xs font-semibold"
                       >
                         <Trash2 className="h-4 w-4" />
                         Remove
@@ -608,10 +607,10 @@ export default function EducationForm() {
                     )}
                   </div>
 
-                  <div className="space-y-5">
+                  <div className="space-y-4 sm:space-y-5">
                     {/* College / University / School */}
                     <div>
-                      <label className="mb-2 block text-[13px] font-medium text-white">
+                      <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)] sm:mb-2 sm:text-sm">
                         College / University / School
                       </label>
 
@@ -640,10 +639,10 @@ export default function EducationForm() {
                       />
                     </div>
 
-                    <div className="grid gap-5 md:grid-cols-2">
+                    <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
                       {/* Degree */}
                       <div>
-                        <label className="mb-2 block text-[13px] font-medium text-white">
+                        <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)] sm:mb-2 sm:text-sm">
                           Degree / Class
                         </label>
 
@@ -696,7 +695,7 @@ export default function EducationForm() {
 
                       {/* Stream / Specialization */}
                       <div>
-                        <label className="mb-2 block text-[13px] font-medium text-white">
+                        <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)] sm:mb-2 sm:text-sm">
                           Stream / Specialization
                         </label>
 
@@ -730,10 +729,10 @@ export default function EducationForm() {
                       </div>
                     </div>
 
-                    <div className="grid gap-5 md:grid-cols-2">
+                    <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
                       {showSemester && (
                         <div>
-                          <label className="mb-2 block text-[13px] font-medium text-white">
+                          <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)] sm:mb-2 sm:text-sm">
                             Current Semester
                           </label>
 
@@ -742,7 +741,7 @@ export default function EducationForm() {
                             onChange={(e) =>
                               updateEducation(index, "semester", e.target.value)
                             }
-                            className="h-11 w-full rounded-lg border border-white/10 bg-[var(--background)] px-4 text-[13px] text-white outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15"
+                            className="select-field h-10 text-xs sm:h-11 sm:text-sm"
                           >
                             <option value="">Select semester</option>
 
@@ -757,7 +756,7 @@ export default function EducationForm() {
 
                       {showCgpaField ? (
                         <div>
-                          <label className="mb-2 block text-[13px] font-medium text-white">
+                          <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)] sm:mb-2 sm:text-sm">
                             CGPA / Percentage
                           </label>
 
@@ -767,16 +766,16 @@ export default function EducationForm() {
                               updateEducation(index, "cgpa", e.target.value)
                             }
                             placeholder="e.g. 8.5 or 85%"
-                            className="h-11 w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 text-[13px] text-white outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15"
+                            className="input-field h-10 text-xs sm:h-11 sm:text-sm"
                           />
                         </div>
                       ) : null}
                     </div>
 
-                    <div className="grid gap-5 md:grid-cols-2">
+                    <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
                       {showStartDate && (
                         <div>
-                          <label className="mb-2 block text-[13px] font-medium text-white">
+                          <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)] sm:mb-2 sm:text-sm">
                             Start Date
                           </label>
 
@@ -786,14 +785,14 @@ export default function EducationForm() {
                             onChange={(e) =>
                               updateEducation(index, "startDate", e.target.value)
                             }
-                            className="h-11 w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 text-[13px] text-white outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15"
+                            className="input-field h-10 text-xs sm:h-11 sm:text-sm"
                           />
                         </div>
                       )}
 
                       {/* End Date */}
                       <div>
-                        <label className="mb-2 block text-[13px] font-medium text-white">
+                        <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)] sm:mb-2 sm:text-sm">
                           End Date
                         </label>
 
@@ -804,13 +803,13 @@ export default function EducationForm() {
                           onChange={(e) =>
                             updateEducation(index, "endDate", e.target.value)
                           }
-                          className="h-11 w-full rounded-lg border border-white/10 bg-white/[0.03] px-4 text-[13px] text-white outline-none transition disabled:cursor-not-allowed disabled:opacity-50 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15"
+                          className="input-field h-10 text-xs disabled:cursor-not-allowed disabled:opacity-50 sm:h-11 sm:text-sm"
                         />
                       </div>
                     </div>
 
                     {/* Currently studying checkbox */}
-                    <label className="flex items-center gap-3 text-[13px] text-[var(--text-primary)]">
+                    <label className="flex items-center gap-2 text-xs text-[var(--text-secondary)] sm:gap-3 sm:text-sm">
                       <input
                         type="checkbox"
                         checked={education.isCurrent}
@@ -824,7 +823,7 @@ export default function EducationForm() {
                     </label>
 
                     {showSemesterField && education.isCurrent && !education.semester && (
-                      <p className="text-xs text-yellow-400 flex items-center gap-1.5">
+                      <p className="flex items-center gap-1.5 text-xs text-[var(--warning)]">
                         <Clock className="h-3 w-3" />
                         Please select your current semester
                       </p>
@@ -840,17 +839,17 @@ export default function EducationForm() {
 
                     {/* Degree Certificate Upload */}
                     <div>
-                      <label className="mb-2 block text-[13px] font-medium text-white">
+                      <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)] sm:mb-2 sm:text-sm">
                         Degree Certificate{" "}
-                        <span className="text-[var(--text-primary)]">
+                        <span className="text-[var(--text-muted)]">
                           (Optional)
                         </span>
                       </label>
 
-                      <label className="flex h-14 cursor-pointer items-center rounded-lg border-2 border-dashed border-white/10 bg-white/[0.03] px-4 transition hover:border-[var(--primary)] hover:bg-[var(--primary-soft)]">
-                        <UploadIcon className="mr-3 h-5 w-5 text-[var(--text-primary)]" />
+                      <label className="flex h-12 cursor-pointer items-center rounded-lg border-2 border-dashed border-[var(--border)] bg-[var(--background-soft)] px-3 transition hover:border-[var(--primary-border)] hover:bg-[var(--primary-soft)] sm:h-14 sm:px-4">
+                        <UploadIcon className="mr-2 h-4 w-4 text-[var(--text-muted)] sm:mr-3 sm:h-5 sm:w-5" />
 
-                        <span className="truncate text-[13px] text-[var(--text-primary)]">
+                        <span className="truncate text-xs text-[var(--text-muted)] sm:text-sm">
                           {education.degreeCertificate
                             ? education.degreeCertificate.name
                             : "Click to upload certificate PDF, JPG, PNG"}
@@ -872,30 +871,30 @@ export default function EducationForm() {
             <button
               type="button"
               onClick={addEducation}
-              className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[var(--primary)] text-[13px] font-semibold text-[var(--primary)] transition hover:bg-[var(--primary-soft)]"
+              className="btn-primary flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[var(--primary-border)] text-xs font-semibold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] sm:h-11 sm:text-sm"
             >
               <Plus className="h-4 w-4" />
               Add More Education
             </button>
           </div>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row">
             <button
               type="button"
               onClick={() => router.back()}
-              className="flex h-10 flex-1 items-center justify-center rounded-lg border border-white/10 text-[13px] font-semibold text-white transition hover:bg-white/10"
+              className="btn-secondary flex h-10 flex-1 items-center justify-center rounded-lg text-xs font-semibold sm:h-11 sm:text-sm"
             >
-              <ChevronLeft className="mr-2 h-4 w-4" />
+              <ChevronLeft className="mr-1.5 h-3.5 w-3.5 sm:mr-2 sm:h-4 sm:w-4" />
               Back
             </button>
 
             <button
               type="button"
               onClick={handleNext}
-              className="button-color flex h-10 flex-1 items-center justify-center rounded-lg text-[13px] font-semibold text-black transition-all duration-300 hover:brightness-110 active:scale-[0.99]"
+              className="btn-primary flex h-10 flex-1 items-center justify-center rounded-lg text-xs font-semibold transition-all duration-300 active:scale-[0.99] sm:h-11 sm:text-sm"
             >
               Next
-              <ChevronRight className="ml-2 h-4 w-4" />
+              <ChevronRight className="ml-1.5 h-3.5 w-3.5 sm:ml-2 sm:h-4 sm:w-4" />
             </button>
           </div>
         </div>
@@ -917,14 +916,14 @@ function GraduationYearSelect({
 }: GraduationYearSelectProps) {
   return (
     <div>
-      <label className="mb-2 block text-[13px] font-medium text-white">
+      <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)] sm:mb-2 sm:text-sm">
         Graduation Year
       </label>
 
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-11 w-full rounded-lg border border-white/10 bg-[var(--background)] px-4 text-[13px] text-white outline-none transition focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15"
+        className="select-field h-10 text-xs sm:h-11 sm:text-sm"
       >
         <option value="">Select year</option>
 
@@ -943,30 +942,30 @@ const customSelectStyles: StylesConfig<OptionType, false> = {
     ...base,
     minHeight: "44px",
     borderRadius: "8px",
-    backgroundColor: "var(--background)",
-    borderColor: state.isFocused ? "var(--primary)" : "rgba(255,255,255,0.1)",
+    backgroundColor: "var(--background-soft)",
+    borderColor: state.isFocused ? "var(--primary)" : "var(--border)",
     boxShadow: state.isFocused
-      ? "0 0 0 2px rgba(49,170,64,0.15)"
+      ? "0 0 0 2px var(--focus-ring)"
       : "none",
   }),
   menu: (base) => ({
     ...base,
-    backgroundColor: "var(--background)",
-    border: "1px solid rgba(255,255,255,0.1)",
+    backgroundColor: "var(--card)",
+    border: "1px solid var(--border)",
   }),
   option: (base, state) => ({
     ...base,
     backgroundColor: state.isFocused ? "var(--primary-soft)" : "transparent",
-    color: "white",
+    color: "var(--text-primary)",
     fontSize: "13px",
   }),
   singleValue: (base) => ({
     ...base,
-    color: "white",
+    color: "var(--text-primary)",
   }),
   input: (base) => ({
     ...base,
-    color: "white",
+    color: "var(--text-primary)",
   }),
   placeholder: (base) => ({
     ...base,

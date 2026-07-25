@@ -88,10 +88,11 @@ export default function ApplicationDetailHeader({
     <>
       <div
         className="
+          card
           rounded-2xl
           border
-          border-[#2a3a52]
-          bg-gradient-to-br from-[#0F172A] via-[#1a2332] to-[#111827]
+          border-theme
+          bg-gradient-to-br from-background via-card-soft to-card
           p-5
           shadow-2xl
           shadow-black/30
@@ -101,8 +102,8 @@ export default function ApplicationDetailHeader({
         "
       >
         {/* Background Glow Effects */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/5 rounded-full blur-3xl" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-success/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-info/5 rounded-full blur-3xl" />
 
         <div className="relative z-10">
           {/* Header Row - Avatar, Name, View Profile, Refer & Reject Buttons */}
@@ -120,15 +121,15 @@ export default function ApplicationDetailHeader({
                     rounded-xl
                     object-cover
                     border-2
-                    border-green-500/30
+                    border-success/30
                     shadow-lg
-                    shadow-green-500/10
+                    shadow-success/10
                     cursor-pointer
                     transition-all
                     duration-300
                     hover:scale-105
-                    hover:border-green-500/50
-                    hover:shadow-green-500/20
+                    hover:border-success/50
+                    hover:shadow-success/20
                     flex-shrink-0
                   "
                   onClick={handleViewProfile}
@@ -139,20 +140,20 @@ export default function ApplicationDetailHeader({
                     h-12
                     w-12
                     rounded-xl
-                    bg-gradient-to-br from-green-500 to-emerald-600
+                    bg-gradient-to-br from-primary to-primary-light
                     flex
                     items-center
                     justify-center
                     text-lg
                     font-semibold
-                    text-white
+                    text-inverse
                     shadow-lg
-                    shadow-green-500/20
+                    shadow-primary/20
                     cursor-pointer
                     transition-all
                     duration-300
                     hover:scale-105
-                    hover:shadow-green-500/40
+                    hover:shadow-primary/40
                     flex-shrink-0
                   "
                   onClick={handleViewProfile}
@@ -164,12 +165,13 @@ export default function ApplicationDetailHeader({
               {/* Name and Role */}
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="text-base font-medium text-white tracking-tight truncate">
+                  <h2 className="text-base font-medium text-primary tracking-tight truncate">
                     {applicant?.name || "Unknown Applicant"}
                   </h2>
                   <button
                     onClick={handleViewProfile}
                     className="
+                      btn-ghost
                       inline-flex
                       items-center
                       gap-1
@@ -179,13 +181,13 @@ export default function ApplicationDetailHeader({
                       font-medium
                       rounded-lg
                       border
-                      border-blue-500/30
-                      text-blue-400
-                      bg-blue-500/5
+                      border-info/30
+                      text-info
+                      bg-info-soft
                       transition-all
                       duration-200
-                      hover:bg-blue-500/20
-                      hover:border-blue-500/50
+                      hover:bg-info-soft
+                      hover:border-info/50
                       hover:scale-105
                       active:scale-95
                       whitespace-nowrap
@@ -199,17 +201,17 @@ export default function ApplicationDetailHeader({
 
                 {/* Current Role and Company */}
                 {currentExperience?.role && (
-                  <div className="mt-1 inline-flex items-center gap-1.5 px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 rounded-lg text-xs text-slate-300">
-                    <Briefcase className="w-3 h-3 text-blue-400 flex-shrink-0" />
-                    <span className="font-medium text-white text-xs">
+                  <div className="mt-1 inline-flex items-center gap-1.5 px-2 py-0.5 bg-info-soft border border-info/20 rounded-lg text-xs text-secondary">
+                    <Briefcase className="w-3 h-3 text-info flex-shrink-0" />
+                    <span className="font-medium text-primary text-xs">
                       {currentExperience.role}
                     </span>
                     {(currentExperience?.company_display ||
                       currentExperience?.company ||
                       applicant?.currentCompany) && (
                       <>
-                        <span className="text-slate-500 text-xs">@</span>
-                        <span className="text-blue-300 font-medium text-xs">
+                        <span className="text-muted text-xs">@</span>
+                        <span className="text-info font-medium text-xs">
                           {currentExperience?.company_display ||
                             currentExperience?.company ||
                             applicant?.currentCompany}
@@ -228,6 +230,7 @@ export default function ApplicationDetailHeader({
                 onClick={() => handleStatusUpdate("Referred To Company")}
                 disabled={isStatusUpdating}
                 className="
+                  btn-primary
                   inline-flex
                   items-center
                   gap-1.5
@@ -237,16 +240,16 @@ export default function ApplicationDetailHeader({
                   font-medium
                   rounded-lg
                   border
-                  border-blue-500/30
-                  text-blue-400
-                  bg-blue-500/5
+                  border-info/30
+                  text-info
+                  bg-info-soft
                   transition-all
                   duration-200
-                  hover:bg-blue-500/20
-                  hover:border-blue-500/50
+                  hover:bg-info-soft
+                  hover:border-info/50
                   hover:scale-105
                   hover:shadow-lg
-                  hover:shadow-blue-500/10
+                  hover:shadow-info/10
                   active:scale-95
                   disabled:opacity-50
                   disabled:cursor-not-allowed
@@ -263,6 +266,7 @@ export default function ApplicationDetailHeader({
                 onClick={() => handleStatusUpdate("Rejected")}
                 disabled={isStatusUpdating}
                 className="
+                  btn-danger
                   inline-flex
                   items-center
                   gap-1.5
@@ -272,16 +276,16 @@ export default function ApplicationDetailHeader({
                   font-medium
                   rounded-lg
                   border
-                  border-red-500/30
-                  text-red-400
-                  bg-red-500/5
+                  border-danger/30
+                  text-danger
+                  bg-danger-soft
                   transition-all
                   duration-200
-                  hover:bg-red-500/20
-                  hover:border-red-500/50
+                  hover:bg-danger-soft
+                  hover:border-danger/50
                   hover:scale-105
                   hover:shadow-lg
-                  hover:shadow-red-500/10
+                  hover:shadow-danger/10
                   active:scale-95
                   disabled:opacity-50
                   disabled:cursor-not-allowed
@@ -299,20 +303,20 @@ export default function ApplicationDetailHeader({
           {(currentEducation?.college_display ||
             currentEducation?.college ||
             currentEducation?.degree) && (
-            <div className="mt-2.5 flex items-center gap-2 text-xs text-slate-300 bg-slate-800/30 px-2.5 py-1 rounded-lg border border-slate-700/30 w-fit">
-              <GraduationCap className="w-3 h-3 text-slate-500 flex-shrink-0" />
+            <div className="mt-2.5 flex items-center gap-2 text-xs text-secondary bg-background-soft/30 px-2.5 py-1 rounded-lg border border-theme/30 w-fit">
+              <GraduationCap className="w-3 h-3 text-muted flex-shrink-0" />
               <span className="text-xs">
                 {currentEducation?.college_display || currentEducation?.college}
                 {currentEducation?.degree && (
                   <>
-                    <span className="text-slate-500 mx-1.5">•</span>
+                    <span className="text-muted mx-1.5">•</span>
                     {currentEducation.degree}
                   </>
                 )}
                 {currentEducation?.specialization && (
                   <>
-                    <span className="text-slate-500 mx-1.5">•</span>
-                    <span className="text-slate-400 text-xs">
+                    <span className="text-muted mx-1.5">•</span>
+                    <span className="text-muted text-xs">
                       {currentEducation.specialization}
                     </span>
                   </>
@@ -324,29 +328,30 @@ export default function ApplicationDetailHeader({
           {/* Skills / Technologies */}
           {applicant?.skills && applicant.skills.length > 0 && (
             <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-              <span className="text-[10px] text-slate-500 font-medium mr-0.5">
+              <span className="text-[10px] text-muted font-medium mr-0.5">
                 Skills:
               </span>
               {applicant.skills.slice(0, 6).map((skill: string, index: number) => (
                 <span
                   key={index}
                   className="
+                    badge
+                    badge-success
                     px-2
                     py-0.5
                     text-[10px]
                     font-medium
                     rounded-full
-                    bg-green-500/10
                     border
-                    border-green-500/20
-                    text-green-400
+                    border-success/20
+                    text-success
                   "
                 >
                   {skill}
                 </span>
               ))}
               {applicant.skills.length > 6 && (
-                <span className="text-[10px] text-slate-500">
+                <span className="text-[10px] text-muted">
                   +{applicant.skills.length - 6}
                 </span>
               )}
@@ -354,11 +359,12 @@ export default function ApplicationDetailHeader({
           )}
 
           {/* Social Links */}
-          <div className="mt-3.5 flex flex-wrap items-center gap-2 pt-3.5 border-t border-slate-700/30">
+          <div className="mt-3.5 flex flex-wrap items-center gap-2 pt-3.5 border-t border-divider">
             {applicant?.resume && (
               <button
                 onClick={handleOpenResume}
                 className="
+                  btn-primary
                   inline-flex
                   items-center
                   gap-1.5
@@ -366,18 +372,18 @@ export default function ApplicationDetailHeader({
                   py-1.5
                   rounded-lg
                   border
-                  border-green-500/30
-                  text-green-400
-                  bg-green-500/5
+                  border-success/30
+                  text-success
+                  bg-success-soft
                   text-[11px]
                   font-medium
                   transition-all
                   duration-200
-                  hover:bg-green-500/20
-                  hover:border-green-500/50
+                  hover:bg-success-soft
+                  hover:border-success/50
                   hover:scale-105
                   hover:shadow-lg
-                  hover:shadow-green-500/10
+                  hover:shadow-success/10
                   active:scale-95
                 "
               >
@@ -390,6 +396,7 @@ export default function ApplicationDetailHeader({
               <button
                 onClick={() => handleOpenLink(applicant.linkedin as string)}
                 className="
+                  btn-ghost
                   inline-flex
                   items-center
                   gap-1.5
@@ -397,18 +404,18 @@ export default function ApplicationDetailHeader({
                   py-1.5
                   rounded-lg
                   border
-                  border-blue-500/30
-                  text-blue-400
-                  bg-blue-500/5
+                  border-info/30
+                  text-info
+                  bg-info-soft
                   text-[11px]
                   font-medium
                   transition-all
                   duration-200
-                  hover:bg-blue-500/20
-                  hover:border-blue-500/50
+                  hover:bg-info-soft
+                  hover:border-info/50
                   hover:scale-105
                   hover:shadow-lg
-                  hover:shadow-blue-500/10
+                  hover:shadow-info/10
                   active:scale-95
                 "
               >
@@ -421,6 +428,7 @@ export default function ApplicationDetailHeader({
               <button
                 onClick={() => handleOpenLink(applicant.github as string)}
                 className="
+                  btn-ghost
                   inline-flex
                   items-center
                   gap-1.5

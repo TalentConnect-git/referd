@@ -9,14 +9,14 @@ interface ChipProps {
 export const Chip: React.FC<ChipProps> = ({ children, variant = "default" }) => {
   const cls =
     variant === "success"
-      ? "border-[rgba(34,197,94,0.25)] bg-[rgba(34,197,94,0.12)] text-[#86efac]"
+      ? "badge-success"
       : variant === "danger"
-      ? "border-[rgba(239,68,68,0.25)] bg-[rgba(239,68,68,0.10)] text-[#fca5a5]"
+      ? "badge-danger"
       : variant === "primary"
-      ? "border-[rgba(49,170,64,0.35)] bg-[var(--primary-soft)] text-[var(--primary)]"
+      ? "badge-primary"
       : variant === "info"
-      ? "border-[rgba(99,179,237,0.25)] bg-[rgba(99,179,237,0.10)] text-[#90cdf4]"
-      : "border-[var(--border)] bg-[rgba(148,163,184,0.08)] text-[var(--text-primary)]";
+      ? "badge-info"
+      : "badge";
 
   return (
     <span

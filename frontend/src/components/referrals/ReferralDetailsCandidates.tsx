@@ -25,53 +25,53 @@ export default function ReferralDetailsCandidates({ referral }: ReferralDetailsC
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-green-500 border-t-transparent"></div>
-        <span className="ml-2 text-sm text-gray-400">Loading candidates...</span>
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+        <span className="ml-2 text-sm text-muted">Loading candidates...</span>
       </div>
     );
   }
 
   if (!candidates.length) {
     return (
-      <div className="rounded-lg border border-[#1e293b] bg-[#111827] p-6 text-center">
-        <p className="text-sm text-gray-400">No candidates found</p>
+      <div className="card rounded-lg border border-theme bg-card p-6 text-center">
+        <p className="text-sm text-muted">No candidates found</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-[#1e293b] bg-[#111827] overflow-hidden">
+    <div className="card rounded-lg border border-theme bg-card overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-[#1e293b]">
+          <thead className="bg-background-soft">
             <tr>
-              <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Name</th>
-              <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Email</th>
-              <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Phone</th>
-              <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Match Score</th>
-              <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+              <th className="px-4 py-2.5 text-left text-xs font-medium text-muted uppercase tracking-wider">Name</th>
+              <th className="px-4 py-2.5 text-left text-xs font-medium text-muted uppercase tracking-wider">Email</th>
+              <th className="px-4 py-2.5 text-left text-xs font-medium text-muted uppercase tracking-wider">Phone</th>
+              <th className="px-4 py-2.5 text-left text-xs font-medium text-muted uppercase tracking-wider">Match Score</th>
+              <th className="px-4 py-2.5 text-left text-xs font-medium text-muted uppercase tracking-wider">Status</th>
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-[#1e293b]">
+          <tbody className="divide-y divide-divider">
             {candidates.map((candidate) => (
-              <tr key={candidate._id} className="hover:bg-[#1a2332] transition-colors">
-                <td className="px-4 py-2.5 text-white font-medium">
+              <tr key={candidate._id} className="hover:bg-card-hover transition-colors">
+                <td className="px-4 py-2.5 text-primary font-medium">
                   {candidate.applicant.name || "N/A"}
                 </td>
-                <td className="px-4 py-2.5 text-gray-300 text-xs">
+                <td className="px-4 py-2.5 text-secondary text-xs">
                   {candidate.applicant.email || "N/A"}
                 </td>
-                <td className="px-4 py-2.5 text-gray-300 text-xs">
+                <td className="px-4 py-2.5 text-secondary text-xs">
                   {candidate.applicant.phone || "N/A"}
                 </td>
                 <td className="px-4 py-2.5">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                  <span className="badge badge-info inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border border-info/30">
                     {candidate.matchScore || 0}%
                   </span>
                 </td>
                 <td className="px-4 py-2.5">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-500/20 text-gray-300 border border-gray-500/30">
+                  <span className="badge inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border border-theme bg-background-soft text-secondary">
                     {candidate.currentStatus || "Pending"}
                   </span>
                 </td>

@@ -114,19 +114,19 @@ export default function ResumeUpload({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-5 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-3xl border border-[var(--border)] bg-[var(--background)] p-6 text-white shadow-2xl">
+    <div className="modal-overlay fixed inset-0 z-[100] flex items-center justify-center bg-overlay px-5 backdrop-blur-sm">
+      <div className="modal-content w-full max-w-md rounded-3xl border border-theme bg-background p-6 text-primary shadow-xl">
         <div className="mb-6 flex items-start justify-between">
           <div>
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--primary-soft)]">
-              <FileText className="h-7 w-7 text-[var(--primary)]" />
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-soft">
+              <FileText className="h-7 w-7 text-primary" />
             </div>
 
-            <h2 className="text-[24px] font-bold tracking-[-0.04em] text-white">
+            <h2 className="text-[24px] font-bold tracking-[-0.04em] text-primary">
               Upload Your Resume
             </h2>
 
-            <p className="mt-1 text-[13px] text-[var(--text-primary)]">
+            <p className="mt-1 text-[13px] text-primary">
               Upload a PDF to pre-fill your profile, or skip for now.
             </p>
           </div>
@@ -136,7 +136,7 @@ export default function ResumeUpload({
               type="button"
               onClick={onClose}
               disabled={isLoading}
-              className="rounded-full p-2 text-[var(--text-primary)] transition hover:bg-white/10 hover:text-white disabled:opacity-50"
+              className="btn-ghost rounded-full p-2 text-primary transition hover:bg-card-hover hover:text-secondary disabled:opacity-50"
             >
               <X className="h-5 w-5" />
             </button>
@@ -146,25 +146,25 @@ export default function ResumeUpload({
         <label
           className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 transition ${
             isLoading
-              ? "cursor-wait border-yellow-400/40 bg-yellow-400/10"
+              ? "cursor-wait border-warning/40 bg-warning-soft"
               : isSuccess
-              ? "border-green-400/50 bg-green-400/10"
-              : "border-white/10 bg-white/[0.03] hover:border-[var(--primary)] hover:bg-[var(--primary-soft)]"
+              ? "border-success/50 bg-success-soft"
+              : "border-theme/10 bg-background-soft/30 hover:border-primary hover:bg-primary-soft"
           }`}
         >
           {isSuccess ? (
-            <CheckCircle className="mb-3 h-12 w-12 text-green-400" />
+            <CheckCircle className="mb-3 h-12 w-12 text-success" />
           ) : (
             <UploadIcon
               className={`mb-3 h-12 w-12 ${
                 isLoading
-                  ? "animate-pulse text-yellow-400"
-                  : "text-[var(--text-primary)]"
+                  ? "animate-pulse text-warning"
+                  : "text-primary"
               }`}
             />
           )}
 
-          <p className="text-center text-[13px] font-medium text-white">
+          <p className="text-center text-[13px] font-medium text-primary">
             {isLoading
               ? "Processing your resume..."
               : isSuccess
@@ -172,12 +172,12 @@ export default function ResumeUpload({
               : "Click to upload or drag and drop"}
           </p>
 
-          <p className="mt-1 text-center text-[11px] text-[var(--text-primary)]">
+          <p className="mt-1 text-center text-[11px] text-primary">
             PDF only, max 5MB
           </p>
 
           {selectedFile && !isLoading && (
-            <p className="mt-4 max-w-xs truncate text-[12px] font-medium text-[var(--primary)]">
+            <p className="mt-4 max-w-xs truncate text-[12px] font-medium text-primary">
               Selected: {selectedFile.name}
             </p>
           )}
@@ -195,10 +195,10 @@ export default function ResumeUpload({
           <div
             className={`mt-4 rounded-xl border p-3 text-[12px] font-medium ${
               isSuccess
-                ? "border-green-400/30 bg-green-400/10 text-green-300"
+                ? "border-success/30 bg-success-soft text-success"
                 : isLoading
-                ? "border-yellow-400/30 bg-yellow-400/10 text-yellow-300"
-                : "border-red-400/30 bg-red-400/10 text-red-300"
+                ? "border-warning/30 bg-warning-soft text-warning"
+                : "border-danger/30 bg-danger-soft text-danger"
             }`}
           >
             {message}
@@ -210,7 +210,7 @@ export default function ResumeUpload({
             type="button"
             onClick={onClose}
             disabled={isLoading}
-            className="h-10 flex-1 rounded-lg border border-white/10 text-[13px] font-semibold text-white transition hover:bg-white/10 disabled:opacity-50"
+            className="btn-secondary h-10 flex-1 rounded-lg border border-theme text-[13px] font-semibold text-primary transition hover:bg-card-hover disabled:opacity-50"
           >
             Cancel
           </button>
@@ -219,7 +219,7 @@ export default function ResumeUpload({
             type="button"
             onClick={handleMainButtonClick}
             disabled={isLoading}
-            className="button-color flex h-10 flex-1 items-center justify-center rounded-lg text-[13px] font-semibold text-black transition-all duration-300 hover:brightness-110 active:scale-[0.99] disabled:opacity-60"
+            className="btn-primary flex h-10 flex-1 items-center justify-center rounded-lg text-[13px] font-semibold text-inverse transition-all duration-300 hover:brightness-110 active:scale-[0.99] disabled:opacity-60"
           >
             {isLoading ? (
               "Processing..."

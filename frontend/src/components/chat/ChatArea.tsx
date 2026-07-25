@@ -23,7 +23,7 @@ interface ChatAreaProps {
   onSendMessage: () => void;
   isPartnerOnline: boolean;
   getDisplayName: () => string;
-  getProfileImage?: () => string; // Add this
+  getProfileImage?: () => string;
   getAvatarInitial: () => string;
   formatMessageDate: (date: string) => string;
   formatMessageTime: (date: string) => string;
@@ -127,15 +127,15 @@ export const ChatArea = memo(
           style={{ background: "var(--background)" }}
         >
           <div className="text-center">
-            <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-[#22c55e] to-[#16a34a] shadow-2xl">
-              <MessageCircle className="h-12 w-12 text-white" />
+            <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-dark shadow-2xl">
+              <MessageCircle className="h-12 w-12 text-inverse" />
             </div>
 
-            <h2 className="mb-3 text-3xl font-bold text-white">
+            <h2 className="mb-3 text-3xl font-bold text-primary">
               Welcome to Messages
             </h2>
 
-            <p className="max-w-sm text-[var(--text-muted)]">
+            <p className="max-w-sm text-muted">
               Select a conversation to start chatting
             </p>
           </div>
@@ -159,14 +159,14 @@ export const ChatArea = memo(
         <div className="flex-1 space-y-4 overflow-y-auto p-4">
           {messagesLoading && messages.length === 0 ? (
             <div className="flex h-full items-center justify-center">
-              <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--primary)] border-t-transparent" />
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
             </div>
           ) : messages.length === 0 ? (
             <div className="flex h-full items-center justify-center">
               <div className="text-center">
-                <MessageCircle className="mx-auto mb-4 h-16 w-16 text-[var(--text-muted)]" />
-                <p className="text-lg font-medium text-white">No messages yet</p>
-                <p className="text-sm text-[var(--text-muted)]">
+                <MessageCircle className="mx-auto mb-4 h-16 w-16 text-muted" />
+                <p className="text-lg font-medium text-primary">No messages yet</p>
+                <p className="text-sm text-muted">
                   Send your first message to {getDisplayName()}
                 </p>
               </div>
@@ -176,7 +176,7 @@ export const ChatArea = memo(
               <div key={date}>
                 <div className="mb-4 flex justify-center">
                   <div className="glass-card rounded-full px-4 py-1.5">
-                    <span className="text-xs font-medium text-[var(--text-muted)]">
+                    <span className="text-xs font-medium text-muted">
                       {formatMessageDate(group[0].createdAt)}
                     </span>
                   </div>
@@ -208,7 +208,7 @@ export const ChatArea = memo(
               <button
                 type="button"
                 onClick={() => setShowEmojiPicker((value) => !value)}
-                className="rounded-full p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--card-hover)] hover:text-white"
+                className="btn-ghost rounded-full p-2 text-muted transition-colors hover:bg-card-hover hover:text-primary"
               >
                 <Smile className="h-5 w-5" />
               </button>
@@ -216,12 +216,13 @@ export const ChatArea = memo(
               {showEmojiPicker && (
                 <div className="absolute bottom-full left-0 z-50 mb-2 animate-slide-in-up">
                   <div
+                    className="emoji-picker-wrapper"
                     style={{
                       background: "var(--card)",
                       border: "1px solid var(--border)",
                       borderRadius: "12px",
                       overflow: "hidden",
-                      boxShadow: "0 24px 80px rgba(0,0,0,0.5)",
+                      boxShadow: "var(--shadow-xl)",
                     }}
                   >
                     <EmojiPicker
@@ -237,7 +238,7 @@ export const ChatArea = memo(
 
             <button
               type="button"
-              className="rounded-full p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--card-hover)] hover:text-white"
+              className="btn-ghost rounded-full p-2 text-muted transition-colors hover:bg-card-hover hover:text-primary"
             >
               <Paperclip className="h-5 w-5" />
             </button>
@@ -254,11 +255,7 @@ export const ChatArea = memo(
                   : "Type a message..."
               }
               disabled={isCreatingConversation}
-              className="flex-1 rounded-full border px-5 py-3 text-sm text-white transition-all placeholder:text-[var(--text-muted)] focus:outline-none disabled:opacity-50"
-              style={{
-                background: "var(--background)",
-                borderColor: "var(--border)",
-              }}
+              className="input-field flex-1 rounded-full border px-5 py-3 text-sm text-primary transition-all placeholder:text-muted focus:outline-none disabled:opacity-50"
             />
 
             <button
@@ -267,8 +264,8 @@ export const ChatArea = memo(
               disabled={!newMessage.trim() || isCreatingConversation}
               className={`rounded-full p-3 transition-all ${
                 newMessage.trim() && !isCreatingConversation
-                  ? "text-white hover:scale-105 active:scale-95"
-                  : "cursor-not-allowed text-[var(--text-muted)]"
+                  ? "text-inverse hover:scale-105 active:scale-95"
+                  : "cursor-not-allowed text-muted"
               }`}
               style={{
                 background:

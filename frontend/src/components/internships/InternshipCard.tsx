@@ -37,9 +37,9 @@ const showInfoToast = (message: string) => {
     icon: "ℹ️",
     duration: 3000,
     style: {
-      background: "#1a2332",
-      color: "#fff",
-      border: "1px solid #3b82f6",
+      background: "var(--card)",
+      color: "var(--text-primary)",
+      border: "1px solid var(--info-border)",
       borderRadius: "8px",
       padding: "10px 16px",
     },
@@ -50,9 +50,9 @@ const showSuccessToast = (message: string) => {
   toast.success(message, {
     duration: 3000,
     style: {
-      background: "#1a2332",
-      color: "#fff",
-      border: "1px solid #22c55e",
+      background: "var(--card)",
+      color: "var(--text-primary)",
+      border: "1px solid var(--success-border)",
       borderRadius: "8px",
       padding: "10px 16px",
     },
@@ -63,9 +63,9 @@ const showErrorToast = (message: string) => {
   toast.error(message, {
     duration: 3000,
     style: {
-      background: "#1a2332",
-      color: "#fff",
-      border: "1px solid #ef4444",
+      background: "var(--card)",
+      color: "var(--text-primary)",
+      border: "1px solid var(--danger-border)",
       borderRadius: "8px",
       padding: "10px 16px",
     },
@@ -117,23 +117,23 @@ export default function InternshipCard({
 
   const getMatchScoreColor = (score?: number): string => {
     const numericScore = Number(score) || 0;
-    if (numericScore >= 75) return "text-green-400";
-    if (numericScore >= 40) return "text-orange-400";
-    return "text-red-400";
+    if (numericScore >= 75) return "text-[var(--success)]";
+    if (numericScore >= 40) return "text-[var(--warning)]";
+    return "text-[var(--danger)]";
   };
 
   const getMatchScoreBg = (score?: number): string => {
     const numericScore = Number(score) || 0;
-    if (numericScore >= 75) return "bg-green-500";
-    if (numericScore >= 40) return "bg-orange-500";
-    return "bg-red-500";
+    if (numericScore >= 75) return "bg-[var(--success)]";
+    if (numericScore >= 40) return "bg-[var(--warning)]";
+    return "bg-[var(--danger)]";
   };
 
   const getMatchScoreBorder = (score?: number): string => {
     const numericScore = Number(score) || 0;
-    if (numericScore >= 75) return "border-green-500/30";
-    if (numericScore >= 40) return "border-orange-500/30";
-    return "border-red-500/30";
+    if (numericScore >= 75) return "border-[var(--success-border)]";
+    if (numericScore >= 40) return "border-[var(--warning-border)]";
+    return "border-[var(--danger-border)]";
   };
 
   const getMatchScoreLabel = (score?: number): string => {
@@ -264,59 +264,48 @@ export default function InternshipCard({
   const matchColor = getMatchScoreColor(matchScore);
   const matchBorder = getMatchScoreBorder(matchScore);
   const matchLabel = getMatchScoreLabel(matchScore);
-  
 
   return (
     <div
       onClick={() => router.push(route)}
       className={`
-        cursor-pointer
-        rounded-xl
-        border
-        border-[#2a3a52]
-        bg-[#0f172a]
-        px-4
-        py-3
-        transition-all
-        duration-200
-        hover:border-green-500/40
-        hover:bg-[#1a2332]
-        hover:shadow-lg
-        hover:shadow-green-500/5
-        group
-        flex
-        items-center
-        gap-3
-        ${isRemovingCard || isRemoving ? "opacity-0 scale-95 pointer-events-none" : "opacity-100 scale-100"}
-        ${isRemovingCard ? "max-h-0 overflow-hidden p-0 m-0 border-0" : ""}
+        group flex cursor-pointer items-center gap-3
+        rounded-xl border border-[var(--border)]
+        bg-[var(--card)] px-4 py-3
+        transition-all duration-200
+        hover:border-[var(--primary-border)]
+        hover:bg-[var(--card-hover)]
+        hover:shadow-md
+        ${isRemovingCard || isRemoving ? "pointer-events-none scale-95 opacity-0" : "scale-100 opacity-100"}
+        ${isRemovingCard ? "m-0 max-h-0 overflow-hidden border-0 p-0" : ""}
       `}
     >
       {/* Company Logo */}
-      <div className="h-10 w-10 rounded-lg border border-[#2a3a52] bg-[#1a2332] flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
+      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--background-soft)] text-sm font-bold text-[var(--text-secondary)]">
         {company?.charAt(0).toUpperCase() || "?"}
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0 flex items-center gap-3">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
         {/* Title & Company */}
         <div className="min-w-0 flex-1">
-          <h3 className="text-sm font-semibold text-white truncate group-hover:text-green-400 transition-colors">
+          <h3 className="truncate text-sm font-semibold text-[var(--text-primary)] transition-colors group-hover:text-[var(--primary)]">
             {title || "Untitled Internship"}
           </h3>
-          <p className="text-xs text-slate-400 truncate">{company}</p>
+          <p className="truncate text-xs text-[var(--text-muted)]">{company}</p>
         </div>
 
         {/* Location */}
         {location && (
-          <div className="hidden sm:flex items-center gap-1 text-xs text-slate-500 whitespace-nowrap">
+          <div className="hidden items-center gap-1 whitespace-nowrap text-xs text-[var(--text-muted)] sm:flex">
             <MapPin size={12} />
-            <span className="truncate max-w-[80px]">{location}</span>
+            <span className="max-w-[80px] truncate">{location}</span>
           </div>
         )}
 
         {/* Duration */}
         {duration && (
-          <div className="hidden md:flex items-center gap-1 text-xs text-slate-500 whitespace-nowrap">
+          <div className="hidden items-center gap-1 whitespace-nowrap text-xs text-[var(--text-muted)] md:flex">
             <Clock size={12} />
             <span>{duration}</span>
           </div>
@@ -324,15 +313,15 @@ export default function InternshipCard({
 
         {/* Package */}
         {packageDisplay && (
-          <div className="hidden lg:flex items-center gap-1 text-xs text-green-400 font-semibold whitespace-nowrap">
-           
+          <div className="hidden items-center gap-1 whitespace-nowrap text-xs font-semibold text-[var(--primary)] lg:flex">
+            <DollarSign size={12} />
             <span>{packageDisplay} CTC</span>
           </div>
         )}
 
         {/* Match Score */}
         {matchScore !== undefined && matchScore !== null && (
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex flex-shrink-0 items-center gap-2">
             <span className={`text-xs font-bold ${matchColor}`}>
               {matchScore}%
             </span>
@@ -344,35 +333,33 @@ export default function InternshipCard({
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-1.5 flex-shrink-0">
+      <div className="flex flex-shrink-0 items-center gap-1.5">
         {/* Save Button */}
         {jobId && (
           <button
             onClick={handleSaveToggle}
             disabled={isSaving || isRemovingCard}
             className="
-              p-1.5
-              rounded-lg
-              transition-all
-              duration-200
-              hover:bg-green-500/10
-              disabled:opacity-50
+              rounded-lg p-1.5
+              transition-all duration-200
+              hover:bg-[var(--primary-soft)]
               disabled:cursor-not-allowed
+              disabled:opacity-50
             "
             aria-label={saved ? "Unsave internship" : "Save internship"}
           >
             {isSaving ? (
-              <Loader2 className="w-4 h-4 text-slate-400 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin text-[var(--text-muted)]" />
             ) : saved ? (
-              <BookmarkCheck className="w-4 h-4 text-green-500 fill-green-500" />
+              <BookmarkCheck className="h-4 w-4 fill-[var(--primary)] text-[var(--primary)]" />
             ) : (
-              <Bookmark className="w-4 h-4 text-slate-500 group-hover:text-green-400 transition-colors" />
+              <Bookmark className="h-4 w-4 text-[var(--text-muted)] transition-colors group-hover:text-[var(--primary)]" />
             )}
           </button>
         )}
 
         {/* Arrow */}
-        <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-green-400 group-hover:translate-x-0.5 transition-all" />
+        <ChevronRight className="h-4 w-4 text-[var(--text-muted)] transition-all group-hover:translate-x-0.5 group-hover:text-[var(--primary)]" />
       </div>
     </div>
   );

@@ -43,8 +43,8 @@ export default function ReferralCardHeader({
             text-lg font-bold
             transition-all duration-300
             ${referral.inactive 
-              ? 'bg-gray-800/50 text-gray-500 border border-gray-700/50' 
-              : 'bg-gradient-to-br from-green-500/20 to-emerald-500/20 text-green-400 border border-green-500/20 hover:scale-105'
+              ? 'bg-background-soft/50 text-muted border border-theme/50' 
+              : 'bg-primary-soft text-primary border border-primary/20 hover:scale-105'
             }
           `}>
             {getInitials(referral.jobTitle?.[0])}
@@ -60,20 +60,20 @@ export default function ReferralCardHeader({
                 transition-all duration-200
                 flex items-center gap-2
                 ${referral.inactive 
-                  ? 'text-gray-400 cursor-not-allowed' 
-                  : 'text-white hover:text-green-400 cursor-pointer group'
+                  ? 'text-muted cursor-not-allowed' 
+                  : 'text-primary hover:text-primary group'
                 }
               `}
             >
               {referral.jobTitle?.[0] || 'Untitled Position'}
               {!referral.inactive && (
-                <ExternalLink className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-green-400" />
+                <ExternalLink className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-primary" />
               )}
             </button>
 
             <div className="flex items-center gap-1.5">
-              <MapPin className="h-3.5 w-3.5 text-gray-500" />
-              <p className="text-muted-foreground text-[10px]">
+              <MapPin className="h-3.5 w-3.5 text-muted" />
+              <p className="text-muted text-[10px]">
                 {getLocation()}
               </p>
             </div>
@@ -84,14 +84,15 @@ export default function ReferralCardHeader({
         <div className="flex gap-2">
           <span
             className={`
+              badge
               rounded-full px-3 py-0.5 
               text-[11px] font-medium 
               border 
               transition-all duration-200
               flex items-center gap-1.5
               ${referral.inactive
-                ? 'border-gray-600 text-gray-400 bg-gray-900/40 hover:bg-gray-900/60'
-                : 'border-green-500/30 text-green-400 bg-green-900/20 hover:bg-green-900/30 hover:border-green-500/50'
+                ? 'border-theme text-muted bg-background-soft hover:bg-card-hover'
+                : 'badge-success hover:border-success/50'
               }
             `}
           >
@@ -99,8 +100,8 @@ export default function ReferralCardHeader({
             <span className={`
               inline-block w-1.5 h-1.5 rounded-full
               ${referral.inactive 
-                ? 'bg-gray-500' 
-                : 'bg-green-400 animate-pulse'
+                ? 'bg-muted' 
+                : 'bg-success animate-pulse'
               }
             `} />
             {referral.inactive ? 'Closed' : 'Live'}
@@ -111,27 +112,27 @@ export default function ReferralCardHeader({
       {/* Overview Modal */}
       {isOverviewModalOpen && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+          className="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-overlay backdrop-blur-sm p-4"
           onClick={() => setIsOverviewModalOpen(false)}
         >
           <div 
-            className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-[#1a2332] border border-[#2a3a52] rounded-2xl shadow-2xl"
+            className="modal-content relative w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-theme rounded-2xl shadow-xl bg-card"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-[#2a3a52] bg-[#1a2332]/95 backdrop-blur-sm rounded-t-2xl">
+            <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-divider bg-card/95 backdrop-blur-sm rounded-t-2xl">
               <div>
-                <h2 className="text-lg font-bold text-white">
+                <h2 className="text-lg font-bold text-primary">
                   {referral.jobTitle?.[0] || 'Untitled Position'}
                 </h2>
-                <div className="flex items-center gap-2 text-sm text-gray-400">
+                <div className="flex items-center gap-2 text-sm text-muted">
                   <MapPin className="h-3.5 w-3.5" />
                   <span>{getLocation()}</span>
                 </div>
               </div>
               <button
                 onClick={() => setIsOverviewModalOpen(false)}
-                className="p-2 rounded-lg hover:bg-white/10 transition-colors text-gray-400 hover:text-white"
+                className="btn-ghost p-2 rounded-lg hover:bg-card-hover transition-colors text-muted hover:text-primary"
               >
                 <X className="h-5 w-5" />
               </button>

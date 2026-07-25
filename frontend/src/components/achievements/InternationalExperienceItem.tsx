@@ -24,36 +24,36 @@ export default function InternationalExperienceItem({
   const certificateUrl = normalizeUrl(item.certificate);
 
   return (
-    <div className="rounded-[12px] border border-white/10 bg-[#0b1621] px-4 py-4">
+    <div className="card rounded-[12px] border border-theme/10 bg-card-soft px-4 py-4">
       {/* Organization/Company Name - Top */}
       {organization && (
-        <p className="text-[14px] font-medium leading-tight text-white">
+        <p className="text-[14px] font-medium leading-tight text-primary">
           {organization}
         </p>
       )}
 
       {/* Role - Below Organization in Green */}
-      <h3 className="mt-1.5 text-[12px] font-medium text-[#37e875]">
+      <h3 className="mt-1.5 text-[12px] font-medium text-success">
         {title}
       </h3>
 
       {/* Country */}
       {country && (
-        <p className="mt-1.5 text-[12px] font-medium text-[#7891c7]">
+        <p className="mt-1.5 text-[12px] font-medium text-muted">
           🌍 {country}
         </p>
       )}
 
       {/* Date Range */}
       {dateRange && (
-        <p className="mt-1.5 text-[12px] font-medium text-[#7891c7]">
+        <p className="mt-1.5 text-[12px] font-medium text-muted">
           📅 {dateRange}
         </p>
       )}
 
       {/* Description */}
       {description && (
-        <p className="mt-3 whitespace-pre-line text-[12px] font-normal leading-5 text-white">
+        <p className="mt-3 whitespace-pre-line text-[12px] font-normal leading-5 text-primary">
           {description}
         </p>
       )}
@@ -64,7 +64,7 @@ export default function InternationalExperienceItem({
           href={certificateUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-3 inline-flex items-center gap-1.5 text-[12px] font-medium text-[#37e875] transition hover:underline"
+          className="mt-3 inline-flex items-center gap-1.5 text-[12px] font-medium text-success transition hover:underline"
         >
           View Certificate
           <ExternalLink className="h-3.5 w-3.5" />

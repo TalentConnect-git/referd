@@ -38,9 +38,14 @@ export default function FresherInterviewsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0F172A] px-4 py-6">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold text-white mb-6">My Interviews</h1>
+    <div className="min-h-screen bg-[var(--background)] px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-4xl">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">My Interviews</h1>
+          <p className="mt-1 text-sm text-[var(--text-muted)]">
+            View and manage all your upcoming and past interviews
+          </p>
+        </div>
         <InterviewList
           interviews={interviews}
           unreadInterviews={unreadInterviews}

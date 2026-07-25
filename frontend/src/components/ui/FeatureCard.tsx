@@ -14,22 +14,27 @@ export default function FeatureCard({
   footerText,
 }: FeatureCardProps) {
   return (
-    <div className="rounded-3xl border border-[var(--border)] bg-[var(--card)]/70 p-8">
-      <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl border border-[rgba(49,170,64,0.20)] bg-[var(--primary-soft)] text-[var(--primary)]">
+    <div className="surface-card group flex h-full flex-col rounded-3xl p-6 transition-all duration-300 hover:shadow-md hover:border-[var(--border-strong)] sm:p-8">
+      {/* Icon */}
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-[var(--primary-border)] bg-[var(--primary-soft)] text-[var(--primary)] transition-transform duration-300 group-hover:scale-110 sm:mb-6">
         {icon}
       </div>
 
-      <h3 className="mb-2 text-[18px] font-semibold tracking-[-0.03em] text-white">
+      {/* Title */}
+      <h3 className="mb-2 text-lg font-semibold tracking-[-0.03em] text-[var(--text-primary)] transition-colors duration-200 group-hover:text-[var(--primary)] sm:text-[18px]">
         {title}
       </h3>
 
-      <p className="min-h-[72px] font-normal text-[13px] leading-6 text-[var(--text-primary)]">
+      {/* Description */}
+      <p className="flex-1 text-sm leading-6 text-[var(--text-secondary)]">
         {description}
       </p>
 
+      {/* Divider */}
       <div className="my-4 h-px w-full bg-[var(--border)]" />
 
-      <p className="font-mono text-[12px] tracking-wide text-[var(--text-primary)]">
+      {/* Footer */}
+      <p className="font-mono text-xs tracking-wide text-[var(--text-muted)]">
         {footerText}
       </p>
     </div>

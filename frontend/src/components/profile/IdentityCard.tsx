@@ -72,74 +72,74 @@ const STATUS_CONFIG: Record<string, {
   open_to_work: {
     label: "Open to Work",
     icon: <TrendingUp className="h-3.5 w-3.5" />,
-    color: "text-green-400",
-    bgColor: "bg-green-500/10",
-    borderColor: "border-green-500/30",
-    glowColor: "shadow-green-500/20",
+    color: "text-[var(--success)]",
+    bgColor: "bg-[var(--success-soft)]",
+    borderColor: "border-[var(--success-border)]",
+    glowColor: "shadow-[var(--success)]/20",
   },
   career_break: {
     label: "Career Break",
     icon: <Heart className="h-3.5 w-3.5" />,
-    color: "text-amber-400",
-    bgColor: "bg-amber-500/10",
-    borderColor: "border-amber-500/30",
-    glowColor: "shadow-amber-500/20",
+    color: "text-[var(--warning)]",
+    bgColor: "bg-[var(--warning-soft)]",
+    borderColor: "border-[var(--warning-border)]",
+    glowColor: "shadow-[var(--warning)]/20",
   },
   freelancing: {
     label: "Freelancing",
     icon: <Briefcase className="h-3.5 w-3.5" />,
-    color: "text-blue-400",
-    bgColor: "bg-blue-500/10",
-    borderColor: "border-blue-500/30",
-    glowColor: "shadow-blue-500/20",
+    color: "text-[var(--info)]",
+    bgColor: "bg-[var(--info-soft)]",
+    borderColor: "border-[var(--info-border)]",
+    glowColor: "shadow-[var(--info)]/20",
   },
   building: {
     label: "Building Something",
     icon: <Sparkles className="h-3.5 w-3.5" />,
-    color: "text-purple-400",
-    bgColor: "bg-purple-500/10",
-    borderColor: "border-purple-500/30",
-    glowColor: "shadow-purple-500/20",
+    color: "text-[var(--primary)]",
+    bgColor: "bg-[var(--primary-soft)]",
+    borderColor: "border-[var(--primary-border)]",
+    glowColor: "shadow-[var(--primary)]/20",
   },
   not_looking: {
     label: "Not Looking",
     icon: <User className="h-3.5 w-3.5" />,
-    color: "text-gray-400",
-    bgColor: "bg-gray-500/10",
-    borderColor: "border-gray-500/30",
-    glowColor: "shadow-gray-500/20",
+    color: "text-[var(--text-muted)]",
+    bgColor: "bg-[var(--background-soft)]",
+    borderColor: "border-[var(--border)]",
+    glowColor: "shadow-[var(--text-muted)]/20",
   },
   looking_internship: {
     label: "Looking for Internship",
     icon: <Award className="h-3.5 w-3.5" />,
-    color: "text-cyan-400",
-    bgColor: "bg-cyan-500/10",
-    borderColor: "border-cyan-500/30",
-    glowColor: "shadow-cyan-500/20",
+    color: "text-[var(--info)]",
+    bgColor: "bg-[var(--info-soft)]",
+    borderColor: "border-[var(--info-border)]",
+    glowColor: "shadow-[var(--info)]/20",
   },
   looking_job: {
     label: "Looking for Job",
     icon: <BriefcaseBusiness className="h-3.5 w-3.5" />,
-    color: "text-emerald-400",
-    bgColor: "bg-emerald-500/10",
-    borderColor: "border-emerald-500/30",
-    glowColor: "shadow-emerald-500/20",
+    color: "text-[var(--success)]",
+    bgColor: "bg-[var(--success-soft)]",
+    borderColor: "border-[var(--success-border)]",
+    glowColor: "shadow-[var(--success)]/20",
   },
   preparing_exams: {
     label: "Preparing for Exams",
     icon: <Calendar className="h-3.5 w-3.5" />,
-    color: "text-orange-400",
-    bgColor: "bg-orange-500/10",
-    borderColor: "border-orange-500/30",
-    glowColor: "shadow-orange-500/20",
+    color: "text-[var(--warning)]",
+    bgColor: "bg-[var(--warning-soft)]",
+    borderColor: "border-[var(--warning-border)]",
+    glowColor: "shadow-[var(--warning)]/20",
   },
   employed: {
     label: "Currently Employed",
     icon: <BadgeCheck className="h-3.5 w-3.5" />,
-    color: "text-emerald-400",
-    bgColor: "bg-emerald-500/10",
-    borderColor: "border-emerald-500/30",
-    glowColor: "shadow-emerald-500/20",
+    color: "text-[var(--success)]",
+    bgColor: "bg-[var(--success-soft)]",
+    borderColor: "border-[var(--success-border)]",
+    glowColor: "shadow-[var(--success)]/20",
   },
 };
 
@@ -334,7 +334,7 @@ export default function IdentityCard({
     return `inline-flex shrink-0 items-center gap-1.5 rounded-full border ${config.bgColor} ${config.borderColor} ${config.color} px-2.5 py-1 text-[11px] font-medium shadow-lg ${config.glowColor}`;
   };
 
-  // Get employment badge class
+  // Get employed badge class
   const getEmployedBadgeClass = () => {
     const config = STATUS_CONFIG.employed;
     return `inline-flex shrink-0 items-center gap-1.5 rounded-full border ${config.bgColor} ${config.borderColor} ${config.color} px-2.5 py-1 text-[11px] font-medium shadow-lg ${config.glowColor}`;
@@ -356,7 +356,7 @@ export default function IdentityCard({
 
   return (
     <>
-      <section className="group overflow-hidden rounded-2xl border border-[#2a3a52] bg-gradient-to-br from-[#0f172a] via-[#111827] to-[#1a2332] p-4 shadow-xl shadow-black/20 transition-all duration-300 hover:border-green-500/20 hover:shadow-2xl hover:shadow-green-500/5 sm:p-6">
+      <section className="surface-card group overflow-hidden rounded-2xl bg-[var(--card)] p-4 shadow-lg transition-all duration-300 hover:shadow-xl sm:p-6">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
           {/* Profile Image */}
           <div className="flex shrink-0 justify-center sm:justify-start">
@@ -366,7 +366,7 @@ export default function IdentityCard({
                 onClick={handleImageClick}
                 disabled={isUploading}
                 aria-label="Update profile image"
-                className="group/avatar relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border-2 border-green-500/30 bg-gradient-to-br from-[#0b1621] to-[#1a2332] shadow-lg shadow-green-500/10 transition-all duration-300 hover:scale-[1.03] hover:border-green-500/60 hover:shadow-xl hover:shadow-green-500/20 focus:outline-none focus:ring-2 focus:ring-green-500/40 disabled:cursor-not-allowed sm:h-24 sm:w-24"
+                className="group/avatar relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border-2 border-[var(--primary-border)] bg-[var(--card)] shadow-lg shadow-[var(--primary)]/10 transition-all duration-300 hover:scale-[1.03] hover:border-[var(--primary-border)] hover:shadow-xl hover:shadow-[var(--primary)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/40 disabled:cursor-not-allowed sm:h-24 sm:w-24"
               >
                 {profileImage && !imageError ? (
                   <img
@@ -376,14 +376,14 @@ export default function IdentityCard({
                     onError={handleImageError}
                   />
                 ) : (
-                  <span className="flex h-full w-full items-center justify-center bg-gradient-to-br from-green-500/20 to-emerald-500/10 text-2xl font-bold text-green-400 transition-transform duration-300 group-hover/avatar:scale-105 sm:text-3xl">
+                  <span className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[var(--primary-soft)] to-[var(--primary-soft)] text-2xl font-bold text-[var(--primary)] transition-transform duration-300 group-hover/avatar:scale-105 sm:text-3xl">
                     {profileInitials}
                   </span>
                 )}
 
                 {/* Upload Overlay */}
                 <span
-                  className={`absolute inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm transition-opacity duration-300 ${
+                  className={`absolute inset-0 flex items-center justify-center bg-[var(--overlay)] backdrop-blur-sm transition-opacity duration-300 ${
                     isUploading
                       ? "opacity-100"
                       : "opacity-0 group-hover/avatar:opacity-100"
@@ -398,10 +398,10 @@ export default function IdentityCard({
 
                 {/* Online Status Dot */}
                 <span
-                  className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-[3px] border-[#111827] bg-emerald-400 shadow-lg shadow-emerald-500/50"
+                  className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-[3px] border-[var(--card)] bg-[var(--success)] shadow-lg shadow-[var(--success)]/50"
                   aria-label="Online"
                 >
-                  <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-75" />
+                  <span className="absolute inset-0 animate-ping rounded-full bg-[var(--success)] opacity-75" />
                 </span>
               </button>
 
@@ -421,11 +421,11 @@ export default function IdentityCard({
               <div className="min-w-0 flex-1 text-center sm:text-left">
                 {/* Name & Badges */}
                 <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                  <h2 className="max-w-full truncate text-xl font-bold tracking-tight text-white sm:text-2xl">
+                  <h2 className="max-w-full truncate text-xl font-bold tracking-tight text-[var(--text-primary)] sm:text-2xl">
                     {displayName}
                   </h2>
 
-                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-400 shadow-lg shadow-emerald-500/10">
+                  <span className="badge badge-success inline-flex shrink-0 items-center gap-1 rounded-full border border-[var(--success-border)] bg-[var(--success-soft)] px-2.5 py-1 text-[11px] font-medium text-[var(--success)] shadow-lg shadow-[var(--success)]/10">
                     <ShieldCheck className="h-3.5 w-3.5" />
                     Verified
                   </span>
@@ -449,13 +449,10 @@ export default function IdentityCard({
 
                 {/* Headline & Role & Education */}
                 <div className="mt-3 space-y-2">
-                  {/* Headline */}
-                  
-
                   {/* Current Role */}
                   {currentRoleLine && (
-                    <div className="flex max-w-full items-start justify-center gap-2 text-sm text-slate-400 sm:justify-start">
-                      <BriefcaseBusiness className="mt-0.5 h-4 w-4 shrink-0 text-green-400" />
+                    <div className="flex max-w-full items-start justify-center gap-2 text-sm text-[var(--text-secondary)] sm:justify-start">
+                      <BriefcaseBusiness className="mt-0.5 h-4 w-4 shrink-0 text-[var(--primary)]" />
                       <p className="break-words text-left leading-5">
                         {currentRoleLine}
                       </p>
@@ -464,8 +461,8 @@ export default function IdentityCard({
 
                   {/* Education */}
                   {educationString && (
-                    <div className="flex max-w-full items-start justify-center gap-2 text-sm text-slate-400 sm:justify-start">
-                      <GraduationCap className="mt-0.5 h-4 w-4 shrink-0 text-green-400/70" />
+                    <div className="flex max-w-full items-start justify-center gap-2 text-sm text-[var(--text-secondary)] sm:justify-start">
+                      <GraduationCap className="mt-0.5 h-4 w-4 shrink-0 text-[var(--text-muted)]" />
                       <p className="break-words text-left leading-5">
                         {educationString}
                       </p>
@@ -474,8 +471,8 @@ export default function IdentityCard({
 
                   {/* Location - Optional */}
                   {profile.location && (
-                    <div className="flex max-w-full items-start justify-center gap-2 text-sm text-slate-500 sm:justify-start">
-                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-green-400/60" />
+                    <div className="flex max-w-full items-start justify-center gap-2 text-sm text-[var(--text-muted)] sm:justify-start">
+                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[var(--text-muted)]" />
                       <p className="break-words text-left leading-5">
                         {profile.location}
                       </p>
@@ -492,7 +489,7 @@ export default function IdentityCard({
                     onClick={() => handleSocialLink(profile.github)}
                     aria-label="Open GitHub profile"
                     title="GitHub"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#2a3a52] bg-[#0f172a] text-slate-400 transition-all duration-200 hover:-translate-y-1 hover:border-green-500/40 hover:bg-green-500/10 hover:text-green-400 hover:shadow-lg hover:shadow-green-500/10 focus:outline-none focus:ring-2 focus:ring-green-500/30"
+                    className="sidebar-item inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--text-muted)] transition-all duration-200 hover:-translate-y-1 hover:border-[var(--primary-border)] hover:bg-[var(--primary-soft)] hover:text-[var(--primary)] hover:shadow-lg hover:shadow-[var(--primary)]/10 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/30"
                   >
                     <GitHubIcon className="h-4 w-4" />
                   </button>
@@ -504,7 +501,7 @@ export default function IdentityCard({
                     onClick={() => handleSocialLink(profile.linkedin)}
                     aria-label="Open LinkedIn profile"
                     title="LinkedIn"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#2a3a52] bg-[#0f172a] text-slate-400 transition-all duration-200 hover:-translate-y-1 hover:border-green-500/40 hover:bg-green-500/10 hover:text-green-400 hover:shadow-lg hover:shadow-green-500/10 focus:outline-none focus:ring-2 focus:ring-green-500/30"
+                    className="sidebar-item inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--text-muted)] transition-all duration-200 hover:-translate-y-1 hover:border-[var(--primary-border)] hover:bg-[var(--primary-soft)] hover:text-[var(--primary)] hover:shadow-lg hover:shadow-[var(--primary)]/10 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/30"
                   >
                     <LinkedInIcon className="h-4 w-4" />
                   </button>
@@ -516,7 +513,7 @@ export default function IdentityCard({
                     onClick={() => handleSocialLink(profile.portfolio)}
                     aria-label="Open portfolio"
                     title="Portfolio"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#2a3a52] bg-[#0f172a] text-slate-400 transition-all duration-200 hover:-translate-y-1 hover:border-green-500/40 hover:bg-green-500/10 hover:text-green-400 hover:shadow-lg hover:shadow-green-500/10 focus:outline-none focus:ring-2 focus:ring-green-500/30"
+                    className="sidebar-item inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--text-muted)] transition-all duration-200 hover:-translate-y-1 hover:border-[var(--primary-border)] hover:bg-[var(--primary-soft)] hover:text-[var(--primary)] hover:shadow-lg hover:shadow-[var(--primary)]/10 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/30"
                   >
                     <Globe2 className="h-4 w-4" />
                   </button>
@@ -528,7 +525,7 @@ export default function IdentityCard({
                     onClick={() => setIsResumeModalOpen(true)}
                     aria-label="View resume"
                     title="View Resume"
-                    className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-green-500/30 bg-gradient-to-r from-green-500/10 to-emerald-500/10 px-3 text-xs font-semibold text-green-400 transition-all duration-200 hover:-translate-y-1 hover:border-green-500/50 hover:bg-gradient-to-r hover:from-green-500/20 hover:to-emerald-500/20 hover:shadow-lg hover:shadow-green-500/20 focus:outline-none focus:ring-2 focus:ring-green-500/30"
+                    className="btn-primary inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-[var(--primary-border)] bg-[var(--primary-soft)] px-3 text-xs font-semibold text-[var(--primary)] transition-all duration-200 hover:-translate-y-1 hover:border-[var(--primary-border)] hover:bg-[var(--primary-soft)] hover:shadow-lg hover:shadow-[var(--primary)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/30"
                   >
                     <FileText className="h-4 w-4" />
                     <span className="hidden sm:inline">Resume</span>

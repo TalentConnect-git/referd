@@ -83,7 +83,7 @@ export default function AlumniDetailHeader({
 
   return (
     <>
-      <div className="rounded-2xl border border-[#2a3a52] bg-gradient-to-r from-[#111827] to-[#1a2332] p-4 shadow-xl shadow-black/20 backdrop-blur-sm">
+      <div className="card rounded-2xl border border-theme bg-gradient-to-r from-card to-card-soft p-4 shadow-xl shadow-black/20 backdrop-blur-sm">
         {/* Profile Section */}
         <div className="flex items-start gap-4">
           {/* Profile Image */}
@@ -92,7 +92,7 @@ export default function AlumniDetailHeader({
             alt="User"
             width={56}
             height={56}
-            className="h-14 w-14 rounded-2xl object-cover border-2 border-green-500/30 shadow-lg shadow-green-500/10 flex-shrink-0"
+            className="h-14 w-14 rounded-2xl object-cover border-2 border-success/30 shadow-lg shadow-success/10 flex-shrink-0"
           />
 
           {/* Details */}
@@ -100,22 +100,22 @@ export default function AlumniDetailHeader({
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <h1 className="text-lg font-bold text-white tracking-tight truncate">
+                  <h1 className="text-lg font-bold text-primary tracking-tight truncate">
                     {profile.name}
                   </h1>
                   <BadgeCheck
                     size={16}
-                    className="text-green-500 flex-shrink-0"
+                    className="text-success flex-shrink-0"
                   />
                 </div>
 
-                <div className="mt-1.5 space-y-1 text-gray-300">
+                <div className="mt-1.5 space-y-1 text-secondary">
                   <div className="flex items-center gap-2">
                     <GraduationCap
                       size={14}
-                      className="text-blue-400 flex-shrink-0"
+                      className="text-info flex-shrink-0"
                     />
-                    <span className="text-xs text-slate-300 truncate">
+                    <span className="text-xs text-secondary truncate">
                       {college}
                     </span>
                   </div>
@@ -123,9 +123,9 @@ export default function AlumniDetailHeader({
                   <div className="flex items-center gap-2">
                     <BriefcaseBusiness
                       size={14}
-                      className="text-blue-400 flex-shrink-0"
+                      className="text-info flex-shrink-0"
                     />
-                    <span className="text-xs text-slate-300 truncate">
+                    <span className="text-xs text-secondary truncate">
                       {currentRole}{" "}
                       {profile.currentCompany
                         ? `@ ${profile.currentCompany}`
@@ -136,9 +136,9 @@ export default function AlumniDetailHeader({
                   <div className="flex items-center gap-2">
                     <Briefcase
                       size={14}
-                      className="text-blue-400 flex-shrink-0"
+                      className="text-info flex-shrink-0"
                     />
-                    <span className="text-xs text-slate-300">
+                    <span className="text-xs text-secondary">
                       {profile.totalYearsOfExperience || 0} years experience
                     </span>
                   </div>
@@ -147,9 +147,9 @@ export default function AlumniDetailHeader({
                   <div className="flex items-center gap-2">
                     <Briefcase
                       size={14}
-                      className="text-green-400 flex-shrink-0"
+                      className="text-success flex-shrink-0"
                     />
-                    <span className="text-xs text-slate-300">
+                    <span className="text-xs text-secondary">
                       {openJobs} open job{openJobs !== 1 ? 's' : ''}
                     </span>
                   </div>
@@ -159,15 +159,15 @@ export default function AlumniDetailHeader({
               {/* Status Badge - Top Right Corner */}
               <div className="flex flex-col items-end gap-2 flex-shrink-0">
                 {/* Status Badge */}
-                <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[10px] font-semibold uppercase tracking-wide ${
+                <div className={`badge inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[10px] font-semibold uppercase tracking-wide ${
                   isHiring 
-                    ? "border-green-500/30 bg-green-500/10 text-green-400" 
-                    : "border-gray-500/30 bg-gray-500/10 text-gray-400"
+                    ? "badge-success border-success/30" 
+                    : "badge border-theme/30 bg-background-soft text-muted"
                 }`}>
                   {isHiring ? (
-                    <UserCheck size={12} className="text-green-400" />
+                    <UserCheck size={12} className="text-success" />
                   ) : (
-                    <UserX size={12} className="text-gray-400" />
+                    <UserX size={12} className="text-muted" />
                   )}
                   {isHiring ? "Hiring" : "Not Hiring"}
                 </div>
@@ -179,6 +179,7 @@ export default function AlumniDetailHeader({
                     <button
                       onClick={handleOpenResume}
                       className="
+                        btn-primary
                         inline-flex
                         items-center
                         gap-1
@@ -186,14 +187,14 @@ export default function AlumniDetailHeader({
                         py-1
                         rounded-lg
                         border
-                        border-green-500/30
-                        text-green-400
-                        bg-green-500/5
+                        border-success/30
+                        text-success
+                        bg-success-soft
                         text-[10px]
                         font-medium
                         transition-all
-                        hover:bg-green-500/20
-                        hover:border-green-500/50
+                        hover:bg-success-soft
+                        hover:border-success/50
                         hover:scale-105
                         active:scale-95
                         whitespace-nowrap
@@ -209,18 +210,19 @@ export default function AlumniDetailHeader({
                     <button
                       onClick={() => handleOpenLink(profile.linkedin as string)}
                       className="
+                        btn-ghost
                         inline-flex
                         items-center
                         justify-center
                         p-1.5
                         rounded-lg
                         border
-                        border-blue-500/30
-                        text-blue-400
-                        bg-blue-500/5
+                        border-info/30
+                        text-info
+                        bg-info-soft
                         transition-all
-                        hover:bg-blue-500/20
-                        hover:border-blue-500/50
+                        hover:bg-info-soft
+                        hover:border-info/50
                         hover:scale-105
                         active:scale-95
                       "
@@ -235,6 +237,7 @@ export default function AlumniDetailHeader({
                     <button
                       onClick={() => handleOpenLink(profile.github as string)}
                       className="
+                        btn-ghost
                         inline-flex
                         items-center
                         justify-center
@@ -263,6 +266,7 @@ export default function AlumniDetailHeader({
                         handleOpenLink(profile.portfolio as string)
                       }
                       className="
+                        btn-ghost
                         inline-flex
                         items-center
                         justify-center
@@ -295,9 +299,9 @@ export default function AlumniDetailHeader({
                         )}&profileImage=${encodeURIComponent(profile.profileImage)}`,
                       )
                     }
-                    className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 px-3 py-1.5 text-xs font-semibold text-black transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-500/30 active:scale-95 whitespace-nowrap"
+                    className="btn-primary flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-primary to-primary-light px-3 py-1.5 text-xs font-semibold text-inverse transition-all hover:scale-105 hover:shadow-lg hover:shadow-primary/30 active:scale-95 whitespace-nowrap"
                   >
-                    <MessageSquare size={12} className="text-black" />
+                    <MessageSquare size={12} className="text-inverse" />
                     Message
                   </button>
 
@@ -305,7 +309,7 @@ export default function AlumniDetailHeader({
                     onClick={() =>
                       router.push(`/${userType}/profile/${profile.userId}`)
                     }
-                    className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-[#22c55e] px-3 py-1.5 text-xs font-semibold text-[#22c55e] transition-all hover:bg-green-500 hover:text-white hover:scale-105 active:scale-95 whitespace-nowrap"
+                    className="btn-secondary flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-primary px-3 py-1.5 text-xs font-semibold text-primary transition-all hover:bg-primary hover:text-inverse hover:scale-105 active:scale-95 whitespace-nowrap"
                   >
                     <User size={12} />
                     Profile

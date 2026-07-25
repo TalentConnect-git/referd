@@ -1,4 +1,4 @@
-import { FileCheck2 } from "lucide-react";
+import { Quote } from "lucide-react";
 
 type TestimonialCardProps = {
   quote: string;
@@ -12,26 +12,31 @@ export default function TestimonialCard({
   role,
 }: TestimonialCardProps) {
   return (
-    <div className="rounded-3xl border border-[var(--border)] bg-[var(--card)]/70 p-6">
-      <FileCheck2
-        size={16}
+    <div className="surface-card group flex h-full flex-col rounded-3xl p-6 transition-all duration-300 hover:border-[var(--border-strong)] hover:shadow-md">
+      {/* Quote Icon */}
+      <Quote
+        size={20}
         strokeWidth={2}
-        className="mb-5 text-[var(--primary)]"
+        className="mb-4 text-[var(--primary)] opacity-60 transition-opacity duration-200 group-hover:opacity-100"
       />
 
-      <p className="text-[13px] leading-7 text-white">
+      {/* Quote Text */}
+      <p className="flex-1 text-sm leading-7 text-[var(--text-secondary)]">
         &quot;{quote}&quot;
       </p>
 
-      <div className="my-5 h-px w-full bg-[var(--border)]" />
+      {/* Divider */}
+      <div className="my-4 h-px w-full bg-[var(--border)]" />
 
-      <h3 className="text-[13px] font-semibold text-white">
-        {name}
-      </h3>
-
-      <p className="mt-1 font-mono text-[11px] text-[var(--text-primary)]">
-        {role}
-      </p>
+      {/* Author Info */}
+      <div>
+        <h3 className="text-sm font-semibold text-[var(--text-primary)] transition-colors duration-200 group-hover:text-[var(--primary)]">
+          {name}
+        </h3>
+        <p className="mt-0.5 font-mono text-[11px] text-[var(--text-muted)]">
+          {role}
+        </p>
+      </div>
     </div>
   );
 }

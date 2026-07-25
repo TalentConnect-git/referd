@@ -32,14 +32,14 @@ import { AlumniProfileModal } from "@/components/referrals/AlumniProfileModal";
 import { EmptyState } from "@/components/referrals/EmptyState";
 import axiosInstance from "@/lib/axiosInstance";
 
-// ✅ LinkedIn SVG Icon Component
+// LinkedIn SVG Icon Component
 const LinkedInIcon = ({ className = "w-4 h-4" }) => (
   <svg className={className} fill="currentColor" viewBox="0 0 24 24">
     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
   </svg>
 );
 
-// ✅ GitHub SVG Icon Component
+// GitHub SVG Icon Component
 const GitHubIcon = ({ className = "w-4 h-4" }) => (
   <svg className={className} fill="currentColor" viewBox="0 0 24 24">
     <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.15 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.62.24 2.85.12 3.15.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
@@ -196,18 +196,18 @@ export default function ReferralsPage() {
   const displayedAlumniCount = totalAlumniFound || alumni.length;
 
   return (
-    <div className="min-h-screen bg-[#0a0f1a]">
+    <div className="min-h-screen bg-background">
       {/* Notification Toast */}
       {notification?.show && (
         <div className="fixed top-4 right-4 z-[200] max-w-sm animate-slide-in">
           <div 
             className={`
-              relative overflow-hidden rounded-xl border backdrop-blur-xl shadow-2xl
+              card relative overflow-hidden rounded-xl border backdrop-blur-xl shadow-xl
               ${notification.type === 'success' 
-                ? 'bg-[#111827] border-green-500/30' 
+                ? 'border-success/30 bg-card' 
                 : notification.type === 'warning'
-                ? 'bg-[#111827] border-amber-500/30'
-                : 'bg-[#111827] border-red-500/30'
+                ? 'border-warning/30 bg-card'
+                : 'border-danger/30 bg-card'
               }
             `}
           >
@@ -215,10 +215,10 @@ export default function ReferralsPage() {
               style={{
                 width: '100%',
                 background: notification.type === 'success' 
-                  ? '#22c55e' 
+                  ? 'var(--success)' 
                   : notification.type === 'warning'
-                  ? '#f59e0b'
-                  : '#ef4444',
+                  ? 'var(--warning)'
+                  : 'var(--danger)',
                 animation: 'shrink 5s linear forwards'
               }}
             />
@@ -227,40 +227,40 @@ export default function ReferralsPage() {
                 <div className={`
                   w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0
                   ${notification.type === 'success'
-                    ? 'bg-green-500/10'
+                    ? 'bg-success-soft'
                     : notification.type === 'warning'
-                    ? 'bg-amber-500/10'
-                    : 'bg-red-500/10'
+                    ? 'bg-warning-soft'
+                    : 'bg-danger-soft'
                   }
                 `}>
                   {notification.type === 'success' ? (
-                    <CheckCircle className="w-4 h-4 text-green-400" />
+                    <CheckCircle className="w-4 h-4 text-success" />
                   ) : notification.type === 'warning' ? (
-                    <Bell className="w-4 h-4 text-amber-400" />
+                    <Bell className="w-4 h-4 text-warning" />
                   ) : (
-                    <XCircle className="w-4 h-4 text-red-400" />
+                    <XCircle className="w-4 h-4 text-danger" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className={`text-sm font-semibold ${
                     notification.type === 'success'
-                      ? 'text-green-400'
+                      ? 'text-success'
                       : notification.type === 'warning'
-                      ? 'text-amber-400'
-                      : 'text-red-400'
+                      ? 'text-warning'
+                      : 'text-danger'
                   }`}>
                     {notification.title}
                   </h3>
-                  <p className="text-xs text-gray-300 mt-0.5 leading-relaxed">
+                  <p className="text-xs text-secondary mt-0.5 leading-relaxed">
                     {notification.message}
                   </p>
                   {notification.details && notification.details.length > 0 && (
-                    <div className="mt-2 pt-2 border-t border-gray-700/50">
+                    <div className="mt-2 pt-2 border-t border-divider">
                       <div className="space-y-1">
                         {notification.details.map((detail, index) => (
                           <div key={index} className="flex items-center justify-between gap-2">
-                            <span className="text-[10px] text-gray-500">{detail.label}</span>
-                            <span className="text-[10px] font-medium text-gray-300 text-right">
+                            <span className="text-[10px] text-muted">{detail.label}</span>
+                            <span className="text-[10px] font-medium text-secondary text-right">
                               {detail.value}
                             </span>
                           </div>
@@ -271,7 +271,7 @@ export default function ReferralsPage() {
                 </div>
                 <button
                   onClick={() => setNotification(null)}
-                  className="p-1 rounded-lg text-gray-500 hover:text-gray-300 hover:bg-gray-800/50 transition-all flex-shrink-0"
+                  className="p-1 rounded-lg text-muted hover:text-secondary hover:bg-card-hover transition-all flex-shrink-0"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -285,18 +285,18 @@ export default function ReferralsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-              <Users className="w-6 h-6 text-green-400" />
+            <h1 className="text-2xl font-bold text-primary tracking-tight flex items-center gap-2">
+              <Users className="w-6 h-6 text-primary" />
               Referrals
             </h1>
-            <p className="text-sm text-gray-400 mt-0.5">
+            <p className="text-sm text-muted mt-0.5">
               Find alumni and request referrals
             </p>
           </div>
           
           <button
             onClick={() => setIsAskReferralModalOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50 transition-all text-sm font-medium"
+            className="btn-primary inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-primary/30 bg-primary-soft text-primary hover:bg-primary-soft hover:border-primary/50 transition-all text-sm font-medium"
           >
             <Search className="w-4 h-4" />
             Find Alumni
@@ -309,38 +309,38 @@ export default function ReferralsPage() {
             {hasAlumni ? (
               <>
                 {/* Alumni result heading */}
-                <div className="mb-5 flex flex-col gap-4 rounded-xl border border-green-500/20 bg-gradient-to-r from-green-500/10 to-emerald-500/5 px-4 py-4 sm:flex-row sm:items-center sm:px-5">
+                <div className="mb-5 flex flex-col gap-4 rounded-xl border border-success/20 bg-gradient-to-r from-success/10 to-success-light/5 px-4 py-4 sm:flex-row sm:items-center sm:px-5">
                   <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-green-500/30 bg-green-500/20">
-                      <Building className="h-5 w-5 text-green-400" />
+                    <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-success/30 bg-success-soft">
+                      <Building className="h-5 w-5 text-success" />
                     </div>
 
                     <div className="min-w-0">
                       {alumniFound ? (
                         <>
-                          <h2 className="text-base font-semibold text-white sm:text-lg">
+                          <h2 className="text-base font-semibold text-primary sm:text-lg">
                             {displayedAlumniCount} Alumni Found
                           </h2>
-                          <p className="mt-0.5 truncate text-sm text-gray-400">
+                          <p className="mt-0.5 truncate text-sm text-muted">
                             At{" "}
-                            <span className="font-medium text-green-400">
+                            <span className="font-medium text-primary">
                               {alumniCompanyName}
                             </span>
                           </p>
                         </>
                       ) : (
                         <>
-                          <h2 className="text-base font-semibold text-white sm:text-lg">
+                          <h2 className="text-base font-semibold text-primary sm:text-lg">
                             {displayedAlumniCount}{" "}
                             {displayedAlumniCount === 1
                               ? "alumni works"
                               : "alumni work"}{" "}
                             at{" "}
-                            <span className="text-green-400">
+                            <span className="text-primary">
                               {alumniCompanyName}
                             </span>
                           </h2>
-                          <p className="mt-0.5 text-sm text-gray-400">
+                          <p className="mt-0.5 text-sm text-muted">
                             These professionals may still be able to help with
                             your referral request.
                           </p>
@@ -349,9 +349,9 @@ export default function ReferralsPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 self-start rounded-lg border border-green-500/20 bg-green-500/10 px-3 py-1.5 sm:ml-auto sm:self-auto">
-                    <Sparkles className="h-3.5 w-3.5 text-green-400" />
-                    <span className="text-xs font-medium text-green-400">
+                  <div className="flex items-center gap-2 self-start rounded-lg border border-success/20 bg-success-soft px-3 py-1.5 sm:ml-auto sm:self-auto">
+                    <Sparkles className="h-3.5 w-3.5 text-success" />
+                    <span className="text-xs font-medium text-success">
                       {alumniFound ? "Exact Match" : "Company Alumni"}
                     </span>
                   </div>
@@ -367,19 +367,19 @@ export default function ReferralsPage() {
               </>
             ) : (
               <div className="mt-12">
-                <div className="max-w-sm mx-auto bg-[#111827] rounded-xl border border-gray-700/50 p-8 text-center">
-                  <div className="w-14 h-14 mx-auto rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center mb-4">
-                    <Building2 className="w-7 h-7 text-green-400" />
+                <div className="card max-w-sm mx-auto rounded-xl border border-theme bg-card-soft p-8 text-center">
+                  <div className="w-14 h-14 mx-auto rounded-xl bg-primary-soft border border-primary/20 flex items-center justify-center mb-4">
+                    <Building2 className="w-7 h-7 text-primary" />
                   </div>
-                  <h3 className="text-base font-semibold text-gray-300 mb-1">
+                  <h3 className="text-base font-semibold text-secondary mb-1">
                     Find Alumni for Referrals
                   </h3>
-                  <p className="text-sm text-gray-400 mb-4">
+                  <p className="text-sm text-muted mb-4">
                     Enter a job URL to find alumni who can refer you
                   </p>
                   <button
                     onClick={() => setIsAskReferralModalOpen(true)}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 hover:bg-green-500/20 hover:border-green-500/50 transition-all text-sm font-medium"
+                    className="btn-primary inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-primary/30 bg-primary-soft text-primary hover:bg-primary-soft hover:border-primary/50 transition-all text-sm font-medium"
                   >
                     <Search className="w-4 h-4" />
                     Find Alumni
@@ -395,16 +395,16 @@ export default function ReferralsPage() {
           <div className="mt-12 flex items-center justify-center">
             <div className="text-center">
               <div className="relative mx-auto w-16 h-16">
-                <div className="absolute inset-0 rounded-full border-2 border-gray-700/30"></div>
-                <div className="absolute inset-0 rounded-full border-2 border-t-green-400 border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
-                <div className="absolute inset-3 rounded-full bg-[#111827] border border-gray-700/30 flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-green-400 animate-pulse" />
+                <div className="absolute inset-0 rounded-full border-2 border-muted/30"></div>
+                <div className="absolute inset-0 rounded-full border-2 border-t-primary border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
+                <div className="absolute inset-3 rounded-full bg-card-soft border border-muted/30 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-primary animate-pulse" />
                 </div>
               </div>
-              <h3 className="mt-4 text-base font-semibold text-gray-300">
+              <h3 className="mt-4 text-base font-semibold text-secondary">
                 Finding Alumni
               </h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-muted">
                 Searching through our network...
               </p>
             </div>
@@ -414,15 +414,15 @@ export default function ReferralsPage() {
         {/* Error State */}
         {searchError && !loadingAlumni && (
           <div className="mt-8 max-w-md mx-auto">
-            <div className="bg-[#111827] rounded-xl border border-gray-700/50 p-6 text-center">
-              <div className="w-12 h-12 mx-auto rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
-                <AlertCircle className="w-6 h-6 text-red-400" />
+            <div className="card rounded-xl border border-theme bg-card-soft p-6 text-center">
+              <div className="w-12 h-12 mx-auto rounded-xl bg-danger-soft border border-danger/20 flex items-center justify-center mb-4">
+                <AlertCircle className="w-6 h-6 text-danger" />
               </div>
-              <h3 className="text-base font-semibold text-gray-300 mb-1">
+              <h3 className="text-base font-semibold text-secondary mb-1">
                 No Alumni Found
               </h3>
-              <p className="text-sm text-gray-400 mb-1">{searchError}</p>
-              <p className="text-xs text-gray-500 mb-4">
+              <p className="text-sm text-muted mb-1">{searchError}</p>
+              <p className="text-xs text-muted mb-4">
                 Try searching with a different job URL
               </p>
               <button
@@ -430,7 +430,7 @@ export default function ReferralsPage() {
                   setSearchError(null);
                   setIsAskReferralModalOpen(true);
                 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500 text-black font-semibold hover:bg-green-400 transition-all text-sm"
+                className="btn-primary inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-inverse font-semibold hover:bg-primary-hover transition-all text-sm"
               >
                 <Sparkles className="w-4 h-4" />
                 Try Another URL

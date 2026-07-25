@@ -32,47 +32,36 @@ export enum ApplicationStatus {
   JoinedTheCompany = "Joined the Company",
 }
 
-// Status color mapping
+// Status color mapping using theme variables
 const statusColors: Record<ApplicationStatus, string> = {
-  [ApplicationStatus.Saved]: "bg-gray-500/10 text-gray-400 border-gray-500/20",
-  [ApplicationStatus.Applied]:
-    "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  [ApplicationStatus.ApplicationSent]:
-    "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
-  [ApplicationStatus.AwaitingRecruiterAction]:
-    "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-  [ApplicationStatus.Shortlisted]:
-    "bg-purple-500/10 text-purple-400 border-purple-500/20",
-  [ApplicationStatus.InterviewScheduled]:
-    "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
-  [ApplicationStatus.OfferExtended]:
-    "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-  [ApplicationStatus.Accepted]:
-    "bg-green-500/10 text-green-400 border-green-500/20",
-  [ApplicationStatus.Rejected]: "bg-red-500/10 text-red-400 border-red-500/20",
-  [ApplicationStatus.ReferredToCompany]:
-    "bg-orange-500/10 text-orange-400 border-orange-500/20",
-  [ApplicationStatus.OfferAccepted]:
-    "bg-green-600/10 text-green-500 border-green-600/20",
-  [ApplicationStatus.OfferRejected]:
-    "bg-red-600/10 text-red-500 border-red-600/20",
-  [ApplicationStatus.JoinedTheCompany]:
-    "bg-teal-500/10 text-teal-400 border-teal-500/20",
+  [ApplicationStatus.Saved]: "text-[var(--text-muted)] border-[var(--border)] bg-[var(--background-soft)]",
+  [ApplicationStatus.Applied]: "text-[var(--info)] border-[var(--info-border)] bg-[var(--info-soft)]",
+  [ApplicationStatus.ApplicationSent]: "text-[var(--info)] border-[var(--info-border)] bg-[var(--info-soft)]",
+  [ApplicationStatus.AwaitingRecruiterAction]: "text-[var(--warning)] border-[var(--warning-border)] bg-[var(--warning-soft)]",
+  [ApplicationStatus.Shortlisted]: "text-[var(--primary)] border-[var(--primary-border)] bg-[var(--primary-soft)]",
+  [ApplicationStatus.InterviewScheduled]: "text-[var(--info)] border-[var(--info-border)] bg-[var(--info-soft)]",
+  [ApplicationStatus.OfferExtended]: "text-[var(--success)] border-[var(--success-border)] bg-[var(--success-soft)]",
+  [ApplicationStatus.Accepted]: "text-[var(--success)] border-[var(--success-border)] bg-[var(--success-soft)]",
+  [ApplicationStatus.Rejected]: "text-[var(--danger)] border-[var(--danger-border)] bg-[var(--danger-soft)]",
+  [ApplicationStatus.ReferredToCompany]: "text-[var(--primary)] border-[var(--primary-border)] bg-[var(--primary-soft)]",
+  [ApplicationStatus.OfferAccepted]: "text-[var(--success)] border-[var(--success-border)] bg-[var(--success-soft)]",
+  [ApplicationStatus.OfferRejected]: "text-[var(--danger)] border-[var(--danger-border)] bg-[var(--danger-soft)]",
+  [ApplicationStatus.JoinedTheCompany]: "text-[var(--success)] border-[var(--success-border)] bg-[var(--success-soft)]",
 };
 
 // Get match score color
 const getMatchScoreColor = (score?: number): string => {
   const numericScore = Number(score) || 0;
-  if (numericScore >= 75) return "text-green-400";
-  if (numericScore >= 40) return "text-orange-400";
-  return "text-red-400";
+  if (numericScore >= 75) return "text-[var(--success)]";
+  if (numericScore >= 40) return "text-[var(--warning)]";
+  return "text-[var(--danger)]";
 };
 
 const getMatchScoreBg = (score?: number): string => {
   const numericScore = Number(score) || 0;
-  if (numericScore >= 75) return "bg-green-500";
-  if (numericScore >= 40) return "bg-orange-500";
-  return "bg-red-500";
+  if (numericScore >= 75) return "bg-[var(--success)]";
+  if (numericScore >= 40) return "bg-[var(--warning)]";
+  return "bg-[var(--danger)]";
 };
 
 // Status badge component
@@ -80,11 +69,11 @@ const StatusBadge = ({ status }: { status: string }) => {
   const statusKey = status as ApplicationStatus;
   const colorClass =
     statusColors[statusKey] ||
-    "bg-gray-500/10 text-gray-400 border-gray-500/20";
+    "text-[var(--text-muted)] border-[var(--border)] bg-[var(--background-soft)]";
 
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${colorClass}`}
+      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${colorClass}`}
     >
       {status}
     </span>
@@ -212,27 +201,26 @@ export default function ApplicationByMe({
   };
 
   return (
-    <div className="rounded-3xl border border-slate-800 overflow-hidden min-h-[420px] flex flex-col ml-5">
+    <div className="mx-4 flex min-h-[420px] flex-col overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--card)] sm:mx-5">
       <table className="w-full">
-        <thead className="bg-[#111827]">
-          <tr className="text-left text-gray-400">
-            <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wider">
+        <thead className="bg-[var(--background-soft)]">
+          <tr className="text-left text-[var(--text-muted)]">
+            <th className="px-3 py-3 text-[11px] font-medium uppercase tracking-wider sm:px-4">
               Job Title
             </th>
-            <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wider">
+            <th className="px-3 py-3 text-[11px] font-medium uppercase tracking-wider sm:px-4">
               Posted By
             </th>
-
-            <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wider">
+            <th className="px-3 py-3 text-[11px] font-medium uppercase tracking-wider sm:px-4">
               Company
             </th>
-            <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wider">
+            <th className="px-3 py-3 text-[11px] font-medium uppercase tracking-wider sm:px-4">
               Stage
             </th>
-            <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wider">
+            <th className="px-3 py-3 text-[11px] font-medium uppercase tracking-wider sm:px-4">
               Applied
             </th>
-            <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-wider">
+            <th className="px-3 py-3 text-[11px] font-medium uppercase tracking-wider sm:px-4">
               Match Score
             </th>
           </tr>
@@ -243,10 +231,10 @@ export default function ApplicationByMe({
             <tr>
               <td colSpan={6} className="h-[320px] text-center">
                 <div className="flex flex-col items-center justify-center">
-                  <p className="text-base font-medium text-gray-300">
+                  <p className="text-base font-medium text-[var(--text-secondary)]">
                     No applications found
                   </p>
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-[var(--text-muted)]">
                     You haven't applied to any opportunities yet.
                   </p>
                 </div>
@@ -256,53 +244,47 @@ export default function ApplicationByMe({
             applications.map((application: any) => {
               const jobDetails = application.jobDetails || {};
 
-              // Get receiver profile from jobDetails
               const receiverProfile = jobDetails.receiverProfile || {};
 
-              // Get poster name and image from receiverProfile
               const posterName = receiverProfile?.name || "Unknown";
               const posterImage = receiverProfile?.profileImage || null;
               const posterUserId = receiverProfile?.userId || null;
 
-              // Get job title from jobDetails
               const jobTitle = jobDetails.jobTitle?.[0] || "N/A";
 
-              // Get company name - priority: companyName from jobDetails, then displayCompanyName
               const companyName =
                 jobDetails.companyName ||
                 application.displayCompanyName ||
                 "N/A";
 
-              // Get status from currentStatus
               const currentStatus = application.currentStatus || "Applied";
 
-              // Get match score
               const matchScore = application.matchScore ?? 0;
 
-              // Get applied date
               const appliedDate =
                 application.createdAt || application.statusHistory?.[0]?.date;
 
               return (
                 <tr
                   key={application._id}
-                  className="border-t border-slate-800 hover:bg-slate-800/30 transition-colors cursor-pointer"
+                  className="cursor-pointer border-t border-[var(--border)] transition-colors hover:bg-[var(--card-hover)]"
                 >
-                  <td className="px-4 py-3">
+                  <td className="px-3 py-3 sm:px-4">
                     <div
-                      className="flex items-center gap-1.5 cursor-pointer group"
+                      className="group flex cursor-pointer items-center gap-1.5"
                       onClick={(e) => handleJobTitleClick(e, application._id)}
                     >
-                      <Briefcase className="w-3.5 h-3.5 text-gray-500 group-hover:text-blue-400 transition-colors" />
-                      <span className="text-white font-medium text-[13px] group-hover:text-blue-400 transition-colors">
+                      <Briefcase className="h-3.5 w-3.5 text-[var(--text-muted)] transition-colors group-hover:text-[var(--info)]" />
+                      <span className="text-sm font-medium text-[var(--text-primary)] transition-colors group-hover:text-[var(--info)]">
                         {jobTitle}
                       </span>
                     </div>
                   </td>
-                  {/* Posted By Column - Navigates to Profile */}
-                  <td className="px-4 py-3">
+                  
+                  {/* Posted By Column */}
+                  <td className="px-3 py-3 sm:px-4">
                     <div
-                      className="flex items-center gap-2.5 cursor-pointer group"
+                      className="group flex cursor-pointer items-center gap-2.5"
                       onClick={(e) => handleProfileClick(e, posterUserId)}
                     >
                       {posterImage ? (
@@ -311,61 +293,59 @@ export default function ApplicationByMe({
                           alt={posterName}
                           width={32}
                           height={32}
-                          className="h-8 w-8 rounded-full object-cover border border-gray-600/30 group-hover:border-blue-400 transition-colors"
+                          className="h-8 w-8 rounded-full border border-[var(--border)] object-cover transition-colors group-hover:border-[var(--info-border)]"
                         />
                       ) : (
-                        <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center border border-gray-600/30 group-hover:border-blue-400 transition-colors">
-                          <span className="text-blue-400 font-medium text-[11px] group-hover:text-blue-300 transition-colors">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--info-soft)] transition-colors group-hover:border-[var(--info-border)]">
+                          <span className="text-[11px] font-medium text-[var(--info)] transition-colors group-hover:text-[var(--info)]">
                             {getInitials(posterName)}
                           </span>
                         </div>
                       )}
                       <div>
-                        <span className="text-white font-medium text-[13px] group-hover:text-blue-400 transition-colors">
+                        <span className="text-sm font-medium text-[var(--text-primary)] transition-colors group-hover:text-[var(--info)]">
                           {posterName}
                         </span>
                       </div>
                     </div>
                   </td>
 
-                  {/* Job Title Column - Navigates to Application Details */}
-
                   {/* Company Column */}
-                  <td className="px-4 py-3">
+                  <td className="px-3 py-3 sm:px-4">
                     <div className="flex items-center gap-1.5">
-                      <Building2 className="w-3.5 h-3.5 text-gray-500" />
-                      <span className="text-white text-[13px]">
+                      <Building2 className="h-3.5 w-3.5 text-[var(--text-muted)]" />
+                      <span className="text-sm text-[var(--text-primary)]">
                         {companyName}
                       </span>
                     </div>
                   </td>
 
                   {/* Stage Column */}
-                  <td className="px-4 py-3">
+                  <td className="px-3 py-3 sm:px-4">
                     <StatusBadge status={currentStatus} />
                   </td>
 
                   {/* Applied Date Column */}
-                  <td className="px-4 py-3">
+                  <td className="px-3 py-3 sm:px-4">
                     <div className="flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-gray-500" />
-                      <span className="text-gray-300 text-[13px]">
+                      <Calendar className="h-3.5 w-3.5 text-[var(--text-muted)]" />
+                      <span className="text-sm text-[var(--text-secondary)]">
                         {formatDate(appliedDate)}
                       </span>
                     </div>
                   </td>
 
                   {/* Match Score Column */}
-                  <td className="px-4 py-3">
+                  <td className="px-3 py-3 sm:px-4">
                     <div className="flex items-center gap-1.5">
-                      <Target className="w-3.5 h-3.5 text-gray-500" />
+                      <Target className="h-3.5 w-3.5 text-[var(--text-muted)]" />
                       <span
-                        className={`font-semibold text-[13px] ${getMatchScoreColor(matchScore)}`}
+                        className={`text-sm font-semibold ${getMatchScoreColor(matchScore)}`}
                       >
                         {matchScore}%
                       </span>
                       {matchScore > 0 && (
-                        <div className="w-10 h-1 bg-[#1e293b] rounded-full overflow-hidden">
+                        <div className="h-1 w-10 overflow-hidden rounded-full bg-[var(--border)]">
                           <div
                             className={`h-full rounded-full ${getMatchScoreBg(matchScore)}`}
                             style={{ width: `${Math.min(matchScore, 100)}%` }}
@@ -391,16 +371,16 @@ export default function ApplicationByMe({
       </table>
 
       {/* Pagination */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-2.5 border-t border-slate-800 bg-[#0F172A]">
-        <div className="text-[11px] text-gray-400 order-2 sm:order-1">
+      <div className="flex flex-col items-center justify-between gap-3 border-t border-[var(--border)] bg-[var(--background-soft)] px-3 py-2.5 sm:flex-row sm:px-4">
+        <div className="order-2 text-[11px] text-[var(--text-muted)] sm:order-1">
           Showing {startIndex} to {endIndex} of {totalItems} results
         </div>
-        <div className="flex items-center gap-1.5 order-1 sm:order-2">
+        <div className="order-1 flex items-center gap-1.5 sm:order-2">
           {/* Previous Button */}
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={!hasPrev}
-            className="px-3 py-1 rounded-md border border-slate-700 text-[11px] font-medium text-gray-400 hover:bg-slate-700/30 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="rounded-md border border-[var(--border)] px-3 py-1 text-[11px] font-medium text-[var(--text-muted)] transition-colors hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-40"
           >
             Previous
           </button>
@@ -416,11 +396,11 @@ export default function ApplicationByMe({
               }}
               disabled={typeof pageNum !== "number"}
               className={`
-          min-w-[28px] h-7 rounded-md text-[11px] font-medium transition-colors
-          ${typeof pageNum === "number" ? "hover:bg-slate-700/30 hover:text-white cursor-pointer" : "cursor-default"}
-          ${currentPage === pageNum ? "bg-green-500/20 text-green-400 border border-green-500/30" : "text-gray-400"}
-          ${typeof pageNum !== "number" ? "text-gray-500" : ""}
-        `}
+                h-7 min-w-[28px] rounded-md text-[11px] font-medium transition-colors
+                ${typeof pageNum === "number" ? "cursor-pointer hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)]" : "cursor-default"}
+                ${currentPage === pageNum ? "border border-[var(--primary-border)] bg-[var(--primary-soft)] text-[var(--primary)]" : "text-[var(--text-muted)]"}
+                ${typeof pageNum !== "number" ? "text-[var(--text-muted)]" : ""}
+              `}
             >
               {pageNum}
             </button>
@@ -430,7 +410,7 @@ export default function ApplicationByMe({
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={!hasNext}
-            className="px-3 py-1 rounded-md border border-slate-700 text-[11px] font-medium text-gray-400 hover:bg-slate-700/30 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="rounded-md border border-[var(--border)] px-3 py-1 text-[11px] font-medium text-[var(--text-muted)] transition-colors hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-40"
           >
             Next
           </button>

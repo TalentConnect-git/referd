@@ -9,7 +9,7 @@ import { Briefcase } from "lucide-react";
 export default function InternshipContainer({
   internships: initialInternships,
   loading,
-  isSavedList = false, // NEW: Prop to indicate if this is the saved list view
+  isSavedList = false,
 }: InternshipContainerProps & {
   isSavedList?: boolean;
 }) {
@@ -47,30 +47,30 @@ export default function InternshipContainer({
   // Loading skeleton
   if (loading) {
     return (
-      <div className="space-y-3  mb-5">
+      <div className="mb-5 space-y-3">
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 animate-pulse"
+            className="skeleton rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4"
           >
             <div className="flex gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gray-700/50" />
+              <div className="skeleton h-10 w-10 rounded-xl" />
               <div className="flex-1">
-                <div className="h-4 w-40 bg-gray-700/50 rounded mb-1.5" />
-                <div className="h-3 w-24 bg-gray-700/50 rounded" />
+                <div className="skeleton mb-1.5 h-4 w-40 rounded" />
+                <div className="skeleton h-3 w-24 rounded" />
               </div>
             </div>
             <div className="mt-2 flex gap-3">
-              <div className="h-3 w-16 bg-gray-700/50 rounded" />
-              <div className="h-3 w-20 bg-gray-700/50 rounded" />
-              <div className="h-3 w-16 bg-gray-700/50 rounded" />
+              <div className="skeleton h-3 w-16 rounded" />
+              <div className="skeleton h-3 w-20 rounded" />
+              <div className="skeleton h-3 w-16 rounded" />
             </div>
-            <div className="mt-2 pt-2 border-t border-[var(--border)]">
+            <div className="mt-2 border-t border-[var(--border)] pt-2">
               <div className="flex justify-between">
-                <div className="h-3 w-20 bg-gray-700/50 rounded" />
+                <div className="skeleton h-3 w-20 rounded" />
                 <div className="flex gap-2">
-                  <div className="h-4 w-4 bg-gray-700/50 rounded" />
-                  <div className="h-3 w-12 bg-gray-700/50 rounded" />
+                  <div className="skeleton h-4 w-4 rounded" />
+                  <div className="skeleton h-3 w-12 rounded" />
                 </div>
               </div>
             </div>
@@ -83,17 +83,17 @@ export default function InternshipContainer({
   // Empty state
   if (!internships || internships.length === 0) {
     return (
-      <div className=" mb-5">
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-10 text-center">
+      <div className="mb-5">
+        <div className="surface-card rounded-2xl p-10 text-center">
           <div className="flex flex-col items-center gap-3">
-            <div className="h-12 w-12 rounded-full bg-zinc-800/50 flex items-center justify-center">
-              <Briefcase className="h-6 w-6 text-zinc-500" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--background-soft)]">
+              <Briefcase className="h-6 w-6 text-[var(--text-muted)]" />
             </div>
             <div>
-              <h3 className="text-base font-medium text-white">
+              <h3 className="text-base font-medium text-[var(--text-primary)]">
                 {isSavedList ? "No saved internships" : "No internships found"}
               </h3>
-              <p className="text-sm text-zinc-400 mt-1">
+              <p className="mt-1 text-sm text-[var(--text-muted)]">
                 {isSavedList 
                   ? "You haven't saved any internships yet" 
                   : "Check back later for new internship opportunities"}
@@ -106,7 +106,7 @@ export default function InternshipContainer({
   }
 
   return (
-    <div className="space-y-3  mb-5">
+    <div className="mb-5 space-y-3">
       {internships.map((internship) => {
         const isSaved = isInternshipSaved(internship);
         

@@ -295,9 +295,9 @@ function AutocompleteInput({
   return (
     <div ref={dropdownRef} className="relative">
       {label && (
-        <label className="mb-1.5 flex items-center gap-1 text-xs font-medium text-gray-300">
+        <label className="form-label mb-1.5 flex items-center gap-1 text-xs">
           {label}
-          {required && <span className="text-red-400">*</span>}
+          {required && <span className="text-danger">*</span>}
         </label>
       )}
       <div className="relative">
@@ -309,29 +309,29 @@ function AutocompleteInput({
           onFocus={handleFocus}
           placeholder={placeholder}
           autoComplete="off"
-          className={`w-full rounded-lg border bg-[#0f172a] px-10 py-2.5 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-1 ${
+          className={`input-field w-full rounded-lg px-10 py-2.5 text-sm ${
             error
-              ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-              : "border-[#2a3a52] focus:border-green-500 focus:ring-green-500"
+              ? "border-danger focus:border-danger focus:ring-danger"
+              : "focus:border-primary focus:ring-primary"
           }`}
         />
-        {Icon && <Icon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />}
+        {Icon && <Icon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />}
         {searchTerm && (
           <button
             type="button"
             onClick={clearInput}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition-colors hover:text-white"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted transition-colors hover:text-primary"
           >
             <X className="h-4 w-4" />
           </button>
         )}
       </div>
-      {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
+      {error && <p className="form-error mt-1 text-xs">{error}</p>}
 
       {showDropdown && (
-        <div className="absolute z-50 mt-1 max-h-52 w-full overflow-y-auto rounded-lg border border-[#2a3a52] bg-[#111827] shadow-xl">
+        <div className="surface-card absolute z-50 mt-1 max-h-52 w-full overflow-y-auto p-1 shadow-lg animate-fade-in">
           {loading ? (
-            <div className="flex items-center justify-center px-4 py-3 text-sm text-gray-400">
+            <div className="flex items-center justify-center px-4 py-3 text-sm text-muted">
               <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading...
             </div>
           ) : filteredData.length > 0 ? (
@@ -344,11 +344,11 @@ function AutocompleteInput({
                     key={getItemKey(item, index)}
                     type="button"
                     onClick={() => handleSelect(item)}
-                    className="group flex w-full items-center justify-between border-b border-[#2a3a52] px-4 py-2.5 text-left text-sm text-white transition-colors last:border-0 hover:bg-green-500/10"
+                    className="sidebar-item w-full justify-between rounded-md border-b border-divider px-4 py-2.5 text-left text-sm last:border-0"
                   >
                     <span>{displayValue}</span>
                     {isCustomItem(item) && (
-                      <span className="text-[10px] text-gray-500 group-hover:text-green-400">Custom</span>
+                      <span className="text-[10px] text-muted group-hover:text-primary">Custom</span>
                     )}
                   </button>
                 );
@@ -358,7 +358,7 @@ function AutocompleteInput({
                   type="button"
                   onClick={() => void handleCreate()}
                   disabled={isCreating}
-                  className="flex w-full items-center gap-2 border-t border-[#2a3a52] px-4 py-2.5 text-left text-sm text-green-400 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="sidebar-item w-full gap-2 rounded-md border-t border-divider px-4 py-2.5 text-left text-sm text-primary transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isCreating ? (
                     <>
@@ -377,7 +377,7 @@ function AutocompleteInput({
               type="button"
               onClick={() => void handleCreate()}
               disabled={isCreating}
-              className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-green-400 transition-colors hover:bg-green-500/10 disabled:cursor-not-allowed disabled:opacity-60"
+              className="sidebar-item w-full gap-2 rounded-md px-4 py-3 text-left text-sm text-primary transition-colors disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isCreating ? (
                 <>
@@ -391,8 +391,8 @@ function AutocompleteInput({
             </button>
           ) : (
             <div className="px-4 py-3 text-center">
-              <p className="text-sm text-gray-400">No options found</p>
-              <p className="mt-1 text-xs text-gray-500">Type a value to create one</p>
+              <p className="text-sm text-muted">No options found</p>
+              <p className="mt-1 text-xs text-subtle">Type a value to create one</p>
             </div>
           )}
         </div>
@@ -673,19 +673,19 @@ export function SwitchToProfessionalModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl bg-[#0f172a] border border-[#2a3a52] shadow-2xl">
+    <div className="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-overlay p-4 backdrop-blur-sm">
+      <div className="modal-content relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl border border-theme bg-card shadow-xl">
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#2a3a52] bg-[#0f172a] px-6 py-4">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-divider bg-card px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20">
-              <Briefcase className="h-5 w-5 text-green-400" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-soft">
+              <Briefcase className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-white">
+              <h2 className="text-lg font-semibold text-primary">
                 Switch to Professional Account
               </h2>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-muted">
                 Add your work experience to complete the switch
               </p>
             </div>
@@ -693,7 +693,7 @@ export function SwitchToProfessionalModal({
           <button
             onClick={onClose}
             disabled={isLoading}
-            className="rounded-lg p-1.5 text-gray-400 transition hover:bg-[#1a2533] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+            className="btn-ghost rounded-lg p-1.5 text-muted transition hover:bg-card-hover hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
           >
             <X className="h-5 w-5" />
           </button>
@@ -710,13 +710,13 @@ export function SwitchToProfessionalModal({
               return (
                 <div
                   key={experience._id || `experience-${index}`}
-                  className={`group rounded-xl border bg-[#111827] p-5 transition-all duration-300 ${
+                  className={`card group rounded-xl p-5 transition-all duration-300 ${
                     hasCompanyError
-                      ? "border-red-500/50 hover:border-red-500/70"
+                      ? "border-danger/50 hover:border-danger/70"
                       : isCurrent
-                      ? "border-green-500/30 hover:border-green-500/50"
-                      : "border-[#2a3a52] hover:border-green-500/30"
-                  } hover:shadow-lg hover:shadow-green-500/5`}
+                      ? "border-success/30 hover:border-success/50"
+                      : "hover:border-primary/30"
+                  } hover:shadow-lg hover:shadow-primary/5`}
                 >
                   {/* Header */}
                   <div className="mb-5 flex items-center justify-between">
@@ -724,24 +724,24 @@ export function SwitchToProfessionalModal({
                       <div
                         className={`flex h-8 w-8 items-center justify-center rounded-lg border ${
                           hasCompanyError
-                            ? "border-red-500/20 bg-red-500/10 text-red-400"
+                            ? "border-danger/20 bg-danger-soft text-danger"
                             : isCurrent
-                            ? "border-green-500/20 bg-green-500/10 text-green-400"
-                            : "border-[#2a3a52] bg-[#1a2533] text-gray-400"
+                            ? "border-success/20 bg-success-soft text-success"
+                            : "border-theme bg-background-soft text-muted"
                         }`}
                       >
                         <Briefcase className="h-4 w-4" />
                       </div>
-                      <h4 className="text-sm font-semibold text-white">
+                      <h4 className="text-sm font-semibold text-primary">
                         Experience {index + 1}
                       </h4>
                       {isCurrent && (
-                        <span className="rounded-full bg-green-500/20 px-2 py-0.5 text-[10px] font-medium text-green-400">
+                        <span className="badge badge-success rounded-full px-2 py-0.5 text-[10px]">
                           Current
                         </span>
                       )}
                       {hasCompanyError && (
-                        <span className="rounded-full bg-red-500/20 px-2 py-0.5 text-[10px] text-red-400">
+                        <span className="badge badge-danger rounded-full px-2 py-0.5 text-[10px]">
                           Required
                         </span>
                       )}
@@ -751,7 +751,7 @@ export function SwitchToProfessionalModal({
                       <button
                         type="button"
                         onClick={() => handleRemoveExperience(index)}
-                        className="flex items-center gap-1.5 rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:border-red-500/50 hover:bg-red-500/10"
+                        className="btn-danger flex items-center gap-1.5 rounded-lg border border-danger/30 px-3 py-1.5 text-xs font-medium"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                         Remove
@@ -763,10 +763,10 @@ export function SwitchToProfessionalModal({
                   <div className="grid gap-4 md:grid-cols-2">
                     {/* Company */}
                     <div className="space-y-1.5">
-                      <label className="flex items-center gap-1.5 text-xs font-medium text-gray-300">
-                        <Building2 className="h-3.5 w-3.5 text-gray-500" />
+                      <label className="flex items-center gap-1.5 text-xs font-medium text-secondary">
+                        <Building2 className="h-3.5 w-3.5 text-muted" />
                         Company
-                        {experience.isCurrent && <span className="ml-1 text-red-400">*</span>}
+                        {experience.isCurrent && <span className="ml-1 text-danger">*</span>}
                       </label>
                       <AutocompleteInput
                         apiType="company"
@@ -781,8 +781,8 @@ export function SwitchToProfessionalModal({
 
                     {/* Role */}
                     <div className="space-y-1.5">
-                      <label className="flex items-center gap-1.5 text-xs font-medium text-gray-300">
-                        <User className="h-3.5 w-3.5 text-gray-500" />
+                      <label className="flex items-center gap-1.5 text-xs font-medium text-secondary">
+                        <User className="h-3.5 w-3.5 text-muted" />
                         Role / Title
                       </label>
                       <AutocompleteInput
@@ -796,22 +796,22 @@ export function SwitchToProfessionalModal({
 
                     {/* Start Date */}
                     <div className="space-y-1.5">
-                      <label className="flex items-center gap-1.5 text-xs font-medium text-gray-300">
-                        <Calendar className="h-3.5 w-3.5 text-gray-500" />
+                      <label className="flex items-center gap-1.5 text-xs font-medium text-secondary">
+                        <Calendar className="h-3.5 w-3.5 text-muted" />
                         Start Date
                       </label>
                       <input
                         type="date"
                         value={experience.startDate || ""}
                         onChange={(e) => handleUpdateExperience(index, "startDate", e.target.value)}
-                        className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                        className="input-field w-full rounded-lg px-4 py-2.5 text-sm"
                       />
                     </div>
 
                     {/* End Date */}
                     <div className="space-y-1.5">
-                      <label className="flex items-center gap-1.5 text-xs font-medium text-gray-300">
-                        <Calendar className="h-3.5 w-3.5 text-gray-500" />
+                      <label className="flex items-center gap-1.5 text-xs font-medium text-secondary">
+                        <Calendar className="h-3.5 w-3.5 text-muted" />
                         End Date
                       </label>
                       <input
@@ -827,7 +827,7 @@ export function SwitchToProfessionalModal({
                             handleUpdateExperience(index, "endDate", "");
                           }
                         }}
-                        className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="input-field w-full rounded-lg px-4 py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-50"
                       />
                     </div>
 
@@ -838,9 +838,9 @@ export function SwitchToProfessionalModal({
                           type="checkbox"
                           checked={experience.isCurrent || false}
                           onChange={(e) => handleUpdateExperience(index, "isCurrent", e.target.checked)}
-                          className="h-4 w-4 rounded border-[#2a3a52] bg-[#0f172a] text-green-500 focus:ring-2 focus:ring-green-500/20 focus:ring-offset-0"
+                          className="h-4 w-4 rounded border-theme bg-input-background text-primary focus:ring-2 focus:ring-primary/20 focus:ring-offset-0"
                         />
-                        <span className="text-sm font-medium text-gray-300 transition-colors group-hover:text-white">
+                        <span className="text-sm font-medium text-secondary transition-colors group-hover:text-primary">
                           Currently working here
                         </span>
                       </label>
@@ -848,7 +848,7 @@ export function SwitchToProfessionalModal({
 
                     {/* Description */}
                     <div className="md:col-span-2">
-                      <label className="text-xs font-medium text-gray-300">Description</label>
+                      <label className="text-xs font-medium text-secondary">Description</label>
                       <textarea
                         value={
                           Array.isArray(experience.description)
@@ -858,7 +858,7 @@ export function SwitchToProfessionalModal({
                         onChange={(e) => handleUpdateExperience(index, "description", e.target.value)}
                         placeholder="Describe your responsibilities and achievements..."
                         rows={3}
-                        className="w-full resize-none rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                        className="textarea-field w-full resize-none rounded-lg px-4 py-2.5 text-sm"
                       />
                     </div>
                   </div>
@@ -870,7 +870,7 @@ export function SwitchToProfessionalModal({
             <button
               type="button"
               onClick={handleAddExperience}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[#2a3a52] bg-[#111827] py-4 text-sm font-medium text-gray-400 transition hover:border-green-500/50 hover:bg-green-500/5 hover:text-green-400"
+              className="btn-secondary flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-theme bg-card-soft py-4 text-sm font-medium text-muted transition hover:border-primary/50 hover:bg-primary-soft hover:text-primary"
             >
               <Plus className="h-4 w-4" />
               Add more experience
@@ -878,28 +878,28 @@ export function SwitchToProfessionalModal({
 
             {/* Status Section - Only show when NO current company */}
             {!hasAnyCurrentExperience && (
-              <div className="space-y-4 rounded-xl border border-[#2a3a52] bg-[#111827] p-5">
+              <div className="card space-y-4 rounded-xl border-theme bg-card-soft p-5">
                 <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-green-400" />
-                  <h4 className="text-sm font-semibold text-white">Candidate Status</h4>
-                  <span className="ml-auto rounded-full bg-yellow-500/20 px-2.5 py-0.5 text-[10px] font-medium text-yellow-400">
+                  <Clock className="h-4 w-4 text-primary" />
+                  <h4 className="text-sm font-semibold text-primary">Candidate Status</h4>
+                  <span className="badge badge-warning ml-auto rounded-full px-2.5 py-0.5 text-[10px]">
                     Optional
                   </span>
                 </div>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="mb-1.5 block text-xs font-medium text-gray-300">
-                      Current Status <span className="text-gray-500">(Optional)</span>
+                    <label className="form-label mb-1.5 block text-xs">
+                      Current Status <span className="text-muted">(Optional)</span>
                     </label>
                     <select
                       value={statusType}
                       onChange={(e) => handleStatusChange(e.target.value)}
                       onBlur={() => handleTouch("status")}
-                      className={`w-full rounded-lg border bg-[#0f172a] px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-1 ${
+                      className={`select-field w-full rounded-lg px-4 py-2.5 text-sm ${
                         errors.status && touched.status
-                          ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                          : "border-[#2a3a52] focus:border-green-500 focus:ring-green-500"
+                          ? "border-danger focus:border-danger focus:ring-danger"
+                          : ""
                       }`}
                     >
                       <option value="">Select your status (Optional)</option>
@@ -910,35 +910,35 @@ export function SwitchToProfessionalModal({
                       ))}
                     </select>
                     {errors.status && touched.status && (
-                      <p className="mt-1 text-xs text-red-400">{errors.status}</p>
+                      <p className="form-error mt-1 text-xs">{errors.status}</p>
                     )}
                   </div>
 
                   {/* Expected Return Date */}
                   {statusType === "career_break" && (
                     <div>
-                      <label className="mb-1.5 block text-xs font-medium text-gray-300">
-                        Expected Return Date <span className="text-red-400">*</span>
+                      <label className="form-label mb-1.5 block text-xs">
+                        Expected Return Date <span className="text-danger">*</span>
                       </label>
                       <input
                         type="date"
                         value={statusExpectedReturn}
                         onChange={(e) => setStatusExpectedReturn(e.target.value)}
                         min={new Date().toISOString().split("T")[0]}
-                        className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                        className="input-field w-full rounded-lg px-4 py-2.5 text-sm"
                       />
-                      <p className="mt-1 text-xs text-gray-500">
+                      <p className="form-helper mt-1 text-xs">
                         When do you plan to return to work?
                       </p>
                       {errors.expectedReturn && (
-                        <p className="mt-1 text-xs text-red-400">{errors.expectedReturn}</p>
+                        <p className="form-error mt-1 text-xs">{errors.expectedReturn}</p>
                       )}
                     </div>
                   )}
 
                   {/* Note */}
                   <div>
-                    <label className="mb-1.5 block text-xs font-medium text-gray-300">
+                    <label className="form-label mb-1.5 block text-xs">
                       Note (Optional)
                     </label>
                     <textarea
@@ -947,11 +947,11 @@ export function SwitchToProfessionalModal({
                       placeholder="Add any additional details about your status..."
                       rows={2}
                       maxLength={500}
-                      className="w-full resize-none rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                      className="textarea-field w-full resize-none rounded-lg px-4 py-2.5 text-sm"
                     />
                     <div className="mt-1 flex justify-between text-xs">
-                      <span className="text-gray-500">Optional</span>
-                      <span className={statusNote.length > 450 ? "text-yellow-400" : "text-gray-500"}>
+                      <span className="text-muted">Optional</span>
+                      <span className={statusNote.length > 450 ? "text-warning" : "text-muted"}>
                         {statusNote.length}/500
                       </span>
                     </div>
@@ -964,22 +964,22 @@ export function SwitchToProfessionalModal({
             {hasAnyCurrentExperience && (
               <>
                 {/* Employment Status Banner */}
-                <div className="space-y-4 rounded-xl border border-green-500/20 bg-green-500/5 p-5">
+                <div className="card space-y-4 rounded-xl border-success/20 bg-success-soft p-5">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-400" />
-                    <h4 className="text-sm font-semibold text-white">Employment Status</h4>
-                    <span className="ml-auto rounded-full bg-green-500/20 px-2.5 py-0.5 text-[10px] font-medium text-green-400">
+                    <CheckCircle2 className="h-4 w-4 text-success" />
+                    <h4 className="text-sm font-semibold text-primary">Employment Status</h4>
+                    <span className="badge badge-success ml-auto rounded-full px-2.5 py-0.5 text-[10px]">
                       Auto-Managed
                     </span>
                   </div>
-                  <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-4">
+                  <div className="rounded-lg border border-success/20 bg-success-soft/50 p-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-500/20">
-                        <Briefcase className="h-4 w-4 text-green-400" />
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-success-soft">
+                        <Briefcase className="h-4 w-4 text-success" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-white">Currently Employed</p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-sm font-medium text-primary">Currently Employed</p>
+                        <p className="text-xs text-muted">
                           Your status is automatically set to "Employed" since you have a current job.
                         </p>
                       </div>
@@ -988,19 +988,19 @@ export function SwitchToProfessionalModal({
                 </div>
 
                 {/* Notice Period & Company Email */}
-                <div className="space-y-4 rounded-xl border border-green-500/20 bg-green-500/5 p-5">
+                <div className="card space-y-4 rounded-xl border-success/20 bg-success-soft p-5">
                   <div className="flex items-center gap-2">
-                    <Briefcase className="h-4 w-4 text-green-400" />
-                    <h4 className="text-sm font-semibold text-white">Current Employment Details</h4>
-                    <span className="ml-auto rounded-full bg-blue-500/20 px-2.5 py-0.5 text-[10px] font-medium text-blue-400">
+                    <Briefcase className="h-4 w-4 text-success" />
+                    <h4 className="text-sm font-semibold text-primary">Current Employment Details</h4>
+                    <span className="badge badge-info ml-auto rounded-full px-2.5 py-0.5 text-[10px]">
                       Optional
                     </span>
                   </div>
 
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-1.5">
-                      <label htmlFor="noticePeriod" className="text-xs font-medium text-gray-300">
-                        Notice Period (days) <span className="text-gray-500">(Optional)</span>
+                      <label htmlFor="noticePeriod" className="text-xs font-medium text-secondary">
+                        Notice Period (days) <span className="text-muted">(Optional)</span>
                       </label>
                       <input
                         id="noticePeriod"
@@ -1010,16 +1010,16 @@ export function SwitchToProfessionalModal({
                         value={noticePeriod}
                         onChange={(e) => setNoticePeriod(e.target.value)}
                         placeholder="e.g., 30, 60, 90"
-                        className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                        className="input-field w-full rounded-lg px-4 py-2.5 text-sm"
                       />
                       {errors.noticePeriod && (
-                        <p className="mt-1 text-xs text-red-400">{errors.noticePeriod}</p>
+                        <p className="form-error mt-1 text-xs">{errors.noticePeriod}</p>
                       )}
                     </div>
 
                     <div className="space-y-1.5">
-                      <label htmlFor="companyEmail" className="text-xs font-medium text-gray-300">
-                        Official Company Email <span className="text-gray-500">(Optional)</span>
+                      <label htmlFor="companyEmail" className="text-xs font-medium text-secondary">
+                        Official Company Email <span className="text-muted">(Optional)</span>
                       </label>
                       <input
                         id="companyEmail"
@@ -1029,7 +1029,7 @@ export function SwitchToProfessionalModal({
                         onBlur={(e) => setCompanyEmail(e.target.value.trim().toLowerCase())}
                         placeholder="yourname@company.com"
                         autoComplete="email"
-                        className="w-full rounded-lg border border-[#2a3a52] bg-[#0f172a] px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                        className="input-field w-full rounded-lg px-4 py-2.5 text-sm"
                       />
                     </div>
                   </div>
@@ -1040,9 +1040,9 @@ export function SwitchToProfessionalModal({
 
           {/* Error Display */}
           {Object.keys(errors).length > 0 && (
-            <div className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3">
+            <div className="mt-4 rounded-lg border border-danger/30 bg-danger-soft p-3">
               {Object.entries(errors).map(([key, error]) => (
-                <p key={key} className="text-sm text-red-400">
+                <p key={key} className="text-sm text-danger">
                   • {error}
                 </p>
               ))}
@@ -1051,10 +1051,10 @@ export function SwitchToProfessionalModal({
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 flex items-center justify-between border-t border-[#2a3a52] bg-[#0f172a] px-6 py-4">
-          <div className="text-xs text-gray-500">
+        <div className="sticky bottom-0 flex items-center justify-between border-t border-divider bg-card px-6 py-4">
+          <div className="text-xs text-muted">
             <span className="hidden sm:inline">Fields with </span>
-            <span className="text-red-400">*</span>
+            <span className="text-danger">*</span>
             <span className="hidden sm:inline"> are required</span>
             <span className="hidden sm:inline ml-2">•</span>
             <span className="hidden sm:inline ml-2">You can skip adding experience</span>
@@ -1063,14 +1063,14 @@ export function SwitchToProfessionalModal({
             <button
               onClick={onClose}
               disabled={isLoading}
-              className="rounded-lg border border-[#2a3a52] px-4 py-2 text-sm font-medium text-gray-400 transition hover:bg-[#1a2533] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-secondary rounded-lg border border-theme px-4 py-2 text-sm font-medium text-muted transition hover:bg-card-hover hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               onClick={handleSubmit}
               disabled={isLoading}
-              className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-2 text-sm font-medium text-black transition hover:from-green-400 hover:to-emerald-400 disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-primary flex items-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary-light px-6 py-2 text-sm font-medium text-inverse transition hover:from-primary-hover hover:to-primary disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? (
                 <>
