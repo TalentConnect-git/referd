@@ -75,33 +75,33 @@ export default function JobContainer({
     return removingJobIds.has(jobId);
   };
 
-  // Loading skeleton
+  // Loading skeleton - Reduced size
   if (loading) {
     return (
-      <div className="mx-4 mb-5 space-y-3 sm:mx-5">
+      <div className="space-y-2.5">
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="skeleton rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4"
+            className="card rounded-xl border border-theme bg-card p-3 animate-pulse"
           >
-            <div className="flex gap-3">
-              <div className="skeleton h-10 w-10 rounded-xl" />
+            <div className="flex gap-2.5">
+              <div className="h-8 w-8 rounded-lg bg-shimmer-start" />
               <div className="flex-1">
-                <div className="skeleton mb-1.5 h-4 w-40 rounded" />
-                <div className="skeleton h-3 w-24 rounded" />
+                <div className="mb-1 h-3.5 w-32 rounded bg-shimmer-start" />
+                <div className="h-2.5 w-20 rounded bg-shimmer-start" />
               </div>
             </div>
-            <div className="mt-2 flex gap-3">
-              <div className="skeleton h-3 w-16 rounded" />
-              <div className="skeleton h-3 w-20 rounded" />
-              <div className="skeleton h-3 w-16 rounded" />
+            <div className="mt-2 flex flex-wrap gap-2">
+              <div className="h-2.5 w-14 rounded bg-shimmer-start" />
+              <div className="h-2.5 w-16 rounded bg-shimmer-start" />
+              <div className="h-2.5 w-14 rounded bg-shimmer-start" />
             </div>
-            <div className="mt-2 border-t border-[var(--border)] pt-2">
+            <div className="mt-2 border-t border-divider pt-2">
               <div className="flex justify-between">
-                <div className="skeleton h-3 w-20 rounded" />
+                <div className="h-2.5 w-16 rounded bg-shimmer-start" />
                 <div className="flex gap-2">
-                  <div className="skeleton h-4 w-4 rounded" />
-                  <div className="skeleton h-3 w-12 rounded" />
+                  <div className="h-3.5 w-3.5 rounded bg-shimmer-start" />
+                  <div className="h-2.5 w-10 rounded bg-shimmer-start" />
                 </div>
               </div>
             </div>
@@ -114,32 +114,30 @@ export default function JobContainer({
   // Filter out jobs that are being removed
   const visibleJobs = localJobs.filter((job) => !removingJobIds.has(job._id));
 
-  // Empty state
+  // Empty state - Reduced size
   if (!visibleJobs || visibleJobs.length === 0) {
     return (
-      <div className="mx-4 mb-5 sm:mx-5">
-        <div className="surface-card rounded-2xl p-10 text-center">
-          <div className="flex flex-col items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--background-soft)]">
-              <Briefcase className="h-6 w-6 text-[var(--text-muted)]" />
-            </div>
-            <div>
-              <h3 className="text-base font-medium text-[var(--text-primary)]">
-                No {type} opportunities found
-              </h3>
-              <p className="mt-1 text-sm text-[var(--text-muted)]">
-                Check back later for new {type} opportunities
-              </p>
-            </div>
+      <div className="card rounded-xl border border-theme bg-card-soft p-6 text-center">
+        <div className="flex flex-col items-center gap-2">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-background-soft">
+            <Briefcase className="h-5 w-5 text-muted" />
+          </div>
+          <div>
+            <h3 className="text-sm font-medium text-primary">
+              No {type} opportunities found
+            </h3>
+            <p className="mt-0.5 text-xs text-muted">
+              Check back later for new {type} opportunities
+            </p>
           </div>
         </div>
       </div>
     );
   }
 
-  // Main render
+  // Main render - No margins, smaller spacing
   return (
-    <div className="mx-4 mb-5 space-y-3 sm:mx-5">
+    <div className="space-y-2.5">
       {visibleJobs.map((job) => {
         // Determine job type for saving
         const jobType = type === "referral" ? "referral" : "offcampus";

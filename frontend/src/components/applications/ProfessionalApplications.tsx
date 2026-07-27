@@ -310,7 +310,7 @@ export default function ProfessionalApplications() {
     <div className="flex min-h-[calc(100vh-120px)] flex-col">
       {renderStats}
 
-      <div className="mx-5 mt-3">
+      <div className="mt-3">
         <ProfessionalApplicationTabs
           activeTab={activeTab}
           onChange={handleTabChange}

@@ -30,7 +30,7 @@ const IncomingRequests: React.FC<IncomingRequestsProps> = ({ limit = 3 }) => {
       setLoading(true);
       setError(null);
       const response = await axiosInstance.get(
-        `/application/all-referrals?page=${page}&limit=10`
+        `/application/all-referrals?page=${page}&limit=10`,
       );
 
       console.log("all referrals", response.data);
@@ -53,12 +53,10 @@ const IncomingRequests: React.FC<IncomingRequestsProps> = ({ limit = 3 }) => {
   };
 
   const handleStatusUpdate = (applicationId: string, status: string): void => {
-    setApplications(prev => 
-      prev.map(app => 
-        app._id === applicationId 
-          ? { ...app, currentStatus: status }
-          : app
-      )
+    setApplications((prev) =>
+      prev.map((app) =>
+        app._id === applicationId ? { ...app, currentStatus: status } : app,
+      ),
     );
   };
 
@@ -68,19 +66,19 @@ const IncomingRequests: React.FC<IncomingRequestsProps> = ({ limit = 3 }) => {
 
   if (loading) {
     return (
-      <div className="mx-4 mt-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 sm:mx-5 sm:p-6">
-        <div className="mb-4 flex items-center justify-between">
+      <div className="mt-3 rounded-2xl border border-theme bg-card overflow-hidden shadow-lg shadow-black/20 sm:mt-4">
+        <div className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
           <div>
-            <div className="h-5 w-48 animate-pulse rounded bg-[var(--shimmer-start)]" />
-            <div className="mt-2 h-4 w-56 animate-pulse rounded bg-[var(--shimmer-start)]" />
+            <div className="h-4 w-32 animate-pulse rounded bg-shimmer-start sm:w-40" />
+            <div className="mt-1 h-3 w-40 animate-pulse rounded bg-shimmer-start sm:mt-1.5 sm:w-48" />
           </div>
-          <div className="h-10 w-24 animate-pulse rounded-lg bg-[var(--shimmer-start)]" />
+          <div className="h-7 w-16 animate-pulse rounded-lg bg-shimmer-start sm:h-8 sm:w-20" />
         </div>
-        <div className="space-y-3">
+        <div className="space-y-2 px-3 pb-3 sm:space-y-2.5 sm:px-4 sm:pb-4">
           {[1, 2, 3].map((item) => (
             <div
               key={item}
-              className="h-20 animate-pulse rounded-lg bg-[var(--shimmer-start)]"
+              className="h-14 animate-pulse rounded-lg bg-shimmer-start sm:h-16"
             />
           ))}
         </div>
@@ -90,11 +88,11 @@ const IncomingRequests: React.FC<IncomingRequestsProps> = ({ limit = 3 }) => {
 
   if (error) {
     return (
-      <div className="mx-4 mt-4 rounded-2xl border border-[var(--danger-border)] bg-[var(--danger-soft)] p-5 sm:mx-5 sm:p-6">
-        <p className="text-center text-[var(--danger)]">{error}</p>
+      <div className="mt-3 rounded-2xl border border-danger-border bg-danger-soft p-3 sm:mt-4 sm:p-4">
+        <p className="text-center text-xs text-danger sm:text-sm">{error}</p>
         <button
           onClick={handleRefresh}
-          className="mx-auto mt-4 block rounded-lg bg-[var(--danger-soft)] px-4 py-2 text-[var(--danger)] transition-colors hover:bg-[var(--danger-soft)]/80"
+          className="mx-auto mt-2 block rounded-lg bg-danger-soft px-3 py-1 text-xs text-danger transition-colors hover:bg-danger-soft/80 sm:mt-3 sm:px-4 sm:py-1.5 sm:text-sm"
         >
           Try Again
         </button>
@@ -106,39 +104,44 @@ const IncomingRequests: React.FC<IncomingRequestsProps> = ({ limit = 3 }) => {
   const hasMoreApplications = applications.length > limit;
 
   return (
-    <div className="mx-4 mt-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] overflow-hidden shadow-lg shadow-black/20 sm:mx-5">
+    <div className="mt-3 rounded-2xl border border-theme bg-card overflow-hidden shadow-lg shadow-black/20 sm:mt-4">
       {/* Header */}
-      <div className="flex flex-col gap-3 border-b border-[var(--border)] bg-[var(--background-soft)]/50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <div>
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-[var(--text-primary)]">
-            <Bell className="h-5 w-5 text-[var(--primary)]" />
-            Incoming Referral Requests
-          </h2>
-          <p className="mt-0.5 text-sm text-[var(--text-muted)]">
-            {applications.length > 0 
-              ? `${applications.length} application${applications.length > 1 ? 's' : ''} received` 
-              : 'No applications received yet'}
-          </p>
+      <div className="flex flex-col gap-2 border-b border-divider bg-background-soft/50 px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:px-4 sm:py-4">
+        <div className="flex items-start gap-1.5 sm:items-center">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--info-border)] bg-[var(--info-soft)]">
+            <Bell className="h-3.5 w-3.5 text-[var(--info)]" />
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold text-primary sm:text-sm">
+              Incoming Referral Requests
+            </h2>
+            <p className="text-xs text-muted sm:text-[10px]">
+              {applications.length > 0
+                ? `${applications.length} application${applications.length > 1 ? "s" : ""} received`
+                : "No applications received yet"}
+            </p>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={handleRefresh}
-            className="rounded-lg bg-[var(--background-soft)] p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--card-hover)] hover:text-[var(--text-secondary)]"
+            className="rounded-lg bg-background-soft p-1.5 text-muted transition-colors hover:bg-card-hover hover:text-secondary sm:p-2"
           >
-            <RefreshCw className="h-4 w-4" />
+            <RefreshCw className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           </button>
           <Link
             href="/professional/applications"
-            className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-medium text-black transition-all duration-200 hover:bg-[var(--primary-dark)] hover:shadow-lg hover:shadow-[var(--primary)]/25"
+            className="btn-primary inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all duration-200 hover:shadow-lg hover:shadow-primary/25 sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-sm"
           >
-            View All
-            <ChevronRight className="h-4 w-4" />
+            <span className="hidden xs:inline">View All</span>
+            <span className="xs:hidden">View</span>
+            <ChevronRight className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
           </Link>
         </div>
       </div>
 
       {/* Applications List */}
-      <div className="divide-y divide-[var(--border)]">
+      <div className="divide-y divide-divider">
         {displayApplications.length > 0 ? (
           <>
             {displayApplications.map((application) => (
@@ -150,27 +153,32 @@ const IncomingRequests: React.FC<IncomingRequestsProps> = ({ limit = 3 }) => {
             ))}
 
             {hasMoreApplications && (
-              <div className="bg-gradient-to-r from-[var(--background)] via-[var(--background-soft)] to-[var(--background)] px-4 py-4 text-center sm:px-6">
+              <div className="bg-gradient-to-r from-background via-background-soft to-background px-3 py-3 text-center sm:px-4 sm:py-4">
                 <Link
                   href="/professional/applications"
-                  className="inline-flex items-center gap-1 text-sm font-medium text-[var(--primary)] transition-all duration-200 hover:text-[var(--primary-dark)] hover:underline"
+                  className="inline-flex items-center gap-1 text-xs font-medium text-primary transition-all duration-200 hover:text-primary-hover hover:underline sm:text-sm"
                 >
-                  + {applications.length - limit} more application{applications.length - limit > 1 ? 's' : ''} waiting
-                  <ChevronRight className="h-4 w-4" />
+                  + {applications.length - limit} more
+                  <span className="hidden xs:inline">
+                    application{applications.length - limit > 1 ? "s" : ""}{" "}
+                    waiting
+                  </span>
+                  <ChevronRight className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 </Link>
               </div>
             )}
           </>
         ) : (
-          <div className="px-4 py-12 text-center sm:px-6">
-            <div className="mx-auto mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-[var(--background-soft)]">
-              <Users className="h-8 w-8 text-[var(--text-muted)]" />
+          <div className="px-3 py-8 text-center sm:px-4 sm:py-12">
+            <div className="mx-auto mb-2 inline-flex h-12 w-12 items-center justify-center rounded-full bg-background-soft sm:mb-3 sm:h-14 sm:w-14">
+              <Users className="h-5 w-5 text-muted sm:h-6 sm:w-6" />
             </div>
-            <h3 className="text-sm font-medium text-[var(--text-primary)]">
+            <h3 className="text-sm font-medium text-primary sm:text-base">
               No applications yet
             </h3>
-            <p className="mx-auto mt-1 max-w-sm text-sm text-[var(--text-muted)]">
-              You haven't received any referral applications. Share your referral links to get started.
+            <p className="mx-auto mt-1 max-w-xs text-xs text-muted sm:mt-1.5 sm:max-w-sm sm:text-sm">
+              You haven't received any referral applications. Share your
+              referral links to get started.
             </p>
           </div>
         )}

@@ -7,7 +7,7 @@ import { unsaveJob } from "@/services/savedJobs.services";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { Bookmark, Briefcase, Loader2 } from "lucide-react";
+import { Bookmark, Briefcase, Loader2, Sparkles } from "lucide-react";
 
 export default function SavedJobsContainer() {
   const [jobs, setJobs] = useState([]);
@@ -63,37 +63,40 @@ export default function SavedJobsContainer() {
     }
   };
 
-  // Loading State
+  // Loading State - Compact with mx-4
   if (loading) {
     return (
-      <div className="p-6">
-        <div className="mb-8">
-          <div className="h-8 w-48 bg-background-soft/50 rounded animate-pulse" />
-          <div className="mt-2 h-4 w-64 bg-background-soft/50 rounded animate-pulse" />
+      <div className="mx-4 mt-2 space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="h-5 w-32 animate-pulse rounded bg-shimmer-start" />
+            <div className="mt-1 h-3.5 w-48 animate-pulse rounded bg-shimmer-start" />
+          </div>
+          <div className="h-7 w-16 animate-pulse rounded-full bg-shimmer-start" />
         </div>
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="card rounded-2xl border border-theme bg-card p-4 animate-pulse"
+              className="card rounded-xl border border-theme bg-card p-3 animate-pulse"
             >
-              <div className="flex gap-3">
-                <div className="h-10 w-10 rounded-xl bg-background-soft/50" />
+              <div className="flex gap-2.5">
+                <div className="h-8 w-8 rounded-lg bg-shimmer-start" />
                 <div className="flex-1">
-                  <div className="h-4 w-40 bg-background-soft/50 rounded mb-1.5" />
-                  <div className="h-3 w-24 bg-background-soft/50 rounded" />
+                  <div className="h-3.5 w-32 bg-shimmer-start rounded mb-1" />
+                  <div className="h-2.5 w-20 bg-shimmer-start rounded" />
                 </div>
               </div>
-              <div className="mt-2 flex gap-3">
-                <div className="h-3 w-16 bg-background-soft/50 rounded" />
-                <div className="h-3 w-20 bg-background-soft/50 rounded" />
+              <div className="mt-2 flex gap-2">
+                <div className="h-2.5 w-14 bg-shimmer-start rounded" />
+                <div className="h-2.5 w-16 bg-shimmer-start rounded" />
               </div>
               <div className="mt-2 pt-2 border-t border-divider">
                 <div className="flex justify-between">
-                  <div className="h-3 w-20 bg-background-soft/50 rounded" />
+                  <div className="h-2.5 w-16 bg-shimmer-start rounded" />
                   <div className="flex gap-2">
-                    <div className="h-8 w-20 bg-background-soft/50 rounded" />
-                    <div className="h-3 w-12 bg-background-soft/50 rounded" />
+                    <div className="h-6 w-16 bg-shimmer-start rounded" />
+                    <div className="h-2.5 w-10 bg-shimmer-start rounded" />
                   </div>
                 </div>
               </div>
@@ -104,31 +107,23 @@ export default function SavedJobsContainer() {
     );
   }
 
-  // Error State
+  // Error State - Compact with mx-4
   if (error) {
     return (
-      <div className="p-6">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold tracking-tight text-primary">
-            Saved Jobs
-          </h1>
-          <p className="mt-2 text-muted">
-            Manage and revisit all your saved opportunities.
-          </p>
-        </div>
-        <div className="card rounded-2xl border border-danger/20 bg-danger-soft p-8 text-center">
-          <div className="flex flex-col items-center gap-3">
-            <div className="h-12 w-12 rounded-full bg-danger-soft flex items-center justify-center">
-              <Briefcase className="h-6 w-6 text-danger" />
+      <div className="mx-4">
+        <div className="card rounded-xl border border-danger/20 bg-danger-soft p-4 text-center">
+          <div className="flex flex-col items-center gap-2">
+            <div className="h-10 w-10 rounded-full bg-danger-soft flex items-center justify-center">
+              <Briefcase className="h-5 w-5 text-danger" />
             </div>
             <div>
-              <h3 className="text-base font-medium text-primary">
+              <h3 className="text-sm font-medium text-primary">
                 Failed to load saved jobs
               </h3>
-              <p className="text-sm text-muted mt-1">{error}</p>
+              <p className="text-xs text-muted mt-0.5">{error}</p>
               <button
                 onClick={() => window.location.reload()}
-                className="btn-primary mt-4 px-4 py-2 bg-primary-soft text-primary rounded-lg hover:bg-primary-soft transition-colors text-sm font-medium"
+                className="btn-primary mt-2 px-3 py-1.5 bg-primary-soft text-primary rounded-lg hover:bg-primary-soft transition-colors text-xs font-medium"
               >
                 Try Again
               </button>
@@ -139,34 +134,26 @@ export default function SavedJobsContainer() {
     );
   }
 
-  // Empty State
+  // Empty State - Compact with mx-4
   if (jobs.length === 0) {
     return (
-      <div className="p-6">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold tracking-tight text-primary">
-            Saved Jobs
-          </h1>
-          <p className="mt-2 text-muted">
-            Manage and revisit all your saved opportunities.
-          </p>
-        </div>
-        <div className="card rounded-2xl border border-theme bg-card p-12 text-center">
-          <div className="flex flex-col items-center gap-4">
-            <div className="h-16 w-16 rounded-full bg-background-soft flex items-center justify-center">
-              <Bookmark className="h-8 w-8 text-muted" />
+      <div className="mx-4">
+        <div className="card rounded-xl border border-theme bg-card-soft p-6 text-center">
+          <div className="flex flex-col items-center gap-2">
+            <div className="h-12 w-12 rounded-full bg-background-soft flex items-center justify-center">
+              <Bookmark className="h-6 w-6 text-muted" />
             </div>
             <div>
-              <h3 className="text-lg font-medium text-primary">
+              <h3 className="text-sm font-medium text-primary">
                 No saved jobs yet
               </h3>
-              <p className="text-sm text-muted mt-1 max-w-sm">
+              <p className="text-xs text-muted mt-0.5 max-w-sm">
                 Start saving jobs you're interested in and they'll appear here.
               </p>
             </div>
             <button
               onClick={() => router.push(`/${role}/jobs/offcampus`)}
-              className="btn-primary mt-2 px-6 py-2 bg-primary text-inverse text-sm font-medium rounded-lg hover:bg-primary-hover transition-colors"
+              className="btn-primary mt-2 px-4 py-1.5 text-xs font-medium rounded-lg"
             >
               Browse Jobs
             </button>
@@ -176,30 +163,33 @@ export default function SavedJobsContainer() {
     );
   }
 
-  // Main Render
+  // Main Render - Compact with mx-4
   return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
+    <div className="mx-4 mt-4 space-y-3">
+      {/* Header - Compact like referral page */}
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-theme bg-card-soft/50 px-3 py-2">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-soft border border-primary/20">
+            <Bookmark className="h-4 w-4 text-primary" />
+          </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-primary">
+            <h1 className="text-sm font-semibold text-primary">
               Saved Jobs
             </h1>
-            <p className="mt-1 text-sm text-muted">
+            <p className="text-[10px] text-muted">
               {jobs.length} job{jobs.length > 1 ? 's' : ''} saved
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="badge text-xs text-muted bg-background-soft px-3 py-1 rounded-full">
-              {jobs.length} saved
-            </span>
-          </div>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="badge badge-primary rounded-full px-2 py-0.5 text-[9px] font-medium">
+            {jobs.length} saved
+          </span>
         </div>
       </div>
 
-      {/* Jobs List */}
-      <div className="space-y-3">
+      {/* Jobs List - Same spacing as referral page */}
+      <div className="space-y-2.5">
         {jobs.map((savedJob: any) => (
           <SavedJobsCard
             key={savedJob._id}

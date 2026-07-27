@@ -1,6 +1,7 @@
+// components/chat/ConversationList.tsx
 "use client";
 
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState, useEffect } from "react";
 import { Bell, Inbox, Search, X } from "lucide-react";
 import { Conversation } from "@/types/chat";
 import { ConversationItem } from "./ConversationItem";
@@ -13,6 +14,8 @@ interface ConversationListProps {
   onSelectConversation: (conversation: Conversation) => void;
   totalUnread: number;
   isLoading: boolean;
+  // Add this to receive profile images from parent
+  profileImages?: Record<string, string>;
 }
 
 export const ConversationList = memo(
@@ -24,9 +27,18 @@ export const ConversationList = memo(
     onSelectConversation,
     totalUnread,
     isLoading,
+    profileImages = {}, // Default to empty object
   }: ConversationListProps) => {
     const [searchTerm, setSearchTerm] = useState("");
     const [showUnreadOnly, setShowUnreadOnly] = useState(false);
+
+    useEffect(() => {
+      console.log("📋 ConversationList - Total conversations:", conversations.length);
+      conversations.forEach((conv, index) => {
+        console.log(`  ${index + 1}. ${conv.name} - Profile Image:`, conv.profileImage || "No image");
+      });
+      console.log("📸 Profile Images Map:", profileImages);
+    }, [conversations, profileImages]);
 
     const filteredConversations = useMemo(() => {
       let list = [...conversations];
@@ -46,7 +58,6 @@ export const ConversationList = memo(
 
       if (searchTerm.trim()) {
         const query = searchTerm.trim().toLowerCase();
-
         list = list.filter((conversation) =>
           String(conversation.name || "User").toLowerCase().includes(query)
         );
@@ -63,7 +74,6 @@ export const ConversationList = memo(
 
     const formatTime = useCallback((date: string) => {
       if (!date) return "";
-
       const msgDate = new Date(date);
       const now = new Date();
       const diff = now.getTime() - msgDate.getTime();
@@ -72,21 +82,19 @@ export const ConversationList = memo(
       if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m`;
       if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h`;
       if (diff < 604_800_000) return `${Math.floor(diff / 86_400_000)}d`;
-
       return msgDate.toLocaleDateString();
     }, []);
 
     if (isLoading && conversations.length === 0) {
       return (
-        <div className="flex h-screen w-[420px] flex-col border-r border-theme bg-card">
-          <div className="border-b border-divider p-6">
-            <h1 className="text-2xl font-bold text-primary">Messages</h1>
+        <div className="flex h-screen w-full max-w-[420px] flex-col border-r border-theme bg-card">
+          <div className="border-b border-divider p-4 sm:p-6">
+            <h1 className="text-xl sm:text-2xl font-bold text-primary">Messages</h1>
           </div>
-
           <div className="flex flex-1 items-center justify-center">
             <div className="space-y-4 text-center">
-              <div className="mx-auto h-16 w-16 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-              <p className="text-muted">Loading chats...</p>
+              <div className="mx-auto h-12 w-12 sm:h-16 sm:w-16 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+              <p className="text-sm sm:text-base text-muted">Loading chats...</p>
             </div>
           </div>
         </div>
@@ -94,35 +102,40 @@ export const ConversationList = memo(
     }
 
     return (
-      <div className="flex h-screen w-[420px] flex-col border-r border-theme bg-card">
-        <div className="flex-shrink-0 border-b border-divider bg-card p-6">
-          <h1 className="mb-5 text-2xl font-bold text-primary">Messages</h1>
+      <div className="flex h-screen w-full max-w-[420px] flex-col border-r border-theme bg-card">
+        <div className="flex-shrink-0 border-b border-divider bg-card p-3 sm:p-4 md:p-6">
+          <h1 className="mb-3 sm:mb-4 md:mb-5 text-xl sm:text-2xl font-bold text-primary">Messages</h1>
 
           <div className="relative">
-            <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
-              <Search className="h-4 w-4 text-muted" />
-            </div>
-
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
             <input
               type="text"
               placeholder="Search conversations..."
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
-              className="input-field w-full rounded-xl py-3 pl-10 pr-4 text-sm"
+              className="w-full rounded-xl border px-3 py-2 sm:px-4 sm:py-2.5 pl-9 sm:pl-10 text-xs sm:text-sm"
+              style={{
+                background: "var(--background)",
+                borderColor: "var(--border)",
+                color: "var(--text-primary)",
+              }}
             />
           </div>
         </div>
 
-        <div className="flex-shrink-0 border-b border-divider bg-background-soft px-6 py-3">
-          <div className="flex items-center gap-2">
+        <div className="flex-shrink-0 border-b border-divider px-3 sm:px-4 md:px-6 py-2 sm:py-3" style={{ background: "var(--background)" }}>
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             <button
               type="button"
               onClick={() => setShowUnreadOnly(false)}
-              className={`rounded-full px-4 py-1.5 text-xs font-medium transition-all ${
+              className={`rounded-full px-3 sm:px-4 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium transition-all ${
                 !showUnreadOnly
-                  ? "btn-primary bg-primary text-inverse"
-                  : "bg-card-hover text-muted hover:text-primary"
+                  ? "text-inverse"
+                  : "text-muted hover:text-primary"
               }`}
+              style={{
+                background: !showUnreadOnly ? "var(--primary)" : "var(--card-hover)",
+              }}
             >
               All Chats
             </button>
@@ -130,21 +143,27 @@ export const ConversationList = memo(
             <button
               type="button"
               onClick={() => setShowUnreadOnly(true)}
-              className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium transition-all ${
+              className={`flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-4 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium transition-all ${
                 showUnreadOnly
-                  ? "btn-primary bg-primary text-inverse"
-                  : "bg-card-hover text-muted hover:text-primary"
+                  ? "text-inverse"
+                  : "text-muted hover:text-primary"
               }`}
+              style={{
+                background: showUnreadOnly ? "var(--primary)" : "var(--card-hover)",
+              }}
             >
-              <Bell className="h-3 w-3" />
+              <Bell className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
               Unread
               {totalUnread > 0 && (
                 <span
-                  className={`rounded-full px-1.5 py-0.5 text-xs ${
+                  className={`rounded-full px-1.5 py-0.5 text-[10px] ${
                     showUnreadOnly
                       ? "bg-black/20 text-inverse"
-                      : "bg-danger text-inverse"
+                      : "text-inverse"
                   }`}
+                  style={{
+                    background: showUnreadOnly ? "rgba(0,0,0,0.2)" : "var(--danger)",
+                  }}
                 >
                   {totalUnread > 99 ? "99+" : totalUnread}
                 </span>
@@ -155,10 +174,10 @@ export const ConversationList = memo(
               <button
                 type="button"
                 onClick={() => setShowUnreadOnly(false)}
-                className="btn-ghost ml-2 rounded-lg p-1.5 text-muted transition-colors hover:bg-card-hover hover:text-primary"
+                className="rounded-lg p-1.5 text-muted transition-colors hover:bg-card-hover hover:text-primary"
                 title="Show all chats"
               >
-                <X className="h-4 w-4" />
+                <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </button>
             )}
           </div>
@@ -166,63 +185,72 @@ export const ConversationList = memo(
 
         <div className="flex-1 overflow-y-auto">
           {conversations.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center p-8 text-center">
-              <div className="mb-5 flex h-24 w-24 items-center justify-center rounded-full bg-card-hover">
-                <Inbox className="h-12 w-12 text-muted" />
+            <div className="flex h-full flex-col items-center justify-center p-6 sm:p-8 text-center">
+              <div className="mb-4 sm:mb-5 flex h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 items-center justify-center rounded-full" style={{ background: "var(--card-hover)" }}>
+                <Inbox className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12" style={{ color: "var(--text-muted)" }} />
               </div>
-
-              <h3 className="mb-2 text-xl font-semibold text-primary">
+              <h3 className="mb-1.5 sm:mb-2 text-lg sm:text-xl font-semibold text-primary">
                 No conversations yet
               </h3>
-
-              <p className="max-w-xs text-sm leading-relaxed text-muted">
+              <p className="max-w-xs text-xs sm:text-sm leading-relaxed text-muted">
                 Start a new conversation by messaging someone.
               </p>
             </div>
           ) : filteredConversations.length === 0 ? (
-            <div className="py-16 text-center">
+            <div className="py-12 sm:py-16 text-center">
               {showUnreadOnly ? (
                 <>
-                  <Bell className="mx-auto mb-4 h-16 w-16 text-muted" />
-                  <p className="mb-2 text-lg font-medium text-primary">
+                  <Bell className="mx-auto mb-3 sm:mb-4 h-12 w-12 sm:h-16 sm:w-16" style={{ color: "var(--text-muted)" }} />
+                  <p className="mb-1.5 sm:mb-2 text-base sm:text-lg font-medium text-primary">
                     No unread messages
                   </p>
-                  <p className="text-sm text-muted">
+                  <p className="text-xs sm:text-sm text-muted">
                     You're all caught up!
                   </p>
-
                   <button
                     type="button"
                     onClick={() => setShowUnreadOnly(false)}
-                    className="mt-4 text-sm font-medium text-primary transition-colors hover:text-primary-hover"
+                    className="mt-3 sm:mt-4 text-xs sm:text-sm font-medium transition-colors hover:text-primary-hover"
+                    style={{ color: "var(--primary)" }}
                   >
                     Show all conversations
                   </button>
                 </>
               ) : (
                 <>
-                  <Search className="mx-auto mb-4 h-16 w-16 text-muted" />
-                  <p className="font-medium text-muted">
+                  <Search className="mx-auto mb-3 sm:mb-4 h-12 w-12 sm:h-16 sm:w-16" style={{ color: "var(--text-muted)" }} />
+                  <p className="text-sm sm:text-base font-medium text-muted">
                     No conversations found
                   </p>
                 </>
               )}
             </div>
           ) : (
-            <div className="py-2">
-              {filteredConversations.map((conversation) => (
-                <ConversationItem
-                  key={conversation._id}
-                  conversation={conversation}
-                  isSelected={selectedConversationId === conversation._id}
-                  unreadCount={unreadCounts[conversation._id] || 0}
-                  isOnline={onlineUsers?.includes(conversation._id) || false}
-                  onSelect={onSelectConversation}
-                  lastMessageTime={
-                    conversation.updatedAt ? formatTime(conversation.updatedAt) : ""
-                  }
-                />
-              ))}
+            <div className="py-1 sm:py-2">
+              {filteredConversations.map((conversation) => {
+                // ✅ FIX: Merge profile image from the map or use existing
+                const profileImage = profileImages[conversation._id] || conversation.profileImage || "";
+                
+                // Create conversation with profile image
+                const conversationWithImage = {
+                  ...conversation,
+                  profileImage: profileImage,
+                };
+                
+                return (
+                  <ConversationItem
+                    key={conversation._id}
+                    conversation={conversationWithImage}
+                    isSelected={selectedConversationId === conversation._id}
+                    unreadCount={unreadCounts[conversation._id] || 0}
+                    isOnline={onlineUsers?.includes(conversation._id) || false}
+                    onSelect={onSelectConversation}
+                    lastMessageTime={
+                      conversation.updatedAt ? formatTime(conversation.updatedAt) : ""
+                    }
+                  />
+                );
+              })}
             </div>
           )}
         </div>
