@@ -11,6 +11,7 @@ import {
   Clock,
   User,
   Users,
+  ChevronRight,
 } from "lucide-react";
 import axiosInstance from "@/lib/axiosInstance";
 import toast from "react-hot-toast";
@@ -98,10 +99,6 @@ export default function JobCard({
   const [isSaving, setIsSaving] = useState(false);
   const [isRemovingCard, setIsRemovingCard] = useState(false);
 
-  console.log("posted", postedBy);
-  console.log("matchscore",matchScore);
-  console.log("alumni count",alumniCount);
-
   useEffect(() => {
     setSaved(isSaved);
   }, [isSaved]);
@@ -109,23 +106,23 @@ export default function JobCard({
   // Get match score color and label
   const getMatchScoreColor = (score?: number): string => {
     const numericScore = Number(score) || 0;
-    if (numericScore >= 75) return "text-[var(--success)]";
-    if (numericScore >= 40) return "text-[var(--warning)]";
-    return "text-[var(--danger)]";
+    if (numericScore >= 75) return "text-success";
+    if (numericScore >= 40) return "text-warning";
+    return "text-danger";
   };
 
   const getMatchScoreBg = (score?: number): string => {
     const numericScore = Number(score) || 0;
-    if (numericScore >= 75) return "bg-[var(--success)]";
-    if (numericScore >= 40) return "bg-[var(--warning)]";
-    return "bg-[var(--danger)]";
+    if (numericScore >= 75) return "bg-success";
+    if (numericScore >= 40) return "bg-warning";
+    return "bg-danger";
   };
 
   const getMatchScoreBorder = (score?: number): string => {
     const numericScore = Number(score) || 0;
-    if (numericScore >= 75) return "border-[var(--success-border)]";
-    if (numericScore >= 40) return "border-[var(--warning-border)]";
-    return "border-[var(--danger-border)]";
+    if (numericScore >= 75) return "border-success-border";
+    if (numericScore >= 40) return "border-warning-border";
+    return "border-danger-border";
   };
 
   const getMatchScoreLabel = (score?: number): string => {
@@ -290,11 +287,12 @@ export default function JobCard({
     <div
       onClick={() => router.push(`${route}?matchScore=${matchScore ?? 0}`)}
       className={`
-        surface-card group relative cursor-pointer
-        rounded-2xl p-4
+        card group relative cursor-pointer
+        rounded-xl p-3
         transition-all duration-300
-        hover:border-[var(--primary-border)]
+        hover:border-primary/40
         hover:shadow-md
+        hover:-translate-y-0.5
         ${isRemovingCard || isRemoving ? 
           'pointer-events-none scale-95 opacity-0' : 
           'scale-100 opacity-100'
@@ -307,30 +305,30 @@ export default function JobCard({
     >
       {/* Row 1: Company & Title + Match Score */}
       <div className="flex items-start justify-between">
-        <div className="flex min-w-0 flex-1 gap-3">
-          {/* Company Avatar */}
+        <div className="flex min-w-0 flex-1 gap-2.5">
+          {/* Company Avatar - Smaller */}
           <div
             className="
-              flex h-10 w-10 flex-shrink-0 items-center
-              justify-center rounded-xl border border-[var(--border)]
-              bg-[var(--background-soft)] text-base font-bold text-[var(--text-secondary)]
+              flex h-8 w-8 flex-shrink-0 items-center
+              justify-center rounded-lg border border-theme
+              bg-background-soft text-xs font-bold text-secondary
             "
           >
             {company?.charAt(0).toUpperCase() || "?"}
           </div>
 
           <div className="min-w-0 flex-1">
-            <h3 className="truncate pr-2 text-base font-semibold text-[var(--text-primary)]">
+            <h3 className="truncate pr-2 text-sm font-semibold text-primary">
               {title}
             </h3>
-            <div className="mt-0.5 flex flex-wrap items-center gap-2">
-              <p className="truncate text-xs text-[var(--text-muted)]">{company}</p>
+            <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
+              <p className="truncate text-[10px] text-muted">{company}</p>
 
               {workMode && (
                 <>
-                  <div className="h-3 w-px bg-[var(--border)]" />
-                  <div className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
-                    <Briefcase className="h-3 w-3" />
+                  <span className="text-[8px] text-muted">•</span>
+                  <div className="flex items-center gap-0.5 text-[10px] text-muted">
+                    <Briefcase className="h-2.5 w-2.5" />
                     <span className="capitalize">{workMode}</span>
                   </div>
                 </>
@@ -338,10 +336,10 @@ export default function JobCard({
 
               {location && (
                 <>
-                  <div className="h-3 w-px bg-[var(--border)]" />
-                  <div className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
-                    <MapPin className="h-3 w-3" />
-                    <span className="max-w-[100px] truncate">{location}</span>
+                  <span className="text-[8px] text-muted">•</span>
+                  <div className="flex items-center gap-0.5 text-[10px] text-muted">
+                    <MapPin className="h-2.5 w-2.5" />
+                    <span className="max-w-[80px] truncate">{location}</span>
                   </div>
                 </>
               )}
@@ -349,13 +347,13 @@ export default function JobCard({
           </div>
         </div>
 
-        {/* Match Score - With Color Coding */}
+        {/* Match Score - Smaller */}
         {matchScore !== undefined && matchScore !== null && (
-          <div className="ml-2 flex flex-shrink-0 flex-col items-end gap-0.5">
+          <div className="ml-1.5 flex flex-shrink-0 flex-col items-end gap-0.5">
             <div
               className={`
                 inline-flex items-center rounded-full border
-                px-2.5 py-0.5 text-xs font-bold whitespace-nowrap
+                px-2 py-0.5 text-[9px] font-bold whitespace-nowrap
                 ${matchBorder}
                 ${matchColor}
                 bg-opacity-10
@@ -368,119 +366,99 @@ export default function JobCard({
             >
               {matchScore}%
             </div>
-            <span className={`text-[9px] font-medium ${matchColor}`}>
+            <span className={`text-[8px] font-medium ${matchColor}`}>
               {matchLabel}
             </span>
           </div>
         )}
       </div>
 
-      {/* Divider */}
-      <div className="mt-2.5 border-t border-[var(--border)] pt-2.5" />
+      {/* Divider - Thinner */}
+      <div className="mt-2 border-t border-divider pt-2" />
       
-      {/* Row 2: ALL elements in a single flex row */}
-      <div className="flex flex-wrap items-center justify-between gap-2">
+      {/* Row 2: ALL elements in a single flex row - Compact */}
+      <div className="flex flex-wrap items-center justify-between gap-1.5">
         {/* Left Side: Location, Posted By, Secondary Info */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
           {postedBy && (
             <>
-              <div className="h-3 w-px bg-[var(--border)]" />
-              <div className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
-                <User className="h-3 w-3" />
-                <span>By {postedBy}</span>
+              <div className="flex items-center gap-0.5 text-[10px] text-muted">
+                <User className="h-2.5 w-2.5" />
+                <span className="truncate max-w-[60px]">{postedBy}</span>
               </div>
+              <span className="text-[8px] text-muted">•</span>
             </>
           )}
 
-          {/* Alumni Count */}
-          {alumniCount !== undefined && alumniCount !== null && (
+          {/* Alumni Count - Compact */}
+          {alumniCount !== undefined && alumniCount !== null && alumniCount > 0 && (
             <>
-              <div className="h-3 w-px bg-[var(--border)]" />
-              <div className="flex items-center gap-1 text-xs">
-                <Users className="h-3 w-3 text-[var(--primary)]" />
-                <span className="badge badge-success rounded-full px-2 py-0.5 font-semibold">
-                  {alumniCount} Alumni{alumniCount !== 1 ? "s" : ""}
+              <div className="flex items-center gap-0.5 text-[10px]">
+                <Users className="h-2.5 w-2.5 text-primary" />
+                <span className="badge badge-success rounded-full px-1.5 py-0 text-[8px] font-semibold">
+                  {alumniCount}
                 </span>
               </div>
+              <span className="text-[8px] text-muted">•</span>
             </>
           )}
 
-          {/* Package Details */}
+          {/* Package Details - Compact */}
           {packageDisplay && (
-            <>
-              <div className="h-3 w-px bg-[var(--border)]" />
-              <div className="flex items-center gap-1.5">
-                <span className="whitespace-nowrap text-sm font-semibold text-[var(--text-primary)]">
-                  {packageDisplay}
-                </span>
-                {packageDetails?.totalCTC && (
-                  <span className="text-[10px] font-medium text-[var(--text-muted)]">
-                    CTC
-                  </span>
-                )}
-              </div>
-            </>
+            <div className="flex items-center gap-1">
+              <span className="text-[10px] font-semibold text-primary whitespace-nowrap">
+                {packageDisplay}
+              </span>
+            </div>
           )}
         </div>
 
-        {/* Right Side: Save Button & View Details */}
-        <div className="flex flex-shrink-0 items-center gap-1.5">
-          {/* Save Button */}
+        {/* Right Side: Save Button & View Details - Compact */}
+        <div className="flex flex-shrink-0 items-center gap-1">
+          {/* Save Button - Smaller */}
           {jobId && (
             <button
               onClick={handleSaveToggle}
               disabled={isSaving || isRemovingCard}
               className="
-                relative rounded-full p-1.5
+                relative rounded-full p-1
                 transition-all duration-200
-                hover:bg-[var(--card-hover)]
+                hover:bg-card-hover
                 disabled:cursor-not-allowed disabled:opacity-50
               "
               aria-label={saved ? "Unsave job" : "Save job"}
             >
               {isSaving ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--text-muted)]" />
+                <Loader2 className="h-3 w-3 animate-spin text-muted" />
               ) : saved ? (
-                <BookmarkCheck className="h-3.5 w-3.5 fill-[var(--success)] text-[var(--success)]" />
+                <BookmarkCheck className="h-3 w-3 fill-success text-success" />
               ) : (
-                <Bookmark className="h-3.5 w-3.5 text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]" />
+                <Bookmark className="h-3 w-3 text-muted transition-colors hover:text-primary" />
               )}
             </button>
           )}
 
-          {/* View Details Link */}
+          {/* View Details Link - Smaller */}
           <span
             className="
-              inline-flex items-center gap-0.5
-              whitespace-nowrap text-xs font-medium
-              text-[var(--text-muted)] transition-all duration-200
-              hover:text-[var(--primary)]
+              inline-flex items-center gap-0
+              whitespace-nowrap text-[9px] font-medium
+              text-muted transition-all duration-200
+              hover:text-primary
             "
           >
             View
-            <svg
-              className="h-3 w-3 transition-transform duration-200 group-hover:translate-x-0.5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
+            <ChevronRight className="h-3 w-3" />
           </span>
         </div>
       </div>
 
       {/* Remove indicator badge */}
       {isRemovingCard && (
-        <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-[var(--card)]/80 backdrop-blur-sm">
-          <div className="flex items-center gap-2 text-[var(--primary)]">
-            <Loader2 className="h-5 w-5 animate-spin" />
-            <span className="text-sm font-medium">Removing...</span>
+        <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-card/80 backdrop-blur-sm">
+          <div className="flex items-center gap-2 text-primary">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span className="text-xs font-medium">Removing...</span>
           </div>
         </div>
       )}

@@ -432,14 +432,7 @@ export function DashboardLayout({
           <aside className="flex h-full w-full flex-col">
             {/* Mobile Menu Header */}
             <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-4">
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--primary)]">
-                  <span className="h-2 w-2 rounded-full bg-black" />
-                </div>
-                <span className="text-lg font-semibold tracking-tight text-[var(--text-primary)]">
-                  Referd<span className="text-[var(--primary)]">.</span>
-                </span>
-              </div>
+              
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="rounded-lg p-2 text-[var(--text-secondary)] transition hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)]"

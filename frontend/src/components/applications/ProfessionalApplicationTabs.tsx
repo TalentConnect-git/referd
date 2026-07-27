@@ -35,7 +35,7 @@ export default function ProfessionalApplicationTabs({
   };
 
   return (
-    <div className="mx-4 mb-4 flex gap-6 rounded-t-xl px-4 pt-3 sm:mx-5">
+    <div className="mx-4 mb-4 flex gap-6 rounded-t-xl px-4 pt-3 ">
       {tabs.map((tab) => (
         <button
           key={tab}

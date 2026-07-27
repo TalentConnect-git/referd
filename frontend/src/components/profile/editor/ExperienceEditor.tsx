@@ -82,7 +82,187 @@ type ExperienceEditorProps = {
   onStatusSinceChange: (value: string) => void;
   onStatusNoteChange: (value: string) => void;
   onStatusExpectedReturnChange: (value: string) => void;
+
+  /** Lets the parent disable Save/Continue when an experience is invalid. */
+  onValidationChange?: (isValid: boolean) => void;
 };
+
+
+
+type ExperienceValidationError = {
+  company?: string;
+  endDate?: string;
+};
+
+type StatusValidationError = {
+  statusType?: string;
+  statusSince?: string;
+  statusExpectedReturn?: string;
+};
+
+function trimString(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+export function isCompletelyEmptyExperience(experience: Experience): boolean {
+  return !Boolean(
+    trimString(experience.company) ||
+      trimString(experience.role) ||
+      trimString(experience.startDate) ||
+      trimString(experience.endDate) ||
+      (Array.isArray(experience.description)
+        ? experience.description.some((item) => trimString(item).length > 0)
+        : trimString(experience.description)) ||
+      trimString((experience as Experience & { experienceCertificate?: string })
+        .experienceCertificate) ||
+      experience.isCurrent,
+  );
+}
+
+export function validateExperience(
+  experience: Experience,
+): ExperienceValidationError {
+  if (isCompletelyEmptyExperience(experience)) {
+    return {};
+  }
+
+  const errors: ExperienceValidationError = {};
+  const company = trimString(experience.company);
+  const startDate = trimString(experience.startDate);
+  const endDate = trimString(experience.endDate);
+
+  // Company is the anchor field for every experience. This prevents
+  // saving rows that contain only start/end dates or other partial values.
+  if (!company) {
+    errors.company = experience.isCurrent
+      ? "Company name is required for current employment"
+      : "Enter a company name or remove this incomplete experience";
+  }
+
+  if (!experience.isCurrent && startDate && endDate && endDate < startDate) {
+    errors.endDate = "End date cannot be earlier than start date";
+  }
+
+  return errors;
+}
+
+export function prepareExperiencesForPayload(
+  experiences: Experience[],
+): Experience[] {
+  return experiences
+    .filter((experience) => !isCompletelyEmptyExperience(experience))
+    .map((experience) => {
+      const description = Array.isArray(experience.description)
+        ? experience.description
+            .map((item) => trimString(item))
+            .filter(Boolean)
+        : trimString(experience.description);
+
+      const cleaned = {
+        ...experience,
+        company: trimString(experience.company),
+        role: trimString(experience.role),
+        startDate: trimString(experience.startDate),
+        endDate: experience.isCurrent ? "" : trimString(experience.endDate),
+        description,
+      } as Experience;
+
+      // Remove empty optional values so they are not included in the payload.
+      Object.keys(cleaned as object).forEach((key) => {
+        const value = (cleaned as Record<string, unknown>)[key];
+
+        if (value === "" || value === undefined || value === null) {
+          delete (cleaned as Record<string, unknown>)[key];
+        }
+
+        if (Array.isArray(value) && value.length === 0) {
+          delete (cleaned as Record<string, unknown>)[key];
+        }
+      });
+
+      return cleaned;
+    });
+}
+
+export function validateExperiencesBeforeSave(experiences: Experience[]): {
+  isValid: boolean;
+  errors: ExperienceValidationError[];
+  payload: Experience[];
+} {
+  const errors = experiences.map(validateExperience);
+  const isValid = errors.every((error) => Object.keys(error).length === 0);
+
+  return {
+    isValid,
+    errors,
+    payload: isValid ? prepareExperiencesForPayload(experiences) : [],
+  };
+}
+
+
+export function validateCandidateStatus({
+  hasCurrentExperience,
+  statusType,
+  statusSince,
+  statusExpectedReturn,
+}: {
+  hasCurrentExperience: boolean;
+  statusType: string;
+  statusSince: string;
+  statusExpectedReturn: string;
+}): StatusValidationError {
+  // Current employment manages the candidate status automatically.
+  if (hasCurrentExperience) {
+    return {};
+  }
+
+  const errors: StatusValidationError = {};
+  const cleanedStatusType = trimString(statusType);
+  const cleanedStatusSince = trimString(statusSince);
+  const cleanedExpectedReturn = trimString(statusExpectedReturn);
+  const today = new Date().toISOString().split("T")[0];
+
+  if (!cleanedStatusType) {
+    errors.statusType =
+      "Select your current status if you do not want to add experience";
+  }
+
+  if (!cleanedStatusSince) {
+    errors.statusSince = "Select the date from which this status applies";
+  } else if (cleanedStatusSince > today) {
+    errors.statusSince = "Since date cannot be in the future";
+  }
+
+  return errors;
+}
+
+export function prepareStatusForPayload({
+  hasCurrentExperience,
+  statusType,
+  statusSince,
+  statusNote,
+  statusExpectedReturn,
+}: {
+  hasCurrentExperience: boolean;
+  statusType: string;
+  statusSince: string;
+  statusNote: string;
+  statusExpectedReturn: string;
+}) {
+  if (hasCurrentExperience) {
+    return undefined;
+  }
+
+  const cleaned = {
+    statusType: trimString(statusType),
+    statusSince: trimString(statusSince),
+    statusNote: trimString(statusNote),
+  };
+
+  return Object.fromEntries(
+    Object.entries(cleaned).filter(([, value]) => value !== ""),
+  );
+}
 
 function extractItems(responseData: unknown): AutocompleteItem[] {
   if (Array.isArray(responseData)) {
@@ -590,6 +770,7 @@ export function ExperienceEditor({
   onStatusSinceChange,
   onStatusNoteChange,
   onStatusExpectedReturnChange,
+  onValidationChange,
 }: ExperienceEditorProps) {
   function clearOptionalExperienceField(
     index: number,
@@ -696,22 +877,66 @@ export function ExperienceEditor({
   );
 
   const handleStatusChange = (value: string) => {
-    const today = new Date().toISOString().split("T")[0];
-    
     onStatusTypeChange(value);
-    onStatusSinceChange(today);
-    
+
+    // Set today only the first time. The user can change it manually.
+    if (value && !statusSince) {
+      onStatusSinceChange(new Date().toISOString().split("T")[0]);
+    }
+
+    if (!value) {
+      onStatusSinceChange("");
+      onStatusExpectedReturnChange("");
+      return;
+    }
+
     if (value !== "career_break") {
       onStatusExpectedReturnChange("");
     }
   };
 
+  const experienceErrors = useMemo(
+    () => experiences.map(validateExperience),
+    [experiences],
+  );
+
+  const experiencesAreValid = useMemo(
+    () => experienceErrors.every((error) => Object.keys(error).length === 0),
+    [experienceErrors],
+  );
+
+  const statusErrors = useMemo(
+    () =>
+      validateCandidateStatus({
+        hasCurrentExperience: hasAnyCurrentExperience,
+        statusType,
+        statusSince,
+        statusExpectedReturn,
+      }),
+    [
+      hasAnyCurrentExperience,
+      statusExpectedReturn,
+      statusSince,
+      statusType,
+    ],
+  );
+
+  const statusIsValid = Object.keys(statusErrors).length === 0;
+  const formIsValid = experiencesAreValid && statusIsValid;
+
+  useEffect(() => {
+    onValidationChange?.(formIsValid);
+  }, [formIsValid, onValidationChange]);
+
   const safeStatusNote = statusNote || "";
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <div className="space-y-6">
       {experiences.map((experience, index) => {
-        const hasCompanyError = experience.isCurrent && !experience.company?.trim();
+        const validationError = experienceErrors[index] || {};
+        const hasCompanyError = Boolean(validationError.company);
+        const hasEndDateError = Boolean(validationError.endDate);
         
         return (
           <div
@@ -780,9 +1005,9 @@ export function ExperienceEditor({
                     handleCompanyChange(index, value, item)
                   }
                   placeholder="Search or type company name..."
-                  icon={Search}
+                  
                   required={experience.isCurrent || false}
-                  error={hasCompanyError ? "Company name is required for current employment" : ""}
+                  error={validationError.company || ""}
                 />
               </div>
 
@@ -799,7 +1024,7 @@ export function ExperienceEditor({
                     onUpdate(index, "role", value)
                   }
                   placeholder="Search or type job role..."
-                  icon={Search}
+                 
                 />
               </div>
 
@@ -843,8 +1068,13 @@ export function ExperienceEditor({
                       clearOptionalExperienceField(index, "endDate");
                     }
                   }}
-                  className="input-field disabled:cursor-not-allowed disabled:opacity-50"
+                  className={`input-field disabled:cursor-not-allowed disabled:opacity-50 ${
+                    hasEndDateError ? "border-[var(--danger)]" : ""
+                  }`}
                 />
+                {validationError.endDate ? (
+                  <p className="form-error mt-1">{validationError.endDate}</p>
+                ) : null}
               </div>
 
               <div className="md:col-span-2">
@@ -895,6 +1125,20 @@ export function ExperienceEditor({
         );
       })}
 
+      {!experiencesAreValid ? (
+        <div className="rounded-lg border border-[var(--danger-border)] bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]">
+          Complete or remove the highlighted experience. A row containing only
+          start/end dates cannot be saved.
+        </div>
+      ) : null}
+
+      {!hasAnyCurrentExperience && !statusIsValid ? (
+        <div className="rounded-lg border border-[var(--danger-border)] bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]">
+          Experience is optional. To continue without experience, select your
+          current status and the date since when it applies.
+        </div>
+      ) : null}
+
       <button
         type="button"
         onClick={onAdd}
@@ -909,7 +1153,9 @@ export function ExperienceEditor({
         <div className="surface-card space-y-4 rounded-xl border border-[var(--border)] p-5">
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-[var(--primary)]" />
-            <h4 className="text-sm font-semibold text-[var(--text-primary)]">Candidate Status</h4>
+            <h4 className="text-sm font-semibold text-[var(--text-primary)]">
+              Candidate Status
+            </h4>
           </div>
 
           <div className="space-y-4">
@@ -923,7 +1169,9 @@ export function ExperienceEditor({
                   const selectedValue = e.target.value;
                   handleStatusChange(selectedValue);
                 }}
-                className="select-field"
+                className={`select-field ${
+                  statusErrors.statusType ? "border-[var(--danger)]" : ""
+                }`}
               >
                 <option value="">Select your status...</option>
                 {statusOptions.map((option) => (
@@ -932,26 +1180,38 @@ export function ExperienceEditor({
                   </option>
                 ))}
               </select>
+              {statusErrors.statusType ? (
+                <p className="form-error mt-1">
+                  {statusErrors.statusType}
+                </p>
+              ) : null}
             </div>
 
-            {/* Expected Return Date (only for career break) */}
-            {statusType === "career_break" && (
-              <div>
-                <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
-                  Expected Return Date <span className="text-[var(--danger)]">*</span>
-                </label>
-                <input
-                  type="date"
-                  value={statusExpectedReturn}
-                  onChange={(e) => onStatusExpectedReturnChange(e.target.value)}
-                  min={new Date().toISOString().split("T")[0]}
-                  className="input-field"
-                />
-                <p className="form-helper mt-1">
-                  When do you plan to return to work?
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
+                Since <span className="text-[var(--danger)]">*</span>
+              </label>
+              <input
+                type="date"
+                value={statusSince}
+                max={today}
+                onChange={(event) =>
+                  onStatusSinceChange(event.target.value)
+                }
+                className={`input-field ${
+                  statusErrors.statusSince ? "border-[var(--danger)]" : ""
+                }`}
+              />
+              {statusErrors.statusSince ? (
+                <p className="form-error mt-1">
+                  {statusErrors.statusSince}
                 </p>
-              </div>
-            )}
+              ) : (
+                <p className="form-helper mt-1">
+                  Select the date from which this status applies.
+                </p>
+              )}
+            </div>
 
             {/* Note (optional) */}
             <div>

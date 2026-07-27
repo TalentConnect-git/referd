@@ -40,7 +40,8 @@ export function SkillsEditor({ skills, onChange }: SkillsEditorProps) {
               .filter(Boolean)
           : [];
 
-        setSkillOptions([...new Set(skillsList)]);
+        // Deduplicate and sort
+        setSkillOptions([...new Set(skillsList)].sort());
       } catch (error) {
         console.error("Error fetching skills:", error);
       } finally {
@@ -61,11 +62,14 @@ export function SkillsEditor({ skills, onChange }: SkillsEditorProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Filter skills based on input
+  // Filter skills based on input - Limited to prevent overload
   const filteredSkills = useMemo(() => {
+    const searchTerm = inputValue.toLowerCase().trim();
+    if (!searchTerm) return [];
+
     return skillOptions
       .filter((skill) =>
-        skill.toLowerCase().includes(inputValue.toLowerCase())
+        skill.toLowerCase().includes(searchTerm)
       )
       .filter(
         (skill) =>
@@ -73,10 +77,10 @@ export function SkillsEditor({ skills, onChange }: SkillsEditorProps) {
             (selected) => selected.toLowerCase() === skill.toLowerCase()
           )
       )
-      .sort();
+      .slice(0, 15); // Limit to 15 results to prevent overload
   }, [skillOptions, inputValue, skills]);
 
-  // Popular skills (top 10 most relevant)
+  // Popular skills - Limited to 12
   const popularSkills = useMemo(() => {
     return skillOptions
       .filter(
@@ -113,7 +117,7 @@ export function SkillsEditor({ skills, onChange }: SkillsEditorProps) {
 
       if (res.status === 409) {
         const existingSkill = data.skills || trimmedSkill;
-        setSkillOptions((prev) => [...new Set([...prev, existingSkill])]);
+        setSkillOptions((prev) => [...new Set([...prev, existingSkill])].sort());
         if (!skills.includes(existingSkill)) {
           onChange([...skills, existingSkill]);
         }
@@ -125,7 +129,7 @@ export function SkillsEditor({ skills, onChange }: SkillsEditorProps) {
       }
 
       const createdSkill = data.skills || trimmedSkill;
-      setSkillOptions((prev) => [...new Set([...prev, createdSkill])]);
+      setSkillOptions((prev) => [...new Set([...prev, createdSkill])].sort());
       if (!skills.includes(createdSkill)) {
         onChange([...skills, createdSkill]);
       }
@@ -175,29 +179,29 @@ export function SkillsEditor({ skills, onChange }: SkillsEditorProps) {
   };
 
   return (
-    <div className="space-y-3">
-      <div className="relative" ref={dropdownRef}>
+    <div className="w-full space-y-3">
+      <div className="relative w-full" ref={dropdownRef}>
         {/* Main input area */}
-        <div className="relative">
-          <div className="flex min-h-12 flex-wrap gap-2 rounded-lg border border-[var(--border)] bg-[var(--background-soft)] p-3 transition focus-within:border-[var(--primary)] focus-within:ring-1 focus-within:ring-[var(--primary)]">
-            {/* Selected Skills */}
+        <div className="relative w-full">
+          <div className="flex min-h-10 flex-wrap gap-1.5 rounded-lg border border-theme bg-background-soft p-2 transition focus-within:border-primary focus-within:ring-1 focus-within:ring-primary sm:min-h-12 sm:gap-2 sm:p-3">
+            {/* Selected Skills - Responsive */}
             {skills.map((skill) => (
               <span
                 key={skill}
-                className="badge badge-primary inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium"
+                className="badge badge-primary inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-medium sm:gap-1 sm:px-3 sm:py-1 sm:text-xs"
               >
-                {skill}
+                <span className="truncate max-w-[120px] sm:max-w-none">{skill}</span>
                 <button
                   type="button"
                   onClick={() => removeSkill(skill)}
-                  className="hover:text-[var(--danger)] transition-colors"
+                  className="hover:text-danger transition-colors"
                 >
-                  <X className="h-3 w-3" />
+                  <X className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                 </button>
               </span>
             ))}
 
-            {/* Input */}
+            {/* Input - Responsive */}
             <input
               ref={inputRef}
               type="text"
@@ -216,48 +220,48 @@ export function SkillsEditor({ skills, onChange }: SkillsEditorProps) {
                   : "Add more skills..."
               }
               disabled={loading || isCreating}
-              className="min-w-[120px] flex-1 bg-transparent text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]"
+              className="min-w-[80px] flex-1 bg-transparent text-xs text-primary outline-none placeholder:text-muted sm:min-w-[120px] sm:text-sm"
             />
           </div>
 
           {/* Loading indicator */}
           {(loading || isCreating) && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              <Loader2 className="h-4 w-4 animate-spin text-[var(--primary)]" />
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 sm:right-3">
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-primary sm:h-4 sm:w-4" />
             </div>
           )}
         </div>
 
-        {/* Dropdown */}
+        {/* Dropdown - Responsive */}
         {isOpen && (
-          <div className="surface-card absolute z-50 mt-2 w-full overflow-hidden rounded-lg border border-[var(--border)] shadow-xl">
-            <div className="max-h-80 overflow-y-auto p-2">
-              {/* Search results */}
+          <div className="surface-card absolute z-50 mt-1 w-full overflow-hidden rounded-lg border border-theme shadow-xl sm:mt-2">
+            <div className="max-h-60 overflow-y-auto p-2 sm:max-h-80 sm:p-3">
+              {/* Search results - Show only when typing */}
               {inputValue.length > 0 && (
-                <div className="mb-2">
-                  <div className="px-2 py-1 text-[10px] font-medium uppercase text-[var(--text-muted)]">
+                <div className="mb-2 sm:mb-3">
+                  <div className="px-2 py-1 text-[10px] font-medium uppercase text-muted">
                     Search Results
                   </div>
                   {loading ? (
-                    <div className="flex items-center justify-center px-4 py-3 text-sm text-[var(--text-muted)]">
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <div className="flex items-center justify-center px-3 py-2 text-xs text-muted sm:px-4 sm:py-3 sm:text-sm">
+                      <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin sm:h-4 sm:w-4" />
                       Loading...
                     </div>
                   ) : filteredSkills.length > 0 ? (
-                    <div className="flex flex-wrap gap-1.5">
-                      {filteredSkills.slice(0, 10).map((skill) => (
+                    <div className="flex flex-wrap gap-1">
+                      {filteredSkills.map((skill) => (
                         <button
                           key={skill}
                           type="button"
                           onClick={() => handleSelectOrAddSkill(skill)}
-                          className="inline-flex items-center rounded-full border border-[var(--border)] px-3 py-1.5 text-xs text-[var(--text-primary)] transition-colors hover:border-[var(--primary-border)] hover:bg-[var(--primary-soft)]"
+                          className="inline-flex items-center rounded-full border border-theme px-2 py-1 text-[10px] text-primary transition-colors hover:border-primary/40 hover:bg-primary-soft sm:px-3 sm:py-1.5 sm:text-xs"
                         >
-                          {skill}
+                          <span className="truncate max-w-[100px] sm:max-w-none">{skill}</span>
                         </button>
                       ))}
                     </div>
                   ) : (
-                    <div className="px-2 py-2 text-sm text-[var(--text-muted)]">
+                    <div className="px-2 py-2 text-xs text-muted sm:px-3 sm:text-sm">
                       No matching skills found
                     </div>
                   )}
@@ -268,17 +272,17 @@ export function SkillsEditor({ skills, onChange }: SkillsEditorProps) {
                       type="button"
                       onClick={() => handleSelectOrAddSkill(inputValue)}
                       disabled={isCreating}
-                      className="mt-2 flex w-full items-center gap-2 rounded-lg border border-dashed border-[var(--primary-border)] px-4 py-2.5 text-left text-sm text-[var(--primary)] transition-colors hover:bg-[var(--primary-soft)]"
+                      className="mt-1.5 flex w-full items-center gap-2 rounded-lg border border-dashed border-primary/40 px-3 py-2 text-left text-xs text-primary transition-colors hover:bg-primary-soft sm:mt-2 sm:px-4 sm:py-2.5 sm:text-sm"
                     >
                       {isCreating ? (
                         <>
-                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <Loader2 className="h-3.5 w-3.5 animate-spin sm:h-4 sm:w-4" />
                           Adding "{inputValue}"...
                         </>
                       ) : (
                         <>
-                          <Plus className="h-4 w-4" />
-                          Create new skill: "{inputValue}"
+                          <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                          <span className="truncate">Create new skill: "{inputValue}"</span>
                         </>
                       )}
                     </button>
@@ -286,24 +290,24 @@ export function SkillsEditor({ skills, onChange }: SkillsEditorProps) {
                 </div>
               )}
 
-              {/* Popular Skills */}
-              {popularSkills.length > 0 && (
+              {/* Popular Skills - Show only when not typing */}
+              {inputValue.length === 0 && popularSkills.length > 0 && (
                 <div>
-                  <div className="flex items-center gap-2 px-2 py-1">
-                    <Sparkles className="h-3 w-3 text-[var(--warning)]" />
-                    <span className="text-[10px] font-medium uppercase text-[var(--text-muted)]">
+                  <div className="flex items-center gap-1.5 px-2 py-1 sm:gap-2">
+                    <Sparkles className="h-2.5 w-2.5 text-warning sm:h-3 sm:w-3" />
+                    <span className="text-[10px] font-medium uppercase text-muted">
                       Popular Skills
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {popularSkills.slice(0, 15).map((skill) => (
+                  <div className="flex flex-wrap gap-1">
+                    {popularSkills.map((skill) => (
                       <button
                         key={skill}
                         type="button"
                         onClick={() => handleSelectOrAddSkill(skill)}
-                        className="inline-flex items-center rounded-full border border-[var(--border)] px-3 py-1.5 text-xs text-[var(--text-primary)] transition-colors hover:border-[var(--primary-border)] hover:bg-[var(--primary-soft)]"
+                        className="inline-flex items-center rounded-full border border-theme px-2 py-1 text-[10px] text-primary transition-colors hover:border-primary/40 hover:bg-primary-soft sm:px-3 sm:py-1.5 sm:text-xs"
                       >
-                        {skill}
+                        <span className="truncate max-w-[80px] sm:max-w-none">{skill}</span>
                       </button>
                     ))}
                   </div>
@@ -311,10 +315,10 @@ export function SkillsEditor({ skills, onChange }: SkillsEditorProps) {
               )}
 
               {/* Empty state */}
-              {popularSkills.length === 0 && !loading && (
-                <div className="px-4 py-6 text-center">
-                  <p className="text-sm text-[var(--text-muted)]">No skills available</p>
-                  <p className="mt-1 text-xs text-[var(--text-muted)]">
+              {popularSkills.length === 0 && !loading && inputValue.length === 0 && (
+                <div className="px-3 py-4 text-center sm:px-4 sm:py-6">
+                  <p className="text-xs text-muted sm:text-sm">No skills available</p>
+                  <p className="mt-0.5 text-[10px] text-muted sm:mt-1 sm:text-xs">
                     Start typing to create a new skill
                   </p>
                 </div>
@@ -324,9 +328,9 @@ export function SkillsEditor({ skills, onChange }: SkillsEditorProps) {
         )}
       </div>
 
-      {/* Skill count */}
+      {/* Skill count - Responsive */}
       {skills.length > 0 && (
-        <p className="text-xs text-[var(--text-muted)]">
+        <p className="text-[10px] text-muted sm:text-xs">
           {skills.length} skill{skills.length !== 1 ? "s" : ""} added
         </p>
       )}
