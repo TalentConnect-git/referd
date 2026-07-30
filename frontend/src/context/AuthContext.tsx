@@ -78,6 +78,17 @@ const getStoredUser = (): AuthUser | null => {
   }
 };
 
+// ALLOWED ROLES - Only these roles can access the app
+const ALLOWED_ROLES: AuthUser["userType"][] = [
+  "student",
+  "fresher",
+  "professional",
+];
+
+const isAllowedRole = (
+  role: AuthUser["userType"],
+) => ALLOWED_ROLES.includes(role);
+
 export function AuthContextRole({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -110,11 +121,6 @@ export function AuthContextRole({ children }: { children: ReactNode }) {
     try {
       setProfileLoading(true);
 
-      /**
-       * Important:
-       * Use axiosInstance, not raw axios.
-       * Then expired token will auto-refresh here also.
-       */
       const response = await axiosInstance.get("/api/onboarding/me");
 
       const profileData =
@@ -153,14 +159,24 @@ export function AuthContextRole({ children }: { children: ReactNode }) {
         setUser(savedUser);
       }
 
-      /**
-       * getCurrentUser uses axiosInstance.
-       * If access token expired:
-       * axiosInstance -> /api/auth/refresh -> retry /api/auth/me
-       */
+     
       const data = await getCurrentUser();
 
       if (!data?.user) {
+        resetAuthState();
+        redirectToLogin();
+        setLoading(false);
+        return;
+      }
+
+      // Check if user role is allowed
+      if (!isAllowedRole(data.user.userType)) {
+        console.warn(
+          `Unauthorized user type: ${data.user.userType}`,
+        );
+
+        // Clear both frontend storage and backend session
+        await logoutUser().catch(() => {});
         resetAuthState();
         redirectToLogin();
         setLoading(false);
@@ -184,6 +200,13 @@ export function AuthContextRole({ children }: { children: ReactNode }) {
 
   const login = useCallback(
     (userData: AuthUser, jwtToken: string) => {
+      
+      if (!isAllowedRole(userData.userType)) {
+        resetAuthState();
+      
+        return;
+      }
+
       localStorage.setItem("token", jwtToken);
       localStorage.setItem("user", JSON.stringify(userData));
 
@@ -196,7 +219,7 @@ export function AuthContextRole({ children }: { children: ReactNode }) {
         fetchProfile();
       }
     },
-    [fetchProfile],
+    [fetchProfile, resetAuthState, redirectToLogin],
   );
 
   const logout = useCallback(async () => {
