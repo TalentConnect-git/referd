@@ -28,6 +28,11 @@ import {
   HelpCircle,
   Menu,
   type LucideIcon,
+  AlertTriangle,
+  Eye,
+  EyeOff,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useMemo, useRef, useState, useEffect } from "react";
@@ -35,6 +40,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useMessageUnreadCount } from "@/hooks/useMessageUnreadCount";
 import { goToHome } from "@/helper/index";
 import OnboardingModal from "./dashboard/OnboardingModal";
+import axiosInstance from "@/lib/axiosInstance";
 
 export type CandidateRole = "professional" | "student" | "fresher";
 
@@ -105,6 +111,13 @@ export function DashboardLayout({
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false);
+  const [showDeactivateModal, setShowDeactivateModal] = useState(false);
+  const [deactivateTimer, setDeactivateTimer] = useState(5);
+  const [isDeactivating, setIsDeactivating] = useState(false);
+  const [deactivateError, setDeactivateError] = useState<string | null>(null);
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const settingsRef = useRef<HTMLDivElement>(null);
 
@@ -135,6 +148,28 @@ export function DashboardLayout({
     setIsMobileMenuOpen(false);
   }, [pathname]);
 
+  // Timer for deactivation confirmation
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (showDeactivateModal && deactivateTimer > 0) {
+      interval = setInterval(() => {
+        setDeactivateTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [showDeactivateModal, deactivateTimer]);
+
+  // Reset timer and password when modal closes
+  useEffect(() => {
+    if (!showDeactivateModal) {
+      setDeactivateTimer(5);
+      setDeactivateError(null);
+      setPassword("");
+    }
+  }, [showDeactivateModal]);
+
   // Derived display values
   const displayName = useMemo(() => {
     if (profile) return profile.fullName || profile.name || "";
@@ -158,11 +193,16 @@ export function DashboardLayout({
   // Get profile image from profile.profileImage
   const profileImageUrl = profile?.profileImage || null;
 
-  // Active state helper
+  // Active state helper - FIXED for message route (not messages)
   const isActive = (path: string) => {
     if (path === "/home" && pathname === `${basePath}/home`) return true;
     if (path === "/dashboard" && pathname === `${basePath}/dashboard`)
       return true;
+    // Special handling for message - check if path is exactly /message or starts with /message/
+    if (path === "/message") {
+      return pathname === `${basePath}/message` || 
+             pathname.startsWith(`${basePath}/message/`);
+    }
     const fullPath = `${basePath}${path}`;
     return pathname === fullPath || pathname.startsWith(`${fullPath}/`);
   };
@@ -196,18 +236,59 @@ export function DashboardLayout({
     (item) => item.label !== "Profile" && item.label !== "Settings",
   );
 
+  // Bottom nav items - show 5 items
+  const bottomNavItems = mainNavItems.slice(0, 5);
+
   // Handlers
   const handleLogout = async () => {
     setSettingsOpen(false);
+    setMobileSettingsOpen(false);
     setIsMobileMenuOpen(false);
     await logout();
     router.push("/login");
   };
 
-  const handleDeactivate = () => {
+  const handleDeactivateClick = () => {
     setSettingsOpen(false);
+    setMobileSettingsOpen(false);
     setIsMobileMenuOpen(false);
-    console.log("Deactivate account requested");
+    setShowDeactivateModal(true);
+    setDeactivateTimer(5);
+    setDeactivateError(null);
+    setPassword("");
+  };
+
+  const handleDeactivateConfirm = async () => {
+    if (deactivateTimer > 0) return;
+    if (!password.trim()) {
+      setDeactivateError("Please enter your password to confirm account deletion.");
+      return;
+    }
+    
+    setIsDeactivating(true);
+    setDeactivateError(null);
+    
+    try {
+      const response = await axiosInstance.delete("/api/auth/delete", {
+        data: { password: password.trim() }
+      });
+      
+      if (response.status === 200) {
+        setShowDeactivateModal(false);
+        await logout();
+        router.push("/login");
+      } else {
+        setDeactivateError("Failed to delete account. Please try again.");
+      }
+    } catch (error: any) {
+      console.error("Error deleting account:", error);
+      setDeactivateError(
+        error.response?.data?.message || 
+        "An error occurred while deleting your account. Please try again."
+      );
+    } finally {
+      setIsDeactivating(false);
+    }
   };
 
   // ---------- JSX ----------
@@ -293,7 +374,7 @@ export function DashboardLayout({
                 {settingsOpen && (
                   <div className="absolute bottom-full left-0 mb-1 w-full min-w-[160px] rounded-lg border border-[var(--border)] bg-[var(--card)] py-1 shadow-lg">
                     <button
-                      onClick={handleDeactivate}
+                      onClick={handleDeactivateClick}
                       className="w-full px-4 py-2 text-left text-sm text-[var(--danger)] transition hover:bg-[var(--danger-soft)]"
                     >
                       Deactivate Account
@@ -357,9 +438,9 @@ export function DashboardLayout({
             
             {/* Right side */}
             <div className="flex items-center gap-2">
-              {/* Messages badge */}
+              {/* Message badge - using /message route */}
               <Link
-                href={`${basePath}/messages`}
+                href={`${basePath}/message`}
                 className="relative rounded-lg p-2 text-[var(--text-secondary)] transition hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)]"
               >
                 <MessageSquare className="h-5 w-5" />
@@ -382,14 +463,14 @@ export function DashboardLayout({
         </header>
 
         {/* Mobile Content */}
-        <main className="min-h-[calc(100vh-60px)] bg-[var(--background)]">
+        <main className="min-h-[calc(100vh-60px)] bg-[var(--background)] pb-[70px]">
           {children}
         </main>
 
-        {/* Mobile Bottom Navigation */}
-        <nav className="sticky bottom-0 z-40 border-t border-[var(--border)] bg-[var(--navbar-background)] backdrop-blur-xl">
+        {/* Mobile Bottom Navigation - 5 items */}
+        <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-[var(--border)] bg-[var(--navbar-background)] backdrop-blur-xl">
           <div className="flex items-center justify-around px-2 py-1.5">
-            {mainNavItems.slice(0, 5).map((item) => {
+            {bottomNavItems.map((item) => {
               const Icon = iconMap[item.icon];
               const itemPath = `${basePath}${item.to}`;
               const active = isActive(item.to);
@@ -398,7 +479,7 @@ export function DashboardLayout({
                 <Link
                   key={item.to}
                   href={itemPath}
-                  className={`flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-[10px] font-medium transition-all ${
+                  className={`flex flex-col items-center gap-0.5 rounded-lg px-2 py-1.5 text-[10px] font-medium transition-all min-w-[50px] ${
                     active
                       ? "text-[var(--primary)]"
                       : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
@@ -416,7 +497,9 @@ export function DashboardLayout({
                       </span>
                     )}
                   </div>
-                  <span className="truncate max-w-[50px]">{item.label}</span>
+                  <span className="truncate max-w-[45px] text-center text-[9px]">
+                    {item.label.length > 8 ? item.label.substring(0, 7) + "…" : item.label}
+                  </span>
                 </Link>
               );
             })}
@@ -432,7 +515,6 @@ export function DashboardLayout({
           <aside className="flex h-full w-full flex-col">
             {/* Mobile Menu Header */}
             <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-4">
-              
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="rounded-lg p-2 text-[var(--text-secondary)] transition hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)]"
@@ -477,8 +559,9 @@ export function DashboardLayout({
               })}
             </nav>
 
-            {/* Mobile Menu Bottom */}
+            {/* Mobile Menu Bottom - Fixed Settings */}
             <div className="border-t border-[var(--border)] p-4">
+              {/* Profile */}
               <Link
                 href={`${basePath}/profile`}
                 onClick={() => setIsMobileMenuOpen(false)}
@@ -488,25 +571,35 @@ export function DashboardLayout({
                 <span>Profile</span>
               </Link>
 
+              {/* Settings with expandable options */}
               <div className="mt-1">
                 <button
-                  onClick={() => setSettingsOpen(!settingsOpen)}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)]"
+                  onClick={() => setMobileSettingsOpen(!mobileSettingsOpen)}
+                  className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)]"
                 >
-                  <Settings className="h-5 w-5" />
-                  <span>Settings</span>
+                  <div className="flex items-center gap-3">
+                    <Settings className="h-5 w-5" />
+                    <span>Settings</span>
+                  </div>
+                  {mobileSettingsOpen ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
                 </button>
-                {settingsOpen && (
-                  <div className="ml-5 mt-1 space-y-1 border-l border-[var(--border)] pl-3">
+                
+                {/* Settings Options - Fixed */}
+                {mobileSettingsOpen && (
+                  <div className="ml-12 mt-1 space-y-1 border-l border-[var(--border)] pl-3">
                     <button
-                      onClick={handleDeactivate}
-                      className="w-full rounded-md px-3 py-2 text-left text-sm text-[var(--danger)] transition hover:bg-[var(--danger-soft)]"
+                      onClick={handleDeactivateClick}
+                      className="w-full rounded-md px-3 py-2.5 text-left text-sm text-[var(--danger)] transition hover:bg-[var(--danger-soft)]"
                     >
                       Deactivate Account
                     </button>
                     <button
                       onClick={handleLogout}
-                      className="w-full rounded-md px-3 py-2 text-left text-sm text-[var(--danger)] transition hover:bg-[var(--danger-soft)]"
+                      className="w-full rounded-md px-3 py-2.5 text-left text-sm text-[var(--danger)] transition hover:bg-[var(--danger-soft)]"
                     >
                       Logout
                     </button>
@@ -538,18 +631,116 @@ export function DashboardLayout({
                   </div>
                 </div>
               </div>
-
-              {/* Logout button for mobile */}
-              <button
-                onClick={handleLogout}
-                className="mt-3 w-full rounded-lg border border-[var(--danger-border)] bg-[var(--danger-soft)] px-4 py-2.5 text-sm font-medium text-[var(--danger)] transition hover:bg-[var(--danger)] hover:text-white"
-              >
-                Logout
-              </button>
             </div>
           </aside>
         </div>
       </div>
+
+      {/* ========== Deactivate Account Modal ========== */}
+      {showDeactivateModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-md mx-4 bg-[var(--card)] rounded-xl shadow-2xl border border-[var(--border)] overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+            {/* Header */}
+            <div className="flex items-center gap-3 p-6 border-b border-[var(--border)]">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--danger-soft)] text-[var(--danger)]">
+                <AlertTriangle className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+                  Deactivate Account
+                </h3>
+                <p className="text-sm text-[var(--text-muted)]">
+                  This action cannot be undone
+                </p>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 space-y-4">
+              <p className="text-[var(--text-secondary)]">
+                Are you sure you want to delete your account? All your data, 
+                including profile, messages, and activity will be permanently removed.
+              </p>
+              
+              {/* Password Input */}
+              <div className="space-y-2">
+                <label htmlFor="deactivate-password" className="text-sm font-medium text-[var(--text-secondary)]">
+                  Enter your password to confirm
+                </label>
+                <div className="relative">
+                  <input
+                    id="deactivate-password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 pr-12 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20"
+                    disabled={isDeactivating}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+                    disabled={isDeactivating}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+              
+              {deactivateError && (
+                <div className="rounded-lg bg-[var(--danger-soft)] p-3 text-sm text-[var(--danger)] border border-[var(--danger-border)]">
+                  {deactivateError}
+                </div>
+              )}
+
+              <div className="flex items-center gap-3 rounded-lg bg-[var(--warning-soft)] p-3 border border-[var(--warning-border)]">
+                <span className="text-sm font-medium text-[var(--warning)]">
+                  {deactivateTimer > 0 ? (
+                    <>Please wait {deactivateTimer} seconds to confirm...</>
+                  ) : (
+                    <>You can now confirm deletion</>
+                  )}
+                </span>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-end gap-3 p-6 border-t border-[var(--border)] bg-[var(--background)]">
+              <button
+                onClick={() => {
+                  setShowDeactivateModal(false);
+                  setDeactivateTimer(5);
+                  setDeactivateError(null);
+                  setPassword("");
+                }}
+                disabled={isDeactivating}
+                className="rounded-lg px-4 py-2 text-sm font-medium text-[var(--text-secondary)] transition hover:bg-[var(--card-hover)] disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeactivateConfirm}
+                disabled={deactivateTimer > 0 || isDeactivating || !password.trim()}
+                className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-all ${
+                  deactivateTimer > 0 || isDeactivating || !password.trim()
+                    ? "bg-[var(--text-muted)] cursor-not-allowed opacity-50"
+                    : "bg-[var(--danger)] hover:bg-[var(--danger-hover)] active:scale-[0.98]"
+                }`}
+              >
+                {isDeactivating ? (
+                  <span className="flex items-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    Deleting...
+                  </span>
+                ) : (
+                  "Yes, Delete My Account"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Onboarding Modal */}
       <OnboardingModal />

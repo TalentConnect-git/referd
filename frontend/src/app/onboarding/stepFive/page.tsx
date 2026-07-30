@@ -748,19 +748,9 @@ export default function StepFivePage() {
     }
 
     // Status is required when no current company
-    if (!statusType) {
-      return "Please select your current status.";
-    }
+    
 
-    // Since date is required
-    if (!statusSince) {
-      return "Please select the date since when this status applies.";
-    }
-
-    // Career break requires expected return date
-    if (statusType === "career_break" && !statusExpectedReturn) {
-      return "Please provide an expected return date for your career break.";
-    }
+    
 
     // Note max length
     if (statusNote && statusNote.length > 500) {
@@ -963,7 +953,7 @@ export default function StepFivePage() {
                     handleUpdate(index, "company", value)
                   }
                   placeholder="Search or type company name..."
-                  icon={Search}
+                 
                 />
               </div>
 
@@ -979,7 +969,7 @@ export default function StepFivePage() {
                     handleUpdate(index, "role", value)
                   }
                   placeholder="Search or type job role..."
-                  icon={Search}
+                 
                 />
               </div>
 
@@ -1093,9 +1083,7 @@ export default function StepFivePage() {
             {/* Since Date - User can select custom date */}
             {statusType && (
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
-                  Since <span className="text-[var(--danger)]">*</span>
-                </label>
+                
                 <input
                   type="date"
                   value={statusSince}

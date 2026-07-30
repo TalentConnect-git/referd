@@ -106,11 +106,7 @@ export function PublicationEditor({
                 <h4 className="text-sm font-semibold text-[var(--text-primary)]">
                   Publication {idx + 1}
                 </h4>
-                {!item.title && !item.url && (
-                  <span className="badge rounded-full bg-[var(--background-soft)] px-2 py-0.5 text-[10px] text-[var(--text-muted)]">
-                    Optional
-                  </span>
-                )}
+                
               </div>
             </div>
 

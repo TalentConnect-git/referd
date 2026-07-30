@@ -80,7 +80,7 @@ const OrganizationAutocomplete = ({
   onChange,
   placeholder,
   label,
-  icon: Icon,
+  
 }: {
   value: string;
   onChange: (value: string) => void;
@@ -218,7 +218,7 @@ const OrganizationAutocomplete = ({
           placeholder={placeholder}
           className="input-field pl-10 text-sm"
         />
-        {Icon && <Icon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-muted)]" />}
+       
         {searchTerm && (
           <button
             type="button"
@@ -311,13 +311,13 @@ const RoleAutocomplete = ({
   onChange,
   placeholder,
   label,
-  icon: Icon,
+
 }: {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
   label?: string;
-  icon?: React.ElementType;
+
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState(value || "");
@@ -462,7 +462,7 @@ const RoleAutocomplete = ({
           placeholder={placeholder}
           className="input-field pl-10 text-sm"
         />
-        {Icon && <Icon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-muted)]" />}
+       
         {searchTerm && (
           <button
             type="button"
@@ -571,11 +571,7 @@ export function LeadershipEditor({
               <h4 className="text-sm font-semibold text-[var(--text-primary)]">
                 Leadership {idx + 1}
               </h4>
-              {!item.organization && !item.role && (
-                <span className="badge rounded-full bg-[var(--background-soft)] px-2 py-0.5 text-[10px] text-[var(--text-muted)]">
-                  Optional
-                </span>
-              )}
+              
             </div>
 
             {items.length > 1 && (
@@ -601,7 +597,7 @@ export function LeadershipEditor({
                 value={item.organization || ""}
                 onChange={(value: string) => onUpdate(idx, "organization", value)}
                 placeholder="Search or type organization..."
-                icon={Search}
+               
               />
             </div>
 
@@ -615,7 +611,7 @@ export function LeadershipEditor({
                 value={item.role || ""}
                 onChange={(value: string) => onUpdate(idx, "role", value)}
                 placeholder="Search or type role..."
-                icon={Search}
+               
               />
             </div>
 

@@ -158,6 +158,11 @@ export default function BasicJobDetails({
   // Validation states
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // User profile states
+  const [loadingProfile, setLoadingProfile] = useState(false);
+  const [currentCompany, setCurrentCompany] = useState<string>("");
+  const [profileError, setProfileError] = useState<string>("");
+
   // Fetch degrees on mount
   useEffect(() => {
     const fetchDegrees = async () => {
@@ -222,6 +227,59 @@ export default function BasicJobDetails({
     };
     fetchJobRoles();
   }, []);
+
+  // Fetch user profile for currentCompany
+  // Fetch user profile for currentCompany
+useEffect(() => {
+  const fetchUserProfile = async () => {
+    try {
+      setLoadingProfile(true);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setProfileError("User not authenticated");
+        setLoadingProfile(false);
+        return;
+      }
+
+      const response = await axiosInstance.get("/api/onboarding/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      console.log("profile data",response);
+
+      if (response.data) {
+       
+        const company = response.data.currentCompany || "";
+        setCurrentCompany(company);
+        
+        // Update formData with company name - use direct object update
+        if (company) {
+          setFormData({
+            ...formData,
+            companyName: company,
+          });
+        }
+
+        if (!company) {
+          setProfileError("Please add your current company to your profile before posting a job.");
+        } else {
+          setProfileError("");
+        }
+      } else {
+        setProfileError("Failed to load user profile");
+      }
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      setProfileError("Failed to load user profile. Please try again.");
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
+
+  fetchUserProfile();
+}, []); // Remove setFormData from dependencies
 
   // Fetch streams for selected degree using degree ID
   const loadStreamsForDegree = async (degreeId: string): Promise<void> => {
@@ -640,6 +698,11 @@ export default function BasicJobDetails({
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
+    // Validate current company
+    if (!currentCompany || currentCompany.trim() === "") {
+      newErrors.company = "Please add your current company to your profile before posting a job.";
+    }
+
     // Required: Job Title (at least one)
     if (!formData.jobTitle || formData.jobTitle.length === 0) {
       newErrors.jobTitle = "At least one job title is required";
@@ -690,10 +753,7 @@ export default function BasicJobDetails({
       newErrors["packageDetails.totalCTC"] = "Total CTC is required";
     }
 
-    // Required: Package Details - Fixed Pay
-    if (!formData.packageDetails?.fixedPay || formData.packageDetails.fixedPay < 0) {
-      newErrors["packageDetails.fixedPay"] = "Fixed pay is required";
-    }
+   
 
     // Validate if Location is selected but state not provided
     if (formData.broadcastType === "Location") {
@@ -767,6 +827,45 @@ export default function BasicJobDetails({
       </div>
 
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+        {/* Current Company - Read-only field */}
+        <div className="md:col-span-2">
+          <label className="mb-1.5 block text-sm font-medium text-[var(--text-secondary)]">
+            <Building2 className="mr-1.5 inline h-4 w-4" />
+            Current Company <span className="text-[var(--danger)]">*</span>
+            <span className="ml-2 text-xs text-[var(--text-muted)]">(Auto-detected from your profile)</span>
+          </label>
+          
+          <div className="relative">
+            <input
+              type="text"
+              value={currentCompany}
+              disabled
+              placeholder={loadingProfile ? "Loading profile..." : "Add your current company to post jobs"}
+              className={`input-field bg-[var(--bg-secondary)] cursor-not-allowed ${errors.company ? 'border-[var(--danger)]' : ''}`}
+            />
+            {loadingProfile && (
+              <Loader2 className="absolute right-3 top-3 h-4 w-4 animate-spin text-[var(--primary)]" />
+            )}
+            {!loadingProfile && currentCompany && (
+              <Check className="absolute right-3 top-3 h-4 w-4 text-[var(--success)]" />
+            )}
+          </div>
+          
+          {errors.company && (
+            <p className="form-error mt-1">{errors.company}</p>
+          )}
+          {!errors.company && profileError && !currentCompany && (
+            <p className="mt-1 text-xs text-[var(--warning)]">
+              ⚠️ {profileError}
+            </p>
+          )}
+          {!currentCompany && !loadingProfile && (
+            <p className="form-helper mt-1 text-[var(--warning)]">
+              Please update your profile with your current company to post jobs.
+            </p>
+          )}
+        </div>
+
         {/* Job Title - Multi-select with Master Data */}
         <div className="md:col-span-2">
           <label className="mb-1.5 block text-sm font-medium text-[var(--text-secondary)]">
@@ -1632,7 +1731,7 @@ export default function BasicJobDetails({
         {/* Package Details */}
         <div className="mt-2 border-t border-[var(--border)] pt-4 md:col-span-2">
           <h3 className="mb-3 flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)]">
-            <DollarSign className="h-4 w-4 text-[var(--primary)]" />
+           
             Package Details
           </h3>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -1675,7 +1774,7 @@ export default function BasicJobDetails({
             </div>
             <div>
               <label className="mb-1 block text-xs text-[var(--text-muted)]">
-                Fixed Pay <span className="text-[var(--danger)]">*</span>
+                Fixed Pay 
               </label>
               <input
                 type="number"
@@ -1720,9 +1819,21 @@ export default function BasicJobDetails({
         <button
           type="button"
           onClick={handleNext}
-          className="btn-primary rounded-lg px-6 py-2.5 font-medium"
+          disabled={!currentCompany || loadingProfile}
+          className={`btn-primary rounded-lg px-6 py-2.5 font-medium ${
+            !currentCompany || loadingProfile
+              ? 'opacity-50 cursor-not-allowed'
+              : ''
+          }`}
         >
-          Next Step →
+          {loadingProfile ? (
+            <span className="flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Loading...
+            </span>
+          ) : (
+            "Next Step →"
+          )}
         </button>
       </div>
     </div>

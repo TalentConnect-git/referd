@@ -12,6 +12,30 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
+// Helper function to validate and sanitize image URL
+const getValidImageSrc = (src?: string | null): string => {
+  if (!src) return "";
+  
+  const cleanSrc = src.trim();
+  
+  // If it's already a valid URL
+  if (cleanSrc.startsWith('http://') || cleanSrc.startsWith('https://')) {
+    return cleanSrc;
+  }
+  
+  // If it's a relative path without leading slash, add it
+  if (cleanSrc && !cleanSrc.startsWith('/') && !cleanSrc.startsWith('./') && !cleanSrc.startsWith('../')) {
+    return `/${cleanSrc}`;
+  }
+  
+  // If it's just a random string like "abcd", return empty (will use fallback)
+  if (!cleanSrc.includes('.') && !cleanSrc.startsWith('/')) {
+    return "";
+  }
+  
+  return cleanSrc;
+};
+
 export default function AlumniCard({
   name,
   role,
@@ -23,6 +47,7 @@ export default function AlumniCard({
   onClick,
 }: AlumniCardProps) {
   const [imageError, setImageError] = useState(false);
+  const [imgSrc, setImgSrc] = useState<string>(() => getValidImageSrc(profileImage));
 
   const initials = name
     .split(" ")
@@ -48,6 +73,14 @@ export default function AlumniCard({
     }
   };
 
+  const handleImageError = () => {
+    setImageError(true);
+    setImgSrc("");
+  };
+
+  // Check if image URL is valid and not error
+  const hasValidImage = imgSrc && !imageError;
+
   return (
     <div
       onClick={handleCardClick}
@@ -56,13 +89,14 @@ export default function AlumniCard({
       <div className="flex items-start gap-3">
         {/* Profile Image */}
         <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border-2 border-[var(--border)] transition-colors duration-200 group-hover:border-[var(--primary-border)]">
-          {profileImage && !imageError ? (
+          {hasValidImage ? (
             <Image
-              src={profileImage}
+              src={imgSrc}
               alt={name}
               fill
               className="object-cover"
-              onError={() => setImageError(true)}
+              onError={handleImageError}
+              unoptimized={imgSrc.startsWith('http://') || imgSrc.startsWith('https://')}
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-[var(--primary-soft)]">
@@ -105,7 +139,7 @@ export default function AlumniCard({
         </div>
       </div>
 
-      {/* Message Button - Fixed with proper border visibility */}
+      {/* Message Button */}
       <button
         onClick={handleMessageClick}
         className="

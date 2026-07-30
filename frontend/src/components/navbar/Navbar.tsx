@@ -1,5 +1,5 @@
 "use client";
-import { Bell, CalendarDays, MessageCircle, Moon, Sun } from "lucide-react";
+import { Bell, CalendarDays, MessageCircle, Moon, Sun, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useGetAllUsers } from "@/hooks/useGetAllUsers";
 import { useTheme } from "@/context/ThemeContext";
@@ -28,11 +28,7 @@ function ThemeToggle() {
       "
       aria-label="Toggle theme"
     >
-      {theme === "light" ? (
-        <Moon size={15} />
-      ) : (
-        <Sun size={15} />
-      )}
+      {theme === "light" ? <Moon size={15} /> : <Sun size={15} />}
     </button>
   );
 }
@@ -48,10 +44,8 @@ export default function Navbar() {
   const calendarRef = useRef<HTMLDivElement>(null);
 
   const { totalUnread, clearUnreadCount } = useGetAllUsers();
-  const { 
-    unreadCount: notificationUnreadCount, 
-    markAllAsRead,
-  } = useNotification();
+  const { unreadCount: notificationUnreadCount, markAllAsRead } =
+    useNotification();
 
   const displayName =
     profile?.fullName || profile?.name || user?.name || "User";
@@ -66,6 +60,18 @@ export default function Navbar() {
 
   const userType = profile?.profileType || user?.userType || "student";
   const profileImageUrl = profile?.profileImage || null;
+
+  // Check if mobile
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Fetch unread interviews count for badge
   useEffect(() => {
@@ -86,7 +92,7 @@ export default function Navbar() {
       try {
         const res = await getInterviews();
         const scheduled = res.data.filter(
-          (interview: Interview) => interview.status === "Scheduled"
+          (interview: Interview) => interview.status === "Scheduled",
         );
         setUpcomingInterviews(scheduled);
       } catch (err) {
@@ -103,7 +109,7 @@ export default function Navbar() {
         try {
           const res = await getInterviews();
           const scheduled = res.data.filter(
-            (interview: Interview) => interview.status === "Scheduled"
+            (interview: Interview) => interview.status === "Scheduled",
           );
           setUpcomingInterviews(scheduled);
         } catch (err) {
@@ -150,21 +156,17 @@ export default function Navbar() {
     setShowNotifications((prev) => !prev);
   };
 
-  // Handle calendar click - mark interviews as read
   const handleCalendarClick = () => {
     setShowCalendar((prev) => !prev);
-    // Reset unread count when opening calendar
     if (unreadInterviewCount > 0) {
       setUnreadInterviewCount(0);
     }
   };
 
-  // Function to close calendar modal
   const handleCloseCalendar = () => {
     setShowCalendar(false);
   };
 
-  // Function to close notifications modal
   const handleCloseNotifications = () => {
     setShowNotifications(false);
   };
@@ -174,12 +176,12 @@ export default function Navbar() {
       className="
         global-navbar flex h-12 items-center
         justify-between border-b border-[var(--border)]
-        bg-[var(--navbar-background)] px-4 sm:px-6
+        bg-[var(--navbar-background)] px-3 sm:px-6
       "
     >
       {/* Logo */}
-      <Link href="/" className="group flex items-center gap-0.5">
-        <div className="relative h-6 w-6 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
+      <Link href="/" className="group flex items-center gap-0.5 flex-shrink-0">
+        <div className="relative h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
           <Image
             src={logo}
             alt="Referd Logo"
@@ -188,14 +190,14 @@ export default function Navbar() {
             priority
           />
         </div>
-        <span className="text-sm font-medium tracking-tight text-[var(--text-primary)] transition-colors duration-200 group-hover:text-[var(--primary)]">
+        <span className="text-xs sm:text-sm font-medium tracking-tight text-[var(--text-primary)] transition-colors duration-200 group-hover:text-[var(--primary)]">
           referd
           <span className="text-[var(--primary)]">.</span>
         </span>
       </Link>
 
       {/* Right side icons */}
-      <div className="flex items-center gap-2 sm:gap-3">
+      <div className="flex items-center gap-1.5 sm:gap-3">
         {/* Theme Toggle */}
         <ThemeToggle />
 
@@ -204,21 +206,20 @@ export default function Navbar() {
           <button
             onClick={handleCalendarClick}
             className="
-              relative flex h-8 w-8 items-center justify-center
+              relative flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center
               rounded-full bg-[var(--card)] text-[var(--text-secondary)]
               transition-colors hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)]
             "
           >
-            <CalendarDays size={15} />
-            
-            {/* Show unread interview count badge */}
+            <CalendarDays size={13} className="sm:size-[15px]" />
+
             {unreadInterviewCount > 0 && (
               <span
                 className="
-                  absolute -right-0.5 -top-0.5 flex h-4
-                  min-w-[16px] items-center justify-center
-                  rounded-full bg-[var(--danger)] px-1
-                  text-[9px] font-bold text-white
+                  absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5 sm:h-4 sm:w-4
+                  min-w-[14px] sm:min-w-[16px] items-center justify-center
+                  rounded-full bg-[var(--danger)] px-0.5 sm:px-1
+                  text-[7px] sm:text-[9px] font-bold text-white
                   shadow-lg shadow-[var(--danger)]/30
                   animate-pulse-dot
                 "
@@ -230,21 +231,48 @@ export default function Navbar() {
 
           {showCalendar && (
             <div
-              style={{
-                position: "absolute",
-                top: "calc(100% + 10px)",
-                right: 0,
-                width: "380px",
-                maxHeight: "450px",
-                overflowY: "auto",
-                backgroundColor: "var(--background)",
-                border: "1px solid var(--border)",
-                borderRadius: "10px",
-                boxShadow: "var(--shadow-lg)",
-                zIndex: 9999,
-              }}
+              className={`
+                z-[9999]
+                ${
+                  isMobile
+                    ? "fixed inset-0 flex items-start justify-center bg-black/20 backdrop-blur-sm px-4 pt-16"
+                    : "absolute right-0 top-[calc(100%+10px)] w-[380px]"
+                }
+              `}
             >
-              <InterviewCall onClose={handleCloseCalendar} />
+              <div
+                className={`
+                  w-full
+                  ${isMobile ? "max-w-md" : "w-[380px]"}
+                  max-h-[80vh]
+                  overflow-hidden
+                  rounded-xl
+                  border border-[var(--border)]
+                  bg-[var(--background)]
+                  shadow-2xl
+                  relative
+                `}
+              >
+                {/* Close button for mobile */}
+                {isMobile && (
+                  <button
+                    onClick={handleCloseCalendar}
+                    className="
+                      absolute right-3 top-3 z-10
+                      flex h-8 w-8 items-center justify-center
+                      rounded-full bg-[var(--card-hover)] 
+                      text-[var(--text-primary)]
+                      transition-colors hover:bg-[var(--border)]
+                    "
+                  >
+                    <X size={18} />
+                  </button>
+                )}
+                <InterviewCall
+                  onClose={handleCloseCalendar}
+                  isMobile={isMobile}
+                />
+              </div>
             </div>
           )}
         </div>
@@ -254,20 +282,20 @@ export default function Navbar() {
           <button
             onClick={handleNotificationClick}
             className="
-              relative flex h-8 w-8 items-center justify-center
+              relative flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center
               rounded-full bg-[var(--card)] text-[var(--text-secondary)]
               transition-colors hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)]
             "
           >
-            <Bell size={15} />
-            
+            <Bell size={13} className="sm:size-[15px]" />
+
             {notificationUnreadCount > 0 && (
               <span
                 className="
-                  absolute -right-0.5 -top-0.5 flex h-4
-                  min-w-[16px] items-center justify-center
-                  rounded-full bg-[var(--danger)] px-1
-                  text-[9px] font-bold text-white
+                  absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5 sm:h-4 sm:w-4
+                  min-w-[14px] sm:min-w-[16px] items-center justify-center
+                  rounded-full bg-[var(--danger)] px-0.5 sm:px-1
+                  text-[7px] sm:text-[9px] font-bold text-white
                   shadow-lg shadow-[var(--danger)]/30
                   animate-pulse-dot
                 "
@@ -279,14 +307,45 @@ export default function Navbar() {
 
           {showNotifications && (
             <div
-              style={{ width: "380px", maxHeight: "500px" }}
-              className="
-                absolute right-0 top-[calc(100%+10px)] z-50
-                overflow-y-auto rounded-lg border border-[var(--border)]
-                bg-[var(--background)] shadow-2xl
-              "
+              className={`
+                z-[9999]
+                ${
+                  isMobile
+                    ? "fixed inset-0 flex items-start justify-center bg-black/20 backdrop-blur-sm px-4 pt-16"
+                    : "absolute right-0 top-[calc(100%+10px)] w-[380px]"
+                }
+              `}
             >
-              <NotificationsDropdown onClick={handleCloseNotifications} />
+              <div
+                className={`
+                  w-full
+                  ${isMobile ? "max-w-md" : "w-[380px]"}
+                  max-h-[80vh]
+                  overflow-hidden
+                  rounded-xl
+                  border border-[var(--border)]
+                  bg-[var(--background)]
+                  shadow-2xl
+                  relative
+                `}
+              >
+                {/* Close button for mobile */}
+                {isMobile && (
+                  <button
+                    onClick={handleCloseNotifications}
+                    className="
+                      absolute right-3 top-3 z-10
+                      flex h-8 w-8 items-center justify-center
+                      rounded-full bg-[var(--card-hover)] 
+                      text-[var(--text-primary)]
+                      transition-colors hover:bg-[var(--border)]
+                    "
+                  >
+                    <X size={18} />
+                  </button>
+                )}
+                <NotificationsDropdown onClick={handleCloseNotifications} />
+              </div>
             </div>
           )}
         </div>
@@ -296,20 +355,20 @@ export default function Navbar() {
           <button
             onClick={handleMessageClick}
             className="
-              relative flex h-8 w-8 cursor-pointer items-center justify-center
+              relative flex h-7 w-7 sm:h-8 sm:w-8 cursor-pointer items-center justify-center
               rounded-full bg-[var(--card)] text-[var(--text-secondary)]
               transition-colors hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)]
             "
           >
-            <MessageCircle size={15} />
+            <MessageCircle size={13} className="sm:size-[15px]" />
 
             {totalUnread > 0 && (
               <span
                 className="
-                  absolute -right-0.5 -top-0.5 flex h-4
-                  min-w-[16px] items-center justify-center
-                  rounded-full bg-[var(--danger)] px-1
-                  text-[9px] font-bold text-white
+                  absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5 sm:h-4 sm:w-4
+                  min-w-[14px] sm:min-w-[16px] items-center justify-center
+                  rounded-full bg-[var(--danger)] px-0.5 sm:px-1
+                  text-[7px] sm:text-[9px] font-bold text-white
                   shadow-lg shadow-[var(--danger)]/30
                   animate-pulse-dot
                 "
@@ -324,9 +383,9 @@ export default function Navbar() {
         <Link
           href={`/${userType}/profile`}
           className="
-            relative flex h-8 w-8 flex-shrink-0 items-center
+            relative flex h-7 w-7 sm:h-8 sm:w-8 flex-shrink-0 items-center
             justify-center overflow-hidden rounded-full
-            bg-[var(--primary)] text-xs font-semibold text-black
+            bg-[var(--primary)] text-[10px] sm:text-xs font-semibold text-black
             transition hover:opacity-90
           "
         >

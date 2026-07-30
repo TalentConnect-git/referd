@@ -497,9 +497,7 @@ function validateSection(sectionName: string, form: EditForm): string | null {
       return "Please enter your email address.";
     }
 
-    if (!cleanText(form.phone)) {
-      return "Please enter your phone number.";
-    }
+    
   }
 
   if (sectionName === "Education") {
