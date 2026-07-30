@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  FormEvent,
-  useState,
-} from "react";
+import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, User, GraduationCap, Briefcase } from "lucide-react";
@@ -12,16 +9,17 @@ import { isAxiosError } from "axios";
 import GoogleOAuthButton from "./GoogleOAuthButton";
 import LinkedinLoginButton from "./LinkedinLoginButton";
 
-import {
-  loginUser,
-  type UserType,
-} from "@/services/auth.service";
+import { loginUser, type UserType } from "@/services/auth.service";
 import { useAuth } from "@/context/AuthContext";
 
 const roles: { value: UserType; label: string; icon: React.ReactNode }[] = [
   { value: "student", label: "Student", icon: <GraduationCap size={16} /> },
   { value: "fresher", label: "Fresher", icon: <User size={16} /> },
-  { value: "professional", label: "Professional", icon: <Briefcase size={16} /> },
+  {
+    value: "professional",
+    label: "Professional",
+    icon: <Briefcase size={16} />,
+  },
 ];
 
 const dashboardMap: Record<UserType, string> = {
@@ -30,48 +28,30 @@ const dashboardMap: Record<UserType, string> = {
   professional: "/professional/dashboard",
 };
 
-const persistSelectedRole = (
-  role: UserType,
-) => {
+const persistSelectedRole = (role: UserType) => {
   if (typeof window === "undefined") return;
 
-  localStorage.setItem(
-    "selectedRole",
-    role,
-  );
+  localStorage.setItem("selectedRole", role);
 
-  sessionStorage.setItem(
-    "oauthSelectedRole",
-    role,
-  );
+  sessionStorage.setItem("oauthSelectedRole", role);
 };
 
 export default function LoginForm() {
   const router = useRouter();
   const { login } = useAuth();
 
-  const [role, setRole] =
-    useState<UserType>("student");
+  const [role, setRole] = useState<UserType>("student");
 
-  const [email, setEmail] =
-    useState("");
-  const [password, setPassword] =
-    useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const [
-    showPassword,
-    setShowPassword,
-  ] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const [isLoading, setIsLoading] =
-    useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [error, setError] =
-    useState("");
+  const [error, setError] = useState("");
 
-  const handleRoleChange = (
-    selectedRole: UserType,
-  ) => {
+  const handleRoleChange = (selectedRole: UserType) => {
     if (isLoading) return;
 
     setRole(selectedRole);
@@ -80,17 +60,12 @@ export default function LoginForm() {
   };
 
   const handleLinkedInLogin = () => {
-    const backendUrl =
-      process.env.NEXT_PUBLIC_API_URL;
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL;
 
     if (!backendUrl) {
-      setError(
-        "Backend URL is not configured.",
-      );
+      setError("Backend URL is not configured.");
 
-      console.error(
-        "NEXT_PUBLIC_API_URL is not defined",
-      );
+      console.error("NEXT_PUBLIC_API_URL is not defined");
 
       return;
     }
@@ -102,27 +77,19 @@ export default function LoginForm() {
       `?userType=${encodeURIComponent(role)}`;
   };
 
-  const handleLogin = async (
-    event: FormEvent<HTMLFormElement>,
-  ) => {
+  const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
 
-    const cleanedEmail = email
-      .trim()
-      .toLowerCase();
+    const cleanedEmail = email.trim().toLowerCase();
 
     if (!cleanedEmail) {
-      setError(
-        "Please enter your email.",
-      );
+      setError("Please enter your email.");
       return;
     }
 
     if (!password) {
-      setError(
-        "Please enter your password.",
-      );
+      setError("Please enter your password.");
       return;
     }
 
@@ -134,46 +101,39 @@ export default function LoginForm() {
         password,
       });
 
-      const authenticatedRole =
-        data.user.userType;
+      const authenticatedRole = data.user.userType;
 
-      login(data.user, data.token);
+      const allowedRoles: UserType[] = ["student", "fresher", "professional"];
 
-      localStorage.setItem(
-        "selectedRole",
-        authenticatedRole,
-      );
-
-      sessionStorage.removeItem(
-        "oauthSelectedRole",
-      );
-
-      if (
-        !data.user.onboardingCompleted
-      ) {
-        router.replace(
-          "/onboarding/resume-upload",
+      if (!allowedRoles.includes(authenticatedRole as UserType)) {
+        setError(
+          "You are not authorized to log in to this portal. Only Student, Fresher, and Professional accounts are allowed.",
         );
         return;
       }
 
-      router.replace(
-        dashboardMap[authenticatedRole],
-      );
-    } catch (error: unknown) {
-      const message =
-        isAxiosError<{
-          message?: string;
-        }>(error)
-          ? error.response?.data?.message
-          : error instanceof Error
-            ? error.message
-            : null;
+      login(data.user, data.token);
 
-      setError(
-        message ||
-          "Invalid email or password.",
-      );
+      localStorage.setItem("selectedRole", authenticatedRole);
+
+      sessionStorage.removeItem("oauthSelectedRole");
+
+      if (!data.user.onboardingCompleted) {
+        router.replace("/onboarding/resume-upload");
+        return;
+      }
+
+      router.replace(dashboardMap[authenticatedRole]);
+    } catch (error: unknown) {
+      const message = isAxiosError<{
+        message?: string;
+      }>(error)
+        ? error.response?.data?.message
+        : error instanceof Error
+          ? error.message
+          : null;
+
+      setError(message || "Invalid email or password.");
     } finally {
       setIsLoading(false);
     }
@@ -187,8 +147,7 @@ export default function LoginForm() {
         </h2>
 
         <p className="text-sm text-[var(--text-secondary)]">
-          Login to continue your journey
-          with Referd
+          Login to continue your journey with Referd
         </p>
       </div>
 
@@ -203,30 +162,37 @@ export default function LoginForm() {
               type="button"
               disabled={isLoading}
               aria-pressed={isSelected}
-              onClick={() =>
-                handleRoleChange(item.value)
-              }
+              onClick={() => handleRoleChange(item.value)}
               className={`
                 relative flex flex-col items-center justify-center gap-1.5
                 rounded-xl border-2 px-3 py-3 text-center transition-all duration-200
                 disabled:cursor-not-allowed disabled:opacity-60
-                ${isSelected
-                  ? "border-[var(--primary)] bg-[var(--primary-soft)] shadow-lg shadow-[var(--primary)]/10 scale-[1.02]"
-                  : "border-[var(--border)] bg-[var(--background-soft)] hover:border-[var(--border-strong)] hover:bg-[var(--card-hover)] hover:scale-[1.01]"
+                ${
+                  isSelected
+                    ? "border-[var(--primary)] bg-[var(--primary-soft)] shadow-lg shadow-[var(--primary)]/10 scale-[1.02]"
+                    : "border-[var(--border)] bg-[var(--background-soft)] hover:border-[var(--border-strong)] hover:bg-[var(--card-hover)] hover:scale-[1.01]"
                 }
               `}
             >
               {/* Icon */}
-              <span className={`transition-colors duration-200 ${
-                isSelected ? "text-[var(--primary)]" : "text-[var(--text-muted)]"
-              }`}>
+              <span
+                className={`transition-colors duration-200 ${
+                  isSelected
+                    ? "text-[var(--primary)]"
+                    : "text-[var(--text-muted)]"
+                }`}
+              >
                 {item.icon}
               </span>
-              
+
               {/* Label */}
-              <span className={`text-[10px] font-semibold uppercase tracking-[0.08em] transition-colors duration-200 sm:text-[11px] ${
-                isSelected ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]"
-              }`}>
+              <span
+                className={`text-[10px] font-semibold uppercase tracking-[0.08em] transition-colors duration-200 sm:text-[11px] ${
+                  isSelected
+                    ? "text-[var(--text-primary)]"
+                    : "text-[var(--text-muted)]"
+                }`}
+              >
                 {item.label}
               </span>
 
@@ -241,14 +207,9 @@ export default function LoginForm() {
 
       {/* OAuth buttons */}
       <div className="mt-6 space-y-3 sm:mt-8">
-        <LinkedinLoginButton
-          onClick={handleLinkedInLogin}
-        />
+        <LinkedinLoginButton onClick={handleLinkedInLogin} />
 
-        <GoogleOAuthButton
-          key={role}
-          userType={role}
-        />
+        <GoogleOAuthButton key={role} userType={role} />
       </div>
 
       <div className="my-6 flex items-center gap-3 sm:my-7">
@@ -270,10 +231,7 @@ export default function LoginForm() {
         </div>
       )}
 
-      <form
-        onSubmit={handleLogin}
-        className="space-y-4"
-      >
+      <form onSubmit={handleLogin} className="space-y-4">
         {/* Email */}
         <div className="space-y-1.5">
           <label
@@ -321,19 +279,13 @@ export default function LoginForm() {
             <input
               id="login-password"
               name="password"
-              type={
-                showPassword
-                  ? "text"
-                  : "password"
-              }
+              type={showPassword ? "text" : "password"}
               autoComplete="current-password"
               placeholder="Enter your password"
               value={password}
               disabled={isLoading}
               onChange={(event) => {
-                setPassword(
-                  event.target.value,
-                );
+                setPassword(event.target.value);
                 setError("");
               }}
               className="input-field h-11 w-full rounded-xl px-4 pr-12 text-sm placeholder:text-sm placeholder:text-[var(--text-muted)] focus:ring-2 focus:ring-[var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-60"
@@ -342,24 +294,12 @@ export default function LoginForm() {
             <button
               type="button"
               disabled={isLoading}
-              aria-label={
-                showPassword
-                  ? "Hide password"
-                  : "Show password"
-              }
+              aria-label={showPassword ? "Hide password" : "Show password"}
               aria-pressed={showPassword}
-              onClick={() =>
-                setShowPassword(
-                  (current) => !current,
-                )
-              }
+              onClick={() => setShowPassword((current) => !current)}
               className="absolute right-0 top-0 flex h-11 w-11 items-center justify-center text-[var(--text-muted)] transition hover:text-[var(--text-primary)] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {showPassword ? (
-                <EyeOff size={18} />
-              ) : (
-                <Eye size={18} />
-              )}
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
         </div>
@@ -372,9 +312,7 @@ export default function LoginForm() {
         >
           <span
             className={`flex items-center justify-center gap-2 transition-opacity duration-200 ${
-              isLoading
-                ? "opacity-0"
-                : "opacity-100"
+              isLoading ? "opacity-0" : "opacity-100"
             }`}
           >
             Login
