@@ -774,11 +774,7 @@ export function InternationalExperienceEditor({
               <h4 className="text-sm font-semibold text-[var(--text-primary)]">
                 International Experience {idx + 1}
               </h4>
-              {!item.country && !item.organization && !item.role && (
-                <span className="badge rounded-full bg-[var(--background-soft)] px-2 py-0.5 text-[10px] text-[var(--text-muted)]">
-                  Optional
-                </span>
-              )}
+              
             </div>
 
             {items.length > 1 && (

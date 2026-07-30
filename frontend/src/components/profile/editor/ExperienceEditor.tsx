@@ -967,13 +967,7 @@ export function ExperienceEditor({
                   </span>
                 )}
 
-                {!experience.company &&
-                !experience.role &&
-                !experience.startDate ? (
-                  <span className="badge rounded-full bg-[var(--background-soft)] px-2 py-0.5 text-[10px] text-[var(--text-muted)]">
-                    Optional
-                  </span>
-                ) : null}
+                
               </div>
 
               {experiences.length > 1 ? (
@@ -1132,12 +1126,7 @@ export function ExperienceEditor({
         </div>
       ) : null}
 
-      {!hasAnyCurrentExperience && !statusIsValid ? (
-        <div className="rounded-lg border border-[var(--danger-border)] bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]">
-          Experience is optional. To continue without experience, select your
-          current status and the date since when it applies.
-        </div>
-      ) : null}
+      
 
       <button
         type="button"
@@ -1227,7 +1216,7 @@ export function ExperienceEditor({
                 className="textarea-field resize-none"
               />
               <div className="mt-1 flex justify-between text-xs">
-                <span className="text-[var(--text-muted)]">Optional</span>
+                
                 <span className={`${safeStatusNote.length > 450 ? 'text-[var(--warning)]' : 'text-[var(--text-muted)]'}`}>
                   {safeStatusNote.length}/500
                 </span>

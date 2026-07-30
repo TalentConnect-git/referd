@@ -1,78 +1,163 @@
-// context/ChatContext.tsx
 "use client";
 
-import { createContext, useContext, useState, ReactNode, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useCallback,
+  useMemo,
+} from "react";
+
 import { Conversation, Message } from "@/types/chat";
 
 interface ChatContextType {
-  // Existing
   selectedConversation: Conversation | null;
-  setSelectedConversation: (conversation: Conversation | null) => void;
+  setSelectedConversation: (
+    conversation: Conversation | null
+  ) => void;
+
   messages: Message[];
-  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+  setMessages: React.Dispatch<
+    React.SetStateAction<Message[]>
+  >;
+
   showFloatingChat: boolean;
   setShowFloatingChat: (show: boolean) => void;
 
-  // New: conversation list and unread counts (shared across components)
   conversations: Conversation[];
-  setConversations: (conversations: Conversation[]) => void;
+  setConversations: (
+    conversations: Conversation[]
+  ) => void;
+
   unreadCounts: Record<string, number>;
-  setUnreadCounts: React.Dispatch<React.SetStateAction<Record<string, number>>>;
+  setUnreadCounts: React.Dispatch<
+    React.SetStateAction<Record<string, number>>
+  >;
+
   totalUnread: number;
-  setTotalUnread: (total: number) => void;
+  setTotalUnread: (count: number) => void;
+
   clearUnreadCount: (conversationId: string) => void;
-  refreshConversations: () => Promise<void>; // will be set by hook
+
+  refreshConversations: () => Promise<void>;
 }
 
-const ChatContext = createContext<ChatContextType | undefined>(undefined);
+const ChatContext = createContext<
+  ChatContextType | undefined
+>(undefined);
 
 export const useChat = () => {
   const context = useContext(ChatContext);
-  if (!context) throw new Error("useChat must be used within ChatProvider");
+
+  if (!context) {
+    throw new Error(
+      "useChat must be used inside ChatProvider"
+    );
+  }
+
   return context;
 };
 
-export const ChatProvider = ({ children }: { children: ReactNode }) => {
-  // Existing state
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [showFloatingChat, setShowFloatingChat] = useState(false);
-
-  // New shared state
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
-  const [totalUnread, setTotalUnread] = useState(0);
-
-  const clearUnreadCount = useCallback((conversationId: string) => {
-    if (!conversationId) return;
-    setUnreadCounts((prev) => {
-      const newCounts = { ...prev };
-      delete newCounts[conversationId];
-      const newTotal = Object.values(newCounts).reduce((sum, count) => sum + count, 0);
-      setTotalUnread(newTotal);
-      return newCounts;
-    });
-  }, []);
-
-  // Placeholder for refresh; will be overridden by useGetAllUsers
-  const refreshConversations = async () => {};
-
-  const value = {
+export const ChatProvider = ({
+  children,
+}: {
+  children: ReactNode;
+}) => {
+  const [
     selectedConversation,
     setSelectedConversation,
-    messages,
-    setMessages,
+  ] = useState<Conversation | null>(null);
+
+  const [messages, setMessages] = useState<Message[]>(
+    []
+  );
+
+  const [
     showFloatingChat,
     setShowFloatingChat,
-    conversations,
-    setConversations,
-    unreadCounts,
-    setUnreadCounts,
-    totalUnread,
-    setTotalUnread,
-    clearUnreadCount,
-    refreshConversations,
-  };
+  ] = useState(false);
 
-  return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
+  const [conversations, setConversations] = useState<
+    Conversation[]
+  >([]);
+
+  const [unreadCounts, setUnreadCounts] =
+    useState<Record<string, number>>({});
+
+  const [totalUnread, setTotalUnread] = useState(0);
+
+  const clearUnreadCount = useCallback(
+    (conversationId: string) => {
+      if (!conversationId) return;
+
+      setUnreadCounts((prev) => {
+        const updated = { ...prev };
+
+        delete updated[conversationId];
+
+        const total = Object.values(updated).reduce(
+          (sum, count) => sum + count,
+          0
+        );
+
+        setTotalUnread(total);
+
+        return updated;
+      });
+    },
+    []
+  );
+
+  const refreshConversations =
+    useCallback(async () => {
+      /**
+       * This function should be replaced
+       * by your conversation hook.
+       */
+    }, []);
+
+  const value = useMemo(
+    () => ({
+      selectedConversation,
+      setSelectedConversation,
+
+      messages,
+      setMessages,
+
+      showFloatingChat,
+      setShowFloatingChat,
+
+      conversations,
+      setConversations,
+
+      unreadCounts,
+      setUnreadCounts,
+
+      totalUnread,
+      setTotalUnread,
+
+      clearUnreadCount,
+
+      refreshConversations,
+    }),
+    [
+      selectedConversation,
+      messages,
+      showFloatingChat,
+      conversations,
+      unreadCounts,
+      totalUnread,
+      clearUnreadCount,
+      refreshConversations,
+    ]
+  );
+
+  return (
+    <ChatContext.Provider value={value}>
+      {children}
+    </ChatContext.Provider>
+  );
 };
+
+export default ChatContext;

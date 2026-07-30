@@ -3,8 +3,16 @@
 import { saveJob, applyJob } from "@/services/job.service";
 import { JobRowProps } from "@/types/dashboard";
 import toast from "react-hot-toast";
-import { Building2, MapPin, Briefcase, Bookmark, Send, CheckCircle, Clock } from "lucide-react";
-import { useState } from "react";
+import {
+  Building2,
+  MapPin,
+  Briefcase,
+  Bookmark,
+  Send,
+  CheckCircle,
+  Clock,
+} from "lucide-react";
+import { useState, useEffect } from "react";
 
 export default function JobRow({
   id,
@@ -25,9 +33,33 @@ export default function JobRow({
   const [saved, setSaved] = useState(isSaved);
   const [applied, setApplied] = useState(isApplied);
 
+  const truncateText = (text?: string, maxLength = 14) => {
+    if (!text) return "";
+    return text.length > maxLength
+      ? `${text.substring(0, maxLength)}...`
+      : text;
+  };
+
+  const [isMobile, setIsMobile] = useState(false);
+
+  useState(() => {
+    if (typeof window !== "undefined") {
+      setIsMobile(window.innerWidth < 640);
+    }
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const handleSave = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     if (saved) {
       toast.success("Already saved");
       return;
@@ -48,7 +80,7 @@ export default function JobRow({
 
   const handleApply = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     if (applied) {
       toast.success("Already applied");
       return;
@@ -87,8 +119,10 @@ export default function JobRow({
       details.push(
         <div key="company" className="flex items-center gap-1">
           <Building2 className="h-3 w-3 flex-shrink-0 text-[var(--text-muted)]" />
-          <span className="truncate text-xs text-[var(--text-secondary)]">{company}</span>
-        </div>
+          <span className="truncate text-xs text-[var(--text-secondary)]">
+            {isMobile ? truncateText(company, 12) : company}
+          </span>
+        </div>,
       );
     }
 
@@ -97,8 +131,10 @@ export default function JobRow({
       details.push(
         <div key="location" className="flex items-center gap-1">
           <MapPin className="h-3 w-3 flex-shrink-0 text-[var(--text-muted)]" />
-          <span className="truncate text-xs text-[var(--text-muted)]">{location}</span>
-        </div>
+          <span className="truncate text-xs text-[var(--text-muted)]">
+            {location}
+          </span>
+        </div>,
       );
     }
 
@@ -107,8 +143,10 @@ export default function JobRow({
       details.push(
         <div key="workmode" className="flex items-center gap-1">
           <Briefcase className="h-3 w-3 flex-shrink-0 text-[var(--text-muted)]" />
-          <span className="truncate text-xs text-[var(--text-muted)]">{workModeDisplay}</span>
-        </div>
+          <span className="truncate text-xs text-[var(--text-muted)]">
+            {workModeDisplay}
+          </span>
+        </div>,
       );
     }
 
@@ -124,8 +162,8 @@ export default function JobRow({
   };
 
   return (
-    <div 
-      onClick={handleRowClick} 
+    <div
+      onClick={handleRowClick}
       className="group flex cursor-pointer items-center justify-between border-b border-[var(--border)] px-3 py-3 transition-all duration-200 hover:bg-[var(--card-hover)] last:border-b-0 sm:px-4"
     >
       <div className="flex min-w-0 items-center gap-3">

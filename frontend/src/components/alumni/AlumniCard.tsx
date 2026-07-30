@@ -1,6 +1,7 @@
 // src/components/alumni/AlumniCard.tsx
 
 "use client";
+import { useState } from "react";
 
 import {
   Building2,
@@ -32,7 +33,7 @@ const getInitials = (name?: string) => {
 
 const getCurrentRole = (profile: AlumniProfile) => {
   const currentExperience = profile.experiences?.find(
-    (item) => item.isCurrent || !item.endDate
+    (item) => item.isCurrent || !item.endDate,
   );
   return (
     currentExperience?.role ||
@@ -47,7 +48,7 @@ const getCurrentRole = (profile: AlumniProfile) => {
 
 const getCompany = (profile: AlumniProfile, fallback?: string) => {
   const currentExperience = profile.experiences?.find(
-    (item) => item.isCurrent || !item.endDate
+    (item) => item.isCurrent || !item.endDate,
   );
   return (
     profile.currentCompany ||
@@ -58,6 +59,29 @@ const getCompany = (profile: AlumniProfile, fallback?: string) => {
     fallback ||
     "Company not available"
   );
+};
+
+const getValidImageSrc = (src?: string | null): string => {
+  if (!src) return "";
+
+  const clean = src.trim();
+
+  if (!clean) return "";
+
+  // Valid remote URL
+  if (/^https?:\/\//i.test(clean)) {
+    return clean;
+  }
+
+  // Valid local image from /public
+  if (
+    clean.startsWith("/") &&
+    /\.(png|jpg|jpeg|webp|gif|svg|avif)$/i.test(clean)
+  ) {
+    return clean;
+  }
+
+  return "";
 };
 
 export function AlumniCard({
@@ -73,6 +97,12 @@ export function AlumniCard({
 
   const name = profile.name || "Unknown User";
   const initials = getInitials(name);
+
+  const [imageError, setImageError] = useState(false);
+
+  const imageSrc = getValidImageSrc(profile.profileImage);
+
+  const showImage = imageSrc && !imageError;
   const company = getCompany(profile, companyFallback);
   const role = getCurrentRole(profile);
   const isHiring = Boolean(profile.isHiring);
@@ -111,13 +141,18 @@ export function AlumniCard({
         <div className="flex items-start gap-3">
           {/* Profile Image with Fallback */}
           <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-primary-soft">
-            {profile.profileImage ? (
+            {showImage ? (
               <Image
-                src={profile.profileImage}
+                src={imageSrc}
                 alt={name}
                 fill
-                className="object-cover"
                 sizes="40px"
+                className="object-cover"
+                unoptimized={
+                  imageSrc.startsWith("http://") ||
+                  imageSrc.startsWith("https://")
+                }
+                onError={() => setImageError(true)}
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-sm font-bold text-primary">

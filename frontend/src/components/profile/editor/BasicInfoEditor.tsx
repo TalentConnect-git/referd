@@ -218,15 +218,26 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
             placeholder="Enter your full name"
           />
 
-          <TextInput
-            label="Email"
-            value={form.email}
-            onChange={(value: string) =>
-              updateField("email", value as EditForm["email"])
-            }
-            placeholder="Enter your email"
-            type="email"
-          />
+          {/* Email - Locked/Read-only */}
+          <div className="relative">
+            <TextInput
+              label="Email"
+              value={form.email}
+              onChange={(value: string) =>
+                updateField("email", value as EditForm["email"])
+              }
+              placeholder="Enter your email"
+              type="email"
+              disabled={true}
+              className="cursor-not-allowed bg-[var(--bg-secondary)] opacity-80"
+            />
+            <div className="absolute right-3 top-[38px] text-[var(--text-muted)]">
+              <Mail className="h-4 w-4" />
+            </div>
+            <p className="mt-1 text-xs text-[var(--text-muted)]">
+              Email cannot be changed
+            </p>
+          </div>
 
           <TextInput
             label="Phone"
