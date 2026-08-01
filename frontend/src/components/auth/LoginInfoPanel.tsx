@@ -7,8 +7,7 @@ const items = [
   {
     icon: <CheckCircle size={16} />,
     title: "Access Your Dashboard",
-    text: "Manage referrals and applications.",
-  },
+    text: "Manage referrals and applications.",  },
   {
     icon: <Briefcase size={16} />,
     title: "Continue Your Journey",
