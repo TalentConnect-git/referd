@@ -28,6 +28,13 @@ const dashboardMap: Record<UserType, string> = {
   professional: "/professional/dashboard",
 };
 
+// Email regex - validates standard email format
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+// Password regex - requires at least 8 characters, one uppercase, one lowercase, one number, and one special character
+const passwordRegex =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&^#()_\-+=])[A-Za-z\d@$!%*?&^#()_\-+=]{8,128}$/;
+
 const persistSelectedRole = (role: UserType) => {
   if (typeof window === "undefined") return;
 
@@ -88,8 +95,22 @@ export default function LoginForm() {
       return;
     }
 
+    // Email validation
+    if (!emailRegex.test(cleanedEmail)) {
+      setError("Please enter a valid email address (e.g., user@example.com).");
+      return;
+    }
+
     if (!password) {
       setError("Please enter your password.");
+      return;
+    }
+
+    // Password validation
+    if (!passwordRegex.test(password)) {
+      setError(
+        "Password must contain at least 8 characters, including uppercase, lowercase, number, and special character."
+      );
       return;
     }
 
@@ -302,6 +323,11 @@ export default function LoginForm() {
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
+
+          {/* Password requirements hint */}
+          <p className="text-[10px] leading-4 text-[var(--text-muted)]">
+            Password must contain: 8+ chars, uppercase, lowercase, number, and special character
+          </p>
         </div>
 
         {/* Login button */}

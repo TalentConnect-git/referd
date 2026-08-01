@@ -25,6 +25,13 @@ const roles: { value: UserType; label: string; icon: React.ReactNode }[] = [
   { value: "professional", label: "Professional", icon: <Briefcase size={16} /> },
 ];
 
+// Email regex - validates standard email format
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+// Password regex - requires at least 8 characters, one uppercase, one lowercase, one number, and one special character
+const passwordRegex =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&^#()_\-+=])[A-Za-z\d@$!%*?&^#()_\-+=]{8,128}$/;
+
 const isUserType = (
   value: string | null,
 ): value is UserType => {
@@ -150,6 +157,14 @@ export default function SignupForm() {
           return;
         }
 
+        // Email validation
+        if (!emailRegex.test(cleanedEmail)) {
+          setOtpError(
+            "Please enter a valid email address (e.g., user@example.com).",
+          );
+          return;
+        }
+
         if (!password) {
           setOtpError(
             "Please enter a password.",
@@ -157,9 +172,10 @@ export default function SignupForm() {
           return;
         }
 
-        if (password.length < 6) {
+        // Password validation
+        if (!passwordRegex.test(password)) {
           setOtpError(
-            "Password must contain at least 6 characters.",
+            "Password must contain at least 8 characters, including uppercase, lowercase, number, and special character.",
           );
           return;
         }
@@ -345,7 +361,7 @@ export default function SignupForm() {
                 }
                 name="password"
                 autoComplete="new-password"
-                placeholder="Password"
+                placeholder="Password (min 8 chars)"
                 value={password}
                 disabled={loading}
                 onChange={(event) => {
@@ -428,6 +444,11 @@ export default function SignupForm() {
                 )}
               </button>
             </div>
+
+            {/* Password requirements hint */}
+            <p className="text-[10px] leading-4 text-[var(--text-muted)]">
+              Password must contain: 8+ chars, uppercase, lowercase, number, and special character
+            </p>
           </>
         ) : (
           <>
