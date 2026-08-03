@@ -418,6 +418,7 @@ export default function ProfilePage() {
         editHref={editHref}
         profileType={profile.profileType}
         switching={switching}
+        userName ={profile.name}
         onSwitchToProfessional={() => setSwitchModalOpen(true)}
         onRefresh={handleRefreshProfile}
       />

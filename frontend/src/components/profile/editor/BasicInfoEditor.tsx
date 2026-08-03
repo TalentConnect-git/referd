@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, useState } from "react";
-import { Upload, X, User, Mail, Phone, Calendar, Link, Globe, FileText, Image, Info, Briefcase, Shield, Loader2 } from "lucide-react";
+import { Upload, X, User, Mail, Phone, Calendar, Link, Globe, FileText, Image, Info, Briefcase, Shield, Loader2, Lock } from "lucide-react";
 
 import { TextArea } from "../shared/TextArea";
 import { TextInput } from "../shared/TextInput";
@@ -12,13 +12,13 @@ import { updateOnboardingFilesApi } from "@/services/auth.service";
 
 // Custom SVG Icons
 const LinkedInIcon = () => (
-  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
   </svg>
 );
 
 const GitHubIcon = () => (
-  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
     <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.15 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.62.24 2.85.12 3.15.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
   </svg>
 );
@@ -203,6 +203,74 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
     }
   }
 
+  // Locked field component with icon
+  const LockedField = ({ 
+    label, 
+    value, 
+    icon: Icon, 
+    type = "text",
+    helperText 
+  }: { 
+    label: string; 
+    value: string; 
+    icon: any; 
+    type?: string;
+    helperText?: string;
+  }) => (
+    <div className="relative">
+      <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
+        {label}
+      </label>
+      <div className="relative">
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">
+          <Icon className="h-4 w-4" />
+        </div>
+        <input
+          type={type}
+          value={value}
+          disabled
+          className="w-full rounded-lg border border-[var(--border)] bg-[var(--background-soft)] py-2.5 pl-10 pr-10 text-sm text-[var(--text-secondary)] cursor-not-allowed opacity-80"
+        />
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">
+          <Lock className="h-4 w-4" />
+        </div>
+      </div>
+      {helperText && (
+        <p className="mt-1 text-xs text-[var(--text-muted)]">{helperText}</p>
+      )}
+    </div>
+  );
+
+  // Social link field component
+  const SocialLinkField = ({ 
+    label, 
+    value, 
+    icon: Icon, 
+    placeholder, 
+    onChange,
+    color 
+  }: { 
+    label: string; 
+    value: string; 
+    icon: any; 
+    placeholder: string; 
+    onChange: (value: string) => void;
+    color?: string;
+  }) => (
+    <div className="flex items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--card)] p-1.5 transition-all duration-200 hover:border-[var(--primary-border)] focus-within:border-[var(--primary)] focus-within:ring-2 focus-within:ring-[var(--primary-border)]">
+      <div className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-lg ${color || 'bg-[var(--primary-soft)]'}`}>
+        <Icon />
+      </div>
+      <input
+        type="url"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="flex-1 bg-transparent px-0 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none"
+      />
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       {/* Personal Information */}
@@ -218,35 +286,22 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
             placeholder="Enter your full name"
           />
 
-          {/* Email - Locked/Read-only */}
-          <div className="relative">
-            <TextInput
-              label="Email"
-              value={form.email}
-              onChange={(value: string) =>
-                updateField("email", value as EditForm["email"])
-              }
-              placeholder="Enter your email"
-              type="email"
-              disabled={true}
-              className="cursor-not-allowed bg-[var(--bg-secondary)] opacity-80"
-            />
-            <div className="absolute right-3 top-[38px] text-[var(--text-muted)]">
-              <Mail className="h-4 w-4" />
-            </div>
-            <p className="mt-1 text-xs text-[var(--text-muted)]">
-              Email cannot be changed
-            </p>
-          </div>
+          {/* Email - Locked */}
+          <LockedField
+            label="Email"
+            value={form.email}
+            icon={Mail}
+            type="email"
+            helperText="Email cannot be changed"
+          />
 
-          <TextInput
+          {/* Phone - Locked */}
+          <LockedField
             label="Phone"
             value={form.phone}
-            onChange={(value: string) =>
-              updateField("phone", value as EditForm["phone"])
-            }
-            placeholder="Enter your phone number"
+            icon={Phone}
             type="tel"
+            helperText="Phone number cannot be changed"
           />
 
           <SelectInput
@@ -310,48 +365,36 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
           </h4>
           <div className="h-px flex-1 bg-[var(--border)]" />
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="relative">
-            <TextInput
-              label="LinkedIn"
-              value={form.linkedin}
-              onChange={(value: string) =>
-                updateField("linkedin", value as EditForm["linkedin"])
-              }
-              placeholder="https://linkedin.com/in/username"
-            />
-            <div className="absolute right-3 top-[38px] text-[var(--text-muted)]">
-              <LinkedInIcon />
-            </div>
-          </div>
+        <div className="space-y-3">
+          {/* LinkedIn */}
+          <SocialLinkField
+            label="LinkedIn"
+            value={form.linkedin}
+            icon={LinkedInIcon}
+            placeholder="https://linkedin.com/in/username"
+            onChange={(value) => updateField("linkedin", value as EditForm["linkedin"])}
+           
+          />
 
-          <div className="relative">
-            <TextInput
-              label="GitHub"
-              value={form.github}
-              onChange={(value: string) =>
-                updateField("github", value as EditForm["github"])
-              }
-              placeholder="https://github.com/username"
-            />
-            <div className="absolute right-3 top-[38px] text-[var(--text-muted)]">
-              <GitHubIcon />
-            </div>
-          </div>
+          {/* GitHub */}
+          <SocialLinkField
+            label="GitHub"
+            value={form.github}
+            icon={GitHubIcon}
+            placeholder="https://github.com/username"
+            onChange={(value) => updateField("github", value as EditForm["github"])}
+           
+          />
 
-          <div className="relative">
-            <TextInput
-              label="Portfolio"
-              value={form.portfolio}
-              onChange={(value: string) =>
-                updateField("portfolio", value as EditForm["portfolio"])
-              }
-              placeholder="https://yourportfolio.com"
-            />
-            <div className="absolute right-3 top-[38px] text-[var(--text-muted)]">
-              <Globe className="h-4 w-4" />
-            </div>
-          </div>
+          {/* Portfolio */}
+          <SocialLinkField
+            label="Portfolio"
+            value={form.portfolio}
+            icon={Globe}
+            placeholder="https://yourportfolio.com"
+            onChange={(value) => updateField("portfolio", value as EditForm["portfolio"])}
+            
+          />
         </div>
       </div>
 
@@ -386,7 +429,7 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           {/* Profile Image */}
-          <div className="surface-card rounded-xl border border-[var(--border)] p-4 transition-all duration-300 hover:border-[var(--primary-border)]">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 transition-all duration-300 hover:border-[var(--primary-border)]">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Image className="h-4 w-4 text-[var(--primary)]" />
@@ -462,7 +505,7 @@ export function BasicInfoEditor({ form, updateField }: BasicInfoEditorProps) {
           </div>
 
           {/* Resume */}
-          <div className="surface-card rounded-xl border border-[var(--border)] p-4 transition-all duration-300 hover:border-[var(--primary-border)]">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 transition-all duration-300 hover:border-[var(--primary-border)]">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <FileText className="h-4 w-4 text-[var(--primary)]" />

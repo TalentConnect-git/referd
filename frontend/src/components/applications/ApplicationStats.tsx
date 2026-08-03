@@ -124,21 +124,21 @@ export default function ApplicationStats({
   // Get color for each stat
   const getColor = (label: string): string => {
     const colors: Record<string, string> = {
-      "Saved": "badge text-muted border-theme bg-background-soft",
-      "Application Sent": "badge-info",
-      "Applied": "badge-info",
-      "Awaiting Recruiter Action": "badge-warning",
-      "Shortlisted": "badge-primary",
-      "Interview Scheduled": "badge-info",
-      "Offer Extended": "badge-success",
-      "Accepted": "badge-success",
-      "Rejected": "badge-danger",
-      "Referred To Company": "badge-warning",
-      "Offer Accepted": "badge-success",
-      "Offer Rejected": "badge-danger",
-      "Joined the Company": "badge-success",
+      "Saved": "text-[var(--text-muted)]",
+      "Application Sent": "text-[var(--info)]",
+      "Applied": "text-[var(--info)]",
+      "Awaiting Recruiter Action": "text-[var(--warning)]",
+      "Shortlisted": "text-[var(--primary)]",
+      "Interview Scheduled": "text-[var(--info)]",
+      "Offer Extended": "text-[var(--success)]",
+      "Accepted": "text-[var(--success)]",
+      "Rejected": "text-[var(--danger)]",
+      "Referred To Company": "text-[var(--warning)]",
+      "Offer Accepted": "text-[var(--success)]",
+      "Offer Rejected": "text-[var(--danger)]",
+      "Joined the Company": "text-[var(--success)]",
     };
-    return colors[label] || "badge";
+    return colors[label] || "text-[var(--text-muted)]";
   };
 
   // Get short label for display
@@ -157,11 +157,6 @@ export default function ApplicationStats({
     return shortLabels[label] || label;
   };
 
-  // Get opacity class based on value
-  const getOpacityClass = (value: number): string => {
-    return value === 0 ? "opacity-40" : "opacity-100";
-  };
-
   // Convert displayStats object to array for rendering - include all statuses
   const allStats = Object.entries(displayStats).sort((a, b) => {
     // Sort by status order priority
@@ -172,30 +167,30 @@ export default function ApplicationStats({
   // If no applications, show a message
   if (applications.length === 0) {
     return (
-      <div className="mt-6 ">
+      <div className="mt-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-primary">
+          <h2 className="text-lg font-semibold text-[var(--text-primary)]">
             Application Pipeline
           </h2>
-          <span className="text-sm text-muted">
-            Total: <span className="text-primary font-semibold">{applications.length}</span>
+          <span className="text-sm text-[var(--text-muted)]">
+            Total: <span className="text-[var(--text-primary)] font-semibold">{applications.length}</span>
           </span>
         </div>
         <div className="card rounded-xl border border-theme bg-card-soft p-8 text-center">
-          <p className="text-muted">No applications in pipeline yet.</p>
+          <p className="text-[var(--text-muted)]">No applications in pipeline yet.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="mt-6 ">
+    <div className="mt-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-primary">
+        <h2 className="text-lg font-semibold text-[var(--text-primary)]">
           Application Pipeline
         </h2>
-        <span className="text-sm text-muted">
-          Total: <span className="text-primary font-semibold">{applications.length}</span>
+        <span className="text-sm text-[var(--text-muted)]">
+          Total: <span className="text-[var(--text-primary)] font-semibold">{applications.length}</span>
         </span>
       </div>
 
@@ -204,30 +199,20 @@ export default function ApplicationStats({
           const Icon = getIcon(label);
           const colorClass = getColor(label);
           const shortLabel = getShortLabel(label);
-          const opacityClass = getOpacityClass(value);
-
-          // Extract the text color class from the badge class
-          const textColorClass = colorClass.includes('text-') 
-            ? colorClass.split(' ').find(c => c.startsWith('text-')) || 'text-muted'
-            : 'text-muted';
 
           return (
             <div
               key={label}
-              className={`
-                card rounded-xl border border-theme bg-card p-3 transition-all duration-200
-                ${opacityClass}
-                ${value > 0 ? 'hover:scale-105 hover:shadow-lg' : ''}
-              `}
+              className="card rounded-xl border border-theme bg-card p-3 transition-all duration-200 hover:scale-105 hover:shadow-lg"
             >
               <div className="flex items-center gap-1.5">
-                <Icon className={`w-3.5 h-3.5 ${textColorClass}`} />
-                <p className="text-[9px] text-muted uppercase tracking-wider truncate">
+                <Icon className={`w-3.5 h-3.5 ${colorClass}`} />
+                <p className="text-[9px] text-[var(--text-muted)] uppercase tracking-wider truncate">
                   {shortLabel}
                 </p>
               </div>
 
-              <p className={`text-xl font-bold mt-1.5 ${textColorClass}`}>
+              <p className={`text-xl font-bold mt-1.5 ${colorClass}`}>
                 {value}
               </p>
             </div>

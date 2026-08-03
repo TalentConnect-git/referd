@@ -4,7 +4,19 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import PostedByReferrer from "@/components/dashboard/PostedByReferrer";
-import { ArrowLeft, Building2, Calendar, User, Briefcase, Clock, MapPin, Mail, Phone, Award, Target } from "lucide-react";
+import {
+  ArrowLeft,
+  Building2,
+  Calendar,
+  User,
+  Briefcase,
+  Clock,
+  MapPin,
+  Mail,
+  Phone,
+  Award,
+  Target,
+} from "lucide-react";
 import { getApplicationDetails } from "@/services/application.service";
 import ApplicationTimeline from "@/components/applications/ApplicationTimeline";
 
@@ -35,7 +47,9 @@ export default function ApplicationDetailsPage() {
         <div className="surface-card rounded-2xl border border-[var(--border)] bg-[var(--card)] p-8 text-center">
           <div className="flex items-center justify-center">
             <div className="h-8 w-8 animate-spin rounded-full border-3 border-[var(--info-border)] border-t-[var(--info)]"></div>
-            <span className="ml-3 text-sm text-[var(--text-muted)]">Loading...</span>
+            <span className="ml-3 text-sm text-[var(--text-muted)]">
+              Loading...
+            </span>
           </div>
         </div>
       </div>
@@ -45,24 +59,39 @@ export default function ApplicationDetailsPage() {
   // Get job details
   const jobDetails = application.job || application.jobDetails || {};
   const receiverProfile = jobDetails.receiverProfile || {};
-  
+
   // Get status color using theme variables
   const getStatusColor = (status: string) => {
     const statusColors: Record<string, string> = {
-      "Applied": "text-[var(--info)] border-[var(--info-border)] bg-[var(--info-soft)]",
-      "Application Sent": "text-[var(--info)] border-[var(--info-border)] bg-[var(--info-soft)]",
-      "Awaiting Recruiter Action": "text-[var(--warning)] border-[var(--warning-border)] bg-[var(--warning-soft)]",
-      "Shortlisted": "text-[var(--primary)] border-[var(--primary-border)] bg-[var(--primary-soft)]",
-      "Interview Scheduled": "text-[var(--info)] border-[var(--info-border)] bg-[var(--info-soft)]",
-      "Offer Extended": "text-[var(--success)] border-[var(--success-border)] bg-[var(--success-soft)]",
-      "Accepted": "text-[var(--success)] border-[var(--success-border)] bg-[var(--success-soft)]",
-      "Rejected": "text-[var(--danger)] border-[var(--danger-border)] bg-[var(--danger-soft)]",
-      "Referred To Company": "text-[var(--primary)] border-[var(--primary-border)] bg-[var(--primary-soft)]",
-      "Offer Accepted": "text-[var(--success)] border-[var(--success-border)] bg-[var(--success-soft)]",
-      "Offer Rejected": "text-[var(--danger)] border-[var(--danger-border)] bg-[var(--danger-soft)]",
-      "Joined The Company": "text-[var(--success)] border-[var(--success-border)] bg-[var(--success-soft)]",
+      Applied:
+        "text-[var(--info)] border-[var(--info-border)] bg-[var(--info-soft)]",
+      "Application Sent":
+        "text-[var(--info)] border-[var(--info-border)] bg-[var(--info-soft)]",
+      "Awaiting Recruiter Action":
+        "text-[var(--warning)] border-[var(--warning-border)] bg-[var(--warning-soft)]",
+      Shortlisted:
+        "text-[var(--primary)] border-[var(--primary-border)] bg-[var(--primary-soft)]",
+      "Interview Scheduled":
+        "text-[var(--info)] border-[var(--info-border)] bg-[var(--info-soft)]",
+      "Offer Extended":
+        "text-[var(--success)] border-[var(--success-border)] bg-[var(--success-soft)]",
+      Accepted:
+        "text-[var(--success)] border-[var(--success-border)] bg-[var(--success-soft)]",
+      Rejected:
+        "text-[var(--danger)] border-[var(--danger-border)] bg-[var(--danger-soft)]",
+      "Referred To Company":
+        "text-[var(--primary)] border-[var(--primary-border)] bg-[var(--primary-soft)]",
+      "Offer Accepted":
+        "text-[var(--success)] border-[var(--success-border)] bg-[var(--success-soft)]",
+      "Offer Rejected":
+        "text-[var(--danger)] border-[var(--danger-border)] bg-[var(--danger-soft)]",
+      "Joined The Company":
+        "text-[var(--success)] border-[var(--success-border)] bg-[var(--success-soft)]",
     };
-    return statusColors[status] || "text-[var(--text-muted)] border-[var(--border)] bg-[var(--background-soft)]";
+    return (
+      statusColors[status] ||
+      "text-[var(--text-muted)] border-[var(--border)] bg-[var(--background-soft)]"
+    );
   };
 
   return (
@@ -72,7 +101,10 @@ export default function ApplicationDetailsPage() {
         onClick={() => router.back()}
         className="group mb-4 flex items-center gap-1.5 text-[var(--text-muted)] transition-all duration-200 hover:text-[var(--text-primary)]"
       >
-        <ArrowLeft size={16} className="transition-transform duration-200 group-hover:-translate-x-1" />
+        <ArrowLeft
+          size={16}
+          className="transition-transform duration-200 group-hover:-translate-x-1"
+        />
         <span className="text-xs font-medium">Back</span>
       </button>
 
@@ -86,11 +118,13 @@ export default function ApplicationDetailsPage() {
                 {jobDetails?.jobTitle?.[0] || "Application"}
               </h1>
               {application.jobType && (
-                <span className={`badge flex-shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-medium ${
-                  application.jobType === "Referral" 
-                    ? "badge-primary" 
-                    : "badge-info"
-                }`}>
+                <span
+                  className={`badge flex-shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-medium ${
+                    application.jobType === "Referral"
+                      ? "badge-primary"
+                      : "badge-info"
+                  }`}
+                >
                   {application.jobType}
                 </span>
               )}
@@ -105,7 +139,9 @@ export default function ApplicationDetailsPage() {
               {jobDetails?.location && jobDetails.location.length > 0 && (
                 <div className="flex items-center gap-1.5">
                   <MapPin size={13} className="text-[var(--text-muted)]" />
-                  <span className="text-xs">{jobDetails.location.join(", ")}</span>
+                  <span className="text-xs">
+                    {jobDetails.location.join(", ")}
+                  </span>
                 </div>
               )}
             </div>
@@ -114,32 +150,43 @@ export default function ApplicationDetailsPage() {
             <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs">
               <div className="flex items-center gap-1.5 text-[var(--text-muted)]">
                 <Calendar size={13} className="text-[var(--text-muted)]" />
-                <span>Applied {new Date(application.createdAt).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric"
-                })}</span>
+                <span>
+                  Applied{" "}
+                  {new Date(application.createdAt).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </span>
               </div>
 
               {application.matchScore > 0 && (
                 <div className="flex items-center gap-1.5">
                   <Target size={13} className="text-[var(--text-muted)]" />
                   <span className="text-[var(--text-muted)]">Match:</span>
-                  <span className={`text-xs font-semibold ${
-                    application.matchScore >= 75 ? "text-[var(--success)]" :
-                    application.matchScore >= 40 ? "text-[var(--warning)]" :
-                    "text-[var(--danger)]"
-                  }`}>
+                  <span
+                    className={`text-xs font-semibold ${
+                      application.matchScore >= 75
+                        ? "text-[var(--success)]"
+                        : application.matchScore >= 40
+                          ? "text-[var(--warning)]"
+                          : "text-[var(--danger)]"
+                    }`}
+                  >
                     {application.matchScore}%
                   </span>
                   <div className="h-1 w-12 overflow-hidden rounded-full bg-[var(--border)]">
                     <div
                       className={`h-full rounded-full ${
-                        application.matchScore >= 75 ? "bg-[var(--success)]" :
-                        application.matchScore >= 40 ? "bg-[var(--warning)]" :
-                        "bg-[var(--danger)]"
+                        application.matchScore >= 75
+                          ? "bg-[var(--success)]"
+                          : application.matchScore >= 40
+                            ? "bg-[var(--warning)]"
+                            : "bg-[var(--danger)]"
                       }`}
-                      style={{ width: `${Math.min(application.matchScore, 100)}%` }}
+                      style={{
+                        width: `${Math.min(application.matchScore, 100)}%`,
+                      }}
                     />
                   </div>
                 </div>
@@ -148,7 +195,12 @@ export default function ApplicationDetailsPage() {
               {application?.job?.candidatePosted?.name && (
                 <div className="flex items-center gap-1.5 text-[var(--text-muted)]">
                   <User size={13} className="text-[var(--text-muted)]" />
-                  <span>Referrer: <span className="text-xs font-medium text-[var(--text-primary)]">{application.job.candidatePosted.name}</span></span>
+                  <span>
+                    Referrer:{" "}
+                    <span className="text-xs font-medium text-[var(--text-primary)]">
+                      {application.job.candidatePosted.name}
+                    </span>
+                  </span>
                 </div>
               )}
             </div>
@@ -156,7 +208,9 @@ export default function ApplicationDetailsPage() {
 
           {/* Status Badge - Compact */}
           <div className="flex-shrink-0">
-            <div className={`badge rounded-full border px-3 py-1.5 text-[11px] font-medium ${getStatusColor(application.currentStatus)}`}>
+            <div
+              className={`badge rounded-full border px-3 py-1.5 text-[11px] font-medium ${getStatusColor(application.currentStatus)}`}
+            >
               {application.currentStatus}
             </div>
           </div>
@@ -169,32 +223,22 @@ export default function ApplicationDetailsPage() {
               <User size={12} className="text-[var(--text-muted)]" />
               <span className="font-medium">Referrer Details</span>
             </div>
-            <PostedByReferrer candidateId={application.job.receiverProfile.userId} />
+            <PostedByReferrer
+              candidateId={application.job.receiverProfile.userId}
+            />
           </div>
         )}
       </div>
 
       {/* Timeline Section - Full Width */}
-      <div className="surface-card mb-5 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-lg sm:p-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]">
-            <Clock size={15} className="text-[var(--text-muted)]" />
-            Progress Timeline
-          </h2>
-          {application.statusHistory && (
-            <span className="text-[10px] text-[var(--text-muted)]">
-              {application.statusHistory.length} step{application.statusHistory.length > 1 ? 's' : ''}
-            </span>
-          )}
-        </div>
+      
+       
 
         {/* Full width timeline */}
-        <div className="w-full">
-          <ApplicationTimeline
-            currentStatus={application.currentStatus}
-          />
+        <div className="w-full mb-4">
+          <ApplicationTimeline currentStatus={application.currentStatus} />
         </div>
-      </div>
+      
 
       {/* Additional Info Sections - Compact */}
       <div className="space-y-4">
@@ -237,28 +281,44 @@ export default function ApplicationDetailsPage() {
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {jobDetails?.packageDetails?.totalCTC && (
                 <div>
-                  <p className="mb-1 text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Package</p>
+                  <p className="mb-1 text-[10px] uppercase tracking-wider text-[var(--text-muted)]">
+                    Package
+                  </p>
                   <p className="text-sm font-medium text-[var(--text-primary)]">
-                    {jobDetails.packageDetails.currency} {jobDetails.packageDetails.totalCTC} LPA
+                    {jobDetails.packageDetails.currency}{" "}
+                    {jobDetails.packageDetails.totalCTC} LPA
                   </p>
                 </div>
               )}
               {jobDetails?.yearsOfExperience && (
                 <div>
-                  <p className="mb-1 text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Experience</p>
-                  <p className="text-sm font-medium text-[var(--text-primary)]">{jobDetails.yearsOfExperience}</p>
+                  <p className="mb-1 text-[10px] uppercase tracking-wider text-[var(--text-muted)]">
+                    Experience
+                  </p>
+                  <p className="text-sm font-medium text-[var(--text-primary)]">
+                    {jobDetails.yearsOfExperience}
+                  </p>
                 </div>
               )}
-              {jobDetails?.employmentType && jobDetails.employmentType.length > 0 && (
-                <div>
-                  <p className="mb-1 text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Employment Type</p>
-                  <p className="text-sm font-medium text-[var(--text-primary)]">{jobDetails.employmentType.join(", ")}</p>
-                </div>
-              )}
+              {jobDetails?.employmentType &&
+                jobDetails.employmentType.length > 0 && (
+                  <div>
+                    <p className="mb-1 text-[10px] uppercase tracking-wider text-[var(--text-muted)]">
+                      Employment Type
+                    </p>
+                    <p className="text-sm font-medium text-[var(--text-primary)]">
+                      {jobDetails.employmentType.join(", ")}
+                    </p>
+                  </div>
+                )}
               {jobDetails?.workMode && jobDetails.workMode.length > 0 && (
                 <div>
-                  <p className="mb-1 text-[10px] uppercase tracking-wider text-[var(--text-muted)]">Work Mode</p>
-                  <p className="text-sm font-medium text-[var(--text-primary)]">{jobDetails.workMode.join(", ")}</p>
+                  <p className="mb-1 text-[10px] uppercase tracking-wider text-[var(--text-muted)]">
+                    Work Mode
+                  </p>
+                  <p className="text-sm font-medium text-[var(--text-primary)]">
+                    {jobDetails.workMode.join(", ")}
+                  </p>
                 </div>
               )}
             </div>

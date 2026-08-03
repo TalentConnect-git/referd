@@ -172,59 +172,7 @@ export default function LoginForm() {
         </p>
       </div>
 
-      {/* Role selection - Enhanced with icons and better visual hierarchy */}
-      <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-3">
-        {roles.map((item) => {
-          const isSelected = role === item.value;
-
-          return (
-            <button
-              key={item.value}
-              type="button"
-              disabled={isLoading}
-              aria-pressed={isSelected}
-              onClick={() => handleRoleChange(item.value)}
-              className={`
-                relative flex flex-col items-center justify-center gap-1.5
-                rounded-xl border-2 px-3 py-3 text-center transition-all duration-200
-                disabled:cursor-not-allowed disabled:opacity-60
-                ${
-                  isSelected
-                    ? "border-[var(--primary)] bg-[var(--primary-soft)] shadow-lg shadow-[var(--primary)]/10 scale-[1.02]"
-                    : "border-[var(--border)] bg-[var(--background-soft)] hover:border-[var(--border-strong)] hover:bg-[var(--card-hover)] hover:scale-[1.01]"
-                }
-              `}
-            >
-              {/* Icon */}
-              <span
-                className={`transition-colors duration-200 ${
-                  isSelected
-                    ? "text-[var(--primary)]"
-                    : "text-[var(--text-muted)]"
-                }`}
-              >
-                {item.icon}
-              </span>
-
-              {/* Label */}
-              <span
-                className={`text-[10px] font-semibold uppercase tracking-[0.08em] transition-colors duration-200 sm:text-[11px] ${
-                  isSelected
-                    ? "text-[var(--text-primary)]"
-                    : "text-[var(--text-muted)]"
-                }`}
-              >
-                {item.label}
-              </span>
-
-              {/* Active indicator bar */}
-              {isSelected && (
-                <span className="absolute -bottom-[1px] left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-[var(--primary)]" />
-              )}
-            </button>
-          );
-        })}
-      </div>
+      
 
       {/* OAuth buttons */}
       <div className="mt-6 space-y-3 sm:mt-8">

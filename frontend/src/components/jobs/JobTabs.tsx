@@ -22,12 +22,12 @@ export default function JobTabs() {
   };
 
   return (
-    <div className="mx-4 mb-4 mt-4 flex flex-col gap-3 border-b border-[var(--border)] sm:flex-row sm:items-center sm:justify-between sm:px-4">
+    <div className=" mb-2 mt-4 flex flex-col gap-3  sm:flex-row sm:items-center sm:justify-between ">
       {/* Left Tabs */}
       <div className="flex gap-6 overflow-x-auto sm:gap-8">
         <Link
           href={`/${role}/jobs/offcampus`}
-          className={`whitespace-nowrap pb-2 text-sm font-medium transition-colors ${
+          className={`whitespace-nowrap pb-1 text-[15px] font-medium transition-colors ${
             isTabActive("offcampus")
               ? "border-b-2 border-[var(--primary)] text-[var(--primary)]"
               : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
@@ -38,7 +38,7 @@ export default function JobTabs() {
 
         <Link
           href={`/${role}/jobs/referral-jobs`}
-          className={`whitespace-nowrap pb-2 text-sm font-medium transition-colors ${
+          className={`whitespace-nowrap pb-2 text-[15px] font-medium transition-colors ${
             isTabActive("referral-jobs")
               ? "border-b-2 border-[var(--primary)] text-[var(--primary)]"
               : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
@@ -49,7 +49,7 @@ export default function JobTabs() {
 
         <Link
           href={`/${role}/jobs/internships`}
-          className={`whitespace-nowrap pb-2 text-sm font-medium transition-colors ${
+          className={`whitespace-nowrap pb-2 text-[15px] font-medium transition-colors ${
             isTabActive("internships")
               ? "border-b-2 border-[var(--primary)] text-[var(--primary)]"
               : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"

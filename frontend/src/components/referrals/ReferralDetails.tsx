@@ -42,7 +42,7 @@ export default function ReferralDetails({
           <button
             type="button"
             onClick={onClose}
-            className="btn-ghost absolute right-3 top-3 text-muted transition-colors hover:text-primary"
+            className=" absolute right-3 top-1 text-muted transition-colors hover:text-primary"
           >
             <X size={18} />
           </button>

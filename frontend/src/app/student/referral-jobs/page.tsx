@@ -32,14 +32,14 @@ import { AlumniProfileModal } from "@/components/referrals/AlumniProfileModal";
 import { EmptyState } from "@/components/referrals/EmptyState";
 import axiosInstance from "@/lib/axiosInstance";
 
-// LinkedIn SVG Icon Component
+// ✅ LinkedIn SVG Icon Component
 const LinkedInIcon = ({ className = "w-4 h-4" }) => (
   <svg className={className} fill="currentColor" viewBox="0 0 24 24">
     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
   </svg>
 );
 
-// GitHub SVG Icon Component
+// ✅ GitHub SVG Icon Component
 const GitHubIcon = ({ className = "w-4 h-4" }) => (
   <svg className={className} fill="currentColor" viewBox="0 0 24 24">
     <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.15 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.62.24 2.85.12 3.15.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
@@ -71,11 +71,14 @@ export default function ReferralsPage() {
   const [careerPageUrl, setCareerPageUrl] = useState<string>("");
 
   const [token, setToken] = useState<string | null>(null);
-  const [isAskReferralModalOpen, setIsAskReferralModalOpen] = useState(false);
+  const [isAskReferralModalOpen, setIsAskReferralModalOpen] = useState(false); // Start with false
   const [searchError, setSearchError] = useState<string | null>(null);
   const [loadingAlumni, setLoadingAlumni] = useState(false);
   const [alumniFound, setAlumniFound] = useState(false);
   const [totalAlumniFound, setTotalAlumniFound] = useState(0);
+
+
+  
 
   const [notification, setNotification] = useState<{
     show: boolean;
@@ -88,6 +91,9 @@ export default function ReferralsPage() {
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     setToken(storedToken);
+    
+    // ✅ Open modal automatically when page loads
+    setIsAskReferralModalOpen(true);
   }, []);
 
   useEffect(() => {
@@ -196,26 +202,26 @@ export default function ReferralsPage() {
   const displayedAlumniCount = totalAlumniFound || alumni.length;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[var(--background)]">
       {/* Notification Toast */}
       {notification?.show && (
-        <div className="fixed top-4 right-4 z-[200] max-w-sm animate-slide-in">
+        <div className="fixed right-4 top-4 z-[200] max-w-sm animate-slide-in">
           <div 
             className={`
-              card relative overflow-hidden rounded-xl border backdrop-blur-xl shadow-xl
+              relative overflow-hidden rounded-xl border backdrop-blur-xl shadow-2xl
               ${notification.type === 'success' 
-                ? 'border-success/30 bg-card' 
+                ? 'surface-card border-[var(--success-border)]' 
                 : notification.type === 'warning'
-                ? 'border-warning/30 bg-card'
-                : 'border-danger/30 bg-card'
+                ? 'surface-card border-[var(--warning-border)]'
+                : 'surface-card border-[var(--danger-border)]'
               }
             `}
           >
-            <div className="absolute top-0 left-0 h-0.5 animate-shrink rounded-full"
+            <div className="absolute left-0 top-0 h-0.5 animate-shrink rounded-full"
               style={{
                 width: '100%',
                 background: notification.type === 'success' 
-                  ? 'var(--success)' 
+                  ? 'var(--success)'
                   : notification.type === 'warning'
                   ? 'var(--warning)'
                   : 'var(--danger)',
@@ -225,42 +231,42 @@ export default function ReferralsPage() {
             <div className="p-4">
               <div className="flex items-start gap-3">
                 <div className={`
-                  w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0
+                  flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg
                   ${notification.type === 'success'
-                    ? 'bg-success-soft'
+                    ? 'bg-[var(--success-soft)]'
                     : notification.type === 'warning'
-                    ? 'bg-warning-soft'
-                    : 'bg-danger-soft'
+                    ? 'bg-[var(--warning-soft)]'
+                    : 'bg-[var(--danger-soft)]'
                   }
                 `}>
                   {notification.type === 'success' ? (
-                    <CheckCircle className="w-4 h-4 text-success" />
+                    <CheckCircle className="h-4 w-4 text-[var(--success)]" />
                   ) : notification.type === 'warning' ? (
-                    <Bell className="w-4 h-4 text-warning" />
+                    <Bell className="h-4 w-4 text-[var(--warning)]" />
                   ) : (
-                    <XCircle className="w-4 h-4 text-danger" />
+                    <XCircle className="h-4 w-4 text-[var(--danger)]" />
                   )}
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="min-w-0 flex-1">
                   <h3 className={`text-sm font-semibold ${
                     notification.type === 'success'
-                      ? 'text-success'
+                      ? 'text-[var(--success)]'
                       : notification.type === 'warning'
-                      ? 'text-warning'
-                      : 'text-danger'
+                      ? 'text-[var(--warning)]'
+                      : 'text-[var(--danger)]'
                   }`}>
                     {notification.title}
                   </h3>
-                  <p className="text-xs text-secondary mt-0.5 leading-relaxed">
+                  <p className="mt-0.5 text-xs leading-relaxed text-[var(--text-secondary)]">
                     {notification.message}
                   </p>
                   {notification.details && notification.details.length > 0 && (
-                    <div className="mt-2 pt-2 border-t border-divider">
+                    <div className="mt-2 border-t border-[var(--border)] pt-2">
                       <div className="space-y-1">
                         {notification.details.map((detail, index) => (
                           <div key={index} className="flex items-center justify-between gap-2">
-                            <span className="text-[10px] text-muted">{detail.label}</span>
-                            <span className="text-[10px] font-medium text-secondary text-right">
+                            <span className="text-[10px] text-[var(--text-muted)]">{detail.label}</span>
+                            <span className="text-right text-[10px] font-medium text-[var(--text-secondary)]">
                               {detail.value}
                             </span>
                           </div>
@@ -271,9 +277,9 @@ export default function ReferralsPage() {
                 </div>
                 <button
                   onClick={() => setNotification(null)}
-                  className="p-1 rounded-lg text-muted hover:text-secondary hover:bg-card-hover transition-all flex-shrink-0"
+                  className="flex-shrink-0 rounded-lg p-1 text-[var(--text-muted)] transition-all hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)]"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <X className="h-3.5 w-3.5" />
                 </button>
               </div>
             </div>
@@ -281,24 +287,24 @@ export default function ReferralsPage() {
         </div>
       )}
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-primary tracking-tight flex items-center gap-2">
-              <Users className="w-6 h-6 text-primary" />
+            <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-[var(--text-primary)]">
+              <Users className="h-6 w-6 text-[var(--primary)]" />
               Referrals
             </h1>
-            <p className="text-sm text-muted mt-0.5">
+            <p className="mt-0.5 text-sm text-[var(--text-muted)]">
               Find alumni and request referrals
             </p>
           </div>
           
           <button
             onClick={() => setIsAskReferralModalOpen(true)}
-            className="btn-primary inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-primary/30 bg-primary-soft text-primary hover:bg-primary-soft hover:border-primary/50 transition-all text-sm font-medium"
+            className="btn-primary inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95"
           >
-            <Search className="w-4 h-4" />
+            <Search className="h-4 w-4" />
             Find Alumni
           </button>
         </div>
@@ -309,38 +315,38 @@ export default function ReferralsPage() {
             {hasAlumni ? (
               <>
                 {/* Alumni result heading */}
-                <div className="mb-5 flex flex-col gap-4 rounded-xl border border-success/20 bg-gradient-to-r from-success/10 to-success-light/5 px-4 py-4 sm:flex-row sm:items-center sm:px-5">
+                <div className="mb-5 flex flex-col gap-4 rounded-xl border border-[var(--primary-border)] bg-gradient-to-r from-[var(--primary-soft)] to-[var(--primary-soft)]/50 px-4 py-4 sm:flex-row sm:items-center sm:px-5">
                   <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-success/30 bg-success-soft">
-                      <Building className="h-5 w-5 text-success" />
+                    <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-[var(--primary-border)] bg-[var(--primary-soft)]">
+                      <Building className="h-5 w-5 text-[var(--primary)]" />
                     </div>
 
                     <div className="min-w-0">
                       {alumniFound ? (
                         <>
-                          <h2 className="text-base font-semibold text-primary sm:text-lg">
+                          <h2 className="text-base font-semibold text-[var(--text-primary)] sm:text-lg">
                             {displayedAlumniCount} Alumni Found
                           </h2>
-                          <p className="mt-0.5 truncate text-sm text-muted">
+                          <p className="mt-0.5 truncate text-sm text-[var(--text-muted)]">
                             At{" "}
-                            <span className="font-medium text-primary">
+                            <span className="font-medium text-[var(--primary)]">
                               {alumniCompanyName}
                             </span>
                           </p>
                         </>
                       ) : (
                         <>
-                          <h2 className="text-base font-semibold text-primary sm:text-lg">
+                          <h2 className="text-base font-semibold text-[var(--text-primary)] sm:text-lg">
                             {displayedAlumniCount}{" "}
                             {displayedAlumniCount === 1
                               ? "alumni works"
                               : "alumni work"}{" "}
                             at{" "}
-                            <span className="text-primary">
+                            <span className="text-[var(--primary)]">
                               {alumniCompanyName}
                             </span>
                           </h2>
-                          <p className="mt-0.5 text-sm text-muted">
+                          <p className="mt-0.5 text-sm text-[var(--text-muted)]">
                             These professionals may still be able to help with
                             your referral request.
                           </p>
@@ -349,10 +355,10 @@ export default function ReferralsPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 self-start rounded-lg border border-success/20 bg-success-soft px-3 py-1.5 sm:ml-auto sm:self-auto">
-                    <Sparkles className="h-3.5 w-3.5 text-success" />
-                    <span className="text-xs font-medium text-success">
-                      {alumniFound ? "Exact Match" : "Company Alumni"}
+                  <div className="flex items-center gap-2 self-start rounded-lg border border-[var(--primary-border)] bg-[var(--primary-soft)] px-3 py-1.5 sm:ml-auto sm:self-auto">
+                    
+                    <span className="text-xs font-medium text-[var(--primary)]">
+                      {alumniFound ? "Network Alumni" : "Company Alumni"}
                     </span>
                   </div>
                 </div>
@@ -367,21 +373,21 @@ export default function ReferralsPage() {
               </>
             ) : (
               <div className="mt-12">
-                <div className="card max-w-sm mx-auto rounded-xl border border-theme bg-card-soft p-8 text-center">
-                  <div className="w-14 h-14 mx-auto rounded-xl bg-primary-soft border border-primary/20 flex items-center justify-center mb-4">
-                    <Building2 className="w-7 h-7 text-primary" />
+                <div className="surface-card mx-auto max-w-sm rounded-xl border border-[var(--border)] p-8 text-center">
+                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl border border-[var(--primary-border)] bg-[var(--primary-soft)]">
+                    <Building2 className="h-7 w-7 text-[var(--primary)]" />
                   </div>
-                  <h3 className="text-base font-semibold text-secondary mb-1">
+                  <h3 className="mb-1 text-base font-semibold text-[var(--text-secondary)]">
                     Find Alumni for Referrals
                   </h3>
-                  <p className="text-sm text-muted mb-4">
+                  <p className="mb-4 text-sm text-[var(--text-muted)]">
                     Enter a job URL to find alumni who can refer you
                   </p>
                   <button
                     onClick={() => setIsAskReferralModalOpen(true)}
-                    className="btn-primary inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-primary/30 bg-primary-soft text-primary hover:bg-primary-soft hover:border-primary/50 transition-all text-sm font-medium"
+                    className="btn-primary inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95"
                   >
-                    <Search className="w-4 h-4" />
+                    <Search className="h-4 w-4" />
                     Find Alumni
                   </button>
                 </div>
@@ -394,17 +400,17 @@ export default function ReferralsPage() {
         {loadingAlumni && (
           <div className="mt-12 flex items-center justify-center">
             <div className="text-center">
-              <div className="relative mx-auto w-16 h-16">
-                <div className="absolute inset-0 rounded-full border-2 border-muted/30"></div>
-                <div className="absolute inset-0 rounded-full border-2 border-t-primary border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
-                <div className="absolute inset-3 rounded-full bg-card-soft border border-muted/30 flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-primary animate-pulse" />
+              <div className="relative mx-auto h-16 w-16">
+                <div className="absolute inset-0 rounded-full border-2 border-[var(--border)]"></div>
+                <div className="absolute inset-0 animate-spin rounded-full border-2 border-t-[var(--primary)] border-r-transparent border-b-transparent border-l-transparent"></div>
+                <div className="absolute inset-3 flex items-center justify-center rounded-full border border-[var(--border)] bg-[var(--card)]">
+                  <Sparkles className="h-5 w-5 animate-pulse text-[var(--primary)]" />
                 </div>
               </div>
-              <h3 className="mt-4 text-base font-semibold text-secondary">
+              <h3 className="mt-4 text-base font-semibold text-[var(--text-secondary)]">
                 Finding Alumni
               </h3>
-              <p className="mt-1 text-sm text-muted">
+              <p className="mt-1 text-sm text-[var(--text-muted)]">
                 Searching through our network...
               </p>
             </div>
@@ -413,16 +419,16 @@ export default function ReferralsPage() {
 
         {/* Error State */}
         {searchError && !loadingAlumni && (
-          <div className="mt-8 max-w-md mx-auto">
-            <div className="card rounded-xl border border-theme bg-card-soft p-6 text-center">
-              <div className="w-12 h-12 mx-auto rounded-xl bg-danger-soft border border-danger/20 flex items-center justify-center mb-4">
-                <AlertCircle className="w-6 h-6 text-danger" />
+          <div className="mt-8 mx-auto max-w-md">
+            <div className="surface-card rounded-xl border border-[var(--border)] p-6 text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--danger-border)] bg-[var(--danger-soft)]">
+                <AlertCircle className="h-6 w-6 text-[var(--danger)]" />
               </div>
-              <h3 className="text-base font-semibold text-secondary mb-1">
+              <h3 className="mb-1 text-base font-semibold text-[var(--text-secondary)]">
                 No Alumni Found
               </h3>
-              <p className="text-sm text-muted mb-1">{searchError}</p>
-              <p className="text-xs text-muted mb-4">
+              <p className="mb-1 text-sm text-[var(--text-muted)]">{searchError}</p>
+              <p className="mb-4 text-xs text-[var(--text-muted)]">
                 Try searching with a different job URL
               </p>
               <button
@@ -430,9 +436,9 @@ export default function ReferralsPage() {
                   setSearchError(null);
                   setIsAskReferralModalOpen(true);
                 }}
-                className="btn-primary inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-inverse font-semibold hover:bg-primary-hover transition-all text-sm"
+                className="btn-primary inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200 hover:scale-105 active:scale-95"
               >
-                <Sparkles className="w-4 h-4" />
+                <Sparkles className="h-4 w-4" />
                 Try Another URL
               </button>
             </div>
@@ -440,13 +446,15 @@ export default function ReferralsPage() {
         )}
       </div>
 
-      {/* Modals */}
-      <AskReferralModal
-        isOpen={isAskReferralModalOpen}
-        onClose={() => setIsAskReferralModalOpen(false)}
-        token={token}
-        onAlumniFound={handleAlumniFound}
-      />
+      {/* Modals - with higher z-index */}
+      <div className="relative z-[9999]">
+        <AskReferralModal
+          isOpen={isAskReferralModalOpen}
+          onClose={() => setIsAskReferralModalOpen(false)}
+          token={token}
+          onAlumniFound={handleAlumniFound}
+        />
+      </div>
 
       {selectedAlumni && (
         <AlumniProfileModal

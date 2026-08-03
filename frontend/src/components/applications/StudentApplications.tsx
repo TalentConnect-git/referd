@@ -38,7 +38,7 @@ export default function StudentApplications() {
 
   if (loading) {
     return (
-      <div className="mx-4 flex min-h-[calc(100vh-120px)] flex-col items-center justify-center sm:mx-5">
+      <div className="mx-2 flex min-h-[calc(100vh-120px)] flex-col items-center justify-center sm:mx-5">
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--primary)] border-t-transparent" />
           <p className="text-sm text-[var(--text-muted)]">Loading applications...</p>
@@ -48,7 +48,7 @@ export default function StudentApplications() {
   }
 
   return (
-    <div className="mx-4 flex min-h-[calc(100vh-120px)] flex-col sm:mx-5">
+    <div className="mx-2 flex min-h-[calc(100vh-120px)] flex-col sm:mx-1">
       <div className="mb-4">
         <ApplicationStats
           applicationType={activeTab}

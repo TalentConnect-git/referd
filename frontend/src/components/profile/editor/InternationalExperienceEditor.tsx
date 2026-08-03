@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { Plus, Trash2, Briefcase, Building2, User, Calendar, Search, X, Loader2, Globe } from "lucide-react";
+import { Plus, Trash2, Briefcase, Building2, User, Calendar,  X, Loader2, Globe } from "lucide-react";
 import type { InternationalExperience } from "@/types/profile";
 import axiosInstance from "@/lib/axiosInstance";
 import countries from "world-countries";
@@ -800,7 +800,7 @@ export function InternationalExperienceEditor({
                 value={item.country || ""}
                 onChange={(value: string) => onUpdate(idx, "country", value)}
                 placeholder="Search country..."
-                icon={Search}
+               
               />
             </div>
 
@@ -814,7 +814,7 @@ export function InternationalExperienceEditor({
                 value={item.organization || ""}
                 onChange={(value: string) => onUpdate(idx, "organization", value)}
                 placeholder="Search or type organization..."
-                icon={Search}
+                
               />
             </div>
 
@@ -828,7 +828,7 @@ export function InternationalExperienceEditor({
                 value={item.role || ""}
                 onChange={(value: string) => onUpdate(idx, "role", value)}
                 placeholder="Search or type role..."
-                icon={Search}
+              
               />
             </div>
 

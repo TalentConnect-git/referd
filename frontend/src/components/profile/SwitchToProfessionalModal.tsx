@@ -295,9 +295,9 @@ function AutocompleteInput({
   return (
     <div ref={dropdownRef} className="relative">
       {label && (
-        <label className="form-label mb-1.5 flex items-center gap-1 text-xs">
+        <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
           {label}
-          {required && <span className="text-danger">*</span>}
+          {required && <span className="text-[var(--danger)]">*</span>}
         </label>
       )}
       <div className="relative">
@@ -309,29 +309,27 @@ function AutocompleteInput({
           onFocus={handleFocus}
           placeholder={placeholder}
           autoComplete="off"
-          className={`input-field w-full rounded-lg px-10 py-2.5 text-sm ${
-            error
-              ? "border-danger focus:border-danger focus:ring-danger"
-              : "focus:border-primary focus:ring-primary"
+          className={`w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-10 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-border)] ${
+            error ? "border-[var(--danger)] focus:border-[var(--danger)] focus:ring-[var(--danger-border)]" : ""
           }`}
         />
-        {Icon && <Icon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />}
+        {Icon && <Icon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-muted)]" />}
         {searchTerm && (
           <button
             type="button"
             onClick={clearInput}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted transition-colors hover:text-primary"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
           >
             <X className="h-4 w-4" />
           </button>
         )}
       </div>
-      {error && <p className="form-error mt-1 text-xs">{error}</p>}
+      {error && <p className="mt-1 text-xs text-[var(--danger)]">{error}</p>}
 
       {showDropdown && (
-        <div className="surface-card absolute z-50 mt-1 max-h-52 w-full overflow-y-auto p-1 shadow-lg animate-fade-in">
+        <div className="absolute z-50 mt-1 max-h-52 w-full overflow-y-auto rounded-lg border border-[var(--border)] bg-[var(--card)] p-1 shadow-lg">
           {loading ? (
-            <div className="flex items-center justify-center px-4 py-3 text-sm text-muted">
+            <div className="flex items-center justify-center px-4 py-3 text-sm text-[var(--text-muted)]">
               <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading...
             </div>
           ) : filteredData.length > 0 ? (
@@ -344,11 +342,11 @@ function AutocompleteInput({
                     key={getItemKey(item, index)}
                     type="button"
                     onClick={() => handleSelect(item)}
-                    className="sidebar-item w-full justify-between rounded-md border-b border-divider px-4 py-2.5 text-left text-sm last:border-0"
+                    className="flex w-full items-center justify-between rounded-md border-b border-[var(--border)] px-4 py-2.5 text-left text-sm text-[var(--text-primary)] transition-colors hover:bg-[var(--card-hover)] last:border-0"
                   >
                     <span>{displayValue}</span>
                     {isCustomItem(item) && (
-                      <span className="text-[10px] text-muted group-hover:text-primary">Custom</span>
+                      <span className="text-[10px] text-[var(--text-muted)]">Custom</span>
                     )}
                   </button>
                 );
@@ -358,7 +356,7 @@ function AutocompleteInput({
                   type="button"
                   onClick={() => void handleCreate()}
                   disabled={isCreating}
-                  className="sidebar-item w-full gap-2 rounded-md border-t border-divider px-4 py-2.5 text-left text-sm text-primary transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex w-full items-center gap-2 rounded-md border-t border-[var(--border)] px-4 py-2.5 text-left text-sm text-[var(--primary)] transition-colors hover:bg-[var(--card-hover)] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isCreating ? (
                     <>
@@ -377,7 +375,7 @@ function AutocompleteInput({
               type="button"
               onClick={() => void handleCreate()}
               disabled={isCreating}
-              className="sidebar-item w-full gap-2 rounded-md px-4 py-3 text-left text-sm text-primary transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex w-full items-center gap-2 rounded-md px-4 py-3 text-left text-sm text-[var(--primary)] transition-colors hover:bg-[var(--card-hover)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isCreating ? (
                 <>
@@ -391,8 +389,8 @@ function AutocompleteInput({
             </button>
           ) : (
             <div className="px-4 py-3 text-center">
-              <p className="text-sm text-muted">No options found</p>
-              <p className="mt-1 text-xs text-subtle">Type a value to create one</p>
+              <p className="text-sm text-[var(--text-muted)]">No options found</p>
+              <p className="mt-1 text-xs text-[var(--text-muted)]">Type a value to create one</p>
             </div>
           )}
         </div>
@@ -435,7 +433,7 @@ export function SwitchToProfessionalModal({
   const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
 
   // Get user type from auth context
-  const userType = user?.userType ||  "student";
+  const userType = user?.userType || "student";
 
   // Initialize with one empty experience
   useEffect(() => {
@@ -673,19 +671,19 @@ export function SwitchToProfessionalModal({
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-overlay p-4 backdrop-blur-sm">
-      <div className="modal-content relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl border border-theme bg-card shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--overlay)] p-4 backdrop-blur-sm">
+      <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-xl">
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-divider bg-card px-6 py-4">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--border)] bg-[var(--card)] px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-soft">
-              <Briefcase className="h-5 w-5 text-primary" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--primary-soft)]">
+              <Briefcase className="h-5 w-5 text-[var(--primary)]" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-primary">
+              <h2 className="text-lg font-semibold text-[var(--text-primary)]">
                 Switch to Professional Account
               </h2>
-              <p className="text-sm text-muted">
+              <p className="text-sm text-[var(--text-muted)]">
                 Add your work experience to complete the switch
               </p>
             </div>
@@ -693,7 +691,7 @@ export function SwitchToProfessionalModal({
           <button
             onClick={onClose}
             disabled={isLoading}
-            className="btn-ghost rounded-lg p-1.5 text-muted transition hover:bg-card-hover hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg p-1.5 text-[var(--text-muted)] transition hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-50"
           >
             <X className="h-5 w-5" />
           </button>
@@ -710,13 +708,13 @@ export function SwitchToProfessionalModal({
               return (
                 <div
                   key={experience._id || `experience-${index}`}
-                  className={`card group rounded-xl p-5 transition-all duration-300 ${
+                  className={`rounded-xl border p-5 transition-all duration-300 ${
                     hasCompanyError
-                      ? "border-danger/50 hover:border-danger/70"
+                      ? "border-[var(--danger-border)] bg-[var(--danger-soft)]/10 hover:border-[var(--danger)]/70"
                       : isCurrent
-                      ? "border-success/30 hover:border-success/50"
-                      : "hover:border-primary/30"
-                  } hover:shadow-lg hover:shadow-primary/5`}
+                      ? "border-[var(--success-border)] bg-[var(--success-soft)]/10 hover:border-[var(--success)]/50"
+                      : "border-[var(--border)] bg-[var(--card)] hover:border-[var(--primary-border)]"
+                  }`}
                 >
                   {/* Header */}
                   <div className="mb-5 flex items-center justify-between">
@@ -724,24 +722,24 @@ export function SwitchToProfessionalModal({
                       <div
                         className={`flex h-8 w-8 items-center justify-center rounded-lg border ${
                           hasCompanyError
-                            ? "border-danger/20 bg-danger-soft text-danger"
+                            ? "border-[var(--danger-border)] bg-[var(--danger-soft)] text-[var(--danger)]"
                             : isCurrent
-                            ? "border-success/20 bg-success-soft text-success"
-                            : "border-theme bg-background-soft text-muted"
+                            ? "border-[var(--success-border)] bg-[var(--success-soft)] text-[var(--success)]"
+                            : "border-[var(--border)] bg-[var(--background-soft)] text-[var(--text-muted)]"
                         }`}
                       >
                         <Briefcase className="h-4 w-4" />
                       </div>
-                      <h4 className="text-sm font-semibold text-primary">
+                      <h4 className="text-sm font-semibold text-[var(--text-primary)]">
                         Experience {index + 1}
                       </h4>
                       {isCurrent && (
-                        <span className="badge badge-success rounded-full px-2 py-0.5 text-[10px]">
+                        <span className="rounded-full border border-[var(--success-border)] bg-[var(--success-soft)] px-2 py-0.5 text-[10px] font-medium text-[var(--success)]">
                           Current
                         </span>
                       )}
                       {hasCompanyError && (
-                        <span className="badge badge-danger rounded-full px-2 py-0.5 text-[10px]">
+                        <span className="rounded-full border border-[var(--danger-border)] bg-[var(--danger-soft)] px-2 py-0.5 text-[10px] font-medium text-[var(--danger)]">
                           Required
                         </span>
                       )}
@@ -751,7 +749,7 @@ export function SwitchToProfessionalModal({
                       <button
                         type="button"
                         onClick={() => handleRemoveExperience(index)}
-                        className="btn-danger flex items-center gap-1.5 rounded-lg border border-danger/30 px-3 py-1.5 text-xs font-medium"
+                        className="flex items-center gap-1.5 rounded-lg border border-[var(--danger-border)] px-3 py-1.5 text-xs font-medium text-[var(--danger)] transition hover:bg-[var(--danger-soft)]"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                         Remove
@@ -763,10 +761,10 @@ export function SwitchToProfessionalModal({
                   <div className="grid gap-4 md:grid-cols-2">
                     {/* Company */}
                     <div className="space-y-1.5">
-                      <label className="flex items-center gap-1.5 text-xs font-medium text-secondary">
-                        <Building2 className="h-3.5 w-3.5 text-muted" />
+                      <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)]">
+                        <Building2 className="h-3.5 w-3.5 text-[var(--text-muted)]" />
                         Company
-                        {experience.isCurrent && <span className="ml-1 text-danger">*</span>}
+                        {experience.isCurrent && <span className="ml-1 text-[var(--danger)]">*</span>}
                       </label>
                       <AutocompleteInput
                         apiType="company"
@@ -781,8 +779,8 @@ export function SwitchToProfessionalModal({
 
                     {/* Role */}
                     <div className="space-y-1.5">
-                      <label className="flex items-center gap-1.5 text-xs font-medium text-secondary">
-                        <User className="h-3.5 w-3.5 text-muted" />
+                      <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)]">
+                        <User className="h-3.5 w-3.5 text-[var(--text-muted)]" />
                         Role / Title
                       </label>
                       <AutocompleteInput
@@ -796,22 +794,22 @@ export function SwitchToProfessionalModal({
 
                     {/* Start Date */}
                     <div className="space-y-1.5">
-                      <label className="flex items-center gap-1.5 text-xs font-medium text-secondary">
-                        <Calendar className="h-3.5 w-3.5 text-muted" />
+                      <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)]">
+                        <Calendar className="h-3.5 w-3.5 text-[var(--text-muted)]" />
                         Start Date
                       </label>
                       <input
                         type="date"
                         value={experience.startDate || ""}
                         onChange={(e) => handleUpdateExperience(index, "startDate", e.target.value)}
-                        className="input-field w-full rounded-lg px-4 py-2.5 text-sm"
+                        className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm text-[var(--text-primary)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-border)]"
                       />
                     </div>
 
                     {/* End Date */}
                     <div className="space-y-1.5">
-                      <label className="flex items-center gap-1.5 text-xs font-medium text-secondary">
-                        <Calendar className="h-3.5 w-3.5 text-muted" />
+                      <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)]">
+                        <Calendar className="h-3.5 w-3.5 text-[var(--text-muted)]" />
                         End Date
                       </label>
                       <input
@@ -827,7 +825,7 @@ export function SwitchToProfessionalModal({
                             handleUpdateExperience(index, "endDate", "");
                           }
                         }}
-                        className="input-field w-full rounded-lg px-4 py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+                        className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm text-[var(--text-primary)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-border)] disabled:cursor-not-allowed disabled:opacity-50"
                       />
                     </div>
 
@@ -838,9 +836,9 @@ export function SwitchToProfessionalModal({
                           type="checkbox"
                           checked={experience.isCurrent || false}
                           onChange={(e) => handleUpdateExperience(index, "isCurrent", e.target.checked)}
-                          className="h-4 w-4 rounded border-theme bg-input-background text-primary focus:ring-2 focus:ring-primary/20 focus:ring-offset-0"
+                          className="h-4 w-4 rounded border-[var(--border)] bg-[var(--background)] text-[var(--primary)] focus:ring-2 focus:ring-[var(--primary-border)] focus:ring-offset-0"
                         />
-                        <span className="text-sm font-medium text-secondary transition-colors group-hover:text-primary">
+                        <span className="text-sm font-medium text-[var(--text-secondary)] transition-colors group-hover:text-[var(--text-primary)]">
                           Currently working here
                         </span>
                       </label>
@@ -848,7 +846,7 @@ export function SwitchToProfessionalModal({
 
                     {/* Description */}
                     <div className="md:col-span-2">
-                      <label className="text-xs font-medium text-secondary">Description</label>
+                      <label className="text-xs font-medium text-[var(--text-secondary)]">Description</label>
                       <textarea
                         value={
                           Array.isArray(experience.description)
@@ -858,7 +856,7 @@ export function SwitchToProfessionalModal({
                         onChange={(e) => handleUpdateExperience(index, "description", e.target.value)}
                         placeholder="Describe your responsibilities and achievements..."
                         rows={3}
-                        className="textarea-field w-full resize-none rounded-lg px-4 py-2.5 text-sm"
+                        className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-border)]"
                       />
                     </div>
                   </div>
@@ -870,7 +868,7 @@ export function SwitchToProfessionalModal({
             <button
               type="button"
               onClick={handleAddExperience}
-              className="btn-secondary flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-theme bg-card-soft py-4 text-sm font-medium text-muted transition hover:border-primary/50 hover:bg-primary-soft hover:text-primary"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--border)] bg-[var(--background-soft)] py-4 text-sm font-medium text-[var(--text-muted)] transition hover:border-[var(--primary-border)] hover:bg-[var(--primary-soft)] hover:text-[var(--primary)]"
             >
               <Plus className="h-4 w-4" />
               Add more experience
@@ -878,31 +876,27 @@ export function SwitchToProfessionalModal({
 
             {/* Status Section - Only show when NO current company */}
             {!hasAnyCurrentExperience && (
-              <div className="card space-y-4 rounded-xl border-theme bg-card-soft p-5">
+              <div className="rounded-xl border border-[var(--border)] bg-[var(--background-soft)] p-5">
                 <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-primary" />
-                  <h4 className="text-sm font-semibold text-primary">Candidate Status</h4>
-                  <span className="badge badge-warning ml-auto rounded-full px-2.5 py-0.5 text-[10px]">
-                    Optional
-                  </span>
+                  <Clock className="h-4 w-4 text-[var(--primary)]" />
+                  <h4 className="text-sm font-semibold text-[var(--text-primary)]">Candidate Status</h4>
+                  
                 </div>
 
-                <div className="space-y-4">
+                <div className="mt-4 space-y-4">
                   <div>
-                    <label className="form-label mb-1.5 block text-xs">
-                      Current Status <span className="text-muted">(Optional)</span>
+                    <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
+                      Current Status 
                     </label>
                     <select
                       value={statusType}
                       onChange={(e) => handleStatusChange(e.target.value)}
                       onBlur={() => handleTouch("status")}
-                      className={`select-field w-full rounded-lg px-4 py-2.5 text-sm ${
-                        errors.status && touched.status
-                          ? "border-danger focus:border-danger focus:ring-danger"
-                          : ""
+                      className={`w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm text-[var(--text-primary)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-border)] ${
+                        errors.status && touched.status ? "border-[var(--danger)] focus:border-[var(--danger)] focus:ring-[var(--danger-border)]" : ""
                       }`}
                     >
-                      <option value="">Select your status (Optional)</option>
+                      <option value="">Select your status</option>
                       {statusOptions.map((option) => (
                         <option key={option.value} value={option.value}>
                           {option.label}
@@ -910,36 +904,36 @@ export function SwitchToProfessionalModal({
                       ))}
                     </select>
                     {errors.status && touched.status && (
-                      <p className="form-error mt-1 text-xs">{errors.status}</p>
+                      <p className="mt-1 text-xs text-[var(--danger)]">{errors.status}</p>
                     )}
                   </div>
 
                   {/* Expected Return Date */}
                   {statusType === "career_break" && (
                     <div>
-                      <label className="form-label mb-1.5 block text-xs">
-                        Expected Return Date <span className="text-danger">*</span>
+                      <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
+                        Expected Return Date <span className="text-[var(--danger)]">*</span>
                       </label>
                       <input
                         type="date"
                         value={statusExpectedReturn}
                         onChange={(e) => setStatusExpectedReturn(e.target.value)}
                         min={new Date().toISOString().split("T")[0]}
-                        className="input-field w-full rounded-lg px-4 py-2.5 text-sm"
+                        className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm text-[var(--text-primary)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-border)]"
                       />
-                      <p className="form-helper mt-1 text-xs">
+                      <p className="mt-1 text-xs text-[var(--text-muted)]">
                         When do you plan to return to work?
                       </p>
                       {errors.expectedReturn && (
-                        <p className="form-error mt-1 text-xs">{errors.expectedReturn}</p>
+                        <p className="mt-1 text-xs text-[var(--danger)]">{errors.expectedReturn}</p>
                       )}
                     </div>
                   )}
 
                   {/* Note */}
                   <div>
-                    <label className="form-label mb-1.5 block text-xs">
-                      Note (Optional)
+                    <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
+                      Note 
                     </label>
                     <textarea
                       value={statusNote}
@@ -947,11 +941,11 @@ export function SwitchToProfessionalModal({
                       placeholder="Add any additional details about your status..."
                       rows={2}
                       maxLength={500}
-                      className="textarea-field w-full resize-none rounded-lg px-4 py-2.5 text-sm"
+                      className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-border)]"
                     />
                     <div className="mt-1 flex justify-between text-xs">
-                      <span className="text-muted">Optional</span>
-                      <span className={statusNote.length > 450 ? "text-warning" : "text-muted"}>
+                     
+                      <span className={statusNote.length > 450 ? "text-[var(--warning)]" : "text-[var(--text-muted)]"}>
                         {statusNote.length}/500
                       </span>
                     </div>
@@ -964,22 +958,22 @@ export function SwitchToProfessionalModal({
             {hasAnyCurrentExperience && (
               <>
                 {/* Employment Status Banner */}
-                <div className="card space-y-4 rounded-xl border-success/20 bg-success-soft p-5">
+                <div className="rounded-xl border border-[var(--success-border)] bg-[var(--success-soft)]/10 p-5">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-success" />
-                    <h4 className="text-sm font-semibold text-primary">Employment Status</h4>
-                    <span className="badge badge-success ml-auto rounded-full px-2.5 py-0.5 text-[10px]">
+                    <CheckCircle2 className="h-4 w-4 text-[var(--success)]" />
+                    <h4 className="text-sm font-semibold text-[var(--text-primary)]">Employment Status</h4>
+                    <span className="ml-auto rounded-full border border-[var(--success-border)] bg-[var(--success-soft)] px-2.5 py-0.5 text-[10px] font-medium text-[var(--success)]">
                       Auto-Managed
                     </span>
                   </div>
-                  <div className="rounded-lg border border-success/20 bg-success-soft/50 p-4">
+                  <div className="mt-3 rounded-lg border border-[var(--success-border)] bg-[var(--success-soft)]/5 p-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-success-soft">
-                        <Briefcase className="h-4 w-4 text-success" />
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--success-soft)]">
+                        <Briefcase className="h-4 w-4 text-[var(--success)]" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-primary">Currently Employed</p>
-                        <p className="text-xs text-muted">
+                        <p className="text-sm font-medium text-[var(--text-primary)]">Currently Employed</p>
+                        <p className="text-xs text-[var(--text-muted)]">
                           Your status is automatically set to "Employed" since you have a current job.
                         </p>
                       </div>
@@ -988,19 +982,17 @@ export function SwitchToProfessionalModal({
                 </div>
 
                 {/* Notice Period & Company Email */}
-                <div className="card space-y-4 rounded-xl border-success/20 bg-success-soft p-5">
+                <div className="rounded-xl border border-[var(--success-border)] bg-[var(--success-soft)]/10 p-5">
                   <div className="flex items-center gap-2">
-                    <Briefcase className="h-4 w-4 text-success" />
-                    <h4 className="text-sm font-semibold text-primary">Current Employment Details</h4>
-                    <span className="badge badge-info ml-auto rounded-full px-2.5 py-0.5 text-[10px]">
-                      Optional
-                    </span>
+                    <Briefcase className="h-4 w-4 text-[var(--success)]" />
+                    <h4 className="text-sm font-semibold text-[var(--text-primary)]">Current Employment Details</h4>
+                    
                   </div>
 
-                  <div className="grid gap-4 md:grid-cols-2">
+                  <div className="mt-4 grid gap-4 md:grid-cols-2">
                     <div className="space-y-1.5">
-                      <label htmlFor="noticePeriod" className="text-xs font-medium text-secondary">
-                        Notice Period (days) <span className="text-muted">(Optional)</span>
+                      <label htmlFor="noticePeriod" className="text-xs font-medium text-[var(--text-secondary)]">
+                        Notice Period (days) 
                       </label>
                       <input
                         id="noticePeriod"
@@ -1010,16 +1002,16 @@ export function SwitchToProfessionalModal({
                         value={noticePeriod}
                         onChange={(e) => setNoticePeriod(e.target.value)}
                         placeholder="e.g., 30, 60, 90"
-                        className="input-field w-full rounded-lg px-4 py-2.5 text-sm"
+                        className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-border)]"
                       />
                       {errors.noticePeriod && (
-                        <p className="form-error mt-1 text-xs">{errors.noticePeriod}</p>
+                        <p className="mt-1 text-xs text-[var(--danger)]">{errors.noticePeriod}</p>
                       )}
                     </div>
 
                     <div className="space-y-1.5">
-                      <label htmlFor="companyEmail" className="text-xs font-medium text-secondary">
-                        Official Company Email <span className="text-muted">(Optional)</span>
+                      <label htmlFor="companyEmail" className="text-xs font-medium text-[var(--text-secondary)]">
+                        Official Company Email
                       </label>
                       <input
                         id="companyEmail"
@@ -1029,7 +1021,7 @@ export function SwitchToProfessionalModal({
                         onBlur={(e) => setCompanyEmail(e.target.value.trim().toLowerCase())}
                         placeholder="yourname@company.com"
                         autoComplete="email"
-                        className="input-field w-full rounded-lg px-4 py-2.5 text-sm"
+                        className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-border)]"
                       />
                     </div>
                   </div>
@@ -1040,9 +1032,9 @@ export function SwitchToProfessionalModal({
 
           {/* Error Display */}
           {Object.keys(errors).length > 0 && (
-            <div className="mt-4 rounded-lg border border-danger/30 bg-danger-soft p-3">
+            <div className="mt-4 rounded-lg border border-[var(--danger-border)] bg-[var(--danger-soft)]/10 p-3">
               {Object.entries(errors).map(([key, error]) => (
-                <p key={key} className="text-sm text-danger">
+                <p key={key} className="text-sm text-[var(--danger)]">
                   • {error}
                 </p>
               ))}
@@ -1051,26 +1043,20 @@ export function SwitchToProfessionalModal({
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 flex items-center justify-between border-t border-divider bg-card px-6 py-4">
-          <div className="text-xs text-muted">
-            <span className="hidden sm:inline">Fields with </span>
-            <span className="text-danger">*</span>
-            <span className="hidden sm:inline"> are required</span>
-            <span className="hidden sm:inline ml-2">•</span>
-            <span className="hidden sm:inline ml-2">You can skip adding experience</span>
-          </div>
+        <div className="sticky bottom-0 flex items-center justify-between border-t border-[var(--border)] bg-[var(--card)] px-6 py-4">
+         
           <div className="flex items-center gap-3">
             <button
               onClick={onClose}
               disabled={isLoading}
-              className="btn-secondary rounded-lg border border-theme px-4 py-2 text-sm font-medium text-muted transition hover:bg-card-hover hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2 text-sm font-medium text-[var(--text-muted)] transition hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               onClick={handleSubmit}
               disabled={isLoading}
-              className="btn-primary flex items-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary-light px-6 py-2 text-sm font-medium text-inverse transition hover:from-primary-hover hover:to-primary disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-[var(--primary)] px-6 py-2 text-sm font-medium text-white transition hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? (
                 <>

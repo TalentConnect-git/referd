@@ -235,7 +235,7 @@ const OrganizationAutocomplete = ({
           placeholder={placeholder}
           className="input-field pl-10 text-sm"
         />
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-muted)]" />
+       
         {searchTerm && (
           <button
             type="button"
@@ -402,11 +402,7 @@ export function AwardEditor({
                 <h4 className="text-sm font-semibold text-[var(--text-primary)]">
                   Award {idx + 1}
                 </h4>
-                {!item.title && !item.organization && (
-                  <span className="badge rounded-full bg-[var(--background-soft)] px-2 py-0.5 text-[10px] text-[var(--text-muted)]">
-                    Optional
-                  </span>
-                )}
+                
               </div>
             </div>
 

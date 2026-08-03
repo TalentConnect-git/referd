@@ -15,24 +15,29 @@ import { useState } from "react";
 // Helper function to validate and sanitize image URL
 const getValidImageSrc = (src?: string | null): string => {
   if (!src) return "";
-  
+
   const cleanSrc = src.trim();
-  
+
   // If it's already a valid URL
-  if (cleanSrc.startsWith('http://') || cleanSrc.startsWith('https://')) {
+  if (cleanSrc.startsWith("http://") || cleanSrc.startsWith("https://")) {
     return cleanSrc;
   }
-  
+
   // If it's a relative path without leading slash, add it
-  if (cleanSrc && !cleanSrc.startsWith('/') && !cleanSrc.startsWith('./') && !cleanSrc.startsWith('../')) {
+  if (
+    cleanSrc &&
+    !cleanSrc.startsWith("/") &&
+    !cleanSrc.startsWith("./") &&
+    !cleanSrc.startsWith("../")
+  ) {
     return `/${cleanSrc}`;
   }
-  
+
   // If it's just a random string like "abcd", return empty (will use fallback)
-  if (!cleanSrc.includes('.') && !cleanSrc.startsWith('/')) {
+  if (!cleanSrc.includes(".") && !cleanSrc.startsWith("/")) {
     return "";
   }
-  
+
   return cleanSrc;
 };
 
@@ -47,7 +52,9 @@ export default function AlumniCard({
   onClick,
 }: AlumniCardProps) {
   const [imageError, setImageError] = useState(false);
-  const [imgSrc, setImgSrc] = useState<string>(() => getValidImageSrc(profileImage));
+  const [imgSrc, setImgSrc] = useState<string>(() =>
+    getValidImageSrc(profileImage),
+  );
 
   const initials = name
     .split(" ")
@@ -63,7 +70,7 @@ export default function AlumniCard({
     e.stopPropagation();
     const imageUrl = profileImage || "";
     router.push(
-      `/${userType}/message/${userId}?userName=${encodeURIComponent(name)}&profileImage=${encodeURIComponent(imageUrl)}`
+      `/${userType}/message/${userId}?userName=${encodeURIComponent(name)}&profileImage=${encodeURIComponent(imageUrl)}`,
     );
   };
 
@@ -96,7 +103,9 @@ export default function AlumniCard({
               fill
               className="object-cover"
               onError={handleImageError}
-              unoptimized={imgSrc.startsWith('http://') || imgSrc.startsWith('https://')}
+              unoptimized={
+                imgSrc.startsWith("http://") || imgSrc.startsWith("https://")
+              }
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-[var(--primary-soft)]">
@@ -125,14 +134,18 @@ export default function AlumniCard({
             <div className="flex items-center gap-1.5">
               <Briefcase className="h-3.5 w-3.5 flex-shrink-0 text-[var(--text-muted)]" />
               <p className="truncate text-xs text-[var(--text-secondary)]">
-                {role} {company && <span className="text-[var(--text-muted)]">•</span>} {company}
+                {role}{" "}
+                {company && <span className="text-[var(--text-muted)]">•</span>}{" "}
+                {company}
               </p>
             </div>
 
             {college && (
               <div className="flex items-center gap-1.5">
                 <GraduationCap className="h-3.5 w-3.5 flex-shrink-0 text-[var(--text-muted)]" />
-                <p className="truncate text-xs text-[var(--text-muted)]">{college}</p>
+                <p className="truncate text-xs text-[var(--text-muted)]">
+                  {college}
+                </p>
               </div>
             )}
           </div>
@@ -148,7 +161,7 @@ export default function AlumniCard({
           transition-all duration-200 
           hover:scale-[1.02] active:scale-[0.98]
           border-[var(--border)] 
-          bg-[var(--card)] 
+         bg-[var(--primary-soft)] 
           text-[var(--text-secondary)]
           hover:border-[var(--primary-border)] 
           hover:bg-[var(--primary-soft)] 

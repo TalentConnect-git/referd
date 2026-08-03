@@ -95,13 +95,13 @@ export default function OverviewSection({ job }: OverviewSectionProps) {
 
       {/* Posted By Referrer */}
       {job.candidatePosted && (
-        <div className="surface-card rounded-xl p-4">
+        <div>
           <PostedByReferrer candidateId={job.candidatePosted.userId} />
         </div>
       )}
 
       {/* Alumni Who Can Help */}
-      <div className="surface-card rounded-xl p-4">
+      <div>
         <AlumniWhoCanHelp job={job} />
       </div>
     </div>
