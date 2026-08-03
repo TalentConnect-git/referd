@@ -77,14 +77,7 @@ export const MessageBubble = memo(
               {formatMessageTime(message.createdAt)}
             </span>
 
-            {isMyMessage && (
-              <CheckCheck
-                className="h-3 w-3"
-                style={{
-                  color: isRead ? "#34b7f1" : "var(--text-muted)",
-                }}
-              />
-            )}
+            
           </div>
         </div>
       </div>

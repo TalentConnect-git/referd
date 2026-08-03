@@ -71,11 +71,14 @@ export default function ReferralsPage() {
   const [careerPageUrl, setCareerPageUrl] = useState<string>("");
 
   const [token, setToken] = useState<string | null>(null);
-  const [isAskReferralModalOpen, setIsAskReferralModalOpen] = useState(false);
+  const [isAskReferralModalOpen, setIsAskReferralModalOpen] = useState(false); // Start with false
   const [searchError, setSearchError] = useState<string | null>(null);
   const [loadingAlumni, setLoadingAlumni] = useState(false);
   const [alumniFound, setAlumniFound] = useState(false);
   const [totalAlumniFound, setTotalAlumniFound] = useState(0);
+
+
+  
 
   const [notification, setNotification] = useState<{
     show: boolean;
@@ -88,6 +91,9 @@ export default function ReferralsPage() {
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     setToken(storedToken);
+    
+    // ✅ Open modal automatically when page loads
+    setIsAskReferralModalOpen(true);
   }, []);
 
   useEffect(() => {
@@ -440,13 +446,15 @@ export default function ReferralsPage() {
         )}
       </div>
 
-      {/* Modals */}
-      <AskReferralModal
-        isOpen={isAskReferralModalOpen}
-        onClose={() => setIsAskReferralModalOpen(false)}
-        token={token}
-        onAlumniFound={handleAlumniFound}
-      />
+      {/* Modals - with higher z-index */}
+      <div className="relative z-[9999]">
+        <AskReferralModal
+          isOpen={isAskReferralModalOpen}
+          onClose={() => setIsAskReferralModalOpen(false)}
+          token={token}
+          onAlumniFound={handleAlumniFound}
+        />
+      </div>
 
       {selectedAlumni && (
         <AlumniProfileModal

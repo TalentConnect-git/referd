@@ -752,7 +752,7 @@ useEffect(() => {
     if (!formData.packageDetails?.totalCTC || formData.packageDetails.totalCTC < 0) {
       newErrors["packageDetails.totalCTC"] = "Total CTC is required";
     }
-
+    
    
 
     // Validate if Location is selected but state not provided

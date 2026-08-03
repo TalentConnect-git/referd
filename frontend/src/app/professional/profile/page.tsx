@@ -415,12 +415,13 @@ export default function ProfilePage() {
       )}
 
       <ProfileHeader
-        editHref={editHref}
-        profileType={profile.profileType}
-        switching={switching}
-        onSwitchToProfessional={() => setSwitchModalOpen(true)}
-        onRefresh={handleRefreshProfile}
-      />
+             editHref={editHref}
+             profileType={profile.profileType}
+             switching={switching}
+             userName ={profile.name}
+             onSwitchToProfessional={() => setSwitchModalOpen(true)}
+             onRefresh={handleRefreshProfile}
+           />
 
       <main className="grid gap-6 px-3 py-4 sm:px-4 sm:py-6 lg:px-6 xl:grid-cols-[1fr_420px] 2xl:px-8">
         {/* Left Column - Main Content */}

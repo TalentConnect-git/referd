@@ -234,14 +234,7 @@ export const ChatArea = memo(
               )}
             </div>
 
-            <button
-              type="button"
-              className="rounded-full p-1.5 sm:p-2 transition-colors hover:bg-card-hover hover:text-primary"
-              style={{ color: "var(--muted)" }}
-              aria-label="Attach file"
-            >
-              <Paperclip className="h-4 w-4 sm:h-5 sm:w-5" />
-            </button>
+           
 
             <input
               ref={inputRef}

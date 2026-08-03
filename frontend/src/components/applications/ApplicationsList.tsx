@@ -302,7 +302,7 @@ export default function ApplicationsList({
   };
 
   return (
-    <div className="mx-4 flex min-h-[420px] flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] sm:mx-5">
+    <div className="flex min-h-[420px] flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)]">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="border-b border-[var(--border)] bg-[var(--background-soft)]">

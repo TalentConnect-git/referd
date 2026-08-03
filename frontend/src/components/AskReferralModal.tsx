@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import {
   X,
-  LinkIcon,
   Loader2,
   Search,
   AlertCircle,
@@ -158,9 +157,6 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
                 Job Posting URL <span className="text-[var(--danger)]">*</span>
               </label>
               <div className="relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">
-                  <LinkIcon size={18} />
-                </div>
                 <input
                   id="job-url"
                   type="url"
@@ -173,7 +169,7 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
                     if (e.key === "Enter" && !loading) searchByUrl();
                   }}
                   placeholder="https://www.linkedin.com/jobs/view/1234567890"
-                  className="input-field w-full rounded-xl pl-12 pr-4 py-3.5 text-sm placeholder:text-[var(--input-placeholder)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--focus-ring)]"
+                  className="input-field w-full rounded-xl px-4 py-3.5 text-sm placeholder:text-[var(--input-placeholder)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--focus-ring)]"
                   autoFocus
                 />
               </div>
@@ -213,7 +209,7 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
                 type="button"
                 onClick={onClose}
                 disabled={loading}
-                className="flex-1 rounded-xl border border-[var(--border)] px-4 py-3.5 text-sm font-medium text-[var(--text-secondary)] transition-all hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)] disabled:opacity-50"
+                className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--background)] px-4 py-3.5 text-sm font-medium text-[var(--text-secondary)] transition-all hover:bg-[var(--background)] hover:text-[var(--text-secondary)] disabled:opacity-50"
               >
                 Cancel
               </button>
