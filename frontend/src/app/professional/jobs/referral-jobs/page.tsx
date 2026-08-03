@@ -3,7 +3,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { UserPlus, ChevronLeft, ChevronRight, Briefcase, Sparkles } from "lucide-react";
+import {
+  UserPlus,
+  ChevronLeft,
+  ChevronRight,
+  Briefcase,
+  Sparkles,
+} from "lucide-react";
 
 import axiosInstance from "@/lib/axiosInstance";
 import JobsContainer from "@/components/jobs/JobContainer";
@@ -130,17 +136,15 @@ export default function ProfessionalReferralJobsPage() {
       : Math.min((meta.page ?? page) * (meta.limit ?? 10), meta.total ?? 0);
 
   return (
-    <div className="flex min-h-[calc(100vh-120px)] flex-col bg-background">
+    <div className="flex min-h-[calc(100vh-150px)] flex-col bg-background">
       {/* Header */}
       <div className="mx-4 mb-2 mt-2 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-theme bg-card-soft/50 px-4 py-3 shadow-sm sm:mx-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-soft border border-primary/20">
-            <Briefcase className="h-5 w-5 text-primary" />
+          <div className="flex h-6 w-6 items-center justify-center rounded-xl bg-primary-soft border border-primary/20">
+            <Briefcase className="h-4 w-4 text-primary" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-primary">
-              Referral Jobs
-            </h1>
+            <h1 className="text-[15px] font-bold text-primary">Referral Jobs</h1>
             <p className="text-xs text-muted">
               Manage and track all referral opportunities
             </p>
@@ -166,9 +170,12 @@ export default function ProfessionalReferralJobsPage() {
       {jobs.length > 0 && (
         <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-2 rounded-lg border border-theme bg-card/50 px-3 py-2 mx-4 sm:mx-6">
           <div className="order-2 text-[10px] text-muted sm:order-1">
-            Showing <span className="font-semibold text-primary">{start}</span> to{" "}
-            <span className="font-semibold text-primary">{end}</span> of{" "}
-            <span className="font-semibold text-primary">{meta.total ?? 0}</span> jobs
+            Showing <span className="font-semibold text-primary">{start}</span>{" "}
+            to <span className="font-semibold text-primary">{end}</span> of{" "}
+            <span className="font-semibold text-primary">
+              {meta.total ?? 0}
+            </span>{" "}
+            jobs
           </div>
 
           <div className="order-1 flex items-center gap-1 sm:order-2">
@@ -214,9 +221,12 @@ export default function ProfessionalReferralJobsPage() {
             <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-primary-soft border border-primary/20">
               <Sparkles className="h-10 w-10 text-primary" />
             </div>
-            <h3 className="text-lg font-semibold text-primary">No Referral Jobs Found</h3>
+            <h3 className="text-lg font-semibold text-primary">
+              No Referral Jobs Found
+            </h3>
             <p className="mt-2 text-sm text-muted">
-              There are no referral jobs available at the moment. Check back later or ask for a referral.
+              There are no referral jobs available at the moment. Check back
+              later or ask for a referral.
             </p>
             <button
               type="button"

@@ -83,17 +83,9 @@ export default function ApplicationDetailsPage() {
             {/* Job Title & Company */}
             <div className="mb-1.5 flex flex-wrap items-center gap-2">
               <h1 className="truncate text-xl font-bold text-[var(--text-primary)] sm:text-2xl">
-                {jobDetails?.jobTitle?.[0] || "Application"}
+                {jobDetails?.jobTitle?.[0] || jobDetails?.jobRoles?.[0]|| "Application"}
               </h1>
-              {application.jobType && (
-                <span className={`badge flex-shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-medium ${
-                  application.jobType === "Referral" 
-                    ? "badge-primary" 
-                    : "badge-info"
-                }`}>
-                  {application.jobType}
-                </span>
-              )}
+              
             </div>
 
             {/* Company & Location */}
@@ -174,27 +166,15 @@ export default function ApplicationDetailsPage() {
         )}
       </div>
 
-      {/* Timeline Section - Full Width */}
-      <div className="surface-card mb-5 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-lg sm:p-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]">
-            <Clock size={15} className="text-[var(--text-muted)]" />
-            Progress Timeline
-          </h2>
-          {application.statusHistory && (
-            <span className="text-[10px] text-[var(--text-muted)]">
-              {application.statusHistory.length} step{application.statusHistory.length > 1 ? 's' : ''}
-            </span>
-          )}
-        </div>
+      
 
         {/* Full width timeline */}
-        <div className="w-full">
+        <div className="w-full mb-4">
           <ApplicationTimeline
             currentStatus={application.currentStatus}
           />
         </div>
-      </div>
+     
 
       {/* Additional Info Sections - Compact */}
       <div className="space-y-4">

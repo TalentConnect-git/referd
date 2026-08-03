@@ -79,7 +79,7 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
   }
 
   return (
-    <div className="surface-card rounded-xl p-4">
+    <div>
       {/* Header */}
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">

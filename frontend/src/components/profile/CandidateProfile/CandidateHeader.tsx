@@ -204,9 +204,10 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
 
   const hasCurrentCompany = useMemo(() => {
     const hasCurrentExp = profile.experiences?.some(
-      (exp) => exp.isCurrent === true
+      (exp) => exp.isCurrent === true,
     );
-    const hasCurrentCompanyField = profile.currentCompany && profile.currentCompany.trim().length > 0;
+    const hasCurrentCompanyField =
+      profile.currentCompany && profile.currentCompany.trim().length > 0;
     return hasCurrentExp || hasCurrentCompanyField;
   }, [profile.experiences, profile.currentCompany]);
 
@@ -217,7 +218,7 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
   const name = safeText(profile.name, "Candidate");
 
   const role = currentExperience?.role || "Professional";
-  
+
   let companyOrStatusDisplay = "";
   if (hasCurrentCompany) {
     companyOrStatusDisplay = safeText(
@@ -225,7 +226,7 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
         profile.currentCompany ||
         currentExperience?.company_display ||
         currentExperience?.company ||
-        "Company"
+        "Company",
     );
   } else if (hasStatus) {
     companyOrStatusDisplay = statusLabel;
@@ -340,20 +341,24 @@ export default function CandidateHeader({ profile }: CandidateHeaderProps) {
                 </h1>
 
                 {/* Role Badge */}
-                <div className="mt-2 inline-flex max-w-full items-center rounded-full border border-[var(--primary-border)] bg-[var(--primary-soft)] px-3 py-1 shadow-[0_0_18px_rgba(56,232,120,0.08)]">
-                  {hasCurrentCompany ? (
-                    <span className="truncate text-xs font-semibold leading-none text-[var(--primary)]">
-                      {safeText(role, "Professional")} 
-                    </span>
-                  ) : hasStatus ? (
-                    <span className="flex items-center gap-1.5 truncate text-xs font-semibold leading-none text-[var(--primary)]">
-                      {safeText(role, "Professional")} 
-                    </span>
-                  ) : (
-                    <span className="truncate text-xs font-semibold leading-none text-[var(--primary)]">
-                      {safeText(role, "Professional")}
-                    </span>
-                  )}
+                <div className="mt-2">
+                  {/* Role Badge */}
+                  <div className="mt-2 inline-flex max-w-full items-center rounded-full border border-[var(--primary-border)] bg-[var(--primary-soft)] px-3 py-1 shadow-[0_0_18px_rgba(56,232,120,0.08)]">
+                    {hasCurrentCompany ? (
+                      <span className="truncate text-xs font-semibold leading-none text-[var(--primary)]">
+                        {safeText(role, "Professional")} @{" "}
+                        {companyOrStatusDisplay}
+                      </span>
+                    ) : hasStatus ? (
+                      <span className="flex items-center gap-1.5 truncate text-xs font-semibold leading-none text-[var(--primary)]">
+                        {safeText(role, "Professional")} • {statusLabel}
+                      </span>
+                    ) : (
+                      <span className="truncate text-xs font-semibold leading-none text-[var(--primary)]">
+                        {safeText(role, "Professional")}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Info Row */}

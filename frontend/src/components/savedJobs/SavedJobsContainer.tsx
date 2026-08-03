@@ -137,7 +137,7 @@ export default function SavedJobsContainer() {
   // Empty State - Compact with mx-4
   if (jobs.length === 0) {
     return (
-      <div className="mx-4">
+      <div className="mx-4 mt-3">
         <div className="card rounded-xl border border-theme bg-card-soft p-6 text-center">
           <div className="flex flex-col items-center gap-2">
             <div className="h-12 w-12 rounded-full bg-background-soft flex items-center justify-center">

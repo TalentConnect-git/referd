@@ -236,7 +236,7 @@ export default function JobDetailPage({ job }: LeftPanelProps) {
       </div>
 
       {/* Content Sections */}
-      <div className="surface-card rounded-xl border border-[var(--border)] p-4 shadow-lg">
+      <div>
         {selectedTab === "overview" && <OverviewSection job={job} />}
         {selectedTab === "requirements" && <RequirementSection job={job} />}
         {selectedTab === "compensation" && <CompensationSection job={job} />}

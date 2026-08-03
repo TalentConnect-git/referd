@@ -356,9 +356,9 @@ export default function ReferralsPage() {
                   </div>
 
                   <div className="flex items-center gap-2 self-start rounded-lg border border-[var(--primary-border)] bg-[var(--primary-soft)] px-3 py-1.5 sm:ml-auto sm:self-auto">
-                    <Sparkles className="h-3.5 w-3.5 text-[var(--primary)]" />
+                    
                     <span className="text-xs font-medium text-[var(--primary)]">
-                      {alumniFound ? "Exact Match" : "Company Alumni"}
+                      {alumniFound ? "Network Alumni" : "Company Alumni"}
                     </span>
                   </div>
                 </div>
