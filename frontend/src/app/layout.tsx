@@ -1,12 +1,8 @@
 // app/layout.tsx
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-
-import Footer from "@/components/layout/Footer";
 import Providers from "./providers";
 import "./globals.css";
-import { useAuth } from "@/context/AuthContext";
-import { AuthGuard } from "@/components/Authguard";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -22,9 +18,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  
-
- 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -50,9 +43,8 @@ export default function RootLayout({
       </head>
       <body className={inter.className} suppressHydrationWarning>
         <Providers>
-          <AuthGuard>{children}</AuthGuard>
-
-          <Footer />
+          {children}
+          
         </Providers>
       </body>
     </html>

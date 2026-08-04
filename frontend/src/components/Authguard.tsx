@@ -20,8 +20,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [user, role, loading]);
 
-  // Show loading state while checking auth
-  if (loading) {
+  
+  if (loading || user) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--primary)] border-t-transparent" />
