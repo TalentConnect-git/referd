@@ -1,4 +1,3 @@
-// components/AuthGuard.tsx
 "use client";
 
 import { useEffect } from "react";
@@ -10,10 +9,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, role, loading } = useAuth();
 
   useEffect(() => {
-    // Wait for auth to load
+    
     if (loading) return;
-
-    // Case 1: User is logged in and on auth route (login/signup)
     if (user) {
       router.replace(`/${role}/dashboard`);
       return;

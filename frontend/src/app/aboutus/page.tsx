@@ -231,28 +231,8 @@ export default function AboutPage() {
             </div>
           </div>
 
-          {/* Social Links */}
-          <div className="flex items-center justify-center gap-4 py-4 border-t border-divider">
-            <p className="text-muted text-xs">Connect with us:</p>
-            <a
-              href="https://linkedin.com/company/referd"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted hover:text-info transition-colors"
-              aria-label="LinkedIn"
-            >
-              <LinkedInIcon className="w-5 h-5" />
-            </a>
-            <a
-              href="https://github.com/referd"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted hover:text-primary transition-colors"
-              aria-label="GitHub"
-            >
-              <GitHubIcon className="w-5 h-5" />
-            </a>
-          </div>
+         
+          
 
           {/* Footer CTA */}
           <div className="text-center pt-4 border-t border-divider">
@@ -262,6 +242,7 @@ export default function AboutPage() {
           </div>
         </div>
       </main>
+      <Footer/>
       {/* <Footer /> */}
     </>
   );

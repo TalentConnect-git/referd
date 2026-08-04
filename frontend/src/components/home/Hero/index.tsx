@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowRight, Play, Check } from "lucide-react";
+import { ArrowRight, Play, Check, Link } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import HeroDashboardPreview from "./HeroDashboardPreview";
 
@@ -23,28 +23,28 @@ export default function Hero() {
     <section className="relative min-h-screen overflow-hidden bg-[var(--background)]">
       {/* Grid background - Light Mode */}
       <div className="absolute inset-0 light-grid">
-        <div 
+        <div
           className="absolute inset-0"
           style={{
             backgroundImage: `
               linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px),
               linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px)
             `,
-            backgroundSize: '84px 84px',
+            backgroundSize: "84px 84px",
           }}
         />
       </div>
-      
+
       {/* Grid background - Dark Mode */}
       <div className="absolute inset-0 dark-grid">
-        <div 
+        <div
           className="absolute inset-0"
           style={{
             backgroundImage: `
               linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
               linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)
             `,
-            backgroundSize: '84px 84px',
+            backgroundSize: "84px 84px",
           }}
         />
       </div>
@@ -52,7 +52,9 @@ export default function Hero() {
       <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center px-4 pt-20 text-center sm:px-5 sm:pt-24">
         {/* Heading */}
         <h1 className="max-w-5xl text-3xl font-bold leading-[1.08] tracking-[-0.04em] text-[var(--text-primary)] sm:text-4xl md:text-[45px]">
-          <span className="block text-[var(--text-secondary)]">Your alumni network</span>
+          <span className="block text-[var(--text-secondary)]">
+            Your alumni network
+          </span>
           <span className="block">is your next opportunity.</span>
         </h1>
 
@@ -72,10 +74,16 @@ export default function Hero() {
             className="btn-primary group flex h-10 w-auto items-center gap-2 rounded-lg px-6 text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 sm:gap-3 sm:px-8 sm:text-[14px]"
           >
             Get Started
-            <ArrowRight size={20} className="transition-transform duration-200 group-hover:translate-x-1 sm:size-[24px]" />
+            <ArrowRight
+              size={20}
+              className="transition-transform duration-200 group-hover:translate-x-1 sm:size-[24px]"
+            />
           </button>
 
-          <button className="btn-secondary group flex h-10 items-center gap-2 rounded-lg px-6 text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 sm:gap-3 sm:px-8 sm:text-[14px]">
+          <button
+            onClick={() => window.open("https://www.google.com", "_blank")}
+            className="btn-secondary group flex h-10 items-center gap-2 rounded-lg px-6 text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 sm:gap-3 sm:px-8 sm:text-[14px]"
+          >
             <Play size={20} className="sm:size-[22px]" />
             Watch demo
           </button>

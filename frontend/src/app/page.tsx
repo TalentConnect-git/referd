@@ -14,16 +14,22 @@ import { RevealSection } from "@/components/ui/RevealSection";
 import SectionDivider from "@/components/ui/SectionDivider";
 import { useAuth } from "@/context/AuthContext";
 import Footer from "@/components/layout/Footer";
+import { useSearchParams } from "next/navigation";
 
 export default function Home() {
   const { loading, user, role } = useAuth();
   const router = useRouter();
 
+  const searchParams = useSearchParams();
+  const fromLogo = searchParams.get("from") === "logo";
+
   useEffect(() => {
-    if (!loading && user && role) {
+    if (loading) return;
+
+    if (user && role && !fromLogo) {
       router.replace(`/${role}/dashboard`);
     }
-  }, [loading, user, role, router]);
+  }, [loading, user, role, fromLogo, router]);
 
   if (loading) {
     return (
@@ -34,7 +40,7 @@ export default function Home() {
   }
 
   // Don't render landing page while redirecting
-  if (user) {
+  if (user && !fromLogo) {
     return null;
   }
 
@@ -80,7 +86,7 @@ export default function Home() {
         <CTA />
       </RevealSection>
 
-      <Footer/>
+      <Footer />
     </>
   );
 }

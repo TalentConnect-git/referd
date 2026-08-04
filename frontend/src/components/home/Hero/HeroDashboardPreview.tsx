@@ -170,3 +170,46 @@ export default function HeroDashboardPreview() {
     </div>
   );
 }
+
+
+// "use client";
+
+// import { useTheme } from "@/context/ThemeContext";
+// import { useState, useEffect } from "react";
+// import Image from "next/image";
+
+// export default function HeroDashboardPreview() {
+//   const { theme } = useTheme();
+//   const [mounted, setMounted] = useState(false);
+
+//   useEffect(() => {
+//     setMounted(true);
+//   }, []);
+
+//   if (!mounted) {
+//     return (
+//       <div className="relative mx-auto mt-8 w-full max-w-4xl scale-[0.9] sm:mt-10 sm:scale-[0.92] lg:scale-[0.86]">
+//         <div className="rounded-2xl border border-[var(--border-strong)] bg-[var(--card)]/80 shadow-xl backdrop-blur-xl overflow-hidden">
+//           <div className="w-full h-auto aspect-video bg-[var(--background-soft)] animate-pulse" />
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   const isDark = theme === "dark";
+
+//   return (
+//     <div className="relative mx-auto mt-8 w-full max-w-4xl scale-[0.9] sm:mt-10 sm:scale-[0.92] lg:scale-[0.86]">
+//       <div className="rounded-2xl border border-[var(--border-strong)] bg-[var(--card)]/80 shadow-xl backdrop-blur-xl overflow-hidden">
+//         <Image
+//           src={isDark ? "/images/dashboard-preview-dark.png" : "/images/dashboard-preview-light.png"}
+//           alt="Dashboard Preview"
+//           width={1200}
+//           height={800}
+//           className="w-full h-auto"
+//           priority
+//         />
+//       </div>
+//     </div>
+//   );
+// }

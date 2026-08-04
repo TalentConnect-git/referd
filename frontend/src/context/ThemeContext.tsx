@@ -48,9 +48,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     handleSetTheme(newTheme);
   };
 
-  // Prevent flash by not rendering until mounted
+  
   if (!mounted) {
-    return null; // or return <>{children}</> with a class
+    return null; 
   }
 
   return (
