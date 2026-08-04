@@ -199,7 +199,7 @@ export default function FAQPage() {
           </div>
         </div>
       </main>
-      {/* <Footer/> */}
+      <Footer/>
     </>
   );
 }

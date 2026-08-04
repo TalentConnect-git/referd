@@ -180,7 +180,11 @@ export default function Navbar() {
       "
     >
       {/* Logo */}
-      <Link href="/" className="group flex items-center gap-0.5 flex-shrink-0">
+
+      <Link
+        href="/?from=logo"
+        className="group flex items-center gap-0.5 flex-shrink-0"
+      >
         <div className="relative h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
           <Image
             src={logo}

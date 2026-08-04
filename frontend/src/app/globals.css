@@ -1395,3 +1395,34 @@ hr {
   }
 }
 */
+
+
+.notifications-scroll {
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.notifications-scroll:hover {
+  scrollbar-width: thin;
+}
+
+.notifications-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.notifications-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notifications-scroll::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 999px;
+}
+
+.notifications-scroll:hover::-webkit-scrollbar-thumb {
+  background: var(--border);
+}
+
+.notifications-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}

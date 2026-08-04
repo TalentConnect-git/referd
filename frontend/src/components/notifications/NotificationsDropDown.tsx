@@ -4,14 +4,26 @@ import { Notification } from "@/types/notification";
 import { useNotification } from "@/context/NotificationContext";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { Bell, Clock, ChevronRight, Briefcase, Users, MessageCircle, Calendar, UserPlus, FileText } from "lucide-react";
+import {
+  Bell,
+  Clock,
+  ChevronRight,
+  Briefcase,
+  Users,
+  MessageCircle,
+  Calendar,
+  UserPlus,
+  FileText,
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface NotificationsDropdownProps {
   onClick?: () => void;
 }
 
-export default function NotificationsDropdown({ onClick }: NotificationsDropdownProps) {
+export default function NotificationsDropdown({
+  onClick,
+}: NotificationsDropdownProps) {
   const { notifications, markAsRead, markAllAsRead } = useNotification();
   const router = useRouter();
   const { profile, user } = useAuth();
@@ -144,7 +156,7 @@ export default function NotificationsDropdown({ onClick }: NotificationsDropdown
     if (onClick) onClick();
   };
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
     <div className="w-full">
@@ -152,7 +164,9 @@ export default function NotificationsDropdown({ onClick }: NotificationsDropdown
       <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3">
         <div className="flex items-center gap-2">
           <Bell className="h-4 w-4 text-[var(--text-secondary)]" />
-          <h3 className="text-sm font-semibold text-[var(--text-primary)]">Notifications</h3>
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+            Notifications
+          </h3>
           {unreadCount > 0 && (
             <span className="rounded-full bg-[var(--danger)] px-2 py-0.5 text-[10px] font-bold text-white">
               {unreadCount}
@@ -165,13 +179,18 @@ export default function NotificationsDropdown({ onClick }: NotificationsDropdown
       </div>
 
       {/* Notification List */}
-      <div>
+      <div
+        className="notifications-scroll max-h-[420px]"
+        onWheel={(e) => e.stopPropagation()}
+      >
         {notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
             <div className="mb-3 rounded-full bg-[var(--card-hover)] p-4">
               <Bell className="h-8 w-8 text-[var(--text-muted)]" />
             </div>
-            <p className="text-sm font-medium text-[var(--text-primary)]">No notifications</p>
+            <p className="text-sm font-medium text-[var(--text-primary)]">
+              No notifications
+            </p>
             <p className="mt-1 text-xs text-[var(--text-muted)]">
               You're all caught up!
             </p>
@@ -185,36 +204,42 @@ export default function NotificationsDropdown({ onClick }: NotificationsDropdown
                 className={`
                   group relative cursor-pointer border-l-4 transition-all duration-200
                   hover:bg-[var(--card-hover)]
-                  ${!notification.read ? 'border-l-[var(--primary)] bg-[var(--primary-soft)]' : 'border-l-transparent'}
+                  ${!notification.read ? "border-l-[var(--primary)] bg-[var(--primary-soft)]" : "border-l-transparent"}
                   ${getNotificationColor(notification.meta?.topic)}
                 `}
               >
                 <div className="flex items-start gap-3 px-4 py-3">
                   {/* Icon */}
                   <div className="mt-0.5 flex-shrink-0">
-                    <div className={`
+                    <div
+                      className={`
                       flex h-8 w-8 items-center justify-center rounded-full
-                      ${!notification.read ? 'bg-[var(--primary)]/10' : 'bg-[var(--card-hover)]'}
-                    `}>
+                      ${!notification.read ? "bg-[var(--primary)]/10" : "bg-[var(--card-hover)]"}
+                    `}
+                    >
                       {getNotificationIcon(notification.meta?.topic)}
                     </div>
                   </div>
 
                   {/* Content */}
                   <div className="min-w-0 flex-1">
-                    <p className={`
+                    <p
+                      className={`
                       text-sm leading-relaxed
-                      ${!notification.read ? 'font-semibold text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}
-                    `}>
+                      ${!notification.read ? "font-semibold text-[var(--text-primary)]" : "text-[var(--text-secondary)]"}
+                    `}
+                    >
                       {notification.message}
                     </p>
-                    
+
                     <div className="mt-1.5 flex items-center gap-3">
                       <span className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
                         <Clock className="h-3 w-3" />
-                        {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+                        {formatDistanceToNow(new Date(notification.createdAt), {
+                          addSuffix: true,
+                        })}
                       </span>
-                      
+
                       {notification.meta?.topic && (
                         <span className="rounded-full bg-[var(--card-hover)] px-2 py-0.5 text-[10px] text-[var(--text-muted)]">
                           {notification.meta.topic}
@@ -231,11 +256,13 @@ export default function NotificationsDropdown({ onClick }: NotificationsDropdown
                   )}
 
                   {/* Chevron on hover */}
-                  <ChevronRight className="
+                  <ChevronRight
+                    className="
                     h-4 w-4 flex-shrink-0 text-[var(--text-muted)] 
                     opacity-0 transition-opacity duration-200
                     group-hover:opacity-100
-                  " />
+                  "
+                  />
                 </div>
               </div>
             ))}

@@ -31,7 +31,7 @@ export default function Footer() {
     <footer className="border-t border-[var(--border)] bg-[var(--background)] px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 sm:flex-row sm:flex-wrap sm:justify-between">
         {/* Logo & Brand */}
-        <Link href="/" className="flex items-center gap-1.5 group flex-shrink-0">
+        <Link href="/?from=logo" className="flex items-center gap-1.5 group flex-shrink-0">
           <div className="relative h-5 w-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
             <Image
               src={logo}
