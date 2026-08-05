@@ -1,8 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import DashboardProfStats from "./DashboardProfStats";
-import DashboardStudStats from "./DashboardStudStats";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import {
   getProfessionalStats,
   getCandidateStats,
@@ -11,7 +9,104 @@ import {
 import axiosInstance from "@/lib/axiosInstance";
 import { DashboardStatsProps } from "@/types/dashboard";
 
-import QuickActionChips from "./QuickActionChips";
+// Lazy load child components
+const DashboardProfStats = lazy(() => import("./DashboardProfStats"));
+const DashboardStudStats = lazy(() => import("./DashboardStudStats"));
+const QuickActionChips = lazy(() => import("./QuickActionChips"));
+
+// ==========================================
+// SKELETON LOADING COMPONENTS
+// ==========================================
+
+// Professional stats skeleton
+const ProfStatsSkeleton = () => (
+  <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+    {[1, 2, 3, 4, 5, 6].map((i) => (
+      <div
+        key={i}
+        className="surface-card rounded-xl p-3.5 border border-[var(--border)]"
+      >
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 flex-1 space-y-2">
+            <div className="skeleton shimmer h-2.5 w-16 rounded" />
+            <div className="skeleton shimmer h-5 w-12 rounded" />
+            <div className="skeleton shimmer h-2 w-14 rounded" />
+          </div>
+          <div className="skeleton shimmer h-7 w-7 rounded-lg" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+// Student stats skeleton
+const StudStatsSkeleton = () => (
+  <div className="space-y-4">
+    {/* Quick action chips skeleton */}
+    <div className="flex flex-wrap gap-2">
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="skeleton shimmer h-8 w-24 rounded-full" />
+      ))}
+    </div>
+    {/* Stats skeleton */}
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+      {[1, 2, 3, 4, 5, 6].map((i) => (
+        <div
+          key={i}
+          className="surface-card rounded-xl p-3.5 border border-[var(--border)]"
+        >
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1 space-y-2">
+              <div className="skeleton shimmer h-2.5 w-16 rounded" />
+              <div className="skeleton shimmer h-5 w-12 rounded" />
+              <div className="skeleton shimmer h-2 w-14 rounded" />
+            </div>
+            <div className="skeleton shimmer h-7 w-7 rounded-lg" />
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+// Main loading skeleton
+const MainSkeleton = () => (
+  <div className="flex flex-wrap gap-4">
+    {[1, 2, 3, 4, 5, 6].map((item) => (
+      <div
+        key={item}
+        className="skeleton min-w-[140px] flex-1 h-28 rounded-2xl border border-[var(--border)] bg-[var(--card)]"
+      />
+    ))}
+  </div>
+);
+
+// ==========================================
+// STAGGERED SUSPENSE WRAPPER
+// ==========================================
+
+interface StaggeredSuspenseProps {
+  children: React.ReactNode;
+  fallback: React.ReactNode;
+  delay?: number;
+}
+
+const StaggeredSuspense = ({ children, fallback, delay = 0 }: StaggeredSuspenseProps) => {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShow(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+
+  if (!show) return null;
+
+  return <Suspense fallback={fallback}>{children}</Suspense>;
+};
+
+// ==========================================
+// TYPES
+// ==========================================
 
 type CountResponse = {
   data?: {
@@ -21,6 +116,10 @@ type CountResponse = {
     };
   };
 };
+
+// ==========================================
+// MAIN COMPONENT
+// ==========================================
 
 export default function DashboardStats({ userType }: DashboardStatsProps) {
   // Professional Stats
@@ -147,22 +246,15 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
     }
   }, [fetchDashboardStats, userType]);
 
+  // Show main skeleton while loading
   if (loading) {
-    return (
-      <div className="flex flex-wrap gap-4">
-        {[1, 2, 3, 4, 5, 6].map((item) => (
-          <div
-            key={item}
-            className="skeleton min-w-[140px] flex-1 h-28 rounded-2xl border border-[var(--border)] bg-[var(--card)]"
-          />
-        ))}
-      </div>
-    );
+    return <MainSkeleton />;
   }
 
-  return (
-    <>
-      {userType === "professional" && (
+  // Professional Dashboard
+  if (userType === "professional") {
+    return (
+      <StaggeredSuspense fallback={<ProfStatsSkeleton />} delay={0}>
         <DashboardProfStats
           totalReferralsPosted={totalReferralsPosted}
           totalApplicationsReceived={totalApplicationsReceived}
@@ -172,11 +264,21 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
           alumniCount={alumniCount}
           userType={userType}
         />
-      )}
+      </StaggeredSuspense>
+    );
+  }
 
-      {(userType === "student" || userType === "fresher") && (
-        <>
+  // Student/Fresher Dashboard
+  if (userType === "student" || userType === "fresher") {
+    return (
+      <div className="space-y-4">
+        {/* Quick Action Chips with lazy loading */}
+        <StaggeredSuspense fallback={null} delay={0}>
           <QuickActionChips userType={userType} />
+        </StaggeredSuspense>
+
+        {/* Student Stats with lazy loading */}
+        <StaggeredSuspense fallback={<StudStatsSkeleton />} delay={100}>
           <DashboardStudStats
             applicationsSent={applicationsSent}
             savedCount={savedCount}
@@ -185,8 +287,10 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
             alumniCount={studentAlumniCount}
             userType={userType}
           />
-        </>
-      )}
-    </>
-  );
+        </StaggeredSuspense>
+      </div>
+    );
+  }
+
+  return null;
 }

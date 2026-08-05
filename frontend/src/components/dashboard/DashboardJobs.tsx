@@ -85,9 +85,7 @@ export default function DashboardJobs({
             <h2 className="text-sm font-semibold text-[var(--text-primary)]">
               Referral Jobs for you
             </h2>
-            <p className="text-[10px] text-[var(--text-muted)]">
-              {allJobsCombined.length} jobs available
-            </p>
+            
           </div>
         </div>
 
@@ -129,7 +127,7 @@ export default function DashboardJobs({
                   href={viewAllRoute}
                   className="group inline-flex w-full items-center justify-center gap-2 text-[11px] font-medium text-[var(--text-muted)] transition-colors duration-200 hover:text-[var(--info)]"
                 >
-                  <span>View all {allJobsCombined.length} jobs</span>
+                  <span>View all jobs</span>
                   <ChevronRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
                 </Link>
               </div>
