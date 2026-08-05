@@ -171,6 +171,11 @@ export default function Navbar() {
     setShowNotifications(false);
   };
 
+  const handleLogoClick = () => {
+    sessionStorage.setItem("fromLogo", "true");
+    console.log("Logo clicked", sessionStorage.getItem("fromLogo"));
+    router.push("/");
+  };
   return (
     <header
       className="
@@ -181,8 +186,8 @@ export default function Navbar() {
     >
       {/* Logo */}
 
-      <Link
-        href="/?from=logo"
+      <div
+        onClick={handleLogoClick}
         className="group flex items-center gap-0.5 flex-shrink-0"
       >
         <div className="relative h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
@@ -198,7 +203,7 @@ export default function Navbar() {
           referd
           <span className="text-[var(--primary)]">.</span>
         </span>
-      </Link>
+      </div>
 
       {/* Right side icons */}
       <div className="flex items-center gap-1.5 sm:gap-3">
