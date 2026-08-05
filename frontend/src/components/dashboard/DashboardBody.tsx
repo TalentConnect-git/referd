@@ -1,17 +1,124 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import DashboardJobs from "./DashboardJobs";
-import DashboardAppStatus from "./DashboardAppStatus";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import axiosInstance from "@/lib/axiosInstance";
 import { useAuth } from "@/context/AuthContext";
 import { getCandidateApplications, getProfessionalApplications } from "@/services/application.service";
 import { UserType } from "@/types/dashboard";
 import { Job } from "@/types/dashboard";
 
+// Lazy load child components
+const DashboardJobs = lazy(() => import("./DashboardJobs"));
+const DashboardAppStatus = lazy(() => import("./DashboardAppStatus"));
+
+// ==========================================
+// SKELETON LOADING COMPONENTS
+// ==========================================
+
+// Skeleton for DashboardJobs
+const JobsSkeleton = () => (
+  <div className="surface-card p-4 sm:p-6">
+    {/* Header skeleton */}
+    <div className="flex items-center justify-between mb-4">
+      <div className="skeleton shimmer h-5 w-32 rounded" />
+      <div className="skeleton shimmer h-7 w-24 rounded" />
+    </div>
+    
+    {/* Job cards skeleton */}
+    <div className="space-y-3">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="flex items-center gap-4 p-3 rounded-lg bg-[var(--background-soft)]">
+          <div className="skeleton shimmer h-12 w-12 rounded-lg" />
+          <div className="flex-1 space-y-2">
+            <div className="skeleton shimmer h-4 w-3/4 rounded" />
+            <div className="skeleton shimmer h-3 w-1/2 rounded" />
+          </div>
+          <div className="skeleton shimmer h-7 w-16 rounded" />
+        </div>
+      ))}
+    </div>
+    
+    {/* View all skeleton */}
+    <div className="mt-4 pt-4 border-t border-theme flex justify-between items-center">
+      <div className="skeleton shimmer h-3 w-24 rounded" />
+      <div className="skeleton shimmer h-7 w-20 rounded" />
+    </div>
+  </div>
+);
+
+// Skeleton for DashboardAppStatus
+const AppStatusSkeleton = () => (
+  <div className="surface-card p-4 sm:p-6">
+    {/* Header skeleton */}
+    <div className="flex items-center justify-between mb-4">
+      <div className="skeleton shimmer h-5 w-36 rounded" />
+      <div className="skeleton shimmer h-6 w-6 rounded" />
+    </div>
+    
+    {/* Status items skeleton */}
+    <div className="space-y-3">
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-[var(--background-soft)]">
+          <div className="flex items-center gap-3">
+            <div className="skeleton shimmer h-8 w-8 rounded-full" />
+            <div className="space-y-1.5">
+              <div className="skeleton shimmer h-3.5 w-20 rounded" />
+              <div className="skeleton shimmer h-2.5 w-16 rounded" />
+            </div>
+          </div>
+          <div className="skeleton shimmer h-5 w-12 rounded" />
+        </div>
+      ))}
+    </div>
+    
+    {/* View all skeleton */}
+    <div className="mt-4 pt-4 border-t border-theme">
+      <div className="skeleton shimmer h-7 w-full rounded" />
+    </div>
+  </div>
+);
+
+// Main skeleton when data is loading
+const MainSkeleton = () => (
+  <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div className="lg:col-span-2">
+      <JobsSkeleton />
+    </div>
+    <div>
+      <AppStatusSkeleton />
+    </div>
+  </div>
+);
+
+// ==========================================
+// STAGGERED SUSPENSE WRAPPER
+// ==========================================
+
+interface StaggeredSuspenseProps {
+  children: React.ReactNode;
+  fallback: React.ReactNode;
+  delay?: number;
+}
+
+const StaggeredSuspense = ({ children, fallback, delay = 0 }: StaggeredSuspenseProps) => {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShow(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+
+  if (!show) return null;
+
+  return <Suspense fallback={fallback}>{children}</Suspense>;
+};
+
+// ==========================================
+// MAIN DASHBOARD BODY
+// ==========================================
+
 export default function DashboardBody() {
   const [allJobs, setAllJobs] = useState<any[]>([]);
-
   const [referralJobs, setReferralJobs] = useState<Job[]>([]);
   const [internshipJobs, setInternshipJobs] = useState<Job[]>([]);
   const [offCampusJobs, setOffCampusJobs] = useState<Job[]>([]);
@@ -19,7 +126,6 @@ export default function DashboardBody() {
   const [loading, setLoading] = useState(true);
 
   const { profile } = useAuth();
-
   const role = profile?.profileType;
 
   const userType = useMemo(() => {
@@ -57,7 +163,7 @@ export default function DashboardBody() {
 
           const allJobs = [...referrals, ...internships, ...offCampus];
           setAllJobs(allJobs);
-          
+
           const [offCampusApplications, internshipApplications, referralApplications] = await Promise.all([
             getCandidateApplications("Off-campus"),
             getCandidateApplications("Internship"),
@@ -107,43 +213,33 @@ export default function DashboardBody() {
     };
   }, [userType]);
 
+  // Show main skeleton while data is loading
   if (loading) {
-    return (
-      <div className="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="skeleton h-80 rounded-2xl border border-[var(--border)] bg-[var(--card)] lg:col-span-2" />
-        <div className="skeleton h-80 rounded-2xl border border-[var(--border)] bg-[var(--card)]" />
-      </div>
-    );
+    return <MainSkeleton />;
   }
 
-  const dashboardJobs = referralJobs.slice(0, 5);
+  const isStudent = userType === "student" || userType === "fresher";
+  const isProfessional = userType === "professional";
 
   return (
-    <div className="mt-0 grid grid-cols-1 items-stretch gap-6 lg:grid-cols-3">
-      {(userType === "student" || userType === "fresher") && (
-        <div className="lg:col-span-2">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      {/* Left Column - Dashboard Jobs */}
+      <div className="lg:col-span-2">
+        <StaggeredSuspense fallback={<JobsSkeleton />} delay={0}>
           <DashboardJobs
             referralJobs={referralJobs}
-            internshipJobs={internshipJobs}
-            offCampusJobs={offCampusJobs}
+            internshipJobs={isStudent ? internshipJobs : []}
+            offCampusJobs={isStudent ? offCampusJobs : []}
             allJobs={allJobs}
           />
-        </div>
-      )}
-      
-      {userType === "professional" && (
-        <div className="lg:col-span-2">
-          <DashboardJobs
-            referralJobs={referralJobs}
-            internshipJobs={[]}
-            offCampusJobs={[]}
-            allJobs={allJobs}
-          />
-        </div>
-      )}
+        </StaggeredSuspense>
+      </div>
 
+      {/* Right Column - Application Status */}
       <div>
-        <DashboardAppStatus applications={applications} />
+        <StaggeredSuspense fallback={<AppStatusSkeleton />} delay={100}>
+          <DashboardAppStatus applications={applications} />
+        </StaggeredSuspense>
       </div>
     </div>
   );
