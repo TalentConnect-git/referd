@@ -13,24 +13,30 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://referd.in"),
 
   title: {
-    default: "Referd | Get Employee Referrals from Top Companies",
+    default: "Referd - Employee Referral Platform in India | Job Referrals",
     template: "%s | Referd",
   },
 
   description:
-    "Connect with employees from top companies and get trusted job referrals. Referd helps students, freshers, and professionals accelerate their careers through employee referrals.",
+  "Referd is India's employee referral platform connecting students, freshers, and professionals with verified employees for trusted job referrals, internships, referral hiring, and career opportunities.",
 
   keywords: [
-    "employee referral",
-    "job referral",
-    "referd",
-    "career",
-    "software engineer jobs",
-    "freshers jobs",
-    "professional jobs",
-    "campus hiring",
-    "job referrals India",
-  ],
+  "employee referral platform",
+  "employee referral platform india",
+  "job referral platform",
+  "employee referrals",
+  "job referrals",
+  "referral hiring",
+  "referral jobs",
+  "alumni referral network",
+  "internship referrals",
+  "off campus jobs",
+  "freshers jobs",
+  "professional jobs",
+  "career platform",
+  "job referrals india",
+  "Referd",
+],
 
   authors: [{ name: "Referd" }],
   creator: "Referd",
@@ -41,9 +47,9 @@ export const metadata: Metadata = {
   },
 
   openGraph: {
-    title: "Referd | Get Employee Referrals",
-    description:
-      "Find trusted employee referrals from top companies and boost your chances of getting hired.",
+    title: "Referd - Employee Referral Platform in India",
+   description:
+  "Connect with verified employees, alumni, and professionals to get trusted job referrals and accelerate your career.",
     url: "https://referd.in",
     siteName: "Referd",
     locale: "en_IN",
@@ -78,20 +84,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              name: "Referd",
-              url: "https://referd.in",
-              logo: "https://referd.in/logo.png",
-              description:
-                "Referd is an employee referral platform connecting students, freshers, and professionals with trusted job referrals.",
-            }),
-          }}
-        />
+        
 
         {/* Prevent flash by adding a script that runs immediately */}
         <script
