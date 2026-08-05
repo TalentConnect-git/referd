@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Providers from "./providers";
 import "./globals.css";
+import OrganizationSchema from "@/components/seo/OrganizationSchema";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -11,7 +12,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL("https://referd.in"),
 
- title: {
+  title: {
     default: "Referd | Get Employee Referrals from Top Companies",
     template: "%s | Referd",
   },
@@ -113,6 +114,7 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className} suppressHydrationWarning>
+        <OrganizationSchema />
         <Providers>{children}</Providers>
       </body>
     </html>

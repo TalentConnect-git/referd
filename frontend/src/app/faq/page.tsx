@@ -1,11 +1,10 @@
 // app/faq/page.tsx
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { ChevronDown, HelpCircle } from 'lucide-react';
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
-
+import { useState } from "react";
+import { ChevronDown, HelpCircle } from "lucide-react";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 
 /* ---------- Types ---------- */
 interface FaqItem {
@@ -17,112 +16,114 @@ interface FaqItem {
 /* ---------- Data ---------- */
 const faqData: FaqItem[] = [
   {
-    id: 'what-is-referd',
-    question: 'What is Referd?',
+    id: "what-is-referd",
+    question: "What is Referd?",
     answer:
-      'Referd is India\'s alumni-powered referral hiring network. It connects you with alumni — people from your college or people you\'ve worked with before — who are already working inside the companies you want to join, so your application reaches someone who actually knows you.',
+      "Referd is India's alumni-powered referral hiring network. It connects you with alumni — people from your college or people you've worked with before — who are already working inside the companies you want to join, so your application reaches someone who actually knows you.",
   },
   {
-    id: 'who-counts-as-alumni',
+    id: "who-counts-as-alumni",
     question: 'Who counts as "alumni" on Referd?',
     answer:
-      'On Referd, alumni isn\'t limited to your college. It covers both your college batchmates and your ex-colleagues — anyone you share a real, verifiable connection with.',
+      "On Referd, alumni isn't limited to your college. It covers both your college batchmates and your ex-colleagues — anyone you share a real, verifiable connection with.",
   },
   {
-    id: 'is-referd-free',
-    question: 'Is Referd free to use?',
+    id: "is-referd-free",
+    question: "Is Referd free to use?",
     answer:
-      'Yes — Referd is completely free to use, for both Students/Freshers and Professionals. There are no fees to create a profile, request a referral, or post a referral job.',
+      "Yes — Referd is completely free to use, for both Students/Freshers and Professionals. There are no fees to create a profile, request a referral, or post a referral job.",
   },
   {
-    id: 'who-can-use',
-    question: 'Who can use Referd?',
+    id: "who-can-use",
+    question: "Who can use Referd?",
     answer:
-      'Referd has two user types. Students/Freshers can find internships, off-campus jobs, and referral jobs. Professionals play a dual role — they can post referral jobs from their own company and also request referrals for themselves.',
+      "Referd has two user types. Students/Freshers can find internships, off-campus jobs, and referral jobs. Professionals play a dual role — they can post referral jobs from their own company and also request referrals for themselves.",
   },
   {
-    id: 'student-to-professional',
-    question: 'How do I move from a Student/Fresher profile to a Professional profile?',
+    id: "student-to-professional",
+    question:
+      "How do I move from a Student/Fresher profile to a Professional profile?",
     answer:
-      'Your profile upgrades automatically once you join a company — there\'s no separate application for this.',
+      "Your profile upgrades automatically once you join a company — there's no separate application for this.",
   },
   {
-    id: 'smart-job-discovery',
-    question: 'What is Smart Job Discovery?',
+    id: "smart-job-discovery",
+    question: "What is Smart Job Discovery?",
     answer:
-      'Paste the link of a job you\'re interested in, and Referd finds alumni working at that company so you can request a referral directly from them.',
+      "Paste the link of a job you're interested in, and Referd finds alumni working at that company so you can request a referral directly from them.",
   },
   {
-    id: 'referral-jobs-feed',
-    question: 'What is the Referral Jobs Feed?',
+    id: "referral-jobs-feed",
+    question: "What is the Referral Jobs Feed?",
     answer:
-      'Professionals post exclusive referral opportunities from their own company on this feed. Any user can browse it and request a referral for roles that fit them.',
+      "Professionals post exclusive referral opportunities from their own company on this feed. Any user can browse it and request a referral for roles that fit them.",
   },
   {
-    id: 'after-request',
-    question: 'What happens after I request a referral?',
+    id: "after-request",
+    question: "What happens after I request a referral?",
     answer:
-      'Every referral request passes through two checks before it ever reaches the referrer: \n• Referd Expert Interview — a human subject-matter expert interviews you for that specific job, rates your candidature, and writes a review. \n• Verified Candidature — your profile and credentials are verified. \nOnly requests that clear both are passed on to the referrer.',
+      "Every referral request passes through two checks before it ever reaches the referrer: \n• Referd Expert Interview — a human subject-matter expert interviews you for that specific job, rates your candidature, and writes a review. \n• Verified Candidature — your profile and credentials are verified. \nOnly requests that clear both are passed on to the referrer.",
   },
   {
-    id: 'expert-interview',
-    question: 'What is the Referd Expert Interview?',
+    id: "expert-interview",
+    question: "What is the Referd Expert Interview?",
     answer:
-      'A real interview conducted by a human subject-matter expert, specific to the job you\'re requesting a referral for. The expert rates your candidature and writes a review, so the referrer sees a vetted profile instead of a cold resume.',
+      "A real interview conducted by a human subject-matter expert, specific to the job you're requesting a referral for. The expert rates your candidature and writes a review, so the referrer sees a vetted profile instead of a cold resume.",
   },
   {
-    id: 'verified-candidature',
-    question: 'What is Verified Candidature?',
+    id: "verified-candidature",
+    question: "What is Verified Candidature?",
     answer:
-      'Confirmation that your profile and credentials are genuine and verified before your request is shared with a referrer.',
+      "Confirmation that your profile and credentials are genuine and verified before your request is shared with a referrer.",
   },
   {
-    id: 'alumni-bond',
-    question: 'What is Alumni Bond?',
+    id: "alumni-bond",
+    question: "What is Alumni Bond?",
     answer:
-      'An additional, optional layer that can strengthen a referral request when you and the referrer share a closer connection — for example, the same college batch or the same past team. It adds to a request; it isn\'t required for every referral.',
+      "An additional, optional layer that can strengthen a referral request when you and the referrer share a closer connection — for example, the same college batch or the same past team. It adds to a request; it isn't required for every referral.",
   },
   {
-    id: 'guarantee',
-    question: 'Does Referd guarantee me a job or an interview at the company?',
+    id: "guarantee",
+    question: "Does Referd guarantee me a job or an interview at the company?",
     answer:
-      'No. Referd facilitates a vetted, trusted introduction to a referrer. The hiring decision always remains with the company.',
+      "No. Referd facilitates a vetted, trusted introduction to a referrer. The hiring decision always remains with the company.",
   },
   {
-    id: 'verify-alumni-identity',
-    question: 'Why does Referd verify alumni identity?',
+    id: "verify-alumni-identity",
+    question: "Why does Referd verify alumni identity?",
     answer:
-      'So that every conversation on the platform happens between real, verifiable people. Combined with the Referd Expert Interview, this protects referrers from unverified or misrepresented candidates — a growing concern as AI makes it easier to fake credentials and interview performance.',
+      "So that every conversation on the platform happens between real, verifiable people. Combined with the Referd Expert Interview, this protects referrers from unverified or misrepresented candidates — a growing concern as AI makes it easier to fake credentials and interview performance.",
   },
   {
-    id: 'data-safety',
-    question: 'Is my data safe with Referd?',
+    id: "data-safety",
+    question: "Is my data safe with Referd?",
     answer:
-      'Yes — see our Privacy Policy for full details on what we collect, how it\'s used, and how it\'s protected.',
+      "Yes — see our Privacy Policy for full details on what we collect, how it's used, and how it's protected.",
   },
   {
-    id: 'why-refer-through-referd',
-    question: 'Why should I refer someone through Referd instead of directly?',
+    id: "why-refer-through-referd",
+    question: "Why should I refer someone through Referd instead of directly?",
     answer:
-      'Every candidate is screened by a Referd Expert Interview before they ever reach you, so you\'re referring with confidence — not guesswork — and your own reputation with your employer stays protected.',
+      "Every candidate is screened by a Referd Expert Interview before they ever reach you, so you're referring with confidence — not guesswork — and your own reputation with your employer stays protected.",
   },
   {
-    id: 'referrer-rewards',
-    question: 'Do I get anything for referring someone?',
+    id: "referrer-rewards",
+    question: "Do I get anything for referring someone?",
     answer:
-      'Referrers can earn referral rewards from their organization, as per that organization\'s own referral policy.',
+      "Referrers can earn referral rewards from their organization, as per that organization's own referral policy.",
   },
   {
-    id: 'post-referral-job',
-    question: 'How do I post a referral job?',
+    id: "post-referral-job",
+    question: "How do I post a referral job?",
     answer:
       'From your Professional profile, use "Become a Referrer" to post an open role from your company to the Referral Jobs Feed.',
   },
   {
-    id: 'support',
-    question: 'I have an issue with my account or a referral request. Who do I contact?',
+    id: "support",
+    question:
+      "I have an issue with my account or a referral request. Who do I contact?",
     answer:
-      'Reach out to us at support@referd.in and we\'ll help you sort it out.',
+      "Reach out to us at support@referd.in and we'll help you sort it out.",
   },
 ];
 
@@ -134,9 +135,28 @@ export default function FAQPage() {
     setOpenId((prev) => (prev === id ? null : id));
   };
 
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqData.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
+  };
+
   return (
     <>
-      <Navbar/>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(faqSchema),
+        }}
+      />
+      <Navbar />
       <main className="min-h-screen mt-12 bg-background px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
           {/* Header */}
@@ -150,7 +170,8 @@ export default function FAQPage() {
               Frequently Asked Questions
             </h1>
             <p className="text-muted mt-2 text-sm">
-              Everything you need to know about India's alumni-powered referral network.
+              Everything you need to know about India's alumni-powered referral
+              network.
             </p>
           </div>
 
@@ -173,14 +194,14 @@ export default function FAQPage() {
                     </span>
                     <ChevronDown
                       className={`w-5 h-5 text-muted flex-shrink-0 transition-transform duration-200 ${
-                        isOpen ? 'rotate-180' : ''
+                        isOpen ? "rotate-180" : ""
                       }`}
                       strokeWidth={2}
                     />
                   </button>
                   <div
                     className={`px-5 overflow-hidden transition-all duration-200 ease-in-out ${
-                      isOpen ? 'max-h-[800px] pb-5' : 'max-h-0'
+                      isOpen ? "max-h-[800px] pb-5" : "max-h-0"
                     }`}
                   >
                     <div className="text-secondary text-sm leading-relaxed whitespace-pre-line border-t border-divider pt-4">
@@ -199,7 +220,7 @@ export default function FAQPage() {
           </div>
         </div>
       </main>
-      <Footer/>
+      <Footer />
     </>
   );
 }
