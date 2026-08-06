@@ -14,13 +14,14 @@ const navLinks = [
   { label: "Referrals", href: "#referrals" },
   { label: "Network", href: "/network" },
   { label: "How it works", href: "#how-it-works" },
+  { label: "Blogs", href: "/blogs" },
 ];
 
 // Theme toggle component using ThemeContext with error handling
 function ThemeToggle() {
   let theme = "dark";
   let toggleTheme = () => {};
-  
+
   try {
     const themeContext = useTheme();
     theme = themeContext.theme;
@@ -36,7 +37,8 @@ function ThemeToggle() {
       toggleTheme();
     } catch {
       // Fallback: toggle manually
-      const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
+      const currentTheme =
+        document.documentElement.getAttribute("data-theme") || "dark";
       const newTheme = currentTheme === "light" ? "dark" : "light";
       document.documentElement.setAttribute("data-theme", newTheme);
       localStorage.setItem("theme", newTheme);
@@ -48,12 +50,15 @@ function ThemeToggle() {
   // Listen for theme changes from localStorage fallback
   useEffect(() => {
     const handleThemeChange = () => {
-      const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
+      const savedTheme = localStorage.getItem("theme") as
+        | "light"
+        | "dark"
+        | null;
       if (savedTheme) {
         document.documentElement.setAttribute("data-theme", savedTheme);
       }
     };
-    
+
     window.addEventListener("themeChange", handleThemeChange);
     return () => window.removeEventListener("themeChange", handleThemeChange);
   }, []);
@@ -208,7 +213,7 @@ export default function Navbar() {
               >
                 Sign in
               </Link>
-              
+
               <Link
                 href="/signup"
                 className="btn-primary rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95"
@@ -237,7 +242,7 @@ export default function Navbar() {
                   <span className="hidden max-w-[80px] truncate text-sm font-medium sm:inline-block">
                     {displayName}
                   </span>
-                  <ChevronDown 
+                  <ChevronDown
                     className={`h-4 w-4 text-[var(--text-muted)] transition-transform duration-200 ${
                       dropdownOpen ? "rotate-180" : ""
                     }`}
@@ -275,6 +280,15 @@ export default function Navbar() {
                       >
                         <span className="text-base">👤</span>
                         Profile
+                      </Link>
+
+                      <Link
+                        href="/saved-blogs"
+                        onClick={() => setDropdownOpen(false)}
+                        className="sidebar-item px-4 py-2.5 text-sm"
+                      >
+                        <span className="text-base">🔖</span>
+                        Saved Blogs
                       </Link>
                     </div>
 

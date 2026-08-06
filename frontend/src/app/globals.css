@@ -1426,3 +1426,154 @@ hr {
 .notifications-scroll::-webkit-scrollbar-thumb:hover {
   background: var(--primary);
 }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+
+
+/* ===== 404 Page Animations ===== */
+
+/* Pulse Animations for Orbs */
+@keyframes pulse-slow {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 0.6;
+  }
+}
+
+@keyframes pulse-slower {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.15);
+    opacity: 0.5;
+  }
+}
+
+@keyframes pulse-slowest {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.15;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.4;
+  }
+}
+
+/* Float Animation for 404 Numbers */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes float-delay {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Float Particles */
+@keyframes float-particle {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-20px) scale(1.5);
+    opacity: 0.8;
+  }
+}
+
+/* Pulse Badge */
+@keyframes pulse-badge {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+/* Animation Classes */
+.animate-pulse-slow {
+  animation: pulse-slow 4s ease-in-out infinite;
+}
+
+.animate-pulse-slower {
+  animation: pulse-slower 5s ease-in-out infinite;
+}
+
+.animate-pulse-slowest {
+  animation: pulse-slowest 6s ease-in-out infinite;
+}
+
+.animate-float {
+  display: inline-block;
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-float-delay {
+  display: inline-block;
+  animation: float-delay 3s ease-in-out infinite;
+  animation-delay: 0.5s;
+}
+
+.animate-float-particle {
+  animation: float-particle 3s ease-in-out infinite;
+}
+
+.animate-pulse-badge {
+  animation: pulse-badge 2s ease-in-out infinite;
+}
+
+/* Dark Theme Overrides */
+[data-theme="dark"] .animate-pulse-slow {
+  animation: pulse-slow-dark 4s ease-in-out infinite;
+}
+
+@keyframes pulse-slow-dark {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 0.5;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .animate-float,
+  .animate-float-delay {
+    animation-duration: 2.5s;
+  }
+}
