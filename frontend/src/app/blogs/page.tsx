@@ -79,11 +79,19 @@ interface Blog {
 
 async function getBlogs(): Promise<Blog[]> {
   try {
-    const { data } = await axiosInstance.get("/api/blogs");
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/blogs`, {
+      next: {
+        revalidate: 300,
+      },
+    });
 
-    return data.data || [];
-  } catch (error) {
-    console.error("Error fetching blogs:", error);
+    if (!res.ok) return [];
+
+    const json = await res.json();
+
+    return json.data || [];
+  } catch (err) {
+    console.error(err);
     return [];
   }
 }
