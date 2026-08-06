@@ -200,8 +200,10 @@ export function DashboardLayout({
       return true;
     // Special handling for message - check if path is exactly /message or starts with /message/
     if (path === "/message") {
-      return pathname === `${basePath}/message` || 
-             pathname.startsWith(`${basePath}/message/`);
+      return (
+        pathname === `${basePath}/message` ||
+        pathname.startsWith(`${basePath}/message/`)
+      );
     }
     const fullPath = `${basePath}${path}`;
     return pathname === fullPath || pathname.startsWith(`${fullPath}/`);
@@ -261,18 +263,20 @@ export function DashboardLayout({
   const handleDeactivateConfirm = async () => {
     if (deactivateTimer > 0) return;
     if (!password.trim()) {
-      setDeactivateError("Please enter your password to confirm account deletion.");
+      setDeactivateError(
+        "Please enter your password to confirm account deletion.",
+      );
       return;
     }
-    
+
     setIsDeactivating(true);
     setDeactivateError(null);
-    
+
     try {
       const response = await axiosInstance.delete("/api/auth/delete", {
-        data: { password: password.trim() }
+        data: { password: password.trim() },
       });
-      
+
       if (response.status === 200) {
         setShowDeactivateModal(false);
         await logout();
@@ -283,8 +287,8 @@ export function DashboardLayout({
     } catch (error: any) {
       console.error("Error deleting account:", error);
       setDeactivateError(
-        error.response?.data?.message || 
-        "An error occurred while deleting your account. Please try again."
+        error.response?.data?.message ||
+          "An error occurred while deleting your account. Please try again.",
       );
     } finally {
       setIsDeactivating(false);
@@ -374,6 +378,12 @@ export function DashboardLayout({
                 {settingsOpen && (
                   <div className="absolute bottom-full left-0 mb-1 w-full min-w-[160px] rounded-lg border border-[var(--border)] bg-[var(--card)] py-1 shadow-lg">
                     <button
+                      onClick={() => router.push("/saved-blogs")}
+                      className="w-full rounded-md px-3 py-2.5 text-left text-sm text-[var(--danger)] transition hover:bg-[var(--danger-soft)]"
+                    >
+                      Saved-Blogs
+                    </button>
+                    <button
                       onClick={handleDeactivateClick}
                       className="w-full px-4 py-2 text-left text-sm text-[var(--danger)] transition hover:bg-[var(--danger-soft)]"
                     >
@@ -435,7 +445,7 @@ export function DashboardLayout({
         <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--navbar-background)] backdrop-blur-xl">
           <div className="flex items-center justify-between px-4 py-3">
             {/* Logo */}
-            
+
             {/* Right side */}
             <div className="flex items-center gap-2">
               {/* Message badge - using /message route */}
@@ -498,7 +508,9 @@ export function DashboardLayout({
                     )}
                   </div>
                   <span className="truncate max-w-[45px] text-center text-[9px]">
-                    {item.label.length > 8 ? item.label.substring(0, 7) + "…" : item.label}
+                    {item.label.length > 8
+                      ? item.label.substring(0, 7) + "…"
+                      : item.label}
                   </span>
                 </Link>
               );
@@ -587,10 +599,16 @@ export function DashboardLayout({
                     <ChevronRight className="h-4 w-4" />
                   )}
                 </button>
-                
+
                 {/* Settings Options - Fixed */}
                 {mobileSettingsOpen && (
                   <div className="ml-12 mt-1 space-y-1 border-l border-[var(--border)] pl-3">
+                    <button
+                      onClick={() => router.push("/saved-blogs")}
+                      className="w-full rounded-md px-3 py-2.5 text-left text-sm text-[var(--danger)] transition hover:bg-[var(--danger-soft)]"
+                    >
+                      Saved-Blogs
+                    </button>
                     <button
                       onClick={handleDeactivateClick}
                       className="w-full rounded-md px-3 py-2.5 text-left text-sm text-[var(--danger)] transition hover:bg-[var(--danger-soft)]"
@@ -658,13 +676,17 @@ export function DashboardLayout({
             {/* Body */}
             <div className="p-6 space-y-4">
               <p className="text-[var(--text-secondary)]">
-                Are you sure you want to delete your account? All your data, 
-                including profile, messages, and activity will be permanently removed.
+                Are you sure you want to delete your account? All your data,
+                including profile, messages, and activity will be permanently
+                removed.
               </p>
-              
+
               {/* Password Input */}
               <div className="space-y-2">
-                <label htmlFor="deactivate-password" className="text-sm font-medium text-[var(--text-secondary)]">
+                <label
+                  htmlFor="deactivate-password"
+                  className="text-sm font-medium text-[var(--text-secondary)]"
+                >
                   Enter your password to confirm
                 </label>
                 <div className="relative">
@@ -683,11 +705,15 @@ export function DashboardLayout({
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
                     disabled={isDeactivating}
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
               </div>
-              
+
               {deactivateError && (
                 <div className="rounded-lg bg-[var(--danger-soft)] p-3 text-sm text-[var(--danger)] border border-[var(--danger-border)]">
                   {deactivateError}
@@ -721,7 +747,9 @@ export function DashboardLayout({
               </button>
               <button
                 onClick={handleDeactivateConfirm}
-                disabled={deactivateTimer > 0 || isDeactivating || !password.trim()}
+                disabled={
+                  deactivateTimer > 0 || isDeactivating || !password.trim()
+                }
                 className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-all ${
                   deactivateTimer > 0 || isDeactivating || !password.trim()
                     ? "bg-[var(--text-muted)] cursor-not-allowed opacity-50"

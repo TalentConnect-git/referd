@@ -1,5 +1,5 @@
 "use client";
-import { Bell, CalendarDays, MessageCircle, Moon, Sun, X } from "lucide-react";
+import { Bell, CalendarDays, MessageCircle, Moon, Sun, X, BookOpen } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useGetAllUsers } from "@/hooks/useGetAllUsers";
 import { useTheme } from "@/context/ThemeContext";
@@ -176,6 +176,11 @@ export default function Navbar() {
     console.log("Logo clicked", sessionStorage.getItem("fromLogo"));
     router.push("/");
   };
+
+  const handleBlogsClick = () => {
+    router.push("/blogs");
+  };
+
   return (
     <header
       className="
@@ -185,10 +190,9 @@ export default function Navbar() {
       "
     >
       {/* Logo */}
-
       <div
         onClick={handleLogoClick}
-        className="group flex items-center gap-0.5 flex-shrink-0"
+        className="group flex items-center gap-0.5 flex-shrink-0 cursor-pointer"
       >
         <div className="relative h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
           <Image
@@ -205,8 +209,39 @@ export default function Navbar() {
         </span>
       </div>
 
+      {/* Center - Empty for spacing */}
+
       {/* Right side icons */}
       <div className="flex items-center gap-1.5 sm:gap-3">
+        {/* Blogs - Mobile Icon */}
+        <button
+          onClick={handleBlogsClick}
+          className="
+            sm:hidden relative flex h-7 w-7 items-center justify-center
+            rounded-full bg-[var(--card)] text-[var(--text-secondary)]
+            transition-colors hover:bg-[var(--card-hover)] hover:text-[var(--primary)]
+          "
+          aria-label="Blogs"
+        >
+          <BookOpen size={13} />
+        </button>
+
+        {/* Blogs - Desktop Button (Before Theme Toggle) */}
+        <button
+          onClick={handleBlogsClick}
+          className="
+            hidden sm:flex items-center gap-1.5  py-1.5
+              font-medium
+            text-[var(--text-secondary)]
+            hover:text-[var(--primary)]
+            
+            transition-all duration-200
+          "
+        >
+          <BookOpen size={12} />
+          <span className="text-[13px] font-medium " >Blogs</span>
+        </button>
+
         {/* Theme Toggle */}
         <ThemeToggle />
 
