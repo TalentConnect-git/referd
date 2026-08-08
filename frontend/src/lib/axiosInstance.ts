@@ -23,10 +23,7 @@ let failedQueue: {
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  withCredentials: true
 });
 
 const refreshAxios = axios.create({
