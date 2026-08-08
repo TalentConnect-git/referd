@@ -4,6 +4,8 @@ import { Notification } from "@/types/notification";
 import { useNotification } from "@/context/NotificationContext";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useState, useEffect } from "react";
+import axiosInstance from "@/lib/axiosInstance";
 import {
   Bell,
   Clock,
@@ -14,6 +16,8 @@ import {
   Calendar,
   UserPlus,
   FileText,
+  Inbox,
+  Loader2,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -24,11 +28,39 @@ interface NotificationsDropdownProps {
 export default function NotificationsDropdown({
   onClick,
 }: NotificationsDropdownProps) {
-  const { notifications, markAsRead, markAllAsRead } = useNotification();
+  const { notifications, markAsRead, markAllAsRead} = useNotification();
   const router = useRouter();
   const { profile, user } = useAuth();
+  const [activeTab, setActiveTab] = useState<"all" | "unread">("unread");
+  const [unreadNotifications, setUnreadNotifications] = useState<Notification[]>([]);
+  const [loadingUnread, setLoadingUnread] = useState(false);
 
   const userType = profile?.profileType || user?.userType || "student";
+
+  // Fetch unread notifications when tab is unread
+  useEffect(() => {
+    if (activeTab === "unread") {
+      fetchUnreadNotifications();
+    }
+  }, [activeTab, notifications]);
+
+  const fetchUnreadNotifications = async () => {
+    try {
+      setLoadingUnread(true);
+      const response = await axiosInstance.get("/api/notifications/unread");
+      
+      if (response.data?.success) {
+        setUnreadNotifications(response.data.data || []);
+      }
+    } catch (error) {
+      console.error("Error fetching unread notifications:", error);
+      // Fallback: filter from existing notifications
+      const unread = notifications.filter((n) => !n.read);
+      setUnreadNotifications(unread);
+    } finally {
+      setLoadingUnread(false);
+    }
+  };
 
   const getNotificationIcon = (topic?: string) => {
     switch (topic) {
@@ -74,6 +106,11 @@ export default function NotificationsDropdown({
 
     // Mark as read
     await markAsRead(notification._id);
+
+    // Refresh unread list
+    if (activeTab === "unread") {
+      fetchUnreadNotifications();
+    }
 
     const topic = notification.meta?.topic;
     const subtopic = notification.meta?.subtopic;
@@ -149,55 +186,124 @@ export default function NotificationsDropdown({
     }
   };
 
-  // Handle "Mark all as read" with onClick
   const handleMarkAllAsRead = async () => {
     await markAllAsRead();
-    // Close dropdown after marking all as read
+    // Refresh unread list
+    if (activeTab === "unread") {
+      fetchUnreadNotifications();
+    }
     if (onClick) onClick();
   };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
+  // Get the notifications to display based on active tab
+  const displayNotifications = activeTab === "unread" 
+    ? unreadNotifications 
+    : notifications;
+
+  // Show loading state
+  const isLoading = activeTab === "unread" && loadingUnread;
+
   return (
     <div className="w-full">
-      {/* Header with count */}
-      <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3">
-        <div className="flex items-center gap-2">
-          <Bell className="h-4 w-4 text-[var(--text-secondary)]" />
-          <h3 className="text-sm font-semibold text-[var(--text-primary)]">
-            Notifications
-          </h3>
-          {unreadCount > 0 && (
-            <span className="rounded-full bg-[var(--danger)] px-2 py-0.5 text-[10px] font-bold text-white">
-              {unreadCount}
-            </span>
-          )}
+      {/* Header with count and tabs */}
+      <div className="border-b border-[var(--border)]">
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-2">
+            <Bell className="h-4 w-4 text-[var(--text-secondary)]" />
+            <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+              Notifications
+            </h3>
+            {unreadCount > 0 && (
+              <span className="rounded-full bg-[var(--danger)] px-2 py-0.5 text-[10px] font-bold text-white">
+                {unreadCount}
+              </span>
+            )}
+          </div>
+          <span className="text-[10px] text-[var(--text-muted)]">
+            {notifications.length} total
+          </span>
         </div>
-        <span className="text-[10px] text-[var(--text-muted)]">
-          {notifications.length} total
-        </span>
+
+        {/* Tabs */}
+        <div className="flex border-b border-[var(--border)]">
+          <button
+            onClick={() => setActiveTab("unread")}
+            className={`
+              flex-1 px-4 py-2 text-xs font-medium transition-all duration-200
+              ${
+                activeTab === "unread"
+                  ? "border-b-2 border-[var(--primary)] text-[var(--primary)]"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+              }
+            `}
+          >
+            <div className="flex items-center justify-center gap-1.5">
+              <Bell className="h-3.5 w-3.5" />
+              Unread
+              {unreadCount > 0 && (
+                <span className="rounded-full bg-[var(--danger)] px-1.5 py-0.5 text-[9px] font-bold text-white">
+                  {unreadCount}
+                </span>
+              )}
+            </div>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("all")}
+            className={`
+              flex-1 px-4 py-2 text-xs font-medium transition-all duration-200
+              ${
+                activeTab === "all"
+                  ? "border-b-2 border-[var(--primary)] text-[var(--primary)]"
+                  : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+              }
+            `}
+          >
+            <div className="flex items-center justify-center gap-1.5">
+              <Inbox className="h-3.5 w-3.5" />
+              All
+              <span className="rounded-full bg-[var(--background-soft)] px-1.5 py-0.5 text-[9px] font-medium text-[var(--text-muted)]">
+                {notifications.length}
+              </span>
+            </div>
+          </button>
+        </div>
       </div>
 
       {/* Notification List */}
       <div
-        className="notifications-scroll max-h-[420px]"
+        className="notifications-scroll max-h-[380px]"
         onWheel={(e) => e.stopPropagation()}
       >
-        {notifications.length === 0 ? (
+        {/* Loading State */}
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
+            <p className="mt-3 text-sm text-[var(--text-muted)]">Loading notifications...</p>
+          </div>
+        ) : displayNotifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
             <div className="mb-3 rounded-full bg-[var(--card-hover)] p-4">
-              <Bell className="h-8 w-8 text-[var(--text-muted)]" />
+              {activeTab === "unread" ? (
+                <Bell className="h-8 w-8 text-[var(--text-muted)]" />
+              ) : (
+                <Inbox className="h-8 w-8 text-[var(--text-muted)]" />
+              )}
             </div>
             <p className="text-sm font-medium text-[var(--text-primary)]">
-              No notifications
+              {activeTab === "unread" ? "No unread notifications" : "No notifications"}
             </p>
             <p className="mt-1 text-xs text-[var(--text-muted)]">
-              You're all caught up!
+              {activeTab === "unread" 
+                ? "You're all caught up!" 
+                : "You don't have any notifications yet"}
             </p>
           </div>
         ) : (
           <div className="divide-y divide-[var(--border)]">
-            {notifications.map((notification) => (
+            {displayNotifications.map((notification) => (
               <div
                 key={notification._id}
                 onClick={() => handleNotificationClick(notification)}
@@ -257,11 +363,11 @@ export default function NotificationsDropdown({
 
                   {/* Chevron on hover */}
                   <ChevronRight
-                    className="
-                    h-4 w-4 flex-shrink-0 text-[var(--text-muted)] 
-                    opacity-0 transition-opacity duration-200
-                    group-hover:opacity-100
-                  "
+                    className={`
+                      h-4 w-4 flex-shrink-0 text-[var(--text-muted)] 
+                      opacity-0 transition-opacity duration-200
+                      group-hover:opacity-100
+                    `}
                   />
                 </div>
               </div>
@@ -271,13 +377,24 @@ export default function NotificationsDropdown({
       </div>
 
       {/* Footer */}
-      {notifications.length > 0 && unreadCount > 0 && (
+      {displayNotifications.length > 0 && unreadCount > 0 && activeTab === "unread" && (
         <div className="border-t border-[var(--border)] px-4 py-2 text-center">
           <button
             onClick={handleMarkAllAsRead}
             className="text-xs text-[var(--text-muted)] transition-colors hover:text-[var(--primary)]"
           >
             Mark all as read
+          </button>
+        </div>
+      )}
+
+      {notifications.length > 0 && activeTab === "all" && unreadCount > 0 && (
+        <div className="border-t border-[var(--border)] px-4 py-2 text-center">
+          <button
+            onClick={() => setActiveTab("unread")}
+            className="text-xs text-[var(--text-muted)] transition-colors hover:text-[var(--primary)]"
+          >
+            {unreadCount} unread {unreadCount === 1 ? "notification" : "notifications"}
           </button>
         </div>
       )}

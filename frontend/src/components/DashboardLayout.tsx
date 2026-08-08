@@ -33,6 +33,7 @@ import {
   EyeOff,
   ChevronDown,
   ChevronRight,
+  Notebook,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useMemo, useRef, useState, useEffect } from "react";
@@ -63,7 +64,8 @@ export type DashboardIconKey =
   | "network"
   | "user"
   | "settings"
-  | "helpCircle";
+  | "helpCircle"
+  |"Notebook";
 
 export type DashboardNavItem = {
   to: string;
@@ -98,6 +100,7 @@ const iconMap: Record<DashboardIconKey, LucideIcon> = {
   user: User,
   settings: Settings,
   helpCircle: HelpCircle,
+  Notebook:Notebook,
 };
 
 // ---------- Component ----------

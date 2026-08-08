@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import Providers from "./providers";
 import "./globals.css";
 import OrganizationSchema from "@/components/seo/OrganizationSchema";
+import CareerInsightPopup from "@/components/career/CareerInsightPopup";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -18,25 +19,25 @@ export const metadata: Metadata = {
   },
 
   description:
-  "Referd is India's employee referral platform connecting students, freshers, and professionals with verified employees for trusted job referrals, internships, referral hiring, and career opportunities.",
+    "Referd is India's employee referral platform connecting students, freshers, and professionals with verified employees for trusted job referrals, internships, referral hiring, and career opportunities.",
 
   keywords: [
-  "employee referral platform",
-  "employee referral platform india",
-  "job referral platform",
-  "employee referrals",
-  "job referrals",
-  "referral hiring",
-  "referral jobs",
-  "alumni referral network",
-  "internship referrals",
-  "off campus jobs",
-  "freshers jobs",
-  "professional jobs",
-  "career platform",
-  "job referrals india",
-  "Referd",
-],
+    "employee referral platform",
+    "employee referral platform india",
+    "job referral platform",
+    "employee referrals",
+    "job referrals",
+    "referral hiring",
+    "referral jobs",
+    "alumni referral network",
+    "internship referrals",
+    "off campus jobs",
+    "freshers jobs",
+    "professional jobs",
+    "career platform",
+    "job referrals india",
+    "Referd",
+  ],
 
   authors: [{ name: "Referd" }],
   creator: "Referd",
@@ -48,8 +49,8 @@ export const metadata: Metadata = {
 
   openGraph: {
     title: "Referd - Employee Referral Platform in India",
-   description:
-  "Connect with verified employees, alumni, and professionals to get trusted job referrals and accelerate your career.",
+    description:
+      "Connect with verified employees, alumni, and professionals to get trusted job referrals and accelerate your career.",
     url: "https://referd.in",
     siteName: "Referd",
     locale: "en_IN",
@@ -84,10 +85,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        
-
         {/* Prevent flash by adding a script that runs immediately */}
-        <script
+        {/* <script
           dangerouslySetInnerHTML={{
             __html: `
         (function() {
@@ -104,11 +103,14 @@ export default function RootLayout({
         })();
       `,
           }}
-        />
+        /> */}
       </head>
       <body className={inter.className} suppressHydrationWarning>
         <OrganizationSchema />
-        <Providers>{children}</Providers>
+        <Providers>
+          <CareerInsightPopup />
+          {children}
+        </Providers>
       </body>
     </html>
   );

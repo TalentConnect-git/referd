@@ -23,7 +23,8 @@ export type DashboardIconKey =
   | "network"
   | "user"
   | "settings"
-  | "helpCircle";
+  | "helpCircle"
+  | "Notebook";
 
 export interface DashboardNavItem {
   to: string;
@@ -45,6 +46,7 @@ export const professionalNavItems: DashboardNavItem[] = [
   { to: "/career-insights", label: "Career Insights", icon: "trendingUp" },
   { to: "/profile", label: "Profile", icon: "user" },
   { to: "/support", label: "Support", icon: "helpCircle" },
+  { to: "/manage-blog", label: "Blogs", icon: "Notebook" },
 ];
 
 // Student Navigation Items
@@ -82,9 +84,8 @@ export function getNavItemsByRole(role: string): DashboardNavItem[] {
     student: studentNavItems,
     fresher: fresherNavItems,
   };
-  
+
   return roleMap[role] || professionalNavItems;
 }
-
 
 export type { DashboardNavItem as DashboardNavItemType };

@@ -96,25 +96,37 @@ async function getBlogs(): Promise<Blog[]> {
   }
 }
 
-// Helper function to get tag color based on tag name
-function getTagColor(tag: string): string {
-  const colors: Record<string, string> = {
-    "Employee Referral": "tag-employee-referral",
-    "Job Referral": "tag-job-referral",
-    Career: "tag-career",
-    "Interview Tips": "tag-interview-tips",
-    "Job Search": "tag-job-search",
-    Freshers: "tag-freshers",
-    "Alumni Network": "tag-alumni-network",
-    Hiring: "tag-hiring",
-    Referd: "tag-referd",
-  };
-
-  const matchingKey = Object.keys(colors).find((key) =>
-    tag.toLowerCase().includes(key.toLowerCase()),
-  );
-
-  return matchingKey ? colors[matchingKey] : "tag-default";
+// Helper function to get tag color based on tag name using CSS variables
+function getTagStyle(tag: string): string {
+  const tagLower = tag.toLowerCase();
+  
+  if (tagLower.includes("referral") || tagLower.includes("refer")) {
+    return "border-[var(--primary-border)] bg-[var(--primary-soft)] text-[var(--primary)]";
+  }
+  if (tagLower.includes("career") || tagLower.includes("growth")) {
+    return "border-[var(--success-border)] bg-[var(--success-soft)] text-[var(--success)]";
+  }
+  if (tagLower.includes("interview") || tagLower.includes("tips")) {
+    return "border-[var(--info-border)] bg-[var(--info-soft)] text-[var(--info)]";
+  }
+  if (tagLower.includes("job") || tagLower.includes("search") || tagLower.includes("hiring")) {
+    return "border-[var(--warning-border)] bg-[var(--warning-soft)] text-[var(--warning)]";
+  }
+  if (tagLower.includes("fresher") || tagLower.includes("alumni") || tagLower.includes("network")) {
+    return "border-[var(--primary-border)] bg-[var(--primary-soft)] text-[var(--primary)]";
+  }
+  if (tagLower.includes("resume") || tagLower.includes("cv")) {
+    return "border-[var(--success-border)] bg-[var(--success-soft)] text-[var(--success)]";
+  }
+  if (tagLower.includes("salary") || tagLower.includes("compensation")) {
+    return "border-[var(--warning-border)] bg-[var(--warning-soft)] text-[var(--warning)]";
+  }
+  if (tagLower.includes("remote") || tagLower.includes("work")) {
+    return "border-[var(--info-border)] bg-[var(--info-soft)] text-[var(--info)]";
+  }
+  
+  // Default tag style
+  return "border-[var(--border)] bg-[var(--background-soft)] text-[var(--text-secondary)]";
 }
 
 export default async function BlogsPage() {
@@ -232,14 +244,14 @@ export default async function BlogsPage() {
                   {blog.tags.slice(0, 4).map((tag) => (
                     <span
                       key={tag}
-                      className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-medium transition-all duration-300 hover:scale-105 ${getTagColor(tag)}`}
+                      className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium transition-all duration-300 hover:scale-105 ${getTagStyle(tag)}`}
                     >
-                      <Hash className="h-5 w5" />
+                      <Hash className="h-3 w-3" />
                       {tag}
                     </span>
                   ))}
                   {blog.tags.length > 4 && (
-                    <span className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--background-soft)] px-3 py-1 text-xs font-medium text-[var(--text-muted)]">
+                    <span className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--background-soft)] px-2.5 py-0.5 text-xs font-medium text-[var(--text-muted)]">
                       +{blog.tags.length - 4}
                     </span>
                   )}

@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import axiosInstance from "@/lib/axiosInstance";
 import {
   ArrowLeft,
   Award,
@@ -23,7 +23,7 @@ import {
   TrendingUp,
   User,
   Users,
-  Zap
+  Zap,
 } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
@@ -47,19 +47,7 @@ export default function CareerInsightsPage() {
       setLoading(true);
       setError(null);
 
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL;
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get(
-        `${backendUrl}/api/career-insights`,
-        {
-          withCredentials: true,
-          headers: {
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await axiosInstance.get(`/api/career-insights`);
 
       if (response.data.success) {
         setInsights(response.data.data);
@@ -78,7 +66,9 @@ export default function CareerInsightsPage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[var(--background)] text-[var(--text-primary)]">
         <Loader2 className="mr-2 h-5 w-5 animate-spin text-[var(--primary)]" />
-        <span className="text-sm text-[var(--text-muted)]">Loading career insights...</span>
+        <span className="text-sm text-[var(--text-muted)]">
+          Loading career insights...
+        </span>
       </div>
     );
   }
@@ -88,7 +78,9 @@ export default function CareerInsightsPage() {
       <div className="flex min-h-screen items-center justify-center bg-[var(--background)] text-[var(--text-primary)]">
         <div className="max-w-md text-center">
           <CircleAlert className="mx-auto mb-4 h-12 w-12 text-[var(--danger)]" />
-          <p className="text-sm text-[var(--text-muted)]">{error || "No insights available"}</p>
+          <p className="text-sm text-[var(--text-muted)]">
+            {error || "No insights available"}
+          </p>
           <button
             onClick={() => router.back()}
             className="btn-primary mt-4 inline-flex items-center gap-2 rounded-xl px-4 py-2 font-semibold transition-all duration-200 hover:scale-105 active:scale-95"
@@ -109,7 +101,7 @@ export default function CareerInsightsPage() {
     missingSkills,
     resumeScore,
     suggestions,
-    lastAnalyzedAt
+    lastAnalyzedAt,
   } = insights;
 
   return (
@@ -126,12 +118,15 @@ export default function CareerInsightsPage() {
           </button>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-[var(--text-primary)]">Career Insights</h1>
+              <h1 className="text-2xl font-bold text-[var(--text-primary)]">
+                Career Insights
+              </h1>
               <p className="mt-1 text-sm text-[var(--text-muted)]">
-                Last analyzed: {new Date(lastAnalyzedAt).toLocaleDateString('en-US', {
-                  month: 'long',
-                  day: 'numeric',
-                  year: 'numeric'
+                Last analyzed:{" "}
+                {new Date(lastAnalyzedAt).toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
                 })}
               </p>
             </div>
@@ -189,7 +184,9 @@ export default function CareerInsightsPage() {
           <div className="surface-card rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
             <div className="mb-2 flex items-center gap-2">
               <Users className="h-4 w-4 text-[var(--info)]" />
-              <span className="text-xs text-[var(--text-muted)]">Referrals</span>
+              <span className="text-xs text-[var(--text-muted)]">
+                Referrals
+              </span>
             </div>
             <ProgressBar
               label="Referral Network"
@@ -208,7 +205,9 @@ export default function CareerInsightsPage() {
             <div className="surface-card rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
               <div className="mb-4 flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-[var(--primary)]" />
-                <h2 className="text-lg font-bold text-[var(--text-primary)]">Skill Market Demand</h2>
+                <h2 className="text-lg font-bold text-[var(--text-primary)]">
+                  Skill Market Demand
+                </h2>
               </div>
               <div className="space-y-3">
                 <SkillCategoryCard
@@ -243,7 +242,9 @@ export default function CareerInsightsPage() {
               <div className="surface-card rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
                 <div className="mb-4 flex items-center gap-2">
                   <CircleAlert className="h-5 w-5 text-[var(--warning)]" />
-                  <h2 className="text-lg font-bold text-[var(--text-primary)]">Skills to Acquire</h2>
+                  <h2 className="text-lg font-bold text-[var(--text-primary)]">
+                    Skills to Acquire
+                  </h2>
                   <span className="badge badge-warning ml-auto rounded-full px-2 py-0.5 text-xs">
                     {missingSkills.length}
                   </span>
@@ -266,7 +267,9 @@ export default function CareerInsightsPage() {
               <div className="surface-card rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
                 <div className="mb-4 flex items-center gap-2">
                   <Lightbulb className="h-5 w-5 text-[var(--primary)]" />
-                  <h2 className="text-lg font-bold text-[var(--text-primary)]">Hiring Insights</h2>
+                  <h2 className="text-lg font-bold text-[var(--text-primary)]">
+                    Hiring Insights
+                  </h2>
                 </div>
                 <div className="space-y-2">
                   {hiringInsights.map((insight, index) => (
@@ -275,7 +278,9 @@ export default function CareerInsightsPage() {
                       className="flex items-start gap-3 rounded-lg bg-[var(--background-soft)] p-3"
                     >
                       <CheckCircle2 className="mt-0.5 h-4 w-4 text-[var(--success)]" />
-                      <p className="text-sm text-[var(--text-secondary)]">{insight}</p>
+                      <p className="text-sm text-[var(--text-secondary)]">
+                        {insight}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -287,7 +292,9 @@ export default function CareerInsightsPage() {
               <div className="surface-card rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
                 <div className="mb-4 flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-[var(--primary)]" />
-                  <h2 className="text-lg font-bold text-[var(--text-primary)]">AI Suggestions</h2>
+                  <h2 className="text-lg font-bold text-[var(--text-primary)]">
+                    AI Suggestions
+                  </h2>
                 </div>
                 <div className="space-y-3">
                   {suggestions.map((suggestion, index) => (
@@ -322,35 +329,49 @@ export default function CareerInsightsPage() {
                     </span>
                   </div>
                 </div>
-                <h3 className="mt-3 text-base font-semibold text-[var(--text-primary)]">Overall Hiring Score</h3>
-                <p className="text-xs text-[var(--text-muted)]">Based on your profile strength</p>
+                <h3 className="mt-3 text-base font-semibold text-[var(--text-primary)]">
+                  Overall Hiring Score
+                </h3>
+                <p className="text-xs text-[var(--text-muted)]">
+                  Based on your profile strength
+                </p>
               </div>
             </div>
 
             {/* Quick Stats */}
             <div className="surface-card rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
-              <h3 className="mb-4 text-base font-semibold text-[var(--text-primary)]">Quick Stats</h3>
+              <h3 className="mb-4 text-base font-semibold text-[var(--text-primary)]">
+                Quick Stats
+              </h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between border-b border-[var(--border)] pb-2">
-                  <span className="text-sm text-[var(--text-muted)]">Profile Score</span>
+                  <span className="text-sm text-[var(--text-muted)]">
+                    Profile Score
+                  </span>
                   <span className="text-sm font-semibold text-[var(--success)]">
                     {hiringBreakdown.profileScore}%
                   </span>
                 </div>
                 <div className="flex items-center justify-between border-b border-[var(--border)] pb-2">
-                  <span className="text-sm text-[var(--text-muted)]">Resume Score</span>
+                  <span className="text-sm text-[var(--text-muted)]">
+                    Resume Score
+                  </span>
                   <span className="text-sm font-semibold text-[var(--danger)]">
                     {resumeScore}%
                   </span>
                 </div>
                 <div className="flex items-center justify-between border-b border-[var(--border)] pb-2">
-                  <span className="text-sm text-[var(--text-muted)]">Application Quality</span>
+                  <span className="text-sm text-[var(--text-muted)]">
+                    Application Quality
+                  </span>
                   <span className="text-sm font-semibold text-[var(--warning)]">
                     {hiringBreakdown.applicationQualityScore}%
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-[var(--text-muted)]">Activity</span>
+                  <span className="text-sm text-[var(--text-muted)]">
+                    Activity
+                  </span>
                   <span className="text-sm font-semibold text-[var(--info)]">
                     {hiringBreakdown.activityScore}%
                   </span>
@@ -360,39 +381,51 @@ export default function CareerInsightsPage() {
 
             {/* Skill Count */}
             <div className="surface-card rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
-              <h3 className="mb-4 text-base font-semibold text-[var(--text-primary)]">Skill Overview</h3>
+              <h3 className="mb-4 text-base font-semibold text-[var(--text-primary)]">
+                Skill Overview
+              </h3>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-[var(--text-muted)]">High in Demand</span>
+                  <span className="text-sm text-[var(--text-muted)]">
+                    High in Demand
+                  </span>
                   <span className="text-sm font-semibold text-[var(--success)]">
                     {categorizedSkills.highInDemand.length}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-[var(--text-muted)]">Growing</span>
+                  <span className="text-sm text-[var(--text-muted)]">
+                    Growing
+                  </span>
                   <span className="text-sm font-semibold text-[var(--warning)]">
                     {categorizedSkills.growing.length}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-[var(--text-muted)]">Saturated</span>
+                  <span className="text-sm text-[var(--text-muted)]">
+                    Saturated
+                  </span>
                   <span className="text-sm font-semibold text-[var(--warning)]">
                     {categorizedSkills.saturated.length}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-[var(--text-muted)]">Obsolete</span>
+                  <span className="text-sm text-[var(--text-muted)]">
+                    Obsolete
+                  </span>
                   <span className="text-sm font-semibold text-[var(--danger)]">
                     {categorizedSkills.obsolete.length}
                   </span>
                 </div>
                 <div className="mt-3 flex items-center justify-between border-t border-[var(--border)] pt-3">
-                  <span className="text-sm font-semibold text-[var(--text-primary)]">Total Skills</span>
+                  <span className="text-sm font-semibold text-[var(--text-primary)]">
+                    Total Skills
+                  </span>
                   <span className="text-sm font-bold text-[var(--text-primary)]">
                     {categorizedSkills.highInDemand.length +
-                     categorizedSkills.growing.length +
-                     categorizedSkills.saturated.length +
-                     categorizedSkills.obsolete.length}
+                      categorizedSkills.growing.length +
+                      categorizedSkills.saturated.length +
+                      categorizedSkills.obsolete.length}
                   </span>
                 </div>
               </div>

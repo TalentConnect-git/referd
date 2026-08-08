@@ -11,16 +11,16 @@ export default function ProfessionalApplicationTabs({
 }: ProfessionalApplicationTabsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const tabs: ProfessionalApplicationType[] = [
     "Requests Received",
-    "Applications By Me",
-    "Referred By Me"
+    "Applied by Me",
+    "Referred By Me",
   ];
 
   // Check if tab parameter exists in URL and set it
   useEffect(() => {
-    const tabParam = searchParams?.get('tab');
+    const tabParam = searchParams?.get("tab");
     if (tabParam && tabs.includes(tabParam as ProfessionalApplicationType)) {
       onChange(tabParam as ProfessionalApplicationType);
     }
@@ -28,8 +28,8 @@ export default function ProfessionalApplicationTabs({
 
   const handleTabChange = (tab: ProfessionalApplicationType) => {
     // Update URL with tab parameter
-    const params = new URLSearchParams(searchParams?.toString() || '');
-    params.set('tab', tab);
+    const params = new URLSearchParams(searchParams?.toString() || "");
+    params.set("tab", tab);
     router.push(`?${params.toString()}`, { scroll: false });
     onChange(tab);
   };
@@ -51,7 +51,7 @@ export default function ProfessionalApplicationTabs({
           `}
         >
           {tab}
-          
+
           {/* Active indicator bar */}
           <span
             className={`
@@ -59,11 +59,7 @@ export default function ProfessionalApplicationTabs({
               rounded-full bg-gradient-to-r
               from-[var(--primary)] to-[var(--primary-light)]
               transition-all duration-300 ease-in-out
-              ${
-                activeTab === tab
-                  ? "w-full"
-                  : "w-0"
-              }
+              ${activeTab === tab ? "w-full" : "w-0"}
             `}
           />
         </button>

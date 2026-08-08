@@ -1,16 +1,7 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import {
-  usePathname,
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { RefreshCw } from "lucide-react";
 
 import ProfessionalApplicationTabs from "./ProfessionalApplicationTabs";
@@ -31,7 +22,7 @@ const DEFAULT_TAB: ProfessionalApplicationType = "Requests Received";
 
 const VALID_TABS: ProfessionalApplicationType[] = [
   "Requests Received",
-  "Applications By Me",
+  "Applied by Me",
   "Referred By Me",
 ];
 
@@ -39,8 +30,7 @@ function isValidTab(
   value: string | null,
 ): value is ProfessionalApplicationType {
   return Boolean(
-    value &&
-      VALID_TABS.includes(value as ProfessionalApplicationType),
+    value && VALID_TABS.includes(value as ProfessionalApplicationType),
   );
 }
 
@@ -94,11 +84,8 @@ export default function ProfessionalApplications() {
         let response;
 
         if (activeTab === "Requests Received") {
-          response = await getProfessionalReceivedApplications(
-            page,
-            limit,
-          );
-        } else if (activeTab === "Applications By Me") {
+          response = await getProfessionalReceivedApplications(page, limit);
+        } else if (activeTab === "Applied by Me") {
           response = await getProfessionalApplications(page, limit);
         } else {
           response = await getReferredByMe(page, limit);
@@ -106,18 +93,13 @@ export default function ProfessionalApplications() {
 
         if (signal?.aborted) return;
 
-        setApplications(
-          Array.isArray(response?.data) ? response.data : [],
-        );
+        setApplications(Array.isArray(response?.data) ? response.data : []);
 
         setMeta(response?.meta || null);
       } catch (fetchError: any) {
         if (signal?.aborted) return;
 
-        console.error(
-          "Failed to fetch professional applications:",
-          fetchError,
-        );
+        console.error("Failed to fetch professional applications:", fetchError);
 
         setError(
           fetchError?.response?.data?.message ||
@@ -174,12 +156,7 @@ export default function ProfessionalApplications() {
         scroll: false,
       });
     },
-    [
-      activeTab,
-      pathname,
-      router,
-      searchParams,
-    ],
+    [activeTab, pathname, router, searchParams],
   );
 
   const handlePageChange = useCallback((newPage: number) => {
@@ -203,11 +180,7 @@ export default function ProfessionalApplications() {
   }, [fetchApplications]);
 
   const renderStats = useMemo(() => {
-    if (
-      loading ||
-      error ||
-      applications.length === 0
-    ) {
+    if (loading || error || applications.length === 0) {
       return null;
     }
 
@@ -242,9 +215,7 @@ export default function ProfessionalApplications() {
       return (
         <div className="mx-5 mb-4 mt-4">
           <div className="card rounded-2xl border border-danger/30 bg-danger-soft p-8 text-center">
-            <p className="text-sm text-danger">
-              Error: {error}
-            </p>
+            <p className="text-sm text-danger">Error: {error}</p>
 
             <button
               type="button"
@@ -270,7 +241,7 @@ export default function ProfessionalApplications() {
       );
     }
 
-    if (activeTab === "Applications By Me") {
+    if (activeTab === "Applied by Me") {
       return (
         <ApplicationByMe
           applications={applications}
@@ -298,9 +269,7 @@ export default function ProfessionalApplications() {
     return (
       <div className="mx-5 mb-4 mt-4">
         <div className="card rounded-2xl border border-theme p-8 text-center">
-          <p className="text-sm text-muted">
-            No applications found
-          </p>
+          <p className="text-sm text-muted">No applications found</p>
         </div>
       </div>
     );
