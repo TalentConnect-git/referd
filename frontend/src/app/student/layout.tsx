@@ -6,6 +6,7 @@ import { studentNavItems } from "@/constants/navigation";
 import type { CandidateRole } from "@/components/DashboardLayout";
 import { Toaster } from "react-hot-toast";
 import useGetSocketMessage from "@/hooks/useGetSocketMessage";
+import AuthGuard from "@/components/auth/AuthGuard";
 
 export default function ProfessionalLayout({
   children,
@@ -19,13 +20,15 @@ export default function ProfessionalLayout({
 
   return (
     <>
-      <Navbar />
+      <AuthGuard>
+        <Navbar />
 
-      <DashboardLayout navItems={studentNavItems} role={role}>
-        {children}
-      </DashboardLayout>
+        <DashboardLayout navItems={studentNavItems} role={role}>
+          {children}
+        </DashboardLayout>
 
-      <Toaster position="top-right" />
+        <Toaster position="top-right" />
+      </AuthGuard>
     </>
   );
 }

@@ -6,6 +6,7 @@ import { fresherNavItems } from "@/constants/navigation";
 import type { CandidateRole } from "@/components/DashboardLayout";
 import { Toaster } from "react-hot-toast";
 import useGetSocketMessage from "@/hooks/useGetSocketMessage";
+import AuthGuard from "@/components/auth/AuthGuard";
 
 export default function ProfessionalLayout({
   children,
@@ -14,18 +15,19 @@ export default function ProfessionalLayout({
 }) {
   const role: CandidateRole = "fresher";
 
-  // Start socket listener globally
   useGetSocketMessage();
 
   return (
     <>
-      <Navbar />
+      <AuthGuard>
+        <Navbar />
 
-      <DashboardLayout navItems={fresherNavItems} role={role}>
-        {children}
-      </DashboardLayout>
+        <DashboardLayout navItems={fresherNavItems} role={role}>
+          {children}
+        </DashboardLayout>
 
-      <Toaster position="top-right" />
+        <Toaster position="top-right" />
+      </AuthGuard>
     </>
   );
 }

@@ -4,7 +4,7 @@ import { Inter } from "next/font/google";
 import Providers from "./providers";
 import "./globals.css";
 import OrganizationSchema from "@/components/seo/OrganizationSchema";
-import CareerInsightPopup from "@/components/career/CareerInsightPopup";
+
 
 const inter = Inter({
   subsets: ["latin"],
@@ -108,7 +108,7 @@ export default function RootLayout({
       <body className={inter.className} suppressHydrationWarning>
         <OrganizationSchema />
         <Providers>
-          <CareerInsightPopup />
+         
           {children}
         </Providers>
       </body>

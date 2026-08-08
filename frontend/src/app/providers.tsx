@@ -9,13 +9,24 @@ import { NotificationProvider } from "@/context/NotificationContext";
 import { ChatProvider } from "@/context/ChatContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 
-export default function Providers({ children }: { children: ReactNode }) {
+import CareerInsightPopup from "@/components/career/CareerInsightPopup";
+
+export default function Providers({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const appProviders = (
     <ThemeProvider>
       <AuthContextRole>
         <SocketProvider>
           <NotificationProvider>
-            <ChatProvider>{children}</ChatProvider>
+            <ChatProvider>
+              {children}
+
+              {/* Career popup has access to useAuth() */}
+              <CareerInsightPopup />
+            </ChatProvider>
           </NotificationProvider>
         </SocketProvider>
       </AuthContextRole>
@@ -23,7 +34,11 @@ export default function Providers({ children }: { children: ReactNode }) {
   );
 
   return (
-    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
+    <GoogleOAuthProvider
+      clientId={
+        process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!
+      }
+    >
       {appProviders}
     </GoogleOAuthProvider>
   );
