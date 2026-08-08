@@ -8,7 +8,7 @@ export type ApplicationType = "Referral" | "Internship" | "Off-campus";
 
 export type ProfessionalApplicationType =
   | "Requests Received"
-  | "Applications By Me"
+  | "Applied by Me"
   | "Referred By Me";
 
 export type ApplicationStatus =
@@ -312,8 +312,6 @@ export interface ApplicationStatsProps {
   applications: Application[];
 }
 
-
-
 export interface ApplicationsToMeTableProps {
   applications: Application[];
   page: number;
@@ -353,7 +351,7 @@ export interface ApplicationDetailContainerProps {
 
 export interface ApplicationDetailHeaderProps {
   applicant: Applicant;
-  application:Application;
+  application: Application;
 }
 
 export interface ApplicationDetailAssessmentProps {

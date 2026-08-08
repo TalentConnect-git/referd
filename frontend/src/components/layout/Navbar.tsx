@@ -7,7 +7,7 @@ import { useTheme } from "@/context/ThemeContext";
 import { useState, useRef, useEffect, useMemo } from "react";
 import Image from "next/image";
 import logo from "@/assets/icon.png";
-import { Moon, Sun, ChevronDown } from "lucide-react";
+import { Moon, Sun, ChevronDown, BookOpen } from "lucide-react";
 
 const navLinks = [
   { label: "Product", href: "#product" },
@@ -27,27 +27,22 @@ function ThemeToggle() {
     theme = themeContext.theme;
     toggleTheme = themeContext.toggleTheme;
   } catch (error) {
-    // If ThemeProvider is not available, use localStorage directly
     console.warn("ThemeProvider not found, using localStorage fallback");
   }
 
-  // Fallback toggle function if ThemeProvider is not available
   const handleToggle = () => {
     try {
       toggleTheme();
     } catch {
-      // Fallback: toggle manually
       const currentTheme =
         document.documentElement.getAttribute("data-theme") || "dark";
       const newTheme = currentTheme === "light" ? "dark" : "light";
       document.documentElement.setAttribute("data-theme", newTheme);
       localStorage.setItem("theme", newTheme);
-      // Force re-render by updating a local state
       window.dispatchEvent(new Event("themeChange"));
     }
   };
 
-  // Listen for theme changes from localStorage fallback
   useEffect(() => {
     const handleThemeChange = () => {
       const savedTheme = localStorage.getItem("theme") as
@@ -203,6 +198,15 @@ export default function Navbar() {
 
         {/* Right Section */}
         <div className="flex items-center gap-3 sm:gap-4">
+          {/* Blog Icon - Mobile & Desktop */}
+          <Link
+            href="/blogs"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--card)] text-[var(--text-secondary)] transition-all duration-200 hover:bg-[var(--card-hover)] hover:text-[var(--primary)] hover:shadow-sm lg:hidden"
+            aria-label="Blogs"
+          >
+            <BookOpen className="h-4 w-4" />
+          </Link>
+
           <ThemeToggle />
 
           {!isAuthenticated ? (
@@ -223,12 +227,7 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link
-                href={getDashboardRoute()}
-                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-[var(--text-secondary)] transition-all duration-200 hover:bg-[var(--card-hover)] hover:text-[var(--text-primary)] lg:hidden"
-              >
-                <span>Dashboard</span>
-              </Link>
+              {/* Removed the separate Dashboard button - user can access from dropdown */}
 
               {/* User Dropdown */}
               <div className="relative" ref={dropdownRef}>
