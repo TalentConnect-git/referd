@@ -314,7 +314,7 @@ export default function InternshipCard({
         {/* Package */}
         {packageDisplay && (
           <div className="hidden items-center gap-1 whitespace-nowrap text-xs font-semibold text-[var(--primary)] lg:flex">
-            <DollarSign size={12} />
+           
             <span>{packageDisplay} CTC</span>
           </div>
         )}

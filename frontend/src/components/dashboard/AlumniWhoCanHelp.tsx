@@ -4,7 +4,15 @@ import { getAlumniWhoCanHelp } from "@/services/alumani.services";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { User, Briefcase, MessageCircle, ExternalLink, Users, Building2, Mail } from "lucide-react";
+import {
+  User,
+  Briefcase,
+  MessageCircle,
+  ExternalLink,
+  Users,
+  Building2,
+  Mail,
+} from "lucide-react";
 import Image from "next/image";
 
 export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
@@ -17,8 +25,12 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
   useEffect(() => {
     const fetchAlumni = async () => {
       try {
-        const company = job.candidatePosted?.currentCompany || job.companyName || "";
-        const response = await getAlumniWhoCanHelp(job.candidatePosted.userId, company);
+        const company =
+          job.candidatePosted?.currentCompany || job.companyName || "";
+        const response = await getAlumniWhoCanHelp(
+          job.candidatePosted.userId,
+          company,
+        );
         setAlumni(response.data || []);
       } catch (err) {
         console.error("Error fetching alumni:", err);
@@ -31,18 +43,35 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
     fetchAlumni();
   }, [job]);
 
-  const handleMessage = (e: React.MouseEvent, userId: string, name: string, profileImage?: string) => {
+  const handleMessage = (
+    e: React.MouseEvent,
+    userId: string,
+    name: string,
+    profileImage?: string,
+  ) => {
     e.stopPropagation();
     const encodedName = encodeURIComponent(name);
     const encodedImage = profileImage ? encodeURIComponent(profileImage) : "";
-    
+
     router.push(
-      `/${userType}/message/${userId}?userName=${encodedName}&profileImage=${encodedImage}`
+      `/${userType}/message/${userId}?userName=${encodedName}&profileImage=${encodedImage}`,
     );
   };
 
   const handleProfileClick = (userId: string) => {
     router.push(`/${userType}/profile/${userId}`);
+  };
+
+  const isValidImageUrl = (url?: string | null) => {
+    if (!url || typeof url !== "string") return false;
+
+    try {
+      const parsedUrl = new URL(url);
+
+      return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
+    } catch {
+      return false;
+    }
   };
 
   const handleImageError = (userId: string) => {
@@ -54,7 +83,9 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
       <div className="surface-card rounded-xl p-4">
         <div className="flex items-center justify-center gap-3 py-4">
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-[var(--primary-border)] border-t-[var(--primary)]" />
-          <span className="text-sm text-[var(--text-secondary)]">Loading alumni...</span>
+          <span className="text-sm text-[var(--text-secondary)]">
+            Loading alumni...
+          </span>
         </div>
       </div>
     );
@@ -65,14 +96,20 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
       <div className="surface-card rounded-xl p-4">
         <div className="mb-3 flex items-center gap-2">
           <Users size={16} className="text-[var(--text-muted)]" />
-          <h3 className="text-sm font-semibold text-[var(--text-primary)]">Alumni Who Can Help</h3>
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+            Alumni Who Can Help
+          </h3>
         </div>
         <div className="flex flex-col items-center justify-center py-6 text-center">
           <div className="mb-3 rounded-full bg-[var(--background-soft)] p-3">
             <Users size={20} className="text-[var(--text-muted)]" />
           </div>
-          <p className="text-sm text-[var(--text-secondary)]">No alumni found for this company</p>
-          <p className="mt-1 text-xs text-[var(--text-muted)]">Check back later for updates</p>
+          <p className="text-sm text-[var(--text-secondary)]">
+            No alumni found for this company
+          </p>
+          <p className="mt-1 text-xs text-[var(--text-muted)]">
+            Check back later for updates
+          </p>
         </div>
       </div>
     );
@@ -84,12 +121,16 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Users size={16} className="text-[var(--primary)]" />
-          <h3 className="text-sm font-semibold text-[var(--text-primary)]">Alumni Who Can Help</h3>
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+            Alumni Who Can Help
+          </h3>
           <span className="rounded-full border border-[var(--primary-border)] bg-[var(--primary-soft)] px-2 py-0.5 text-[10px] text-[var(--primary)]">
             {alumni.length}
           </span>
         </div>
-        <span className="text-[10px] text-[var(--text-muted)]">Click to view profile</span>
+        <span className="text-[10px] text-[var(--text-muted)]">
+          Click to view profile
+        </span>
       </div>
 
       {/* Alumni List */}
@@ -109,7 +150,7 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
               <div className="flex min-w-0 items-center gap-3">
                 {/* Avatar with Profile Image */}
                 <div className="relative h-10 w-10 flex-shrink-0 sm:h-12 sm:w-12">
-                  {person.profileImage && !hasImageError ? (
+                  {isValidImageUrl(person.profileImage) && !hasImageError ? (
                     <Image
                       src={person.profileImage}
                       alt={person.name}
@@ -135,7 +176,10 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
                   <div className="mt-0.5 flex flex-wrap items-center gap-2">
                     {person.currentCompany && (
                       <div className="flex items-center gap-1">
-                        <Building2 size={11} className="text-[var(--text-muted)]" />
+                        <Building2
+                          size={11}
+                          className="text-[var(--text-muted)]"
+                        />
                         <span className="max-w-[100px] truncate text-[10px] text-[var(--text-secondary)] sm:max-w-[150px]">
                           {person.currentCompany}
                         </span>
@@ -144,9 +188,14 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
 
                     {jobsCount > 0 && (
                       <>
-                        <span className="text-[10px] text-[var(--text-muted)]">•</span>
+                        <span className="text-[10px] text-[var(--text-muted)]">
+                          •
+                        </span>
                         <div className="flex items-center gap-1">
-                          <Briefcase size={11} className="text-[var(--text-muted)]" />
+                          <Briefcase
+                            size={11}
+                            className="text-[var(--text-muted)]"
+                          />
                           <span className="text-[10px] text-[var(--text-secondary)]">
                             {jobsCount} job{jobsCount > 1 ? "s" : ""}
                           </span>
@@ -172,10 +221,20 @@ export default function AlumniWhoCanHelp({ job }: AlumniWhoCanHelpProps) {
 
                 {/* Message Button */}
                 <button
-                  onClick={(e) => handleMessage(e, person.userId, person.name, person.profileImage)}
+                  onClick={(e) =>
+                    handleMessage(
+                      e,
+                      person.userId,
+                      person.name,
+                      person.profileImage,
+                    )
+                  }
                   className="btn-primary group/btn flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95"
                 >
-                  <MessageCircle size={13} className="transition-transform duration-200 group-hover/btn:scale-110" />
+                  <MessageCircle
+                    size={13}
+                    className="transition-transform duration-200 group-hover/btn:scale-110"
+                  />
                   <span className="hidden sm:inline">Message</span>
                 </button>
 

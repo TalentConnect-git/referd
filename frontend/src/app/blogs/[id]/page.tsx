@@ -56,16 +56,54 @@ function getTagColor(tag: string): string {
   return matchingKey ? colors[matchingKey] : "tag-default";
 }
 
+// Helper to format content - preserve markdown-like formatting without extra vertical space
+function formatContent(content: string): string {
+  if (!content) return "<p>No content available</p>";
+
+  // Remove extra newlines and trim
+  let formatted = content.replace(/\n{3,}/g, "\n\n").trim();
+
+  // Replace single newlines with <br /> for line breaks
+  formatted = formatted.replace(/\n/g, "<br />");
+
+  // Convert # headings to proper HTML headings
+  formatted = formatted.replace(/^###### (.*?)$/gm, "<h6>$1</h6>");
+  formatted = formatted.replace(/^##### (.*?)$/gm, "<h5>$1</h5>");
+  formatted = formatted.replace(/^#### (.*?)$/gm, "<h4>$1</h4>");
+  formatted = formatted.replace(/^### (.*?)$/gm, "<h3>$1</h3>");
+  formatted = formatted.replace(/^## (.*?)$/gm, "<h2>$1</h2>");
+  formatted = formatted.replace(/^# (.*?)$/gm, "<h1>$1</h1>");
+
+  // Convert **bold** to <strong>
+  formatted = formatted.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+  // Convert *italic* to <em>
+  formatted = formatted.replace(/\*(.*?)\*/g, "<em>$1</em>");
+
+  // Convert `code` to <code>
+  formatted = formatted.replace(/`(.*?)`/g, "<code>$1</code>");
+
+  // Convert links [text](url) to <a>
+  formatted = formatted.replace(
+    /\[(.*?)\]\((.*?)\)/g,
+    '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>',
+  );
+
+  // Remove extra spacing between elements
+  formatted = formatted.replace(/(<br \/>\s*){3,}/g, "<br /><br />");
+
+  return formatted;
+}
+
 export default function BlogDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const blogId = params?.id as string; // 👈 Getting ID from URL
+  const blogId = params?.id as string;
 
   const [blog, setBlog] = useState<Blog | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  // Reaction states
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
@@ -96,7 +134,6 @@ export default function BlogDetailPage() {
         setLikesCount(blogData.likes || 0);
         setSavesCount(blogData.saves || 0);
 
-        // Fetch user reaction if logged in
         const token = localStorage.getItem("token");
         if (token) {
           try {
@@ -235,6 +272,9 @@ export default function BlogDetailPage() {
     : 0;
   const readTime = Math.ceil(wordCount / 200) || 1;
 
+  // Format content with proper markdown-like rendering without extra vertical space
+  const formattedContent = formatContent(blog.content || "");
+
   return (
     <main className="min-h-screen bg-[var(--background)]">
       <Navbar />
@@ -249,17 +289,32 @@ export default function BlogDetailPage() {
           Back to Blogs
         </Link>
 
-        {/* Cover Image */}
+        {/* Cover Image - Smaller height */}
         <div className="relative mb-8 overflow-hidden rounded-2xl bg-[var(--background-soft)] shadow-lg">
-          <Image
-            src={blog.coverImage || "/blog-placeholder.jpg"}
-            alt={blog.title || "Blog"}
-            width={1200}
-            height={700}
-            className="h-auto w-full object-cover transition-transform duration-500 hover:scale-[1.02]"
-            priority
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
-          />
+          {blog.coverImage ? (
+            <Image
+              src={blog.coverImage}
+              alt={blog.title || "Blog"}
+              width={1200}
+              height={400}
+              className="h-[250px] w-full object-cover transition-transform duration-500 hover:scale-[1.02] sm:h-[300px] md:h-[350px]"
+              priority
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+            />
+          ) : (
+            // Referd Logo Fallback - Smaller height
+            <div className="flex h-[250px] w-full items-center justify-center bg-gradient-to-br from-[var(--primary-soft)] to-[var(--background-soft)] sm:h-[300px] md:h-[350px]">
+              <div className="relative h-24 w-24 sm:h-28 sm:w-28 md:h-32 md:w-32">
+                <Image
+                  src="https://referd.in/og-image.png"
+                  alt="Referd Logo"
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
+            </div>
+          )}
 
           {/* Reading Time Badge */}
           <div className="absolute bottom-4 right-4 flex items-center gap-1.5 rounded-full bg-black/60 px-4 py-2 text-xs font-medium text-white backdrop-blur-sm sm:bottom-6 sm:right-6">
@@ -383,13 +438,15 @@ export default function BlogDetailPage() {
           </span>
         </div>
 
-        {/* Blog Content */}
-        <article
-          className="prose prose-lg max-w-none mt-8 text-[var(--text-secondary)] prose-headings:text-[var(--text-primary)] prose-strong:text-[var(--text-primary)]"
-          dangerouslySetInnerHTML={{
-            __html: blog.content || "<p>No content available</p>",
-          }}
-        />
+        {/* Blog Content - Without extra vertical space */}
+        <div className="mt-8">
+          <div
+            className="prose prose-lg max-w-none text-[var(--text-secondary)] prose-headings:text-[var(--text-primary)] prose-strong:text-[var(--text-primary)] prose-p:my-1 prose-headings:my-2"
+            dangerouslySetInnerHTML={{
+              __html: formattedContent,
+            }}
+          />
+        </div>
 
         {/* Divider */}
         <div className="my-12 border-t border-[var(--border)]" />
