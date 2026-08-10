@@ -259,9 +259,7 @@ export function CareerDetailsEditor({
       {/* Salary Details */}
       <div>
         <div className="mb-3 flex items-center gap-2">
-          <div className="rounded-lg border border-[var(--primary-border)] bg-[var(--primary-soft)] p-1">
-            <DollarSign className="h-4 w-4 text-[var(--primary)]" />
-          </div>
+          
           <h4 className="text-sm font-semibold text-[var(--text-primary)]">Current Salary</h4>
           <div className="h-px flex-1 bg-[var(--border)]" />
         </div>

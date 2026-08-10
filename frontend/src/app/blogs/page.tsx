@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import axiosInstance from "@/lib/axiosInstance";
 
 export const metadata: Metadata = {
   title: "Blogs | Referd",
@@ -79,15 +78,12 @@ interface Blog {
 
 async function getBlogs(): Promise<Blog[]> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/blogs`, {
-      next: {
-        revalidate: 300,
-      },
-    });
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/blogs`);
 
     if (!res.ok) return [];
 
     const json = await res.json();
+    console.log("data blog",json.data);
 
     return json.data || [];
   } catch (err) {
@@ -125,7 +121,6 @@ function getTagStyle(tag: string): string {
     return "border-[var(--info-border)] bg-[var(--info-soft)] text-[var(--info)]";
   }
   
-  // Default tag style
   return "border-[var(--border)] bg-[var(--background-soft)] text-[var(--text-secondary)]";
 }
 
@@ -150,6 +145,8 @@ export default async function BlogsPage() {
       </main>
     );
   }
+
+  const logo ="/frontend/public/og-image.png"
 
   return (
     <main className="min-h-screen bg-[var(--background)]">
@@ -177,156 +174,169 @@ export default async function BlogsPage() {
       />
       <Navbar />
 
-      <div className="mx-auto max-w-7xl mt-8 px-4 py-8 sm:px-6 lg:px-8">
-        {/* Hero Section */}
-        <div className="relative mb-16 overflow-hidden rounded-3xl bg-gradient-to-br from-[var(--primary)] via-[var(--primary-dark)] to-[var(--primary-deep)] px-6 py-16 text-center shadow-2xl sm:px-12 lg:px-16">
+      <div className="mx-auto max-w-6xl mt-8 px-4 py-8 sm:px-6 lg:px-8">
+        {/* Hero Section - Smaller */}
+        <div className="relative mb-10 overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--primary)] via-[var(--primary-dark)] to-[var(--primary-deep)] px-6 py-10 text-center shadow-xl sm:px-10 lg:py-12">
           <div className="absolute inset-0 bg-[url('/pattern.svg')] opacity-10"></div>
           <div className="relative z-10">
-            <div className="mb-4 inline-flex items-center gap-3 rounded-full bg-white/20 px-5 py-2 backdrop-blur-sm">
-              <span className="relative flex h-2.5 w-2.5">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 backdrop-blur-sm">
+              <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75"></span>
-                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white"></span>
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-white"></span>
               </span>
-              <span className="text-sm font-medium text-white">
+              <span className="text-xs font-medium text-white">
                 Latest Insights & Stories
               </span>
             </div>
 
-            <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
               <span className="block">Explore Our</span>
               <span className="block bg-gradient-to-r from-yellow-200 via-amber-200 to-orange-200 bg-clip-text text-transparent">
                 Knowledge Hub
               </span>
             </h1>
 
-            <p className="mx-auto mt-4 max-w-2xl text-sm text-white/90 md:text-base">
+            <p className="mx-auto mt-3 max-w-2xl text-xs text-white/90 md:text-sm">
               Discover expert career advice, interview strategies, resume tips,
               and employee referral insights to accelerate your professional
               growth.
             </p>
 
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 text-sm text-white backdrop-blur-sm">
-                <TrendingUp className="h-4 w-4" />
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs text-white backdrop-blur-sm">
+                <TrendingUp className="h-3 w-3" />
                 Trending Topics
               </span>
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 text-sm text-white backdrop-blur-sm">
-                <Award className="h-4 w-4" />
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs text-white backdrop-blur-sm">
+                <Award className="h-3 w-3" />
                 Expert Advice
               </span>
             </div>
           </div>
         </div>
 
-        {/* Blog Grid */}
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        {/* Blog Grid - Smaller cards with reduced width */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {blogs.map((blog) => (
             <Link
               key={blog._id}
               href={`/blogs/${blog._id}`}
-              className="group relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-lg transition-all duration-500 hover:-translate-y-2 hover:border-[var(--primary-border)] hover:shadow-2xl"
+              className="group relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-[var(--primary-border)] hover:shadow-lg"
             >
-              {/* Image Container */}
-              <div className="relative h-56 w-full overflow-hidden bg-[var(--background-soft)]">
-                <Image
-                  src={blog.coverImage || "/blog-placeholder.jpg"}
-                  alt={blog.title}
-                  fill
-                  className="object-cover transition duration-700 group-hover:scale-110"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+              {/* Image Container - Even smaller */}
+              <div className="relative h-28 w-full overflow-hidden bg-[var(--background-soft)]">
+                {blog.coverImage ? (
+                  <Image
+                    src={blog.coverImage}
+                    alt={blog.title}
+                    fill
+                    className="object-cover transition duration-500 group-hover:scale-105"
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[var(--primary-soft)] to-[var(--background-soft)]">
+                    <div className="relative h-10 w-10">
+                      <Image
+                        src="https://referd.in/og-image.png"
+                        alt="Referd Logo"
+                        fill
+                        className="object-contain"
+                        priority
+                      />
+                    </div>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
               </div>
 
-              <div className="p-6">
-                {/* Tags with # format - Individual boxes */}
-                <div className="mb-4 flex flex-wrap items-center gap-1.5">
-                  {blog.tags.slice(0, 4).map((tag) => (
+              <div className="p-2.5">
+                {/* Tags */}
+                <div className="mb-1.5 flex flex-wrap items-center gap-1">
+                  {blog.tags.slice(0, 2).map((tag) => (
                     <span
                       key={tag}
-                      className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium transition-all duration-300 hover:scale-105 ${getTagStyle(tag)}`}
+                      className={`inline-flex items-center gap-0.5 rounded-full border px-1.5 py-0.5 text-[7px] font-medium ${getTagStyle(tag)}`}
                     >
-                      <Hash className="h-3 w-3" />
+                      <Hash className="h-1.5 w-1.5" />
                       {tag}
                     </span>
                   ))}
-                  {blog.tags.length > 4 && (
-                    <span className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--background-soft)] px-2.5 py-0.5 text-xs font-medium text-[var(--text-muted)]">
-                      +{blog.tags.length - 4}
+                  {blog.tags.length > 2 && (
+                    <span className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--background-soft)] px-1.5 py-0.5 text-[7px] font-medium text-[var(--text-muted)]">
+                      +{blog.tags.length - 2}
                     </span>
                   )}
                 </div>
 
-                <h2 className="line-clamp-2 text-xl font-semibold text-[var(--text-primary)] transition-colors duration-300 group-hover:text-[var(--primary)]">
+                <h2 className="line-clamp-2 text-xs font-semibold text-[var(--text-primary)] transition-colors duration-300 group-hover:text-[var(--primary)]">
                   {blog.title}
                 </h2>
 
-                <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-[var(--text-secondary)]">
-                  {blog.content.replace(/<[^>]*>/g, "").substring(0, 140)}...
+                <p className="mt-1 line-clamp-2 text-[9px] leading-relaxed text-[var(--text-secondary)]">
+                  {blog.content.replace(/<[^>]*>/g, "").substring(0, 60)}...
                 </p>
 
-                {/* Author, Date, Read Time - All in one line */}
-                <div className="mt-4 flex items-center justify-between border-t border-[var(--border)] pt-3 text-xs text-[var(--text-muted)]">
-                  <div className="flex items-center gap-3">
-                    <span className="inline-flex items-center gap-1">
-                      <User className="h-3 w-3" />
+                {/* Author, Date, Read Time */}
+                <div className="mt-1.5 flex items-center justify-between border-t border-[var(--border)] pt-1.5 text-[7px] text-[var(--text-muted)]">
+                  <div className="flex items-center gap-1">
+                    <span className="inline-flex items-center gap-0.5">
+                      <User className="h-1.5 w-1.5" />
                       {blog.author}
                     </span>
-                    <span className="inline-flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
+                    <span className="inline-flex items-center gap-0.5">
+                      <Calendar className="h-1.5 w-1.5" />
                       {new Date(blog.createdAt).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
-                        year: "numeric",
                       })}
                     </span>
                   </div>
-                  <span className="inline-flex items-center gap-1 text-[var(--text-muted)]">
-                    <Clock className="h-3 w-3" />
+                  <span className="inline-flex items-center gap-0.5">
+                    <Clock className="h-1.5 w-1.5" />
                     {Math.ceil(blog.content.split(" ").length / 200)} min
                   </span>
                 </div>
 
-                {/* Read More Link */}
-                <div className="mt-3 flex items-center justify-end">
-                  <span className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--primary)] transition-all duration-300 group-hover:gap-2.5">
-                    Read Article
-                    <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                {/* Read More Link - Smaller */}
+                <div className="mt-1 flex items-center justify-end">
+                  <span className="inline-flex items-center gap-0.5 text-[8px] font-medium text-[var(--primary)] transition-all duration-300 group-hover:gap-1">
+                    Read
+                    <ArrowRight className="h-2 w-2 transition-transform duration-300 group-hover:translate-x-0.5" />
                   </span>
                 </div>
               </div>
 
-              {/* Decorative gradient border on hover */}
-              <div className="absolute inset-0 rounded-2xl border-2 border-transparent transition-all duration-500 group-hover:border-[var(--primary-border)]/50"></div>
+              {/* Decorative border on hover */}
+              <div className="absolute inset-0 rounded-xl border border-transparent transition-all duration-300 group-hover:border-[var(--primary-border)]/30"></div>
             </Link>
           ))}
         </div>
 
-        {/* Footer CTA Section */}
-        <div className="mt-20">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[var(--primary-dark)] via-[var(--primary)] to-[var(--primary-deep)] px-6 py-12 text-center shadow-2xl sm:px-12">
+        {/* Footer CTA Section - Smaller */}
+        <div className="mt-16">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--primary-dark)] via-[var(--primary)] to-[var(--primary-deep)] px-6 py-10 text-center shadow-xl sm:px-10">
             <div className="absolute inset-0 bg-[url('/pattern.svg')] opacity-5"></div>
             <div className="relative z-10">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
-                <BookOpen className="h-7 w-7 text-white" />
+              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+                <BookOpen className="h-6 w-6 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-white sm:text-3xl">
+              <h3 className="text-xl font-bold text-white sm:text-2xl">
                 Stay Updated with Our Latest Content
               </h3>
-              <p className="mx-auto mt-3 max-w-2xl text-sm text-white/90">
+              <p className="mx-auto mt-2 max-w-2xl text-xs text-white/90">
                 Join thousands of professionals who benefit from our career
                 insights, interview guides, and referral strategies.
               </p>
-              <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
-                <span className="inline-flex items-center gap-2 rounded-full bg-white/20 px-5 py-2 text-sm text-white backdrop-blur-sm">
-                  <span className="relative flex h-2 w-2">
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-4 py-1.5 text-xs text-white backdrop-blur-sm">
+                  <span className="relative flex h-1.5 w-1.5">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-green-400"></span>
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-green-400"></span>
                   </span>
                   New posts weekly
                 </span>
-                <span className="inline-flex items-center gap-2 rounded-full bg-white/20 px-5 py-2 text-sm text-white backdrop-blur-sm">
-                  <Award className="h-4 w-4" />
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-4 py-1.5 text-xs text-white backdrop-blur-sm">
+                  <Award className="h-3 w-3" />
                   {blogs.length}+ articles published
                 </span>
               </div>

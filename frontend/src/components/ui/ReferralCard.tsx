@@ -53,7 +53,7 @@ export default function ReferralCard({
       <div className="mt-4 flex items-center justify-between">
         <div>
           <p className="flex items-center gap-1 text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
-            <DollarSign className="h-3 w-3" />
+          
             Total CTC
           </p>
           <p className="mt-0.5 text-base font-bold tracking-[-0.02em] text-[var(--text-primary)]">

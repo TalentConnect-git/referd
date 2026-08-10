@@ -65,3 +65,9 @@ export const getJobById = async (jobId: string) => {
     `/jobs/jobDetails/referral/${jobId}`
   );
 };
+
+export const getoffCampusJobById = async (jobId: string) => {
+  return axiosInstance.get(
+    `/jobs/jobDetails/${jobId}`
+  );
+};

@@ -1,11 +1,31 @@
 "use client";
 
-import { ArrowLeft, Briefcase, MapPin, Building2, Calendar, Clock, Users, Bookmark, Send, CheckCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  Briefcase,
+  MapPin,
+  Building2,
+  Calendar,
+  Clock,
+  Users,
+  Bookmark,
+  BookmarkCheck,
+  Send,
+  CheckCircle,
+  Eye,
+  Target,
+  Award,
+  Share2,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { applyJob, saveJob } from "@/services/job.service";
 import { toast } from "react-hot-toast";
+import OverviewSection from "../dashboard/OverviewSection";
+import RequirementSection from "../dashboard/RequirementSection";
+import CompensationSection from "../dashboard/CompensationSection";
+import ProcessSection from "../dashboard/ProcessSection";
 
 interface InternshipDetailPageProps {
   internship: any;
@@ -16,8 +36,30 @@ export default function InternshipDetailPage({
 }: InternshipDetailPageProps) {
   const router = useRouter();
 
+  const [selectedTab, setSelectedTab] = useState("overview");
   const [saving, setSaving] = useState(false);
   const [applying, setApplying] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+
+  // Get job role (priority: jobRoles > jobTitle)
+  const jobRole =
+    internship.jobRoles?.[0] ||
+    internship.jobTitle?.[0] ||
+    "Untitled Internship";
+
+  // Get company name
+  const companyName =
+    internship.companyPosted?.companyDetails?.companyName ||
+    internship.companyPosted?.currentCompany ||
+    internship.companyName ||
+    "Unknown Company";
+
+  // Get location
+  const location =
+    internship.location?.[0] || internship.workLocation?.[0] || "Remote";
+
+  // Get match score
+  const matchScore = internship.matchScore || 0;
 
   const handleApply = async () => {
     try {
@@ -25,8 +67,8 @@ export default function InternshipDetailPage({
 
       await applyJob(
         internship._id,
-        internship.jobType,
-        internship.matchScore || 0
+        internship.jobType || "internship",
+        internship.matchScore || 0,
       );
 
       toast.success("Application submitted successfully");
@@ -44,10 +86,11 @@ export default function InternshipDetailPage({
 
       await saveJob(
         internship._id,
-        internship.jobType,
-        internship.matchScore || 0
+        internship.jobType || "internship",
+        internship.matchScore || 0,
       );
 
+      setIsSaved(true);
       toast.success("Internship saved successfully");
     } catch (error) {
       console.error(error);
@@ -57,203 +100,230 @@ export default function InternshipDetailPage({
     }
   };
 
-  // Get job role (priority: jobRoles > jobTitle)
-  const jobRole = internship.jobRoles?.[0] || internship.jobTitle?.[0] || "Untitled Internship";
-  
-  // Get company name
-  const companyName = internship.companyPosted?.companyDetails?.companyName || 
-                      internship.companyName || 
-                      "Unknown Company";
-  
-  // Get location
-  const location = internship.location?.[0] || internship.workLocation?.[0] || "Remote";
-  
-  // Get match score
-  const matchScore = internship.matchScore || 0;
+  const handleShare = async () => {
+    try {
+      await navigator.share({
+        title: jobRole,
+        text: `Check out this internship at ${companyName}`,
+        url: window.location.href,
+      });
+    } catch (err) {
+      navigator.clipboard.writeText(window.location.href);
+      toast.success("Link copied to clipboard!");
+    }
+  };
+
+  const tabs = [
+    { id: "overview", label: "Overview", icon: Briefcase },
+    { id: "requirements", label: "Requirements", icon: Target },
+    { id: "compensation", label: "Compensation", icon: Award },
+    { id: "insights", label: "Match & Referral Insights", icon: Users },
+  ];
 
   return (
-    <div className="min-h-screen bg-[var(--background)] p-4 sm:p-6">
+    <div className="min-h-screen w-full overflow-y-auto bg-gradient-to-br from-[var(--background)] to-[var(--background-soft)] p-3 sm:p-4">
       <div className="mx-auto max-w-4xl">
         {/* Back Button */}
         <button
           onClick={() => router.back()}
-          className="
-            group mb-4 inline-flex
-            items-center gap-1.5
-            text-xs text-[var(--text-muted)]
-            transition-colors hover:text-[var(--text-primary)]
-          "
+          className="group mb-3 flex items-center gap-1.5 text-[var(--text-muted)] transition-all duration-200 hover:text-[var(--text-primary)]"
         >
-          <ArrowLeft size={14} className="transition-transform group-hover:-translate-x-0.5" />
-          Back
+          <ArrowLeft size={14} className="transition-transform duration-200 group-hover:-translate-x-1" />
+          <span className="text-xs font-medium">Back</span>
         </button>
 
-        {/* Main Card */}
-        <div className="surface-card rounded-2xl p-5 shadow-xl shadow-black/20">
-          {/* Header with Action Buttons */}
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0 flex-1">
-              <h1 className="text-lg font-bold tracking-tight text-[var(--text-primary)]">
-                {jobRole}
-              </h1>
-
-              <div className="mt-1.5 flex items-center gap-2">
-                <Building2 size={14} className="flex-shrink-0 text-[var(--text-muted)]" />
-                <p className="text-sm text-[var(--text-secondary)]">
-                  {companyName}
-                </p>
+        {/* Header Card */}
+        <div className="surface-card mb-4 rounded-xl border border-[var(--border)] p-4 shadow-lg transition-all duration-300 hover:border-[var(--border-strong)]">
+          {/* Top Row - Company Info & Action Buttons */}
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            {/* Left Section - Company & Job Info */}
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-[var(--primary-border)] bg-[var(--primary-soft)] sm:h-12 sm:w-12">
+                <span className="text-base font-bold text-[var(--primary)] sm:text-lg">
+                  {companyName.charAt(0) || "I"}
+                </span>
               </div>
 
-              <div className="mt-1 flex items-center gap-2">
-                <MapPin size={14} className="flex-shrink-0 text-[var(--text-muted)]" />
-                <p className="text-xs text-[var(--text-muted)]">
-                  {location}
-                </p>
+              <div className="min-w-0">
+                <h2 className="truncate text-base font-bold text-[var(--text-primary)] sm:text-lg">
+                  {jobRole}
+                </h2>
+
+                <div className="mt-0.5 flex flex-wrap items-center gap-1.5 sm:gap-2">
+                  <div className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
+                    <Building2 size={12} className="text-[var(--text-muted)]" />
+                    <span>{companyName}</span>
+                  </div>
+
+                  <span className="text-[10px] text-[var(--text-muted)]">•</span>
+
+                  <div className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
+                    <MapPin size={12} className="text-[var(--text-muted)]" />
+                    <span>{location}</span>
+                  </div>
+
+                  {internship.jobType && (
+                    <>
+                      <span className="text-[10px] text-[var(--text-muted)]">•</span>
+                      <span className={`badge rounded-full px-2 py-0.5 text-[9px] font-medium ${
+                        internship.jobType === "Referral" 
+                          ? "badge-primary" 
+                          : "badge-info"
+                      }`}>
+                        {internship.jobType}
+                      </span>
+                    </>
+                  )}
+
+                  {matchScore > 0 && (
+                    <>
+                      <span className="text-[10px] text-[var(--text-muted)]">•</span>
+                      <span className={`badge rounded-full px-2 py-0.5 text-[9px] font-medium ${
+                        matchScore >= 75
+                          ? "badge-success"
+                          : matchScore >= 40
+                          ? "badge-warning"
+                          : "badge-danger"
+                      }`}>
+                        {matchScore}% Match
+                      </span>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* Action Buttons - Top Right */}
-            <div className="flex flex-col gap-2 flex-shrink-0">
-              {matchScore > 0 && (
-                <div
-                  className={`
-                    rounded-full border px-3 py-0.5 text-center
-                    text-[10px] font-semibold
-                    ${matchScore >= 75 ? 'badge-success border-[var(--success-border)] bg-[var(--success-soft)] text-[var(--success)]' :
-                      matchScore >= 40 ? 'badge-warning border-[var(--warning-border)] bg-[var(--warning-soft)] text-[var(--warning)]' :
-                      'badge-danger border-[var(--danger-border)] bg-[var(--danger-soft)] text-[var(--danger)]'}
-                  `}
-                >
-                  {matchScore}% Match
-                </div>
-              )}
-
+            {/* Right Section - Action Buttons */}
+            <div className="flex flex-shrink-0 items-center gap-1.5">
+              {/* Apply Button */}
               <button
                 onClick={handleApply}
                 disabled={applying}
-                className="
-                  btn-primary inline-flex items-center justify-center gap-1.5
-                  rounded-lg px-4 py-1.5 text-xs font-semibold
-                  transition-all hover:scale-105 hover:shadow-lg hover:shadow-[var(--primary)]/30
-                  active:scale-95 disabled:cursor-not-allowed disabled:opacity-50
-                  disabled:hover:scale-100 whitespace-nowrap
-                "
+                className="btn-primary group flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-[var(--primary)]/25 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {applying ? (
                   <>
-                    <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    Applying...
+                    <div className="h-3 w-3 animate-spin rounded-full border-2 border-black/30 border-t-black" />
+                    <span>Applying...</span>
                   </>
                 ) : (
                   <>
-                    <Send size={12} />
-                    Apply
+                    <Send size={13} />
+                    <span>Apply</span>
                   </>
                 )}
               </button>
 
+              {/* Save Button */}
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="
-                  btn-secondary inline-flex items-center justify-center gap-1.5
-                  rounded-lg px-4 py-1.5 text-xs font-semibold
-                  transition-all hover:scale-105 active:scale-95
-                  disabled:cursor-not-allowed disabled:opacity-50
-                  disabled:hover:scale-100 whitespace-nowrap
-                "
+                className="btn-secondary group flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {saving ? (
-                  <>
-                    <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    Saving...
-                  </>
+                {isSaved ? (
+                  <BookmarkCheck size={13} className="text-[var(--success)]" />
                 ) : (
-                  <>
-                    <Bookmark size={12} />
-                    Save
-                  </>
+                  <Bookmark size={13} className="transition-colors group-hover:text-[var(--primary)]" />
                 )}
+                <span>{saving ? "Saving..." : isSaved ? "Saved" : "Save"}</span>
+              </button>
+
+              {/* Share Button */}
+              <button
+                onClick={handleShare}
+                className="btn-secondary group flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 hover:scale-105 active:scale-95"
+              >
+                <Share2 size={13} className="transition-transform group-hover:scale-110" />
+                <span className="hidden sm:inline">Share</span>
               </button>
             </div>
           </div>
 
-          {/* Divider */}
-          <div className="my-4 border-t border-[var(--border)]" />
-
-          {/* Description */}
-          <section>
-            <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--info)]">
-              Description
-            </h2>
-
-            <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
-              {internship.description || "No description available"}
-            </p>
-          </section>
-
-          {/* Divider */}
-          <div className="my-4 border-t border-[var(--border)]" />
-
-          {/* Internship Details */}
-          <section>
-            <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--info)]">
-              Internship Details
-            </h2>
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {/* Employment Type */}
-              <div className="surface-card rounded-lg border border-[var(--border)] p-3">
-                <p className="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                  Employment Type
-                </p>
-                <p className="mt-0.5 text-sm text-[var(--text-secondary)]">
-                  {internship.employmentType?.join(", ") || "Not specified"}
-                </p>
+          {/* Bottom Row - Quick Stats */}
+          <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-[var(--border)] pt-3 text-xs text-[var(--text-muted)]">
+            {internship.numberOfOpenings && (
+              <div className="flex items-center gap-1.5 rounded-lg bg-[var(--background-soft)] px-2.5 py-1">
+                <Briefcase size={12} className="text-[var(--primary)]" />
+                <span className="font-medium text-[var(--text-primary)]">{internship.numberOfOpenings}</span>
+                <span>Openings</span>
               </div>
+            )}
 
-              {/* Work Mode */}
-              <div className="surface-card rounded-lg border border-[var(--border)] p-3">
-                <p className="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                  Work Mode
-                </p>
-                <p className="mt-0.5 text-sm text-[var(--text-secondary)]">
-                  {internship.workMode?.join(", ") || "Not specified"}
-                </p>
+            {internship.employmentType && internship.employmentType.length > 0 && (
+              <div className="flex items-center gap-1.5 rounded-lg bg-[var(--background-soft)] px-2.5 py-1">
+                <Clock size={12} className="text-[var(--info)]" />
+                <span className="font-medium text-[var(--text-primary)]">{internship.employmentType.join(", ")}</span>
               </div>
+            )}
 
-              {/* Location */}
-              <div className="surface-card rounded-lg border border-[var(--border)] p-3">
-                <p className="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                  Location
-                </p>
-                <p className="mt-0.5 flex items-center gap-1 text-sm text-[var(--text-secondary)]">
-                  <MapPin size={12} className="text-[var(--text-muted)]" />
-                  {internship.location?.join(", ") || 
-                   internship.workLocation?.join(", ") || 
-                   "Not specified"}
-                </p>
+            {internship.workMode && internship.workMode.length > 0 && (
+              <div className="flex items-center gap-1.5 rounded-lg bg-[var(--background-soft)] px-2.5 py-1">
+                <Briefcase size={12} className="text-[var(--info)]" />
+                <span className="font-medium text-[var(--text-primary)]">{internship.workMode.join(", ")}</span>
               </div>
+            )}
 
-              {/* Posted By */}
-              <div className="surface-card rounded-lg border border-[var(--border)] p-3">
-                <p className="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
-                  Posted By
-                </p>
-                <p className="mt-0.5 text-sm text-[var(--text-secondary)]">
-                  {internship.companyPosted?.employerDetails?.name ||
-                   internship.companyPosted?.name ||
-                   "Anonymous"}
-                </p>
+            {internship.duration && (
+              <div className="flex items-center gap-1.5 rounded-lg bg-[var(--background-soft)] px-2.5 py-1">
+                <Calendar size={12} className="text-[var(--warning)]" />
+                <span className="font-medium text-[var(--text-primary)]">{internship.duration}</span>
+                <span>Duration</span>
               </div>
-            </div>
-          </section>
+            )}
+
+            {internship.stipend && (
+              <div className="flex items-center gap-1.5 rounded-lg bg-[var(--background-soft)] px-2.5 py-1">
+                <Award size={12} className="text-[var(--success)]" />
+                <span className="font-medium text-[var(--text-primary)]">{internship.stipend}</span>
+                <span>Stipend</span>
+              </div>
+            )}
+
+            {internship.views !== undefined && (
+              <div className="flex items-center gap-1.5 rounded-lg bg-[var(--background-soft)] px-2.5 py-1">
+                <Eye size={12} className="text-[var(--primary)]" />
+                <span className="font-medium text-[var(--text-primary)]">{internship.views}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="mb-4 flex flex-wrap gap-1.5">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = selectedTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setSelectedTab(tab.id)}
+                className={`
+                  flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-medium transition-all duration-200 sm:text-xs
+                  ${isActive 
+                    ? "btn-primary shadow-lg shadow-[var(--primary)]/20" 
+                    : "btn-secondary"
+                  }
+                `}
+              >
+                <Icon size={13} />
+                <span className="hidden sm:inline">{tab.label}</span>
+                <span className="sm:hidden">
+                  {tab.id === "overview" && "Overview"}
+                  {tab.id === "requirements" && "Req."}
+                  {tab.id === "compensation" && "Comp."}
+                  {tab.id === "insights" && "Insights"}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Content Sections */}
+        <div>
+          {selectedTab === "overview" && <OverviewSection job={internship} />}
+          {selectedTab === "requirements" && <RequirementSection job={internship} />}
+          {selectedTab === "compensation" && <CompensationSection job={internship} />}
+          {selectedTab === "insights" && <ProcessSection job={internship} />}
         </div>
       </div>
     </div>

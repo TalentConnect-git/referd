@@ -161,7 +161,7 @@ export default function JobContainer({
               job.location?.[0] || job.workLocation?.[0] || job.city || "Remote"
             }
             matchScore={job.matchScore}
-            postedBy={job.candidatePosted?.name || "Anonymous"}
+            postedBy={job.candidatePosted?.name || job.employerDetails?.name || "Anonymous"}
             secondaryInfo={
               type === "referral"
                 ? "Referral"

@@ -396,7 +396,7 @@ export default function JobCard({
               <div className="flex items-center gap-0.5 text-[10px]">
                 <Users className="h-2.5 w-2.5 text-primary" />
                 <span className="badge badge-success rounded-full px-1.5 py-0 text-[8px] font-semibold">
-                  {alumniCount}
+                  {alumniCount} alumni
                 </span>
               </div>
               <span className="text-[8px] text-muted">•</span>

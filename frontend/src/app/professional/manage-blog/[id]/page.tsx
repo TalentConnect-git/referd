@@ -1,9 +1,9 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Blog } from "@/types/blog";
 import { blogService } from "@/services/blogService";
 import {
@@ -65,7 +65,6 @@ export default function BlogDetailPage() {
       const result = await blogService.getBlog(blogId);
       if (result.success && result.data) {
         setBlog(result.data);
-        // Set edit form values
         setEditTitle(result.data.title);
         setEditContent(result.data.content);
         setEditAuthor(result.data.author || "");
@@ -94,16 +93,14 @@ export default function BlogDetailPage() {
 
   const handleCopyLink = async () => {
     try {
-      
-      const baseUrl = window.location.origin; // Gets http://localhost:3000 or https://yourdomain.
-      const blogUrl = `${baseUrl}/blog/${blogId}`;
+      const baseUrl = window.location.origin;
+      const blogUrl = `${baseUrl}/blogs/${blogId}`;
 
       await navigator.clipboard.writeText(blogUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error("Failed to copy:", err);
-      
       const baseUrl = window.location.origin;
       const blogUrl = `${baseUrl}/blogs/${blogId}`;
       const textArea = document.createElement("textarea");
@@ -207,8 +204,8 @@ export default function BlogDetailPage() {
     return (
       <div className="max-w-4xl mx-auto p-4 sm:p-6 md:p-8">
         <div className="flex justify-center items-center min-h-[400px] flex-col gap-3">
-          <Loader2 className="animate-spin text-primary" size={40} />
-          <span className="text-secondary">Loading blog post...</span>
+          <Loader2 className="animate-spin text-[var(--primary)]" size={40} />
+          <span className="text-[var(--text-secondary)]">Loading blog post...</span>
         </div>
       </div>
     );
@@ -217,12 +214,12 @@ export default function BlogDetailPage() {
   if (error || !blog) {
     return (
       <div className="max-w-4xl mx-auto p-4 sm:p-6 md:p-8">
-        <div className="card p-8 text-center">
+        <div className="surface-card p-8 text-center rounded-xl border border-[var(--border)]">
           <div className="text-6xl mb-4">🔍</div>
-          <h2 className="text-xl font-semibold text-primary mb-2">
+          <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
             {error || "Blog not found"}
           </h2>
-          <p className="text-muted mb-4">
+          <p className="text-[var(--text-muted)] mb-4">
             The blog post you&apos;re looking for doesn&apos;t exist or you
             don&apos;t have permission to view it.
           </p>
@@ -243,185 +240,189 @@ export default function BlogDetailPage() {
       <div className="max-w-4xl mx-auto p-4 sm:p-6 md:p-8">
         <button
           onClick={cancelEdit}
-          className="inline-flex items-center gap-2 text-secondary hover:text-primary transition-colors mb-4 text-sm"
+          className="inline-flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors mb-4 text-sm"
         >
           <ChevronLeft size={18} /> Cancel Editing
         </button>
 
-        <div className="card p-4 sm:p-6">
-          <h2 className="text-2xl font-bold text-primary mb-6 flex items-center gap-2">
-            <Edit size={24} /> Edit Blog
+        <div className="surface-card p-4 sm:p-6 rounded-xl border border-[var(--border)] shadow-sm">
+          <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-6 flex items-center gap-2">
+            <Edit size={24} className="text-[var(--primary)]" /> Edit Blog
           </h2>
 
           <form onSubmit={handleEditSubmit}>
-            {/* Title */}
-            <div className="mb-4">
-              <label className="form-label flex items-center gap-2">
-                <FileText size={16} /> Title{" "}
-                <span className="text-danger">*</span>
-              </label>
-              <input
-                type="text"
-                value={editTitle}
-                onChange={(e) => setEditTitle(e.target.value)}
-                required
-                className="input-field"
-                placeholder="Enter your blog title"
-              />
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Title */}
+              <div>
+                <label className="form-label text-xs flex items-center gap-1 text-[var(--text-secondary)]">
+                  <FileText size={12} /> Title <span className="text-[var(--danger)]">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  required
+                  className="input-field w-full text-sm"
+                  style={{ minHeight: '2rem', padding: '0.3rem 0.6rem' }}
+                  placeholder="Enter your blog title"
+                />
+              </div>
 
-            {/* Author */}
-            <div className="mb-4">
-              <label className="form-label flex items-center gap-2">
-                <User size={16} /> Author <span className="text-danger">*</span>
-              </label>
-              <input
-                type="text"
-                value={editAuthor}
-                onChange={(e) => setEditAuthor(e.target.value)}
-                required
-                className="input-field"
-                placeholder="Enter author name"
-              />
+              {/* Author */}
+              <div>
+                <label className="form-label text-xs flex items-center gap-1 text-[var(--text-secondary)]">
+                  <User size={12} /> Author <span className="text-[var(--danger)]">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={editAuthor}
+                  onChange={(e) => setEditAuthor(e.target.value)}
+                  required
+                  className="input-field w-full text-sm"
+                  style={{ minHeight: '2rem', padding: '0.3rem 0.6rem' }}
+                  placeholder="Enter author name"
+                />
+              </div>
             </div>
 
             {/* Content */}
-            <div className="mb-4">
-              <label className="form-label flex items-center gap-2">
-                <BookOpen size={16} /> Content{" "}
-                <span className="text-danger">*</span>
+            <div className="mt-3">
+              <label className="form-label text-xs flex items-center gap-1 text-[var(--text-secondary)]">
+                <BookOpen size={12} /> Content <span className="text-[var(--danger)]">*</span>
               </label>
               <textarea
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
                 required
-                rows={10}
-                className="textarea-field"
+                rows={8}
+                className="textarea-field w-full text-sm"
+                style={{ minHeight: '4rem', padding: '0.3rem 0.6rem' }}
                 placeholder="Write your blog content here..."
               />
             </div>
 
-            {/* Cover Image */}
-            <div className="mb-4">
-              <label className="form-label flex items-center gap-2">
-                <ImageIcon size={16} /> Cover Image
-              </label>
-              <div className="flex flex-wrap items-center gap-3">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleEditImageChange}
-                  id="editCoverImage"
-                  className="hidden"
-                />
-                <label
-                  htmlFor="editCoverImage"
-                  className="btn-secondary cursor-pointer flex items-center gap-2"
-                  style={{ fontSize: "0.8125rem" }}
-                >
-                  <ImageIcon size={16} />
-                  {editImage ? "Change Image" : "Upload Image"}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+              {/* Cover Image */}
+              <div>
+                <label className="form-label text-xs flex items-center gap-1 text-[var(--text-secondary)]">
+                  <ImageIcon size={12} /> Cover Image
                 </label>
-                <span className="text-muted text-xs">PNG, JPG up to 5MB</span>
-              </div>
-              {editImagePreview && (
-                <div className="relative mt-3">
-                  <img
-                    src={editImagePreview}
-                    alt="Preview"
-                    className="rounded-lg max-h-64 w-auto object-cover border border-border"
+                <div className="flex flex-wrap items-center gap-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleEditImageChange}
+                    id="editCoverImage"
+                    className="hidden"
                   />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditImage(null);
-                      setEditImagePreview("");
-                    }}
-                    className="absolute top-2 right-2 bg-overlay text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-danger transition-colors"
+                  <label
+                    htmlFor="editCoverImage"
+                    className="btn-secondary cursor-pointer flex items-center gap-1 text-xs"
+                    style={{ padding: '0.3rem 0.8rem', fontSize: '0.7rem' }}
                   >
-                    <X size={18} />
-                  </button>
+                    <ImageIcon size={12} />
+                    {editImage ? "Change" : "Upload"}
+                  </label>
+                  <span className="text-[var(--text-muted)] text-[10px]">PNG, JPG up to 5MB</span>
                 </div>
-              )}
-            </div>
-
-            {/* Tags */}
-            <div className="mb-4">
-              <label className="form-label flex items-center gap-2">
-                <Tag size={16} /> Tags
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={editTagInput}
-                  onChange={(e) => setEditTagInput(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && addEditTag()}
-                  className="input-field flex-1"
-                  placeholder="Add tag and press Enter"
-                />
-                <button
-                  type="button"
-                  onClick={addEditTag}
-                  className="btn-secondary flex items-center gap-1"
-                  style={{ fontSize: "0.8125rem" }}
-                >
-                  <Plus size={16} /> Add
-                </button>
-              </div>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {editTags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="badge badge-primary flex items-center gap-1"
-                  >
-                    #{tag}
+                {editImagePreview && (
+                  <div className="relative mt-2">
+                    <img
+                      src={editImagePreview}
+                      alt="Preview"
+                      className="rounded-lg max-h-32 w-auto object-cover border border-[var(--border)]"
+                    />
                     <button
                       type="button"
-                      onClick={() => removeEditTag(tag)}
-                      className="text-primary/70 hover:text-danger transition-colors"
+                      onClick={() => {
+                        setEditImage(null);
+                        setEditImagePreview("");
+                      }}
+                      className="absolute top-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-[var(--danger)] transition-colors text-xs"
                     >
                       <X size={14} />
                     </button>
-                  </span>
-                ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Tags */}
+              <div>
+                <label className="form-label text-xs flex items-center gap-1 text-[var(--text-secondary)]">
+                  <Tag size={12} /> Tags
+                </label>
+                <div className="flex gap-1">
+                  <input
+                    type="text"
+                    value={editTagInput}
+                    onChange={(e) => setEditTagInput(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addEditTag())}
+                    className="input-field flex-1 text-sm"
+                    style={{ minHeight: '2rem', padding: '0.3rem 0.6rem' }}
+                    placeholder="Add tag"
+                  />
+                  <button
+                    type="button"
+                    onClick={addEditTag}
+                    className="btn-secondary flex items-center gap-1 text-xs"
+                    style={{ padding: '0.3rem 0.8rem' }}
+                  >
+                    <Plus size={12} /> Add
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {editTags.map((tag) => (
+                    <span key={tag} className="badge badge-primary text-xs flex items-center gap-1" style={{ padding: '0.1rem 0.5rem' }}>
+                      #{tag}
+                      <button
+                        type="button"
+                        onClick={() => removeEditTag(tag)}
+                        className="text-[var(--primary)]/70 hover:text-[var(--danger)] transition-colors"
+                      >
+                        <X size={10} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
 
             {/* Publish Status */}
-            <div className="mb-4">
+            <div className="mt-3">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={editIsPublished}
                   onChange={(e) => setEditIsPublished(e.target.checked)}
-                  className="w-4 h-4 accent-primary cursor-pointer"
+                  className="w-3.5 h-3.5 accent-[var(--primary)] cursor-pointer"
                 />
-                <span className="text-secondary text-sm font-medium">
+                <span className="text-[var(--text-secondary)] text-xs font-medium">
                   Publish immediately
                 </span>
               </label>
             </div>
 
             {/* Form Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-border">
+            <div className="flex flex-col sm:flex-row gap-2 mt-3 pt-3 border-t border-[var(--border)]">
               <button
                 type="button"
                 onClick={cancelEdit}
-                className="btn-secondary w-full sm:w-auto flex items-center justify-center gap-2"
+                className="btn-secondary w-full sm:w-auto flex items-center justify-center gap-1 text-xs"
+                style={{ padding: '0.3rem 1rem', fontSize: '0.75rem' }}
               >
-                <X size={16} /> Cancel
+                <X size={12} /> Cancel
               </button>
               <button
                 type="submit"
-                className="btn-primary flex-1 flex items-center justify-center gap-2"
+                className="btn-primary flex-1 flex items-center justify-center gap-1 text-xs"
                 disabled={submitting}
-                style={{ fontSize: "0.875rem" }}
+                style={{ fontSize: '0.75rem', padding: '0.3rem 0.5rem' }}
               >
                 {submitting ? (
-                  <Loader2 size={18} className="animate-spin" />
+                  <Loader2 size={14} className="animate-spin" />
                 ) : (
                   <>
-                    <Save size={18} /> Update Blog
+                    <Save size={14} /> Update Blog
                   </>
                 )}
               </button>
@@ -438,29 +439,40 @@ export default function BlogDetailPage() {
       {/* Back Button */}
       <Link
         href="/professional/manage-blog"
-        className="inline-flex items-center gap-2 text-secondary hover:text-primary transition-colors mb-4 text-sm"
+        className="inline-flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors mb-4 text-sm"
       >
         <ChevronLeft size={18} /> Back to Blogs
       </Link>
 
       {/* Blog Post */}
-      <article className="card overflow-hidden">
-        {/* Cover Image */}
-        {blog.coverImage && (
-          <div className="relative w-full h-64 sm:h-80 md:h-96">
+      <article className="surface-card overflow-hidden rounded-xl border border-[var(--border)] shadow-sm">
+        {/* Cover Image with Fallback */}
+        <div className="relative w-full h-56 sm:h-64 md:h-72 bg-[var(--background-soft)]">
+          {blog.coverImage ? (
             <img
               src={blog.coverImage}
               alt={blog.title}
               className="w-full h-full object-cover"
             />
-          </div>
-        )}
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[var(--primary-soft)] to-[var(--background-soft)]">
+              <div className="relative h-20 w-20">
+                <Image
+                  src="/logo.png"
+                  alt="Referd Logo"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            </div>
+          )}
+        </div>
 
         <div className="p-4 sm:p-6 md:p-8">
           {/* Title and Status */}
           <div className="flex flex-wrap justify-between items-start gap-3 mb-4">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary leading-tight flex items-start gap-3">
-              <BookOpen size={28} className="text-primary shrink-0 mt-1" />
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--text-primary)] leading-tight flex items-start gap-3">
+              <BookOpen size={28} className="text-[var(--primary)] shrink-0 mt-1" />
               {blog.title}
             </h1>
             <span
@@ -472,7 +484,7 @@ export default function BlogDetailPage() {
           </div>
 
           {/* Author Info */}
-          <div className="flex flex-wrap items-center gap-3 mb-4 pb-4 border-b border-border">
+          <div className="flex flex-wrap items-center gap-3 mb-4 pb-4 border-b border-[var(--border)]">
             <div className="flex items-center gap-3">
               {blog.userId && typeof blog.userId === "object" && (
                 <>
@@ -480,18 +492,18 @@ export default function BlogDetailPage() {
                     <img
                       src={blog.userId.profileImage}
                       alt={blog.userId.name}
-                      className="w-10 h-10 rounded-full object-cover border border-border"
+                      className="w-10 h-10 rounded-full object-cover border border-[var(--border)]"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-primary-soft flex items-center justify-center text-primary font-semibold">
+                    <div className="w-10 h-10 rounded-full bg-[var(--primary-soft)] flex items-center justify-center text-[var(--primary)] font-semibold">
                       {blog.userId.name?.[0]?.toUpperCase() || "U"}
                     </div>
                   )}
                   <div>
-                    <div className="font-semibold text-primary text-sm flex items-center gap-1.5">
+                    <div className="font-semibold text-[var(--text-primary)] text-sm flex items-center gap-1.5">
                       <User size={14} /> {blog.userId.name}
                     </div>
-                    <div className="text-muted text-xs">
+                    <div className="text-[var(--text-muted)] text-xs">
                       {blog.userId.email}
                     </div>
                   </div>
@@ -499,7 +511,7 @@ export default function BlogDetailPage() {
               )}
               {blog.author && !blog.userId && (
                 <div>
-                  <div className="font-semibold text-primary text-sm flex items-center gap-1.5">
+                  <div className="font-semibold text-[var(--text-primary)] text-sm flex items-center gap-1.5">
                     <User size={14} /> {blog.author}
                   </div>
                 </div>
@@ -507,26 +519,24 @@ export default function BlogDetailPage() {
             </div>
           </div>
 
-          {/* Stats & Meta - MOVED TO TOP */}
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-4 p-3 bg-background-soft rounded-lg border border-border">
-            {/* Likes & Saves */}
+          {/* Stats & Meta */}
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-4 p-3 bg-[var(--background-soft)] rounded-lg border border-[var(--border)]">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <Heart size={20} className="text-danger" fill="currentColor" />
-                <span className="text-secondary font-medium">
+                <Heart size={20} className="text-[var(--danger)]" fill="currentColor" />
+                <span className="text-[var(--text-secondary)] font-medium">
                   {blog.likes || 0} likes
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Save size={20} className="text-primary" />
-                <span className="text-secondary font-medium">
+                <Save size={20} className="text-[var(--primary)]" />
+                <span className="text-[var(--text-secondary)] font-medium">
                   {blog.saves || 0} saves
                 </span>
               </div>
             </div>
 
-            {/* Meta Info */}
-            <div className="flex flex-wrap items-center gap-3 text-sm text-muted">
+            <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--text-muted)]">
               <span className="flex items-center gap-1.5">
                 <Calendar size={16} /> {formatDate(blog.createdAt)}
               </span>
@@ -554,37 +564,40 @@ export default function BlogDetailPage() {
           )}
 
           {/* Content */}
-          <div className="prose prose-sm sm:prose-base max-w-none text-primary">
-            <div className="whitespace-pre-wrap leading-relaxed text-secondary">
+          <div className="prose prose-sm sm:prose-base max-w-none text-[var(--text-primary)]">
+            <div className="whitespace-pre-wrap leading-relaxed text-[var(--text-secondary)]">
               {blog.content}
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex flex-wrap gap-3 mt-6 pt-6 border-t border-border">
+          <div className="flex flex-wrap gap-3 mt-6 pt-6 border-t border-[var(--border)]">
             <button
               onClick={() => setIsEditing(true)}
-              className="btn-primary flex items-center gap-2"
+              className="btn-primary flex items-center gap-2 text-xs"
+              style={{ padding: '0.3rem 0.8rem', fontSize: '0.75rem' }}
             >
-              <Edit size={18} /> Edit Blog
+              <Edit size={14} /> Edit Blog
             </button>
             <button
               onClick={handleDelete}
-              className="btn-danger flex items-center gap-2"
+              className="btn-danger flex items-center gap-2 text-xs"
+              style={{ padding: '0.3rem 0.8rem', fontSize: '0.75rem' }}
             >
-              <Trash2 size={18} /> Delete Blog
+              <Trash2 size={14} /> Delete Blog
             </button>
             <button
               onClick={handleCopyLink}
-              className="btn-secondary flex items-center gap-2"
+              className="btn-secondary flex items-center gap-2 text-xs"
+              style={{ padding: '0.3rem 0.8rem', fontSize: '0.75rem' }}
             >
               {copied ? (
                 <>
-                  <Check size={18} className="text-success" /> Copied!
+                  <Check size={14} className="text-[var(--success)]" /> Copied!
                 </>
               ) : (
                 <>
-                  <Copy size={18} /> Copy Link
+                  <Copy size={14} /> Copy Link
                 </>
               )}
             </button>
@@ -598,9 +611,10 @@ export default function BlogDetailPage() {
                   });
                 }
               }}
-              className="btn-secondary flex items-center gap-2"
+              className="btn-secondary flex items-center gap-2 text-xs"
+              style={{ padding: '0.3rem 0.8rem', fontSize: '0.75rem' }}
             >
-              <Share2 size={18} /> Share
+              <Share2 size={14} /> Share
             </button>
           </div>
         </div>
@@ -610,11 +624,11 @@ export default function BlogDetailPage() {
       <div className="mt-6 flex flex-wrap justify-between items-center gap-4">
         <Link
           href="/professional/manage-blog"
-          className="text-secondary hover:text-primary transition-colors text-sm flex items-center gap-2"
+          className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors text-sm flex items-center gap-2"
         >
           <ArrowLeft size={16} /> Back to Manage Blogs
         </Link>
-        <div className="text-muted text-xs flex items-center gap-1">
+        <div className="text-[var(--text-muted)] text-xs flex items-center gap-1">
           <Tag size={12} /> ID: {blog._id}
         </div>
       </div>
