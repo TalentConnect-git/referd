@@ -125,7 +125,7 @@ export function DashboardLayout({
   const settingsRef = useRef<HTMLDivElement>(null);
 
   // Auth context
-  const { profile, profileLoading, logout,user } = useAuth();
+  const { profile, profileLoading, logout, user } = useAuth();
 
   const { messageUnreadCount } = useMessageUnreadCount();
 
@@ -737,7 +737,7 @@ export function DashboardLayout({
               {/* Show warning for social auth users */}
               {!isManualAuth && (
                 <div className="rounded-lg bg-[var(--warning-soft)] p-3 text-sm text-[var(--warning)] border border-[var(--warning-border)]">
-                  <span className="font-medium">Note:</span> Since you signed up with {profile?.authProvider || "social"} authentication, you don't need to enter a password to delete your account.
+                  <span className="font-medium">Note:</span> Since you signed up with {user?.authProvider || "social"} authentication, you don't need to enter a password to delete your account.
                 </div>
               )}
 
@@ -779,12 +779,12 @@ export function DashboardLayout({
                   isDeactivating || 
                   (isManualAuth && !password.trim())
                 }
-                className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-all ${
+                className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-opacity ${
                   deactivateTimer > 0 || 
                   isDeactivating || 
                   (isManualAuth && !password.trim())
                     ? "bg-[var(--text-muted)] cursor-not-allowed opacity-50"
-                    : "bg-[var(--danger)] hover:bg-[var(--danger-hover)] active:scale-[0.98]"
+                    : "bg-[var(--danger)] hover:opacity-90"
                 }`}
               >
                 {isDeactivating ? (
