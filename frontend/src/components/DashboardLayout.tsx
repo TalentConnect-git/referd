@@ -125,7 +125,7 @@ export function DashboardLayout({
   const settingsRef = useRef<HTMLDivElement>(null);
 
   // Auth context
-  const { profile, profileLoading, logout } = useAuth();
+  const { profile, profileLoading, logout,user } = useAuth();
 
   const { messageUnreadCount } = useMessageUnreadCount();
 
@@ -196,6 +196,11 @@ export function DashboardLayout({
   // Get profile image from profile.profileImage
   const profileImageUrl = profile?.profileImage || null;
 
+  // Check if user has manual auth provider
+  const isManualAuth = useMemo(() => {
+    return user?.authProvider === "manual";
+  }, [user]);
+
   // Active state helper - FIXED for message route (not messages)
   const isActive = (path: string) => {
     if (path === "/home" && pathname === `${basePath}/home`) return true;
@@ -264,20 +269,30 @@ export function DashboardLayout({
   };
 
   const handleDeactivateConfirm = async () => {
-    if (deactivateTimer > 0) return;
-    if (!password.trim()) {
-      setDeactivateError(
-        "Please enter your password to confirm account deletion.",
-      );
-      return;
+    // For manual auth, password is required
+    if (isManualAuth) {
+      if (deactivateTimer > 0) return;
+      if (!password.trim()) {
+        setDeactivateError(
+          "Please enter your password to confirm account deletion.",
+        );
+        return;
+      }
+    } else {
+      // For social auth (Google, Facebook, etc.), no password required
+      if (deactivateTimer > 0) return;
     }
 
     setIsDeactivating(true);
     setDeactivateError(null);
 
     try {
+      const requestData = isManualAuth 
+        ? { password: password.trim() }
+        : {}; // No password for social auth
+
       const response = await axiosInstance.delete("/api/auth/delete", {
-        data: { password: password.trim() },
+        data: requestData,
       });
 
       if (response.status === 200) {
@@ -684,38 +699,47 @@ export function DashboardLayout({
                 removed.
               </p>
 
-              {/* Password Input */}
-              <div className="space-y-2">
-                <label
-                  htmlFor="deactivate-password"
-                  className="text-sm font-medium text-[var(--text-secondary)]"
-                >
-                  Enter your password to confirm
-                </label>
-                <div className="relative">
-                  <input
-                    id="deactivate-password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 pr-12 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20"
-                    disabled={isDeactivating}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
-                    disabled={isDeactivating}
+              {/* Password Input - Only show for manual auth */}
+              {isManualAuth && (
+                <div className="space-y-2">
+                  <label
+                    htmlFor="deactivate-password"
+                    className="text-sm font-medium text-[var(--text-secondary)]"
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
+                    Enter your password to confirm
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="deactivate-password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your password"
+                      className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 pr-12 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20"
+                      disabled={isDeactivating}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+                      disabled={isDeactivating}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {/* Show warning for social auth users */}
+              {!isManualAuth && (
+                <div className="rounded-lg bg-[var(--warning-soft)] p-3 text-sm text-[var(--warning)] border border-[var(--warning-border)]">
+                  <span className="font-medium">Note:</span> Since you signed up with {profile?.authProvider || "social"} authentication, you don't need to enter a password to delete your account.
+                </div>
+              )}
 
               {deactivateError && (
                 <div className="rounded-lg bg-[var(--danger-soft)] p-3 text-sm text-[var(--danger)] border border-[var(--danger-border)]">
@@ -751,10 +775,14 @@ export function DashboardLayout({
               <button
                 onClick={handleDeactivateConfirm}
                 disabled={
-                  deactivateTimer > 0 || isDeactivating || !password.trim()
+                  deactivateTimer > 0 || 
+                  isDeactivating || 
+                  (isManualAuth && !password.trim())
                 }
                 className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-all ${
-                  deactivateTimer > 0 || isDeactivating || !password.trim()
+                  deactivateTimer > 0 || 
+                  isDeactivating || 
+                  (isManualAuth && !password.trim())
                     ? "bg-[var(--text-muted)] cursor-not-allowed opacity-50"
                     : "bg-[var(--danger)] hover:bg-[var(--danger-hover)] active:scale-[0.98]"
                 }`}

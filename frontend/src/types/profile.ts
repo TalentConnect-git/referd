@@ -111,7 +111,7 @@ export type ProfileData = {
   _id?: string;
   userId?: string;
   location:string;
-  
+  authProvider:string;
   profileType?: "student" | "fresher" | "professional" | string;
   status?: Status | null;
   
