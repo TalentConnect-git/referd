@@ -184,6 +184,9 @@ const normalizeUnreadId = (item: any): string => {
   );
 };
 
+
+
+
 const normalizeUnreadCountValue = (value: any): number => {
   if (typeof value === "object" && value !== null) {
     return Number(value.count || value.unreadCount || 0);
@@ -234,6 +237,21 @@ export const messageService = {
     throw error;
   }
 },
+
+ async markMessagesAsRead(conversationId: string) {
+    if (!conversationId) {
+      return {
+        success: false,
+        data: null,
+      };
+    }
+
+    const response = await axiosInstance.post("/api/messages/mark-read", {
+      conversationId,
+    });
+
+    return response.data;
+  },
 
   async getMessages(chatPartnerId: string): Promise<Message[]> {
     try {

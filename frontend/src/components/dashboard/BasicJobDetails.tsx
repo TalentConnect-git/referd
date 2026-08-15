@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState, KeyboardEvent } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import {
   BookOpen,
@@ -24,6 +24,7 @@ import StateCitySelector from "./StateCitySelector";
 import { getMasterData, createMasterData } from "@/services/masterData.service";
 import axiosInstance from "@/lib/axiosInstance";
 import type { BasicJobDetailsProps } from "@/types/referral";
+import TagComboBox from "./TagComboBox";
 
 type MasterDegree = {
   _id: string;
@@ -229,57 +230,57 @@ export default function BasicJobDetails({
   }, []);
 
   // Fetch user profile for currentCompany
-  // Fetch user profile for currentCompany
-useEffect(() => {
-  const fetchUserProfile = async () => {
-    try {
-      setLoadingProfile(true);
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setProfileError("User not authenticated");
-        setLoadingProfile(false);
-        return;
-      }
-
-      const response = await axiosInstance.get("/api/onboarding/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      
-      console.log("profile data",response);
-
-      if (response.data) {
-       
-        const company = response.data.currentCompany || "";
-        setCurrentCompany(company);
-        
-        // Update formData with company name - use direct object update
-        if (company) {
-          setFormData({
-            ...formData,
-            companyName: company,
-          });
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        setLoadingProfile(true);
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setProfileError("User not authenticated");
+          setLoadingProfile(false);
+          return;
         }
 
-        if (!company) {
-          setProfileError("Please add your current company to your profile before posting a job.");
+        const response = await axiosInstance.get("/api/onboarding/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        console.log("profile data", response);
+
+        if (response.data) {
+          const company = response.data.currentCompany || "";
+          setCurrentCompany(company);
+
+          // Update formData with company name - use direct object update
+          if (company) {
+            setFormData({
+              ...formData,
+              companyName: company,
+            });
+          }
+
+          if (!company) {
+            setProfileError(
+              "Please add your current company to your profile before posting a job.",
+            );
+          } else {
+            setProfileError("");
+          }
         } else {
-          setProfileError("");
+          setProfileError("Failed to load user profile");
         }
-      } else {
-        setProfileError("Failed to load user profile");
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+        setProfileError("Failed to load user profile. Please try again.");
+      } finally {
+        setLoadingProfile(false);
       }
-    } catch (error) {
-      console.error("Error fetching user profile:", error);
-      setProfileError("Failed to load user profile. Please try again.");
-    } finally {
-      setLoadingProfile(false);
-    }
-  };
+    };
 
-  fetchUserProfile();
-}, []); // Remove setFormData from dependencies
+    fetchUserProfile();
+  }, []);
 
   // Fetch streams for selected degree using degree ID
   const loadStreamsForDegree = async (degreeId: string): Promise<void> => {
@@ -360,7 +361,10 @@ useEffect(() => {
       }
     } catch (error) {
       console.error("Error creating degree:", error);
-      setErrors((prev) => ({ ...prev, degreeId: "Failed to create degree. Please try again." }));
+      setErrors((prev) => ({
+        ...prev,
+        degreeId: "Failed to create degree. Please try again.",
+      }));
     } finally {
       setIsCreatingDegree(false);
     }
@@ -381,7 +385,7 @@ useEffect(() => {
     }
 
     const selectedDegree = masterDegrees.find((d) => d._id === degreeId);
-    
+
     if (selectedDegree) {
       setFormData({
         ...formData,
@@ -395,13 +399,21 @@ useEffect(() => {
     await loadStreamsForDegree(degreeId);
   };
 
-  // Handle stream creation on Enter key
-  const handleStreamCreate = async () => {
-    const value = streamInput.trim();
-    if (!value) return;
+  // Handle degree toggle (for TagComboBox)
+  const toggleDegree = (item: { id: string; label: string }) => {
+    if (item.id === formData.degreeId) {
+      // Deselect
+      handleDegreeChange("");
+    } else {
+      handleDegreeChange(item.id);
+    }
+    setDegreeInput("");
+  };
 
+  // Handle stream creation on Enter key
+  const handleStreamCreate = async (value: string) => {
     const degreeId = formData.degreeId || "";
-    
+
     if (!degreeId) {
       setStreamError("Please select a degree first before adding a stream.");
       return;
@@ -410,23 +422,24 @@ useEffect(() => {
     // Check if stream already exists in the list
     const currentStreams = streamsByDegree[degreeId] || [];
     const streamValues = currentStreams.map((s) => s.value.toLowerCase());
-    
+
     // Check if already selected
     const selectedStreams = formData.studentStreams || [];
     if (selectedStreams.includes(value)) {
-      setStreamInput("");
       return;
     }
 
     // If stream exists in master data, just add it to selected
     if (streamValues.includes(value.toLowerCase())) {
       const existingStream = currentStreams.find(
-        (s) => s.value.toLowerCase() === value.toLowerCase()
+        (s) => s.value.toLowerCase() === value.toLowerCase(),
       );
       if (existingStream && !selectedStreams.includes(existingStream.value)) {
-        handleChange("studentStreams", [...selectedStreams, existingStream.value]);
+        handleChange("studentStreams", [
+          ...selectedStreams,
+          existingStream.value,
+        ]);
       }
-      setStreamInput("");
       return;
     }
 
@@ -458,7 +471,6 @@ useEffect(() => {
         }
 
         setStreamError("");
-        setStreamInput("");
       }
     } catch (error) {
       console.error("Error creating stream:", error);
@@ -468,7 +480,7 @@ useEffect(() => {
     }
   };
 
-  // Handle stream input change - just updates the input value without creating
+  // Handle stream input change
   const handleStreamInputChange = (value: string) => {
     setStreamInput(value);
     if (errors.studentStreams) {
@@ -476,151 +488,274 @@ useEffect(() => {
     }
   };
 
-  // Handle skill input - creates new skill using fetch API
-  const handleSkillInputChange = async (value: string) => {
-    const skills = value
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean);
+  // Handle stream toggle
+  const toggleStream = (item: { id: string; label: string }) => {
+    const currentStreams = formData.studentStreams || [];
+    const nextStreams = currentStreams.includes(item.label)
+      ? currentStreams.filter((s: string) => s !== item.label)
+      : [...currentStreams, item.label];
+    handleChange("studentStreams", nextStreams);
+    setStreamInput("");
+  };
 
-    if (skills.length === 0) return;
+  // Handle stream removal
+  const removeStream = (value: string) => {
+    const currentStreams = formData.studentStreams || [];
+    handleChange(
+      "studentStreams",
+      currentStreams.filter((s: string) => s !== value),
+    );
+  };
+
+  // Handle skill creation
+  const handleSkillCreate = async (value: string) => {
+    const skill = value.trim();
+    if (!skill) return;
 
     const currentSkills = masterSkills;
     const skillValues = currentSkills.map((s) => s.skills.toLowerCase());
 
-    let updatedSkills = [...(formData.skills || [])];
-
-    for (const skill of skills) {
-      if (updatedSkills.includes(skill)) continue;
-
-      const skillExists = skillValues.includes(skill.toLowerCase());
-
-      if (!skillExists) {
-        try {
-          setIsCreatingSkill(true);
-          const token = localStorage.getItem("token");
-          const res = await fetch(`${API_URL}/api/meta/add-skill`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            },
-            body: JSON.stringify({ skills: skill }),
-          });
-
-          const data = await res.json();
-
-          if (res.status === 201 || res.status === 200) {
-            const newSkill: MasterSkill = {
-              _id: data?._id || `temp-${Date.now()}`,
-              skills: data?.skills || skill,
-            };
-            setMasterSkills((prev) => [...prev, newSkill]);
-          } else if (res.status === 409) {
-            // Skill already exists, just add it to selected
-            console.log("Skill already exists:", skill);
-          } else {
-            console.error("Error creating skill:", data);
-          }
-        } catch (error) {
-          console.error("Error creating skill:", error);
-        } finally {
-          setIsCreatingSkill(false);
-        }
-      }
-
+    if (skillValues.includes(skill.toLowerCase())) {
+      // Skill exists, just add to selected if not already
+      const updatedSkills = [...(formData.skills || [])];
       if (!updatedSkills.includes(skill)) {
         updatedSkills.push(skill);
+        handleChange("skills", updatedSkills);
       }
+      return;
     }
 
-    handleChange("skills", updatedSkills);
-    setSkillInput("");
-  };
+    try {
+      setIsCreatingSkill(true);
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_URL}/api/meta/add-skill`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ skills: skill }),
+      });
 
-  // Handle job role input - creates new job role using axiosInstance
-  const handleJobRoleInputChange = async (value: string) => {
-    const roles = value
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean);
+      const data = await res.json();
 
-    if (roles.length === 0) return;
+      if (res.status === 201 || res.status === 200) {
+        const newSkill: MasterSkill = {
+          _id: data?._id || `temp-${Date.now()}`,
+          skills: data?.skills || skill,
+        };
+        setMasterSkills((prev) => [...prev, newSkill]);
 
-    const currentRoles = masterJobRoles;
-    const roleValues = currentRoles.map((r) => r.value.toLowerCase());
-
-    let updatedRoles = [...(formData.jobTitle || [])];
-
-    for (const role of roles) {
-      if (updatedRoles.includes(role)) continue;
-
-      const roleExists = roleValues.includes(role.toLowerCase());
-
-      if (!roleExists) {
-        try {
-          setIsCreatingJobRole(true);
-          const token = localStorage.getItem("token");
-          const response = await axiosInstance.post(
-            "/api/company-master-data",
-            {
-              type: "JOB_ROLE",
-              value: role,
-              parent: null,
-            },
-            {
-              headers: {
-                ...(token ? { Authorization: `Bearer ${token}` } : {}),
-                "Content-Type": "application/json",
-              },
-            }
-          );
-
-          if (response.data?.success) {
-            const newRole: MasterJobRole = {
-              _id: response.data.data?._id || `temp-${Date.now()}`,
-              value: response.data.data?.value || role,
-              type: "JOB_ROLE",
-              isActive: true,
-              isCustom: true,
-              parent: null,
-            };
-            setMasterJobRoles((prev) => [...prev, newRole]);
-          }
-        } catch (error) {
-          console.error("Error creating job role:", error);
-        } finally {
-          setIsCreatingJobRole(false);
+        // Add to selected
+        const updatedSkills = [...(formData.skills || [])];
+        if (!updatedSkills.includes(skill)) {
+          updatedSkills.push(skill);
+          handleChange("skills", updatedSkills);
         }
+      } else if (res.status === 409) {
+        // Skill already exists, just add it to selected
+        const updatedSkills = [...(formData.skills || [])];
+        if (!updatedSkills.includes(skill)) {
+          updatedSkills.push(skill);
+          handleChange("skills", updatedSkills);
+        }
+      } else {
+        console.error("Error creating skill:", data);
       }
-
-      if (!updatedRoles.includes(role)) {
-        updatedRoles.push(role);
-      }
+    } catch (error) {
+      console.error("Error creating skill:", error);
+    } finally {
+      setIsCreatingSkill(false);
     }
-
-    handleChange("jobTitle", updatedRoles);
-    setJobRoleInput("");
   };
 
-  // Handle skill toggle (for click selection)
-  const toggleSkill = (skillName: string) => {
+  // Handle skill toggle
+  const toggleSkill = (item: { id: string; label: string }) => {
     const currentSkills = formData.skills || [];
-    const nextSkills = currentSkills.includes(skillName)
-      ? currentSkills.filter((skill: string) => skill !== skillName)
-      : [...currentSkills, skillName];
+    const nextSkills = currentSkills.includes(item.label)
+      ? currentSkills.filter((skill: string) => skill !== item.label)
+      : [...currentSkills, item.label];
     handleChange("skills", nextSkills);
     setSkillInput("");
   };
 
-  // Toggle job role
-  const toggleJobRole = (roleName: string) => {
+  // Handle skill removal
+  const removeSkill = (value: string) => {
+    const currentSkills = formData.skills || [];
+    handleChange(
+      "skills",
+      currentSkills.filter((skill: string) => skill !== value),
+    );
+  };
+
+  // Handle job role creation
+  const handleJobRoleCreate = async (value: string) => {
+    const role = value.trim();
+    if (!role) return;
+
+    const currentRoles = masterJobRoles;
+    const roleValues = currentRoles.map((r) => r.value.toLowerCase());
+
+    if (roleValues.includes(role.toLowerCase())) {
+      // Role exists, just add to selected if not already
+      const updatedRoles = [...(formData.jobTitle || [])];
+      if (!updatedRoles.includes(role)) {
+        updatedRoles.push(role);
+        handleChange("jobTitle", updatedRoles);
+      }
+      return;
+    }
+
+    try {
+      setIsCreatingJobRole(true);
+      const token = localStorage.getItem("token");
+      const response = await axiosInstance.post(
+        "/api/company-master-data",
+        {
+          type: "JOB_ROLE",
+          value: role,
+          parent: null,
+        },
+        {
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (response.data?.success) {
+        const newRole: MasterJobRole = {
+          _id: response.data.data?._id || `temp-${Date.now()}`,
+          value: response.data.data?.value || role,
+          type: "JOB_ROLE",
+          isActive: true,
+          isCustom: true,
+          parent: null,
+        };
+        setMasterJobRoles((prev) => [...prev, newRole]);
+
+        // Add to selected
+        const updatedRoles = [...(formData.jobTitle || [])];
+        if (!updatedRoles.includes(role)) {
+          updatedRoles.push(role);
+          handleChange("jobTitle", updatedRoles);
+        }
+      }
+    } catch (error) {
+      console.error("Error creating job role:", error);
+    } finally {
+      setIsCreatingJobRole(false);
+    }
+  };
+
+  // Handle job role toggle
+  const toggleJobRole = (item: { id: string; label: string }) => {
     const currentRoles = formData.jobTitle || [];
-    const nextRoles = currentRoles.includes(roleName)
-      ? currentRoles.filter((role: string) => role !== roleName)
-      : [...currentRoles, roleName];
+    const nextRoles = currentRoles.includes(item.label)
+      ? currentRoles.filter((role: string) => role !== item.label)
+      : [...currentRoles, item.label];
     handleChange("jobTitle", nextRoles);
     setJobRoleInput("");
+  };
+
+  // Handle job role removal
+  const removeJobRole = (value: string) => {
+    const currentRoles = formData.jobTitle || [];
+    handleChange(
+      "jobTitle",
+      currentRoles.filter((role: string) => role !== value),
+    );
+  };
+
+  // Handle certification creation (local, no API)
+  const handleCertificationCreate = (value: string) => {
+    const newCert = value.trim();
+    if (!newCert) return;
+    const currentCerts = formData.certifications || [];
+    if (!currentCerts.includes(newCert)) {
+      handleChange("certifications", [...currentCerts, newCert]);
+    }
+    setCustomCertInput("");
+  };
+
+  // Handle certification toggle
+  const toggleCertification = (item: { id: string; label: string }) => {
+    const currentCerts = formData.certifications || [];
+    const nextCerts = currentCerts.includes(item.label)
+      ? currentCerts.filter((c: string) => c !== item.label)
+      : [...currentCerts, item.label];
+    handleChange("certifications", nextCerts);
+    setCustomCertInput("");
+  };
+
+  // Handle certification removal
+  const removeCertification = (value: string) => {
+    const currentCerts = formData.certifications || [];
+    handleChange(
+      "certifications",
+      currentCerts.filter((c: string) => c !== value),
+    );
+  };
+
+  // Handle benefit creation (local, no API)
+  const handleBenefitCreate = (value: string) => {
+    const newBenefit = value.trim();
+    if (!newBenefit) return;
+    const currentBenefits = formData.benefits || [];
+    if (!currentBenefits.includes(newBenefit)) {
+      handleChange("benefits", [...currentBenefits, newBenefit]);
+    }
+    setCustomBenefitInput("");
+  };
+
+  // Handle benefit toggle
+  const toggleBenefit = (item: { id: string; label: string }) => {
+    const currentBenefits = formData.benefits || [];
+    const nextBenefits = currentBenefits.includes(item.label)
+      ? currentBenefits.filter((b: string) => b !== item.label)
+      : [...currentBenefits, item.label];
+    handleChange("benefits", nextBenefits);
+    setCustomBenefitInput("");
+  };
+
+  // Handle benefit removal
+  const removeBenefit = (value: string) => {
+    const currentBenefits = formData.benefits || [];
+    handleChange(
+      "benefits",
+      currentBenefits.filter((b: string) => b !== value),
+    );
+  };
+
+  // Handle tag creation (local, no API)
+  const handleTagCreate = (value: string) => {
+    const newTag = value.trim();
+    if (!newTag) return;
+    const currentTags = formData.tags || [];
+    if (!currentTags.includes(newTag)) {
+      handleChange("tags", [...currentTags, newTag]);
+    }
+    setCustomTagInput("");
+  };
+
+  // Handle tag toggle
+  const toggleTag = (item: { id: string; label: string }) => {
+    const currentTags = formData.tags || [];
+    const nextTags = currentTags.includes(item.label)
+      ? currentTags.filter((t: string) => t !== item.label)
+      : [...currentTags, item.label];
+    handleChange("tags", nextTags);
+    setCustomTagInput("");
+  };
+
+  // Handle tag removal
+  const removeTag = (value: string) => {
+    const currentTags = formData.tags || [];
+    handleChange(
+      "tags",
+      currentTags.filter((t: string) => t !== value),
+    );
   };
 
   const handleChange = (field: string, value: unknown) => {
@@ -652,9 +787,11 @@ useEffect(() => {
     setFormData({
       ...formData,
       city: cityName,
-      location: cityName 
+      location: cityName
         ? [cityName, formData.state || ""].filter(Boolean)
-        : formData.state ? [formData.state] : [],
+        : formData.state
+          ? [formData.state]
+          : [],
     });
     if (errors.city) {
       setErrors((prev) => ({ ...prev, city: "" }));
@@ -674,17 +811,7 @@ useEffect(() => {
     }
   };
 
-  const toggleStream = (streamName: string) => {
-    const currentStreams = formData.studentStreams || [];
-    const nextStreams = currentStreams.includes(streamName)
-      ? currentStreams.filter(
-          (selectedStream: string) => selectedStream !== streamName,
-        )
-      : [...currentStreams, streamName];
-    handleChange("studentStreams", nextStreams);
-  };
-
-  // Remove item from array
+  // Remove item from array (generic)
   const removeArrayItem = (fieldName: string, itemToRemove: string) => {
     const currentItems =
       (formData[fieldName as keyof typeof formData] as string[]) || [];
@@ -700,7 +827,8 @@ useEffect(() => {
 
     // Validate current company
     if (!currentCompany || currentCompany.trim() === "") {
-      newErrors.company = "Please add your current company to your profile before posting a job.";
+      newErrors.company =
+        "Please add your current company to your profile before posting a job.";
     }
 
     // Required: Job Title (at least one)
@@ -710,7 +838,8 @@ useEffect(() => {
 
     // Required: Job Description
     if (!formData.description || formData.description.trim().length < 10) {
-      newErrors.description = "Job description is required (minimum 10 characters)";
+      newErrors.description =
+        "Job description is required (minimum 10 characters)";
     }
 
     // Required: Number of Openings (must be > 0)
@@ -724,12 +853,20 @@ useEffect(() => {
     }
 
     // Required: Work Mode
-    if (!formData.workMode || formData.workMode.length === 0 || !formData.workMode[0]) {
+    if (
+      !formData.workMode ||
+      formData.workMode.length === 0 ||
+      !formData.workMode[0]
+    ) {
       newErrors.workMode = "Work mode is required";
     }
 
     // Required: Employment Type
-    if (!formData.employmentType || formData.employmentType.length === 0 || !formData.employmentType[0]) {
+    if (
+      !formData.employmentType ||
+      formData.employmentType.length === 0 ||
+      !formData.employmentType[0]
+    ) {
       newErrors.employmentType = "Employment type is required";
     }
 
@@ -740,7 +877,8 @@ useEffect(() => {
 
     // Required: Student Streams (at least one)
     if (!formData.studentStreams || formData.studentStreams.length === 0) {
-      newErrors.studentStreams = "At least one stream/specialization is required";
+      newErrors.studentStreams =
+        "At least one stream/specialization is required";
     }
 
     // Required: Skills (at least one)
@@ -748,17 +886,20 @@ useEffect(() => {
       newErrors.skills = "At least one skill is required";
     }
 
-    // Required: Package Details - Total CTC
-    if (!formData.packageDetails?.totalCTC || formData.packageDetails.totalCTC < 0) {
+    // Required: Package Details - Total CTC (Allow 0)
+    if (
+      formData.packageDetails?.totalCTC === undefined ||
+      formData.packageDetails?.totalCTC === null ||
+      formData.packageDetails.totalCTC < 0
+    ) {
       newErrors["packageDetails.totalCTC"] = "Total CTC is required";
     }
-    
-   
 
     // Validate if Location is selected but state not provided
     if (formData.broadcastType === "Location") {
       if (!formData.state) {
-        newErrors.state = "State is required when Location broadcast is selected";
+        newErrors.state =
+          "State is required when Location broadcast is selected";
       }
     }
 
@@ -778,52 +919,66 @@ useEffect(() => {
     return streamsByDegree[degreeId] || [];
   }, [formData.degreeId, streamsByDegree]);
 
-  // Filter skills that are already selected
-  const availableSkills = useMemo(() => {
-    const selectedSkills = formData.skills || [];
-    return masterSkills.filter(
-      (skill) => !selectedSkills.includes(skill.skills)
-    );
-  }, [masterSkills, formData.skills]);
+  // Convert master data to suggestion format
+  const degreeSuggestions = useMemo(() => {
+    return masterDegrees.map((d) => ({
+      id: d._id,
+      label: d.value,
+    }));
+  }, [masterDegrees]);
 
-  // Filter job roles that are already selected
-  const availableJobRoles = useMemo(() => {
-    const selectedRoles = formData.jobTitle || [];
-    return masterJobRoles.filter(
-      (role) => !selectedRoles.includes(role.value)
-    );
-  }, [masterJobRoles, formData.jobTitle]);
+  const streamSuggestions = useMemo(() => {
+    return availableStreams.map((s) => ({
+      id: s._id,
+      label: s.value,
+    }));
+  }, [availableStreams]);
 
-  // Filter certifications
-  const availableCertifications = useMemo(() => {
-    const selectedCerts = formData.certifications || [];
-    return certificationOptions.filter(
-      (cert) => !selectedCerts.includes(cert)
-    );
-  }, [formData.certifications]);
+  const skillSuggestions = useMemo(() => {
+    return masterSkills.map((s) => ({
+      id: s._id,
+      label: s.skills,
+    }));
+  }, [masterSkills]);
 
-  // Filter benefits
-  const availableBenefits = useMemo(() => {
-    const selectedBenefits = formData.benefits || [];
-    return benefitOptions.filter(
-      (benefit) => !selectedBenefits.includes(benefit)
-    );
-  }, [formData.benefits]);
+  const jobRoleSuggestions = useMemo(() => {
+    return masterJobRoles.map((r) => ({
+      id: r._id,
+      label: r.value,
+    }));
+  }, [masterJobRoles]);
 
-  // Filter tags
-  const availableTags = useMemo(() => {
-    const selectedTags = formData.tags || [];
-    return tagOptions.filter(
-      (tag) => !selectedTags.includes(tag)
-    );
-  }, [formData.tags]);
+  const certificationSuggestions = useMemo(() => {
+    return certificationOptions.map((c, index) => ({
+      id: `cert-${index}`,
+      label: c,
+    }));
+  }, []);
+
+  const benefitSuggestions = useMemo(() => {
+    return benefitOptions.map((b, index) => ({
+      id: `benefit-${index}`,
+      label: b,
+    }));
+  }, []);
+
+  const tagSuggestions = useMemo(() => {
+    return tagOptions.map((t, index) => ({
+      id: `tag-${index}`,
+      label: t,
+    }));
+  }, []);
 
   return (
     <div className="space-y-6">
       <div className="mb-6 flex items-center gap-2">
         <Briefcase className="h-5 w-5 text-[var(--primary)]" />
-        <h2 className="text-xl font-semibold text-[var(--text-primary)]">Basic Job Details</h2>
-        <span className="ml-auto text-sm text-[var(--text-muted)]">Step 1 of 2</span>
+        <h2 className="text-xl font-semibold text-[var(--text-primary)]">
+          Basic Job Details
+        </h2>
+        <span className="ml-auto text-sm text-[var(--text-muted)]">
+          Step 1 of 2
+        </span>
       </div>
 
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
@@ -832,16 +987,22 @@ useEffect(() => {
           <label className="mb-1.5 block text-sm font-medium text-[var(--text-secondary)]">
             <Building2 className="mr-1.5 inline h-4 w-4" />
             Current Company <span className="text-[var(--danger)]">*</span>
-            <span className="ml-2 text-xs text-[var(--text-muted)]">(Auto-detected from your profile)</span>
+            <span className="ml-2 text-xs text-[var(--text-muted)]">
+              (Auto-detected from your profile)
+            </span>
           </label>
-          
+
           <div className="relative">
             <input
               type="text"
               value={currentCompany}
               disabled
-              placeholder={loadingProfile ? "Loading profile..." : "Add your current company to post jobs"}
-              className={`input-field bg-[var(--bg-secondary)] cursor-not-allowed ${errors.company ? 'border-[var(--danger)]' : ''}`}
+              placeholder={
+                loadingProfile
+                  ? "Loading profile..."
+                  : "Add your current company to post jobs"
+              }
+              className={`input-field bg-[var(--bg-secondary)] cursor-not-allowed ${errors.company ? "border-[var(--danger)]" : ""}`}
             />
             {loadingProfile && (
               <Loader2 className="absolute right-3 top-3 h-4 w-4 animate-spin text-[var(--primary)]" />
@@ -850,7 +1011,7 @@ useEffect(() => {
               <Check className="absolute right-3 top-3 h-4 w-4 text-[var(--success)]" />
             )}
           </div>
-          
+
           {errors.company && (
             <p className="form-error mt-1">{errors.company}</p>
           )}
@@ -866,101 +1027,35 @@ useEffect(() => {
           )}
         </div>
 
-        {/* Job Title - Multi-select with Master Data */}
+        {/* Job Title - Using TagComboBox */}
         <div className="md:col-span-2">
-          <label className="mb-1.5 block text-sm font-medium text-[var(--text-secondary)]">
-            Job Title <span className="text-[var(--danger)]">*</span>
-            <span className="ml-2 text-xs text-[var(--text-muted)]">(Select from existing or type to create new)</span>
-          </label>
-          
-          <div className="relative">
-            <input
-              type="text"
-              value={jobRoleInput}
-              onChange={(e) => {
-                setJobRoleInput(e.target.value);
-                if (errors.jobTitle) {
-                  setErrors((prev) => ({ ...prev, jobTitle: "" }));
-                }
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && jobRoleInput.trim()) {
-                  e.preventDefault();
-                  handleJobRoleInputChange(jobRoleInput);
-                }
-              }}
-              placeholder={loadingJobRoles ? "Loading job roles..." : "Type job title and press Enter to create, or select from below..."}
-              disabled={loadingJobRoles || isCreatingJobRole}
-              className={`input-field ${errors.jobTitle ? 'border-[var(--danger)]' : ''}`}
-            />
-            {(loadingJobRoles || isCreatingJobRole) && (
-              <Loader2 className="absolute right-3 top-3 h-4 w-4 animate-spin text-[var(--primary)]" />
-            )}
-          </div>
-          
-          {errors.jobTitle && (
-            <p className="form-error mt-1">{errors.jobTitle}</p>
-          )}
-
-          {/* Job Role Suggestions */}
-          {!loadingJobRoles && masterJobRoles.length > 0 && (
-            <div className="mt-2">
-              <p className="mb-1.5 text-xs font-medium text-[var(--text-muted)]">Suggested Job Titles:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {masterJobRoles
-                  .filter((role) =>
-                    jobRoleInput.length === 0 || 
-                    role.value.toLowerCase().includes(jobRoleInput.toLowerCase())
-                  )
-                  .filter((role) => !formData.jobTitle?.includes(role.value))
-                  .slice(0, 15)
-                  .map((role) => (
-                    <button
-                      key={role._id}
-                      type="button"
-                      onClick={() => {
-                        toggleJobRole(role.value);
-                        setJobRoleInput("");
-                      }}
-                      className="badge badge-primary cursor-pointer"
-                    >
-                      {role.value}
-                    </button>
-                  ))}
-              </div>
-              {masterJobRoles.filter((role) => !formData.jobTitle?.includes(role.value)).length === 0 && (
-                <p className="mt-1 text-xs text-[var(--text-muted)]">All job titles are selected. Type a new one and press Enter to create it.</p>
-              )}
-            </div>
-          )}
-          {!loadingJobRoles && masterJobRoles.length === 0 && (
-            <p className="mt-1.5 text-xs text-[var(--warning)]">No job titles available. Type one and press Enter to create.</p>
-          )}
-
-          {/* Selected Job Titles */}
-          {formData.jobTitle && formData.jobTitle.length > 0 && (
-            <div className="mt-3">
-              <p className="mb-1.5 text-xs font-medium text-[var(--text-muted)]">Selected Job Titles:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {formData.jobTitle.map((item: string, index: number) => (
-                  <span
-                    key={index}
-                    className="badge badge-primary"
-                  >
-                    <Briefcase className="h-3 w-3" />
-                    {item}
-                    <button
-                      type="button"
-                      onClick={() => removeArrayItem("jobTitle", item)}
-                      className="ml-1 hover:text-[var(--danger)] transition-colors"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
+          <TagComboBox
+            selected={formData.jobTitle || []}
+            suggestions={jobRoleSuggestions}
+            inputValue={jobRoleInput}
+            onInputChange={(value) => {
+              setJobRoleInput(value);
+              if (errors.jobTitle) {
+                setErrors((prev) => ({ ...prev, jobTitle: "" }));
+              }
+            }}
+            onToggleSuggestion={toggleJobRole}
+            onCreate={handleJobRoleCreate}
+            onRemoveChip={removeJobRole}
+            loading={loadingJobRoles || isCreatingJobRole}
+            disabled={loadingJobRoles || isCreatingJobRole}
+            placeholder={
+              loadingJobRoles
+                ? "Loading job roles..."
+                : "Type job title and press Enter, or select from below..."
+            }
+            allowCreate={true}
+            error={errors.jobTitle}
+            label="Job Title"
+            labelIcon={<Briefcase className="h-4 w-4" />}
+            required={true}
+            helperText="(Select from existing or type to create new)"
+          />
         </div>
 
         {/* Number of Openings */}
@@ -980,7 +1075,7 @@ useEffect(() => {
               )
             }
             placeholder="e.g., 5"
-            className={`input-field ${errors.numberOfOpenings ? 'border-[var(--danger)]' : ''}`}
+            className={`input-field ${errors.numberOfOpenings ? "border-[var(--danger)]" : ""}`}
           />
           {errors.numberOfOpenings && (
             <p className="form-error mt-1">{errors.numberOfOpenings}</p>
@@ -1011,12 +1106,14 @@ useEffect(() => {
               }
             }}
             min={new Date().toISOString().split("T")[0]}
-            className={`input-field ${errors.endDate ? 'border-[var(--danger)]' : ''}`}
+            className={`input-field ${errors.endDate ? "border-[var(--danger)]" : ""}`}
           />
           {errors.endDate && (
             <p className="form-error mt-1">{errors.endDate}</p>
           )}
-          <p className="form-helper mt-1">Select the last date for applications.</p>
+          <p className="form-helper mt-1">
+            Select the last date for applications.
+          </p>
         </div>
 
         {/* Work Mode */}
@@ -1027,7 +1124,7 @@ useEffect(() => {
           <select
             value={formData.workMode?.[0] || ""}
             onChange={(event) => handleChange("workMode", [event.target.value])}
-            className={`select-field ${errors.workMode ? 'border-[var(--danger)]' : ''}`}
+            className={`select-field ${errors.workMode ? "border-[var(--danger)]" : ""}`}
           >
             <option value="">Select Work Mode</option>
             <option value="Remote">Remote</option>
@@ -1049,7 +1146,7 @@ useEffect(() => {
             onChange={(event) =>
               handleChange("employmentType", [event.target.value])
             }
-            className={`select-field ${errors.employmentType ? 'border-[var(--danger)]' : ''}`}
+            className={`select-field ${errors.employmentType ? "border-[var(--danger)]" : ""}`}
           >
             <option value="">Select Employment Type</option>
             <option value="Full-time">Full-time</option>
@@ -1101,7 +1198,7 @@ useEffect(() => {
           </select>
           <p className="form-helper mt-1">
             {formData.broadcastType === "Location"
-              ? `📍 Job will be visible to users in ${formData.state || 'selected state'}${formData.city ? `, ${formData.city}` : ''} only`
+              ? `📍 Job will be visible to users in ${formData.state || "selected state"}${formData.city ? `, ${formData.city}` : ""} only`
               : "🌍 Job will be visible to all users"}
           </p>
           {formData.broadcastType === "Location" && !formData.state && (
@@ -1120,585 +1217,198 @@ useEffect(() => {
             onCityChange={handleCityChange}
             required={false}
           />
-          {errors.state && (
-            <p className="form-error mt-1">{errors.state}</p>
-          )}
+          {errors.state && <p className="form-error mt-1">{errors.state}</p>}
           <p className="form-helper mt-1">
-            {formData.state && formData.city 
+            {formData.state && formData.city
               ? `📍 Location: ${formData.state}, ${formData.city}`
-              : formData.state 
+              : formData.state
                 ? `📍 State: ${formData.state}`
-                : formData.city 
+                : formData.city
                   ? `📍 City: ${formData.city}`
                   : "📍 No location selected (optional)"}
           </p>
         </div>
 
-        {/* Degree */}
+        {/* Degree - Using TagComboBox */}
+        {/* Degree - Using TagComboBox */}
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-[var(--text-secondary)]">
-            <BookOpen className="mr-1.5 inline h-4 w-4" />
-            Degree <span className="text-[var(--danger)]">*</span>
-            <span className="ml-2 text-xs text-[var(--text-muted)]">(Select or type to create)</span>
-          </label>
-          
-          <div className="relative">
-            <input
-              type="text"
-              value={degreeInput}
-              onChange={(e) => {
-                setDegreeInput(e.target.value);
-                if (errors.degreeId) {
-                  setErrors((prev) => ({ ...prev, degreeId: "" }));
-                }
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && degreeInput.trim()) {
-                  e.preventDefault();
-                  const existingDegree = masterDegrees.find(
-                    (d) => d.value.toLowerCase() === degreeInput.trim().toLowerCase()
-                  );
-                  if (existingDegree) {
-                    handleDegreeChange(existingDegree._id);
-                    setDegreeInput("");
-                  } else {
-                    handleCreateDegree(degreeInput);
-                  }
-                }
-              }}
-              placeholder={loadingDegrees ? "Loading degrees..." : "Type degree and press Enter to create, or select from dropdown..."}
-              disabled={loadingDegrees || isCreatingDegree}
-              className={`input-field ${errors.degreeId ? 'border-[var(--danger)]' : ''} disabled:opacity-50`}
-            />
-            {(loadingDegrees || isCreatingDegree) && (
-              <Loader2 className="absolute right-3 top-3 h-4 w-4 animate-spin text-[var(--primary)]" />
-            )}
-          </div>
-          
-          {errors.degreeId && (
-            <p className="form-error mt-1">{errors.degreeId}</p>
-          )}
-
-          {/* Degree Suggestions */}
-          {!loadingDegrees && masterDegrees.length > 0 && (
-            <div className="mt-2">
-              <p className="mb-1.5 text-xs font-medium text-[var(--text-muted)]">Suggested Degrees:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {masterDegrees
-                  .filter((degree) =>
-                    degreeInput.length === 0 || 
-                    degree.value.toLowerCase().includes(degreeInput.toLowerCase())
-                  )
-                  .filter((degree) => degree._id !== formData.degreeId)
-                  .slice(0, 10)
-                  .map((degree) => (
-                    <button
-                      key={degree._id}
-                      type="button"
-                      onClick={() => {
-                        handleDegreeChange(degree._id);
-                        setDegreeInput("");
-                      }}
-                      className="badge badge-primary cursor-pointer"
-                    >
-                      {degree.value}
-                    </button>
-                  ))}
-              </div>
-            </div>
-          )}
-          
-          {/* Selected degree */}
-          {formData.minEducation && (
-            <div className="mt-3">
-              <p className="flex items-center gap-1.5 text-xs font-medium text-[var(--primary)]">
-                <Check className="h-3 w-3" />
-                Selected Degree: {formData.minEducation}
-              </p>
-            </div>
-          )}
+          <TagComboBox
+            selected={
+              formData.degreeId
+                ? [
+                    masterDegrees.find((d) => d._id === formData.degreeId)
+                      ?.value || "",
+                  ]
+                : []
+            }
+            suggestions={degreeSuggestions}
+            inputValue={degreeInput}
+            onInputChange={(value) => {
+              setDegreeInput(value);
+              if (errors.degreeId) {
+                setErrors((prev) => ({ ...prev, degreeId: "" }));
+              }
+            }}
+            onToggleSuggestion={(item) => {
+              // Find the degree by label
+              const degree = masterDegrees.find((d) => d.value === item.label);
+              if (degree) {
+                toggleDegree({ id: degree._id, label: degree.value });
+              } else if (item.id === formData.degreeId) {
+                // Deselect
+                handleDegreeChange("");
+              } else {
+                // Try to find by ID match
+                toggleDegree(item);
+              }
+            }}
+            onCreate={handleCreateDegree}
+            onRemoveChip={() => handleDegreeChange("")}
+            loading={loadingDegrees || isCreatingDegree}
+            disabled={loadingDegrees || isCreatingDegree}
+            placeholder={
+              loadingDegrees
+                ? "Loading degrees..."
+                : "Type degree and press Enter, or select from below..."
+            }
+            allowCreate={true}
+            error={errors.degreeId}
+            label="Degree"
+            labelIcon={<BookOpen className="h-4 w-4" />}
+            required={true}
+            helperText="(Select or type to create)"
+          />
         </div>
 
-        {/* Specialization / Stream */}
+        {/* Specialization / Stream - Using TagComboBox */}
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-[var(--text-secondary)]">
-            <BookOpen className="mr-1.5 inline h-4 w-4" />
-            Specialization / Stream <span className="text-[var(--danger)]">*</span>
-            <span className="ml-2 text-xs text-[var(--text-muted)]">(Select or type to create)</span>
-          </label>
           {!formData.degreeId ? (
             <div className="input-field text-[var(--text-muted)] cursor-not-allowed">
               Select a degree first
             </div>
           ) : (
-            <div>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={streamInput}
-                  onChange={(e) => {
-                    handleStreamInputChange(e.target.value);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && streamInput.trim()) {
-                      e.preventDefault();
-                      handleStreamCreate();
-                    }
-                  }}
-                  placeholder={
-                    loadingStreams
-                      ? "Loading streams..."
-                      : "Type stream and press Enter to create, or select from below"
-                  }
-                  disabled={loadingStreams || isCreatingStream}
-                  className={`input-field ${errors.studentStreams ? 'border-[var(--danger)]' : ''} disabled:cursor-not-allowed disabled:opacity-60`}
-                />
-                {(loadingStreams || isCreatingStream) && (
-                  <Loader2 className="absolute right-3 top-3 h-4 w-4 animate-spin text-[var(--primary)]" />
-                )}
-              </div>
-              {errors.studentStreams && (
-                <p className="form-error mt-1">{errors.studentStreams}</p>
-              )}
-              
-              {/* Selected Streams */}
-              {formData.studentStreams && formData.studentStreams.length > 0 && (
-                <div className="mt-3">
-                  <p className="mb-1.5 text-xs font-medium text-[var(--text-muted)]">Selected Streams:</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {formData.studentStreams.map((item: string, index: number) => (
-                      <span
-                        key={index}
-                        className="badge badge-primary"
-                      >
-                        <BookOpen className="h-3 w-3" />
-                        {item}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const currentStreams = formData.studentStreams || [];
-                            handleChange(
-                              "studentStreams",
-                              currentStreams.filter((s: string) => s !== item)
-                            );
-                          }}
-                          className="ml-1 hover:text-[var(--danger)] transition-colors"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Suggested Streams */}
-              {!loadingStreams && availableStreams.length > 0 && (
-                <div className="mt-3">
-                  <p className="mb-1.5 text-xs font-medium text-[var(--text-muted)]">Suggested Streams:</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {availableStreams
-                      .filter((stream) =>
-                        streamInput.length === 0 || 
-                        stream.value.toLowerCase().includes(streamInput.toLowerCase())
-                      )
-                      .slice(0, 15)
-                      .map((stream) => {
-                        const isSelected =
-                          formData.studentStreams?.includes(stream.value) ?? false;
-                        return (
-                          <button
-                            key={stream._id}
-                            type="button"
-                            onClick={() => toggleStream(stream.value)}
-                            className={`badge ${isSelected ? 'badge-primary' : 'badge'} cursor-pointer`}
-                          >
-                            {stream.value}
-                          </button>
-                        );
-                      })}
-                  </div>
-                </div>
-              )}
-              
-              {!loadingStreams && availableStreams.length === 0 && (
-                <div className="mt-3">
-                  <p className="flex items-center gap-1.5 text-xs text-[var(--warning)]">
-                    <span>⚠️</span>
-                    No streams available for this degree. Type a stream name and press Enter to create one.
-                  </p>
-                </div>
-              )}
-              
-              {streamError && (
-                <p className="mt-2 text-xs text-[var(--danger)]">{streamError}</p>
-              )}
-            </div>
+            <TagComboBox
+              selected={formData.studentStreams || []}
+              suggestions={streamSuggestions}
+              inputValue={streamInput}
+              onInputChange={handleStreamInputChange}
+              onToggleSuggestion={toggleStream}
+              onCreate={handleStreamCreate}
+              onRemoveChip={removeStream}
+              loading={loadingStreams || isCreatingStream}
+              disabled={
+                loadingStreams || isCreatingStream || !formData.degreeId
+              }
+              placeholder={
+                loadingStreams
+                  ? "Loading streams..."
+                  : "Type stream and press Enter, or select from below"
+              }
+              allowCreate={true}
+              error={errors.studentStreams || streamError}
+              label="Specialization / Stream"
+              labelIcon={<BookOpen className="h-4 w-4" />}
+              required={true}
+              helperText="(Select or type to create)"
+            />
           )}
         </div>
 
-        {/* Skills */}
+        {/* Skills - Using TagComboBox */}
         <div className="md:col-span-2">
-          <label className="mb-1.5 block text-sm font-medium text-[var(--text-secondary)]">
-            Skills Required <span className="text-[var(--danger)]">*</span>
-            <span className="ml-2 text-xs text-[var(--text-muted)]">(Select from existing or type to create new)</span>
-          </label>
-          
-          <div className="relative">
-            <input
-              type="text"
-              value={skillInput}
-              onChange={(e) => {
-                setSkillInput(e.target.value);
-                if (errors.skills) {
-                  setErrors((prev) => ({ ...prev, skills: "" }));
-                }
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && skillInput.trim()) {
-                  e.preventDefault();
-                  handleSkillInputChange(skillInput);
-                }
-              }}
-              placeholder={loadingSkills ? "Loading skills..." : "Type a skill and press Enter to create, or select from below..."}
-              disabled={loadingSkills || isCreatingSkill}
-              className={`input-field ${errors.skills ? 'border-[var(--danger)]' : ''}`}
-            />
-            {(loadingSkills || isCreatingSkill) && (
-              <Loader2 className="absolute right-3 top-3 h-4 w-4 animate-spin text-[var(--primary)]" />
-            )}
-          </div>
-          
-          {errors.skills && (
-            <p className="form-error mt-1">{errors.skills}</p>
-          )}
-
-          {/* Selected Skills */}
-          {formData.skills && formData.skills.length > 0 && (
-            <div className="mt-3">
-              <p className="mb-1.5 text-xs font-medium text-[var(--text-muted)]">Selected Skills:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {formData.skills.map((item: string, index: number) => (
-                  <span
-                    key={index}
-                    className="badge badge-info"
-                  >
-                    <Sparkles className="h-3 w-3" />
-                    {item}
-                    <button
-                      type="button"
-                      onClick={() => removeArrayItem("skills", item)}
-                      className="ml-1 hover:text-[var(--danger)] transition-colors"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Suggested Skills */}
-          {!loadingSkills && masterSkills.length > 0 && (
-            <div className="mt-3">
-              <p className="mb-1.5 text-xs font-medium text-[var(--text-muted)]">Suggested Skills:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {masterSkills
-                  .filter((skill) =>
-                    skillInput.length === 0 || 
-                    skill.skills.toLowerCase().includes(skillInput.toLowerCase())
-                  )
-                  .filter((skill) => !formData.skills?.includes(skill.skills))
-                  .slice(0, 15)
-                  .map((skill) => (
-                    <button
-                      key={skill._id}
-                      type="button"
-                      onClick={() => {
-                        toggleSkill(skill.skills);
-                        setSkillInput("");
-                      }}
-                      className="badge badge-info cursor-pointer"
-                    >
-                      {skill.skills}
-                    </button>
-                  ))}
-              </div>
-              {masterSkills.filter((skill) => !formData.skills?.includes(skill.skills)).length === 0 && (
-                <p className="mt-1 text-xs text-[var(--text-muted)]">All skills are selected. Type a new one and press Enter to create it.</p>
-              )}
-            </div>
-          )}
-          {!loadingSkills && masterSkills.length === 0 && (
-            <p className="mt-1.5 text-xs text-[var(--warning)]">No skills available. Type one and press Enter to create.</p>
-          )}
+          <TagComboBox
+            selected={formData.skills || []}
+            suggestions={skillSuggestions}
+            inputValue={skillInput}
+            onInputChange={(value) => {
+              setSkillInput(value);
+              if (errors.skills) {
+                setErrors((prev) => ({ ...prev, skills: "" }));
+              }
+            }}
+            onToggleSuggestion={toggleSkill}
+            onCreate={handleSkillCreate}
+            onRemoveChip={removeSkill}
+            loading={loadingSkills || isCreatingSkill}
+            disabled={loadingSkills || isCreatingSkill}
+            placeholder={
+              loadingSkills
+                ? "Loading skills..."
+                : "Type a skill and press Enter, or select from below..."
+            }
+            allowCreate={true}
+            error={errors.skills}
+            label="Skills Required"
+            labelIcon={<Sparkles className="h-4 w-4" />}
+            required={true}
+            helperText="(Select from existing or type to create new)"
+          />
         </div>
 
-        {/* Certifications */}
+        {/* Certifications - Using TagComboBox */}
         <div className="md:col-span-2">
-          <label className="mb-1.5 block text-sm font-medium text-[var(--text-secondary)]">
-            <Award className="mr-1.5 inline h-4 w-4" />
-            Certifications
-            <span className="ml-2 text-xs text-[var(--text-muted)]">(Select from options or type custom)</span>
-          </label>
-          
-          <div className="relative">
-            <input
-              type="text"
-              value={customCertInput}
-              onChange={(e) => setCustomCertInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && customCertInput.trim()) {
-                  e.preventDefault();
-                  const newCert = customCertInput.trim();
-                  const currentCerts = formData.certifications || [];
-                  if (!currentCerts.includes(newCert)) {
-                    handleChange("certifications", [...currentCerts, newCert]);
-                  }
-                  setCustomCertInput("");
-                }
-              }}
-              placeholder="Type custom certification and press Enter..."
-              className="input-field"
-            />
-          </div>
-
-          {/* Selected Certifications */}
-          {formData.certifications && formData.certifications.length > 0 && (
-            <div className="mt-3">
-              <p className="mb-1.5 text-xs font-medium text-[var(--text-muted)]">Selected Certifications:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {formData.certifications.map((item: string, index: number) => (
-                  <span
-                    key={index}
-                    className="badge badge-primary"
-                  >
-                    <Award className="h-3 w-3" />
-                    {item}
-                    <button
-                      type="button"
-                      onClick={() => removeArrayItem("certifications", item)}
-                      className="ml-1 hover:text-[var(--danger)] transition-colors"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Suggested Certifications */}
-          {availableCertifications.length > 0 && (
-            <div className="mt-3">
-              <p className="mb-1.5 text-xs font-medium text-[var(--text-muted)]">Suggested Certifications:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {availableCertifications
-                  .filter((cert) =>
-                    customCertInput.length === 0 ||
-                    cert.toLowerCase().includes(customCertInput.toLowerCase())
-                  )
-                  .slice(0, 10)
-                  .map((cert) => (
-                    <button
-                      key={cert}
-                      type="button"
-                      onClick={() => {
-                        const currentCerts = formData.certifications || [];
-                        if (!currentCerts.includes(cert)) {
-                          handleChange("certifications", [...currentCerts, cert]);
-                        }
-                        setCustomCertInput("");
-                      }}
-                      className="badge badge-primary cursor-pointer"
-                    >
-                      {cert}
-                    </button>
-                  ))}
-              </div>
-              {availableCertifications.length === 0 && (
-                <p className="mt-1 text-xs text-[var(--text-muted)]">All certifications are selected. Type a new one and press Enter to create it.</p>
-              )}
-            </div>
-          )}
+          <TagComboBox
+            selected={formData.certifications || []}
+            suggestions={certificationSuggestions}
+            inputValue={customCertInput}
+            onInputChange={setCustomCertInput}
+            onToggleSuggestion={toggleCertification}
+            onCreate={handleCertificationCreate}
+            onRemoveChip={removeCertification}
+            loading={false}
+            disabled={false}
+            placeholder="Type custom certification and press Enter..."
+            allowCreate={true}
+            error={undefined}
+            label="Certifications"
+            labelIcon={<Award className="h-4 w-4" />}
+            required={false}
+            helperText="(Select from options or type custom)"
+          />
         </div>
 
-        {/* Benefits */}
+        {/* Benefits - Using TagComboBox */}
         <div className="md:col-span-2">
-          <label className="mb-1.5 block text-sm font-medium text-[var(--text-secondary)]">
-            <Sparkles className="mr-1.5 inline h-4 w-4" />
-            Benefits
-            <span className="ml-2 text-xs text-[var(--text-muted)]">(Select from options or type custom)</span>
-          </label>
-          
-          <div className="relative">
-            <input
-              type="text"
-              value={customBenefitInput}
-              onChange={(e) => setCustomBenefitInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && customBenefitInput.trim()) {
-                  e.preventDefault();
-                  const newBenefit = customBenefitInput.trim();
-                  const currentBenefits = formData.benefits || [];
-                  if (!currentBenefits.includes(newBenefit)) {
-                    handleChange("benefits", [...currentBenefits, newBenefit]);
-                  }
-                  setCustomBenefitInput("");
-                }
-              }}
-              placeholder="Type custom benefit and press Enter..."
-              className="input-field"
-            />
-          </div>
-
-          {/* Selected Benefits */}
-          {formData.benefits && formData.benefits.length > 0 && (
-            <div className="mt-3">
-              <p className="mb-1.5 text-xs font-medium text-[var(--text-muted)]">Selected Benefits:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {formData.benefits.map((item: string, index: number) => (
-                  <span
-                    key={index}
-                    className="badge badge-success"
-                  >
-                    <Check className="h-3 w-3" />
-                    {item}
-                    <button
-                      type="button"
-                      onClick={() => removeArrayItem("benefits", item)}
-                      className="ml-1 hover:text-[var(--danger)] transition-colors"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Suggested Benefits */}
-          {availableBenefits.length > 0 && (
-            <div className="mt-3">
-              <p className="mb-1.5 text-xs font-medium text-[var(--text-muted)]">Suggested Benefits:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {availableBenefits
-                  .filter((benefit) =>
-                    customBenefitInput.length === 0 ||
-                    benefit.toLowerCase().includes(customBenefitInput.toLowerCase())
-                  )
-                  .slice(0, 10)
-                  .map((benefit) => (
-                    <button
-                      key={benefit}
-                      type="button"
-                      onClick={() => {
-                        const currentBenefits = formData.benefits || [];
-                        if (!currentBenefits.includes(benefit)) {
-                          handleChange("benefits", [...currentBenefits, benefit]);
-                        }
-                        setCustomBenefitInput("");
-                      }}
-                      className="badge badge-success cursor-pointer"
-                    >
-                      {benefit}
-                    </button>
-                  ))}
-              </div>
-              {availableBenefits.length === 0 && (
-                <p className="mt-1 text-xs text-[var(--text-muted)]">All benefits are selected. Type a new one and press Enter to create it.</p>
-              )}
-            </div>
-          )}
+          <TagComboBox
+            selected={formData.benefits || []}
+            suggestions={benefitSuggestions}
+            inputValue={customBenefitInput}
+            onInputChange={setCustomBenefitInput}
+            onToggleSuggestion={toggleBenefit}
+            onCreate={handleBenefitCreate}
+            onRemoveChip={removeBenefit}
+            loading={false}
+            disabled={false}
+            placeholder="Type custom benefit and press Enter..."
+            allowCreate={true}
+            error={undefined}
+            label="Benefits"
+            labelIcon={<Sparkles className="h-4 w-4" />}
+            required={false}
+            helperText="(Select from options or type custom)"
+          />
         </div>
 
-        {/* Tags */}
+        {/* Tags - Using TagComboBox */}
         <div className="md:col-span-2">
-          <label className="mb-1.5 block text-sm font-medium text-[var(--text-secondary)]">
-            <Tag className="mr-1.5 inline h-4 w-4" />
-            Tags
-            <span className="ml-2 text-xs text-[var(--text-muted)]">(Select from options or type custom)</span>
-          </label>
-          
-          <div className="relative">
-            <input
-              type="text"
-              value={customTagInput}
-              onChange={(e) => setCustomTagInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && customTagInput.trim()) {
-                  e.preventDefault();
-                  const newTag = customTagInput.trim();
-                  const currentTags = formData.tags || [];
-                  if (!currentTags.includes(newTag)) {
-                    handleChange("tags", [...currentTags, newTag]);
-                  }
-                  setCustomTagInput("");
-                }
-              }}
-              placeholder="Type custom tag and press Enter..."
-              className="input-field"
-            />
-          </div>
-
-          {/* Selected Tags */}
-          {formData.tags && formData.tags.length > 0 && (
-            <div className="mt-3">
-              <p className="mb-1.5 text-xs font-medium text-[var(--text-muted)]">Selected Tags:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {formData.tags.map((item: string, index: number) => (
-                  <span
-                    key={index}
-                    className="badge badge-warning"
-                  >
-                    <Tag className="h-3 w-3" />
-                    {item}
-                    <button
-                      type="button"
-                      onClick={() => removeArrayItem("tags", item)}
-                      className="ml-1 hover:text-[var(--danger)] transition-colors"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Suggested Tags */}
-          {availableTags.length > 0 && (
-            <div className="mt-3">
-              <p className="mb-1.5 text-xs font-medium text-[var(--text-muted)]">Suggested Tags:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {availableTags
-                  .filter((tag) =>
-                    customTagInput.length === 0 ||
-                    tag.toLowerCase().includes(customTagInput.toLowerCase())
-                  )
-                  .slice(0, 10)
-                  .map((tag) => (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => {
-                        const currentTags = formData.tags || [];
-                        if (!currentTags.includes(tag)) {
-                          handleChange("tags", [...currentTags, tag]);
-                        }
-                        setCustomTagInput("");
-                      }}
-                      className="badge badge-warning cursor-pointer"
-                    >
-                      {tag}
-                    </button>
-                  ))}
-              </div>
-              {availableTags.length === 0 && (
-                <p className="mt-1 text-xs text-[var(--text-muted)]">All tags are selected. Type a new one and press Enter to create it.</p>
-              )}
-            </div>
-          )}
+          <TagComboBox
+            selected={formData.tags || []}
+            suggestions={tagSuggestions}
+            inputValue={customTagInput}
+            onInputChange={setCustomTagInput}
+            onToggleSuggestion={toggleTag}
+            onCreate={handleTagCreate}
+            onRemoveChip={removeTag}
+            loading={false}
+            disabled={false}
+            placeholder="Type custom tag and press Enter..."
+            allowCreate={true}
+            error={undefined}
+            label="Tags"
+            labelIcon={<Tag className="h-4 w-4" />}
+            required={false}
+            helperText="(Select from options or type custom)"
+          />
         </div>
 
         {/* Job Description */}
@@ -1706,7 +1416,9 @@ useEffect(() => {
           <label className="mb-1.5 block text-sm font-medium text-[var(--text-secondary)]">
             <FileText className="mr-1.5 inline h-4 w-4" />
             Job Description <span className="text-[var(--danger)]">*</span>
-            <span className="ml-2 text-xs text-[var(--text-muted)]">(Minimum 10 characters)</span>
+            <span className="ml-2 text-xs text-[var(--text-muted)]">
+              (Minimum 10 characters)
+            </span>
           </label>
           <textarea
             value={formData.description || ""}
@@ -1718,7 +1430,7 @@ useEffect(() => {
             }}
             placeholder="Describe the job role, responsibilities, and requirements..."
             rows={5}
-            className={`textarea-field ${errors.description ? 'border-[var(--danger)]' : ''}`}
+            className={`textarea-field ${errors.description ? "border-[var(--danger)]" : ""}`}
           />
           {errors.description && (
             <p className="form-error mt-1">{errors.description}</p>
@@ -1731,7 +1443,6 @@ useEffect(() => {
         {/* Package Details */}
         <div className="mt-2 border-t border-[var(--border)] pt-4 md:col-span-2">
           <h3 className="mb-3 flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)]">
-           
             Package Details
           </h3>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -1754,59 +1465,105 @@ useEffect(() => {
             <div>
               <label className="mb-1 block text-xs text-[var(--text-muted)]">
                 Total CTC <span className="text-[var(--danger)]">*</span>
+               
               </label>
               <input
                 type="number"
                 min={0}
-                value={formData.packageDetails?.totalCTC || ""}
-                onChange={(event) =>
-                  handlePackageChange(
-                    "totalCTC",
-                    event.target.value ? Number(event.target.value) : 0,
-                  )
+                step="any"
+                value={
+                  formData.packageDetails?.totalCTC !== undefined &&
+                  formData.packageDetails?.totalCTC !== null
+                    ? formData.packageDetails.totalCTC
+                    : ""
                 }
+                onChange={(event) => {
+                  const value = event.target.value;
+                  if (value === "") {
+                    handlePackageChange("totalCTC", "");
+                  } else {
+                    const numValue = Number(value);
+                    if (!isNaN(numValue) && numValue >= 0) {
+                      handlePackageChange("totalCTC", numValue);
+                    }
+                  }
+                  if (errors["packageDetails.totalCTC"]) {
+                    setErrors((prev) => ({
+                      ...prev,
+                      "packageDetails.totalCTC": "",
+                    }));
+                  }
+                }}
                 placeholder="e.g., 1200000"
-                className={`input-field ${errors['packageDetails.totalCTC'] ? 'border-[var(--danger)]' : ''}`}
+                className={`input-field ${errors["packageDetails.totalCTC"] ? "border-[var(--danger)]" : ""}`}
               />
-              {errors['packageDetails.totalCTC'] && (
-                <p className="form-error mt-1">{errors['packageDetails.totalCTC']}</p>
+              {errors["packageDetails.totalCTC"] && (
+                <p className="form-error mt-1">
+                  {errors["packageDetails.totalCTC"]}
+                </p>
               )}
             </div>
             <div>
               <label className="mb-1 block text-xs text-[var(--text-muted)]">
-                Fixed Pay 
+                Fixed Pay
+               
               </label>
               <input
                 type="number"
                 min={0}
-                value={formData.packageDetails?.fixedPay || ""}
-                onChange={(event) =>
-                  handlePackageChange(
-                    "fixedPay",
-                    event.target.value ? Number(event.target.value) : 0,
-                  )
+                step="any"
+                value={
+                  formData.packageDetails?.fixedPay !== undefined &&
+                  formData.packageDetails?.fixedPay !== null
+                    ? formData.packageDetails.fixedPay
+                    : ""
                 }
+                onChange={(event) => {
+                  const value = event.target.value;
+                  if (value === "") {
+                    handlePackageChange("fixedPay", "");
+                  } else {
+                    const numValue = Number(value);
+                    if (!isNaN(numValue) && numValue >= 0) {
+                      handlePackageChange("fixedPay", numValue);
+                    }
+                  }
+                }}
                 placeholder="e.g., 50000"
-                className={`input-field ${errors['packageDetails.fixedPay'] ? 'border-[var(--danger)]' : ''}`}
+                className={`input-field ${errors["packageDetails.fixedPay"] ? "border-[var(--danger)]" : ""}`}
               />
-              {errors['packageDetails.fixedPay'] && (
-                <p className="form-error mt-1">{errors['packageDetails.fixedPay']}</p>
+              {errors["packageDetails.fixedPay"] && (
+                <p className="form-error mt-1">
+                  {errors["packageDetails.fixedPay"]}
+                </p>
               )}
             </div>
             <div>
               <label className="mb-1 block text-xs text-[var(--text-muted)]">
                 Variable Pay
+               
               </label>
               <input
                 type="number"
                 min={0}
-                value={formData.packageDetails?.joiningBonus || ""}
-                onChange={(event) =>
-                  handlePackageChange(
-                    "joiningBonus",
-                    event.target.value ? Number(event.target.value) : 0,
-                  )
+                step="any"
+                value={
+                  formData.packageDetails?.joiningBonus !== undefined &&
+                  formData.packageDetails?.joiningBonus !== null
+                    ? formData.packageDetails.joiningBonus
+                    : ""
                 }
+                onChange={(event) => {
+                  const value = event.target.value;
+                  if (value === "") {
+                    handlePackageChange("joiningBonus", "");
+                  } else {
+                    const numValue = Number(value);
+                    if (!isNaN(numValue) && numValue >= 0) {
+                      handlePackageChange("joiningBonus", numValue);
+                    }
+                  }
+                }}
                 placeholder="e.g., 50000"
                 className="input-field"
               />
@@ -1822,8 +1579,8 @@ useEffect(() => {
           disabled={!currentCompany || loadingProfile}
           className={`btn-primary rounded-lg px-6 py-2.5 font-medium ${
             !currentCompany || loadingProfile
-              ? 'opacity-50 cursor-not-allowed'
-              : ''
+              ? "opacity-50 cursor-not-allowed"
+              : ""
           }`}
         >
           {loadingProfile ? (

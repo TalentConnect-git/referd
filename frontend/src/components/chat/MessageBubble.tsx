@@ -1,88 +1,157 @@
 "use client";
 
-import { memo, useMemo } from "react";
+import React, { memo, useMemo } from "react";
 import { CheckCheck } from "lucide-react";
-import { Message } from "@/types/chat";
 import { useAuth } from "@/context/AuthContext";
-import { messageService } from "@/services/message.service";
+import { Message } from "@/types/chat";
 
 interface MessageBubbleProps {
   message: Message;
   formatMessageTime: (date: string) => string;
 }
 
-const getSenderId = (message: any) => {
+const getSenderId = (message: any): string => {
   return (
     message?.senderId ||
     message?.sender?._id ||
-    (typeof message?.sender === "string" ? message.sender : "") ||
+    (typeof message?.sender === "string"
+      ? message.sender
+      : "") ||
     ""
   );
 };
 
-const getMessageText = (message: any) => {
-  return message?.message || message?.text || message?.content || "";
+const getMessageText = (message: any): string => {
+  return (
+    message?.message ||
+    message?.text ||
+    message?.content ||
+    ""
+  );
 };
 
-export const MessageBubble = memo(
-  ({ message, formatMessageTime }: MessageBubbleProps) => {
-    const { user } = useAuth();
+const MessageBubble = ({
+  message,
+  formatMessageTime,
+}: MessageBubbleProps) => {
+  const { user } = useAuth();
 
-    const isMyMessage = useMemo(() => {
-      const senderId = getSenderId(message);
-      return Boolean(senderId && user?._id && senderId === user._id);
-    }, [message, user?._id]);
+  const senderId = useMemo(
+    () => getSenderId(message),
+    [message]
+  );
 
-    const isRead =
-      Boolean(message.read) || messageService.isMessageRead(message._id);
+  const isMyMessage = useMemo(() => {
+    if (!user?._id || !senderId) {
+      return false;
+    }
 
     return (
+      String(senderId) === String(user._id)
+    );
+  }, [senderId, user?._id]);
+
+  const messageText = useMemo(
+    () => getMessageText(message),
+    [message]
+  );
+
+  /**
+   * Backend field:
+   *
+   * read: false -> grey double tick
+   * read: true  -> blue double tick
+   */
+  const isRead =
+    isMyMessage && message.read === true;
+
+  return (
+    <div
+      className={`mb-1 flex w-full ${
+        isMyMessage
+          ? "justify-end"
+          : "justify-start"
+      }`}
+    >
       <div
-        className={`mb-1 flex ${
-          isMyMessage ? "justify-end" : "justify-start"
-        } animate-slide-in-up`}
+        className={`flex max-w-[75%] flex-col ${
+          isMyMessage
+            ? "items-end"
+            : "items-start"
+        }`}
       >
+        {/* Message bubble */}
         <div
-          className={`flex max-w-[75%] flex-col ${
-            isMyMessage ? "items-end" : "items-start"
+          className={`rounded-2xl px-4 py-2.5 ${
+            isMyMessage
+              ? "rounded-tr-sm"
+              : "rounded-tl-sm"
+          }`}
+          style={{
+            background: isMyMessage
+              ? "var(--primary)"
+              : "var(--card)",
+
+            color: isMyMessage
+              ? "var(--text-inverse)"
+              : "var(--text-secondary)",
+
+            border: isMyMessage
+              ? "none"
+              : "1px solid var(--border)",
+
+            boxShadow: isMyMessage
+              ? "0 2px 8px rgba(34, 197, 94, 0.2)"
+              : "none",
+          }}
+        >
+          <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+            {messageText}
+          </p>
+        </div>
+
+        {/* Time + Read receipt */}
+        <div
+          className={`mt-1 flex items-center gap-1 ${
+            isMyMessage
+              ? "justify-end"
+              : "justify-start"
           }`}
         >
-          <div
-            className={`rounded-2xl px-4 py-2.5 ${
-              isMyMessage ? "rounded-tr-sm" : "rounded-tl-sm"
-            }`}
+          <span
+            className="text-[10px]"
             style={{
-              background: isMyMessage ? "var(--primary)" : "var(--card)",
-              color: isMyMessage ? "var(--text-inverse)" : "var(--text-secondary)",
-              border: isMyMessage ? "none" : "1px solid var(--border)",
-              boxShadow: isMyMessage
-                ? "0 2px 8px rgba(34,197,94,0.2)"
-                : "none",
+              color: "var(--text-muted)",
             }}
           >
-            <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
-              {getMessageText(message)}
-            </p>
-          </div>
+            {formatMessageTime(
+              message.createdAt
+            )}
+          </span>
 
-          <div
-            className={`mt-1 flex items-center gap-1 ${
-              isMyMessage ? "justify-end" : "justify-start"
-            }`}
-          >
-            <span
-              className="text-[10px]"
-              style={{ color: "var(--text-muted)" }}
-            >
-              {formatMessageTime(message.createdAt)}
-            </span>
-
-            
-          </div>
+          {isMyMessage && (
+            <CheckCheck
+              className="h-3.5 w-3.5"
+              strokeWidth={2.4}
+              style={{
+                color: isRead
+                  ? "#3b82f6"
+                  : "var(--text-muted)",
+              }}
+              aria-label={
+                isRead
+                  ? "Read"
+                  : "Delivered"
+              }
+            />
+          )}
         </div>
       </div>
-    );
-  }
-);
+    </div>
+  );
+};
 
-MessageBubble.displayName = "MessageBubble";
+export default memo(MessageBubble);
+
+MessageBubble.displayName =
+  "MessageBubble";
