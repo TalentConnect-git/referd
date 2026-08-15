@@ -1,14 +1,25 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { AlertCircle, RefreshCw } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import {
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
+import {
+  AlertCircle,
+  RefreshCw,
+} from "lucide-react";
+
 import { useChat } from "@/context/ChatContext";
 import { useSocketContext } from "@/context/SocketContext";
 import { useGetMessages } from "@/hooks/useGetMessages";
 import useSendMessage from "@/hooks/useSendMessage";
-import useGetSocketMessage from "@/hooks/useGetSocketMessage";
 import { ChatArea } from "@/components/chat/ChatArea";
 import { Conversation } from "@/types/chat";
 
@@ -16,12 +27,24 @@ interface ConversationPageClientProps {
   conversationId: string;
 }
 
-const getRolePathFromPathname = (pathname: string) => {
-  const first = pathname.split("/").filter(Boolean)[0];
+const getRolePathFromPathname = (
+  pathname: string
+): string => {
+  const first = pathname
+    .split("/")
+    .filter(Boolean)[0];
 
-  if (first === "professional") return "professional";
-  if (first === "student") return "student";
-  if (first === "fresher") return "fresher";
+  if (first === "professional") {
+    return "professional";
+  }
+
+  if (first === "student") {
+    return "student";
+  }
+
+  if (first === "fresher") {
+    return "fresher";
+  }
 
   return "student";
 };
@@ -49,149 +72,366 @@ export default function ConversationPageClient({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const rolePath = getRolePathFromPathname(pathname);
-  const userNameFromUrl = searchParams.get("userName") || "User";
-  const profileImageFromUrl = searchParams.get("profileImage") || "";
+  const rolePath =
+    getRolePathFromPathname(pathname);
 
-  const { user } = useAuth();
-  const { socket, onlineUsers } = useSocketContext();
-  const { selectedConversation, messages, setSelectedConversation } = useChat();
+  const userNameFromUrl =
+    searchParams.get("userName") || "User";
 
-  const [newMessage, setNewMessage] = useState("");
-  const hasMarkedReadRef = useRef<string | null>(null);
+  const profileImageFromUrl =
+    searchParams.get("profileImage") || "";
 
-  const { sendMessages } = useSendMessage();
+  const { onlineUsers } =
+    useSocketContext();
 
+  const {
+    selectedConversation,
+    messages,
+    setSelectedConversation,
+  } = useChat();
+
+  const [newMessage, setNewMessage] =
+    useState("");
+
+  const { sendMessages } =
+    useSendMessage();
+
+  /**
+   * Fallback conversation.
+   *
+   * Used when the conversation is opened
+   * directly from URL and the conversation
+   * is not yet present in ChatContext.
+   */
   const fallbackConversation = useMemo(() => {
     return createTempConversation(
-      conversationId, 
+      conversationId,
       userNameFromUrl,
       profileImageFromUrl
     );
-  }, [conversationId, userNameFromUrl, profileImageFromUrl]);
+  }, [
+    conversationId,
+    userNameFromUrl,
+    profileImageFromUrl,
+  ]);
 
+  /**
+   * Resolve the active conversation.
+   */
   const activeConversation = useMemo(() => {
-    if (selectedConversation?._id === conversationId) {
-      // If selected conversation exists but doesn't have profile image, update it
-      if (!selectedConversation.profileImage && profileImageFromUrl) {
+    if (
+      selectedConversation?._id ===
+      conversationId
+    ) {
+      /**
+       * If selected conversation does not
+       * contain profile image but URL does,
+       * enrich it with URL image.
+       */
+      if (
+        !selectedConversation.profileImage &&
+        profileImageFromUrl
+      ) {
         return {
           ...selectedConversation,
-          profileImage: profileImageFromUrl,
+          profileImage:
+            profileImageFromUrl,
         };
       }
+
       return selectedConversation;
     }
 
     return fallbackConversation;
-  }, [selectedConversation, conversationId, fallbackConversation, profileImageFromUrl]);
+  }, [
+    selectedConversation,
+    conversationId,
+    fallbackConversation,
+    profileImageFromUrl,
+  ]);
 
+  /**
+   * Set active conversation and clear
+   * local/sidebar unread count.
+   *
+   * IMPORTANT:
+   * Backend mark-read API is NOT called here.
+   *
+   * Read receipt handling is centralized
+   * inside useGetSocketMessage().
+   */
   useEffect(() => {
-    if (!activeConversation) return;
-
-    if (selectedConversation?._id !== activeConversation._id) {
-      setSelectedConversation(activeConversation);
+    if (!activeConversation) {
+      return;
     }
 
+    if (
+      selectedConversation?._id !==
+      activeConversation._id
+    ) {
+      setSelectedConversation(
+        activeConversation
+      );
+    }
+
+    /**
+     * Notify conversation/sidebar UI
+     * that this conversation is currently open.
+     */
     window.dispatchEvent(
-      new CustomEvent("chat:open-conversation", {
-        detail: {
-          chatPartnerId: activeConversation._id,
-          chatPartnerName: activeConversation.name,
-          chatPartnerImage: activeConversation.profileImage || "",
-        },
-      })
+      new CustomEvent(
+        "chat:open-conversation",
+        {
+          detail: {
+            chatPartnerId:
+              activeConversation._id,
+
+            chatPartnerName:
+              activeConversation.name,
+
+            chatPartnerImage:
+              activeConversation.profileImage ||
+              "",
+          },
+        }
+      )
     );
 
+    /**
+     * Clear local unread badge immediately.
+     */
     window.dispatchEvent(
-      new CustomEvent("chat:clear-unread", {
-        detail: {
-          chatPartnerId: activeConversation._id,
-        },
-      })
+      new CustomEvent(
+        "chat:clear-unread",
+        {
+          detail: {
+            chatPartnerId:
+              activeConversation._id,
+          },
+        }
+      )
     );
-  }, [activeConversation, selectedConversation?._id, setSelectedConversation]);
+  }, [
+    activeConversation,
+    selectedConversation?._id,
+    setSelectedConversation,
+  ]);
 
-  useGetSocketMessage(conversationId);
+  /**
+   * DO NOT call useGetSocketMessage()
+   * in this component.
+   *
+   * It must be mounted ONCE globally
+   * in MessageLayoutShell.
+   *
+   * That hook is responsible for:
+   *
+   * 1. newMessage socket listener
+   * 2. mark-read API
+   * 3. messages:read socket listener
+   * 4. updating read=true locally
+   */
 
+  /**
+   * Load conversation messages.
+   */
   const {
     loading: messagesLoading,
     error: messagesError,
     refreshMessages,
   } = useGetMessages(conversationId);
 
-  useEffect(() => {
-    if (!socket || !conversationId) return;
-    if (hasMarkedReadRef.current === conversationId) return;
-
-    hasMarkedReadRef.current = conversationId;
-
-    socket.emit("messageRead", {
-      chatPartnerId: conversationId,
-      conversationId,
-      userId: user?._id,
-    });
-  }, [socket, conversationId, user?._id]);
-
+  /**
+   * Get display name.
+   */
   const getDisplayName = useCallback(() => {
-    return activeConversation?.name || userNameFromUrl || "User";
-  }, [activeConversation?.name, userNameFromUrl]);
+    return (
+      activeConversation?.name ||
+      userNameFromUrl ||
+      "User"
+    );
+  }, [
+    activeConversation?.name,
+    userNameFromUrl,
+  ]);
 
+  /**
+   * Get profile image.
+   */
   const getProfileImage = useCallback(() => {
-    return activeConversation?.profileImage || profileImageFromUrl || "";
-  }, [activeConversation?.profileImage, profileImageFromUrl]);
+    return (
+      activeConversation?.profileImage ||
+      profileImageFromUrl ||
+      ""
+    );
+  }, [
+    activeConversation?.profileImage,
+    profileImageFromUrl,
+  ]);
 
-  const getAvatarInitial = useCallback(() => {
-    const name = getDisplayName();
-    return name.charAt(0).toUpperCase() || "U";
-  }, [getDisplayName]);
+  /**
+   * Get avatar initial.
+   */
+  const getAvatarInitial =
+    useCallback(() => {
+      const name =
+        getDisplayName();
 
+      return (
+        name.charAt(0).toUpperCase() ||
+        "U"
+      );
+    }, [getDisplayName]);
+
+  /**
+   * Partner online state.
+   */
   const isPartnerOnline = useMemo(() => {
-    return Boolean(onlineUsers?.includes(conversationId));
-  }, [onlineUsers, conversationId]);
+    return Boolean(
+      onlineUsers?.includes(
+        conversationId
+      )
+    );
+  }, [
+    onlineUsers,
+    conversationId,
+  ]);
 
-  const formatMessageDate = useCallback((date: string) => {
-    if (!date) return "";
+  /**
+   * Format date separator.
+   */
+  const formatMessageDate =
+    useCallback((date: string) => {
+      if (!date) {
+        return "";
+      }
 
-    const d = new Date(date);
-    const today = new Date();
-    const yesterday = new Date(today);
+      const d = new Date(date);
 
-    yesterday.setDate(yesterday.getDate() - 1);
+      if (
+        Number.isNaN(d.getTime())
+      ) {
+        return "";
+      }
 
-    if (d.toDateString() === today.toDateString()) return "Today";
-    if (d.toDateString() === yesterday.toDateString()) return "Yesterday";
+      const today = new Date();
 
-    return d.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  }, []);
+      const yesterday =
+        new Date(today);
 
-  const formatMessageTime = useCallback((date: string) => {
-    if (!date) return "";
+      yesterday.setDate(
+        yesterday.getDate() - 1
+      );
 
-    return new Date(date).toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }, []);
+      if (
+        d.toDateString() ===
+        today.toDateString()
+      ) {
+        return "Today";
+      }
 
-  const handleSendMessage = useCallback(async () => {
-    const text = newMessage.trim();
+      if (
+        d.toDateString() ===
+        yesterday.toDateString()
+      ) {
+        return "Yesterday";
+      }
 
-    if (!text || !conversationId) return;
+      return d.toLocaleDateString(
+        "en-US",
+        {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }
+      );
+    }, []);
 
-    setNewMessage("");
+  /**
+   * Format message time.
+   */
+  const formatMessageTime =
+    useCallback((date: string) => {
+      if (!date) {
+        return "";
+      }
 
-    await sendMessages(text, conversationId, getDisplayName());
-  }, [newMessage, conversationId, sendMessages, getDisplayName]);
+      const parsedDate =
+        new Date(date);
 
+      if (
+        Number.isNaN(
+          parsedDate.getTime()
+        )
+      ) {
+        return "";
+      }
+
+      return parsedDate.toLocaleTimeString(
+        "en-US",
+        {
+          hour: "2-digit",
+          minute: "2-digit",
+        }
+      );
+    }, []);
+
+  /**
+   * Send message.
+   */
+  const handleSendMessage =
+    useCallback(async () => {
+      const text =
+        newMessage.trim();
+
+      if (
+        !text ||
+        !conversationId
+      ) {
+        return;
+      }
+
+      /**
+       * Clear input immediately.
+       */
+      setNewMessage("");
+
+      try {
+        await sendMessages(
+          text,
+          conversationId,
+          getDisplayName()
+        );
+      } catch (error) {
+        /**
+         * Put message back into input
+         * if sending fails.
+         */
+        setNewMessage(text);
+
+        console.error(
+          "❌ Failed to send message:",
+          error
+        );
+      }
+    }, [
+      newMessage,
+      conversationId,
+      sendMessages,
+      getDisplayName,
+    ]);
+
+  /**
+   * Message loading/error state.
+   */
   if (messagesError) {
     return (
       <div
         className="flex h-full flex-1 items-center justify-center"
-        style={{ background: "var(--background)" }}
+        style={{
+          background:
+            "var(--background)",
+        }}
       >
         <div className="text-center">
           <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-card">
@@ -207,6 +447,7 @@ export default function ConversationPageClient({
           </p>
 
           <button
+            type="button"
             onClick={refreshMessages}
             className="btn-primary mt-6 rounded-xl bg-primary px-6 py-3 text-inverse transition-all hover:bg-primary-hover"
           >
@@ -218,22 +459,51 @@ export default function ConversationPageClient({
     );
   }
 
+  /**
+   * Chat UI.
+   */
   return (
     <ChatArea
-      conversation={activeConversation}
+      conversation={
+        activeConversation
+      }
       messages={messages}
-      messagesLoading={messagesLoading}
+      messagesLoading={
+        messagesLoading
+      }
       newMessage={newMessage}
-      onNewMessageChange={setNewMessage}
-      onSendMessage={handleSendMessage}
-      isPartnerOnline={isPartnerOnline}
-      getDisplayName={getDisplayName}
-      getProfileImage={getProfileImage}
-      getAvatarInitial={getAvatarInitial}
-      formatMessageDate={formatMessageDate}
-      formatMessageTime={formatMessageTime}
-      onBack={() => router.push(`/${rolePath}/message`)}
-      isCreatingConversation={false}
+      onNewMessageChange={
+        setNewMessage
+      }
+      onSendMessage={
+        handleSendMessage
+      }
+      isPartnerOnline={
+        isPartnerOnline
+      }
+      getDisplayName={
+        getDisplayName
+      }
+      getProfileImage={
+        getProfileImage
+      }
+      getAvatarInitial={
+        getAvatarInitial
+      }
+      formatMessageDate={
+        formatMessageDate
+      }
+      formatMessageTime={
+        formatMessageTime
+      }
+      onBack={() =>
+        router.push(
+          `/${rolePath}/message`
+        )
+      }
+      isCreatingConversation={
+        false
+      }
     />
   );
 }

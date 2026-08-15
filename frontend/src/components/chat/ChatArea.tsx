@@ -13,7 +13,7 @@ import { MessageCircle, Paperclip, Send, Smile } from "lucide-react";
 import EmojiPicker from "emoji-picker-react";
 import { Conversation, Message } from "@/types/chat";
 import { ChatHeader } from "./ChatHeader";
-import { MessageBubble } from "./MessageBubble";
+import  MessageBubble  from "./MessageBubble";
 
 interface ChatAreaProps {
   conversation: Conversation | null;
