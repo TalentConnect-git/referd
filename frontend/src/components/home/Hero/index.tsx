@@ -20,7 +20,7 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-[var(--background)]">
+    <section className="relative mt-8 min-h-screen overflow-hidden bg-[var(--background)]">
       {/* Light Grid */}
       <div className="absolute inset-0 light-grid">
         <div
