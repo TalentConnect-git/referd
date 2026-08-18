@@ -14,6 +14,7 @@ import { RevealSection } from "@/components/ui/RevealSection";
 import SectionDivider from "@/components/ui/SectionDivider";
 import { useAuth } from "@/context/AuthContext";
 import Footer from "@/components/layout/Footer";
+import RecentAlumni from "@/components/home/RecentAlumni";
 
 export default function Home() {
   const { loading, user, role } = useAuth();
@@ -60,6 +61,9 @@ export default function Home() {
       <RevealSection>
         <ReferralJobs />
       </RevealSection>
+      <RevealSection>
+        <RecentAlumni />
+      </RevealSection>
       <SectionDivider />
       <RevealSection>
         <HowItWorks />
@@ -68,6 +72,7 @@ export default function Home() {
       <RevealSection>
         <ForReferrers />
       </RevealSection>
+
       <SectionDivider />
       <RevealSection>
         <Testimonials />
