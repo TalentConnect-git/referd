@@ -14,9 +14,9 @@ export default function HeroDashboardPreview() {
 
   if (!mounted) {
     return (
-      <div className="relative mx-auto mt-8 w-full max-w-5xl scale-[0.95] sm:mt-10 sm:scale-[0.96] lg:scale-[0.92]">
-        <div className="rounded-2xl border border-[var(--border-strong)] bg-[var(--card)]/80 shadow-xl backdrop-blur-xl overflow-hidden">
-          <div className="w-full h-[550px] bg-[var(--background-soft)] animate-pulse" />
+      <div className="relative mx-auto mt-8 w-full max-w-5xl sm:mt-10">
+        <div className="overflow-hidden rounded-2xl border border-[var(--border-strong)] bg-[var(--card)]/80 shadow-xl backdrop-blur-xl">
+          <div className="h-[550px] w-full animate-pulse bg-[var(--background-soft)]" />
         </div>
       </div>
     );
@@ -24,18 +24,23 @@ export default function HeroDashboardPreview() {
 
   const isDark = theme === "dark";
 
-  const imageSrc = isDark ? "/assets/dashboard-dark.png" : "/assets/dashboard-light.png";
+  const imageSrc = isDark
+    ? "/assets/dashboard-dark.png"
+    : "/assets/dashboard-light.png";
 
   return (
-    <div className="relative mx-auto mt-8 w-full max-w-5xl scale-[0.95] sm:mt-10 sm:scale-[0.96] lg:scale-[0.92]">
-      <div className="relative rounded-2xl border border-[var(--border-strong)] bg-[var(--card)] shadow-xl overflow-hidden">
+    <div className="relative mx-auto mt-8 w-full max-w-5xl sm:mt-10">
+      <div className="relative overflow-hidden rounded-2xl border border-[var(--border-strong)] bg-[var(--card)] shadow-xl">
         <Image
           src={imageSrc}
           alt="Dashboard Preview"
           width={1400}
           height={1000}
-          className="w-full h-auto relative z-10"
+          quality={100}
           priority
+          unoptimized
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1024px"
+          className="relative z-10 block h-auto w-full"
         />
       </div>
     </div>
