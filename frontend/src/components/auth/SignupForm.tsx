@@ -68,7 +68,7 @@ export default function SignupForm() {
   const [role, setRole] = useState<UserType>(() => {
     return isUserType(queryRole)
       ? queryRole
-      : "student";
+      : "professional";
   });
 
   const [email, setEmail] = useState("");
@@ -527,9 +527,10 @@ export default function SignupForm() {
         Already have an account?{" "}
         <Link
           href="/login"
-          className="font-semibold text-[var(--primary)] transition hover:text-[var(--primary-hover)]"
+          style={{ color: "#16a34a" }}
+          className="ml-1 font-semibold text-sm transition-colors duration-200 hover:underline"
         >
-          Log In
+          Login
         </Link>
       </p>
     </div>
