@@ -146,7 +146,7 @@ export default function RecentAlumni() {
   };
 
   const handleCreateProfile = () => {
-    router.push("/onboarding");
+    router.push("/login");
   };
 
   // Authenticated users don't need a "create profile" nudge — send them
@@ -216,7 +216,7 @@ export default function RecentAlumni() {
                       getInitials(person.name)
                     )}
                   </div>
-                  <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-[var(--card)] bg-[var(--success)]" />
+                  
                 </div>
 
                 {/* Info */}

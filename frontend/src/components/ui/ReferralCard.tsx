@@ -8,7 +8,7 @@ type ReferralCardProps = {
   match: string;
   postedByInitials: string;
   postedByName: string;
-  college: string;
+  
   salary: string;
 };
 
@@ -20,7 +20,7 @@ export default function ReferralCard({
   match,
   postedByInitials,
   postedByName,
-  college,
+  
   salary,
 }: ReferralCardProps) {
   return (
@@ -92,13 +92,7 @@ export default function ReferralCard({
           </div>
         </div>
 
-        {/* College info */}
-        {college && (
-          <div className="flex items-center gap-1 text-[10px] text-[var(--text-muted)]">
-            <GraduationCap className="h-3 w-3" />
-            <span className="max-w-[100px] truncate">{college}</span>
-          </div>
-        )}
+        
       </div>
     </div>
   );

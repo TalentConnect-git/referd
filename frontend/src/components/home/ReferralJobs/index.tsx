@@ -249,8 +249,8 @@ export default function ReferralJobs() {
                     job.candidatePosted?.name ||
                     "Anonymous"
                   }
-                  college={job.receiverProfile?.educations?.[0]?.college || "-"}
-                  salary={job.packageDetails?.totalCTC ?? "-"}
+                  
+                  salary={job.packageDetails?.totalCTC ?? "NA"}
                 />
 
                

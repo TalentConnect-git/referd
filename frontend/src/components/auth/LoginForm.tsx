@@ -109,7 +109,7 @@ export default function LoginForm() {
     // Password validation
     if (!passwordRegex.test(password)) {
       setError(
-        "Password must contain at least 8 characters, including uppercase, lowercase, number, and special character."
+        "Password must contain at least 8 characters, including uppercase, lowercase, number, and special character.",
       );
       return;
     }
@@ -171,8 +171,6 @@ export default function LoginForm() {
           Login to continue your journey with Referd
         </p>
       </div>
-
-      
 
       {/* OAuth buttons */}
       <div className="mt-6 space-y-3 sm:mt-8">
@@ -274,7 +272,8 @@ export default function LoginForm() {
 
           {/* Password requirements hint */}
           <p className="text-[10px] leading-4 text-[var(--text-muted)]">
-            Password must contain: 8+ chars, uppercase, lowercase, number, and special character
+            Password must contain: 8+ chars, uppercase, lowercase, number, and
+            special character
           </p>
         </div>
 
@@ -323,11 +322,12 @@ export default function LoginForm() {
 
       <div className="my-6 h-px w-full bg-gradient-to-r from-transparent via-[var(--border)] to-transparent sm:my-7" />
 
-      <p className="text-center text-sm text-[var(--text-secondary)]">
+      <p className="text-center text-sm">
         Don&apos;t have an account?{" "}
         <Link
           href="/signup"
-          className="ml-1 font-semibold text-[var(--primary)] underline-offset-4 transition-all duration-200 hover:text-[var(--primary-hover)] hover:underline"
+          style={{ color: "#16a34a" }}
+          className="ml-1 font-semibold transition-colors duration-200 hover:underline"
         >
           Create account
         </Link>
