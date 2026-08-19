@@ -146,7 +146,7 @@ export default function RecentAlumni() {
   };
 
   const handleCreateProfile = () => {
-    router.push("/login");
+    router.push("/signup");
   };
 
   // Authenticated users don't need a "create profile" nudge — send them
