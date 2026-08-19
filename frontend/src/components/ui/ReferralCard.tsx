@@ -1,4 +1,11 @@
-import { CheckCircle, MapPin, Building2, Briefcase, GraduationCap, DollarSign } from "lucide-react";
+import {
+  CheckCircle,
+  MapPin,
+  Building2,
+  Briefcase,
+  GraduationCap,
+  DollarSign,
+} from "lucide-react";
 
 type ReferralCardProps = {
   companyLogo: string;
@@ -8,7 +15,7 @@ type ReferralCardProps = {
   match: string;
   postedByInitials: string;
   postedByName: string;
-  
+
   salary: string;
 };
 
@@ -20,7 +27,7 @@ export default function ReferralCard({
   match,
   postedByInitials,
   postedByName,
-  
+
   salary,
 }: ReferralCardProps) {
   return (
@@ -53,14 +60,15 @@ export default function ReferralCard({
       <div className="mt-4 flex items-center justify-between">
         <div>
           <p className="flex items-center gap-1 text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)]">
-          
             Total CTC
           </p>
-          <p className="mt-0.5 text-base font-bold tracking-[-0.02em] text-[var(--text-primary)]">
-            {salary || "—"}
-          </p>
+          {salary && (
+            <p className="mt-0.5 text-base font-bold tracking-[-0.02em] text-[var(--text-primary)]">
+              {salary}
+            </p>
+          )}
         </div>
-        
+
         {/* Match badge */}
         <div className="flex items-center gap-1.5 rounded-full border border-[var(--primary-border)] bg-[var(--primary-soft)] px-3 py-1.5">
           <span className="text-[10px] font-semibold text-[var(--primary)]">
@@ -91,8 +99,6 @@ export default function ReferralCard({
             </div>
           </div>
         </div>
-
-        
       </div>
     </div>
   );
