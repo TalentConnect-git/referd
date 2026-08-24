@@ -142,7 +142,7 @@ export default function JobDetailsPage() {
       router.push(`/login?redirect=/profile/${userId}`);
       return;
     }
-    router.push(`/profile/${userId}`);
+    router.push(`${role}/profile/${userId}`);
   };
 
   const handleMessage = () => {
@@ -153,7 +153,7 @@ export default function JobDetailsPage() {
       router.push(`/login?redirect=/messages/${userId}`);
       return;
     }
-    router.push(`/messages/${userId}`);
+    router.push(`${role}/messages/${userId}`);
   };
 
   const handleSave = () => {
