@@ -15,6 +15,7 @@ const navLinks = [
   { label: "Network", href: "/network" },
   { label: "How it works", href: "#how-it-works" },
   { label: "Blogs", href: "/blogs" },
+  {label: "Trending-jobs", href: "/trending-jobs"}
 ];
 
 // Theme toggle component using ThemeContext with error handling
