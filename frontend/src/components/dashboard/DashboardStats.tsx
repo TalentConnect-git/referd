@@ -604,23 +604,10 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
             })()
           )}
 
-          {/* Progress Bar */}
-          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--border)]">
-            <div 
-              className="h-full bg-[var(--primary)] transition-all duration-[4000ms] rounded-full"
-              style={{ width: isAutoPlaying ? '100%' : '0%' }}
-            />
-          </div>
+         
         </div>
 
-        {totalItems > 1 && (
-          <button 
-            onClick={() => router.push('/alumni/activity')}
-            className="w-full mt-2 text-center text-xs text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors py-1"
-          >
-            View all {totalItems} alumni activities →
-          </button>
-        )}
+       
       </div>
     );
   };
