@@ -12,6 +12,8 @@ import {
 import axiosInstance from "@/lib/axiosInstance";
 import { AlumniProfile } from "@/types/referrals";
 
+import axios from "axios";
+
 interface AskReferralModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -61,19 +63,19 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
       return;
     }
 
-    if (!token) {
-      setError("Please log in to search for referrals.");
-      return;
-    }
+    // if (!token) {
+    //   setError("Please log in to search for referrals.");
+    //   return;
+    // }
 
     try {
       setLoading(true);
       setError("");
-
-      const response = await axiosInstance.post(
-        "/api/company-jobs/career-page-referral",
-        { careerPageUrl: normalizedUrl },
-        { headers: { Authorization: `Bearer ${token}` } },
+      const backendurl=process.env.NEXT_PUBLIC_API_URL
+      const response = await axios.post(
+        `${backendurl}/api/company-jobs/career-page-referral`,
+        { careerPageUrl: normalizedUrl }
+        // { headers: { Authorization: `Bearer ${token}` } },
       );
 
       if (response.data.success) {
@@ -182,7 +184,6 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
                 <span className="badge">LinkedIn</span>
                 <span className="badge">Naukri</span>
                 <span className="badge">Unstop</span>
-                <span className="badge">Indeed</span>
                 <span className="badge">Wellfound</span>
                 <span className="badge">Greenhouse</span>
                 <span className="badge">Lever</span>
