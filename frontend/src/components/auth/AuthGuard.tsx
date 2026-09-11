@@ -1,7 +1,6 @@
 "use client";
 
 import { ReactNode, useEffect } from "react";
-
 import { usePathname, useRouter } from "next/navigation";
 
 import { useAuth } from "@/context/AuthContext";
@@ -16,8 +15,13 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   const router = useRouter();
   const pathname = usePathname();
 
+  // Public routes that don't require authentication
+  const publicRoutes = ["/referral-request"];
+
+  const isPublicRoute = publicRoutes.includes(pathname);
+
   useEffect(() => {
-    if (loading) {
+    if (loading || isPublicRoute) {
       return;
     }
 
@@ -26,7 +30,19 @@ export default function AuthGuard({ children }: AuthGuardProps) {
 
       router.replace(loginUrl);
     }
-  }, [loading, isAuthenticated, user, pathname, router]);
+  }, [
+    loading,
+    isAuthenticated,
+    user,
+    pathname,
+    router,
+    isPublicRoute,
+  ]);
+
+  // Public route doesn't need auth check
+  if (isPublicRoute) {
+    return <>{children}</>;
+  }
 
   /*
    * Wait until AuthContext has checked
