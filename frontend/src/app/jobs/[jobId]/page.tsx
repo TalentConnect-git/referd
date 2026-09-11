@@ -331,7 +331,7 @@ export default function JobDetailsPage() {
                 ))}
               </div>
 
-              Posted Date and Deadline Metadata
+              {/* Posted Date and Deadline Metadata */}
               <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[var(--text-subtle)]">
                 <div className="flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
