@@ -6,14 +6,14 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import axiosInstance from "@/lib/axiosInstance";
 import Link from "next/link";
-import { 
-  ArrowLeft, 
-  User, 
+import {
+  ArrowLeft,
+  User,
   GraduationCap,
-  MessageCircle, 
-  Briefcase, 
-  MapPin, 
-  Clock, 
+  MessageCircle,
+  Briefcase,
+  MapPin,
+  Clock,
   DollarSign,
   CheckCircle,
   Award,
@@ -55,7 +55,7 @@ interface JobDetails {
   eligibilityCriteria: string;
   status: string;
   matchScore: number;
-  views:string;
+  views: string;
   candidatePosted: {
     _id?: string;
     name: string;
@@ -72,6 +72,8 @@ interface JobDetails {
   };
   postedByUser: string;
   createdAt: string;
+  startDate?: string;
+  endDate?: string;
   updatedAt: string;
   metrics: {
     totalApplicationsReceived: number;
@@ -261,11 +263,10 @@ export default function JobDetailsPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={handleSave}
-              className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition-all ${
-                isSaved
+              className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition-all ${isSaved
                   ? 'border-[var(--primary)] bg-[var(--primary-soft)] text-[var(--primary)]'
                   : 'border-[var(--border)] bg-[var(--card)] text-[var(--text-secondary)] hover:border-[var(--primary)] hover:bg-[var(--primary-soft)] hover:text-[var(--primary)]'
-              }`}
+                }`}
             >
               <Bookmark className={`h-3.5 w-3.5 ${isSaved ? 'fill-[var(--primary)]' : ''}`} />
               {isSaved ? 'Saved' : 'Save'}
@@ -294,7 +295,7 @@ export default function JobDetailsPage() {
                   {jobDetails.matchScore || 0}% Match
                 </span>
               </div>
-              
+
               <div className="mt-2 flex flex-wrap items-center gap-3">
                 <span className="flex items-center gap-1.5 text-base font-medium text-[var(--text-secondary)]">
                   <Building2 className="h-4 w-4 text-[var(--primary)]" />
@@ -330,13 +331,23 @@ export default function JobDetailsPage() {
                 ))}
               </div>
 
-              {/* Posted Date */}
-              <div className="mt-3 flex items-center gap-1 text-xs text-[var(--text-subtle)]">
-                <Calendar className="h-3 w-3" />
-                Posted {formatDate(jobDetails.createdAt)}
-                <span className="mx-1">•</span>
-                <Eye className="h-3 w-3" />
-                {jobDetails?.views || 0} views
+              {/* Posted Date and Deadline Metadata */}
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[var(--text-subtle)]">
+                <div className="flex items-center gap-1">
+                  <Calendar className="h-3 w-3" />
+                  <span className="font-medium text-[var(--text-secondary)]">Posted on:</span>
+                  <span>{formatDate(jobDetails.createdAt || jobDetails.startDate || "")}</span>
+                </div>
+                <span className="mx-0.5">•</span>
+                <div className="flex items-center gap-1">
+                  <span className="font-medium text-[var(--text-secondary)]">Apply by:</span>
+                  <span>{jobDetails.endDate ? formatDate(jobDetails.endDate) : "Not specified"}</span>
+                </div>
+                <span className="mx-0.5">•</span>
+                <div className="flex items-center gap-1">
+                  <Eye className="h-3 w-3" />
+                  <span>{jobDetails?.views || 0} views</span>
+                </div>
               </div>
             </div>
 
@@ -394,7 +405,7 @@ export default function JobDetailsPage() {
                   </p>
                 </div>
               </div>
-              
+
               {/* Action Buttons */}
               <div className="flex gap-2">
                 <button

@@ -12,6 +12,16 @@ export interface ReferralJob {
 
   jobTitle: string[];
   location: string[];
+  candidatePosted?: {
+    _id?: string;
+    name?: string;
+    currentCompany?: string;
+    profileImage?: string;
+    userId?: string;
+  };
+  createdAt?: string;
+  startDate?: string;
+  endDate?: string;
 
   certifications: string[];
   selectionProcess: string[];
@@ -178,7 +188,7 @@ export interface ReferralPostingPayload {
   workMode: string[];
   employmentType: string[];
   description?: string;
-  degree?:string[];
+  degree?: string[];
   packageDetails: PackageDetails;
   skills: string[];
   experience?: string;
@@ -217,7 +227,7 @@ export interface ReferralPostingPayload {
   expireAt?: Date;
   inactive?: boolean;
   contactPerson?: ContactPerson;
-  
+
   stream?: string;
   [key: string]: any;
 }

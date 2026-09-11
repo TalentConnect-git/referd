@@ -1,10 +1,41 @@
 import { ReferralDetailsOverviewProps } from "@/types/referral";
 
+const formatDisplayDate = (value?: string) => {
+  if (!value) return "N/A";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+
+  return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
+
 export default function ReferralDetailsOverview({
   referral,
 }: ReferralDetailsOverviewProps) {
   return (
     <div className="space-y-3">
+      <div className="card rounded-lg border border-theme bg-card p-3">
+        <h2 className="mb-2 text-sm font-semibold text-primary">Job Details</h2>
+        <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-3">
+          <div className="rounded-md border border-theme bg-background-soft p-2.5">
+            <p className="text-[10px] uppercase tracking-wide text-muted">Start date</p>
+            <p className="mt-1 font-medium text-primary">
+              {formatDisplayDate(referral.startDate || referral.createdAt)}
+            </p>
+          </div>
+          <div className="rounded-md border border-theme bg-background-soft p-2.5">
+            <p className="text-[10px] uppercase tracking-wide text-muted">Apply by</p>
+            <p className="mt-1 font-medium text-primary">
+              {formatDisplayDate(referral.endDate)}
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* About Role */}
       <div className="card rounded-lg border border-theme bg-card p-3">
         <h2 className="mb-1 text-sm font-semibold text-primary">About the Role</h2>
