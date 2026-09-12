@@ -736,7 +736,7 @@ export default function ReferralCard({ onPostJob }: ReferralCardProps) {
                       min-w-0
                       flex-1
                       truncate
-                      text-[9px]
+                      text-[8px]
                       font-semibold
                       text-[var(--text-secondary)]
                     "
@@ -744,13 +744,7 @@ export default function ReferralCard({ onPostJob }: ReferralCardProps) {
                     Get rewarded when your referral gets hired.
                   </p>
 
-                  <ArrowRight
-                    size={10}
-                    className="
-                      shrink-0
-                      text-[var(--text-subtle)]
-                    "
-                  />
+                  
                 </div>
               </div>
             </div>

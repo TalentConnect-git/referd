@@ -182,7 +182,7 @@ export const AskReferralModal: React.FC<AskReferralModalProps> = ({
                   Supported:
                 </span>
                 <span className="badge">LinkedIn</span>
-                <span className="badge">Naukri</span>
+                
                 <span className="badge">Unstop</span>
                 <span className="badge">Wellfound</span>
                 <span className="badge">Greenhouse</span>
