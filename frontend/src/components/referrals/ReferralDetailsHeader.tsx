@@ -2,6 +2,7 @@
 
 import { ReferralJob, ReferralDetailsHeaderProps } from "@/types/referral";
 import { MapPin } from "lucide-react";
+import { getReferralDisplayStatus } from "@/utils/referralStatus";
 
 type ReferralDetailsTab = "candidates" | "overview";
 
@@ -13,10 +14,12 @@ export default function ReferralDetailsHeader({
   referral,
   setActiveTab,
 }: ReferralDetailsHeaderPropsWithTab) {
+  const status = getReferralDisplayStatus(referral);
+
   // Get location display
   const getLocation = () => {
     if (referral.location?.[0]) return referral.location[0];
-    
+
     return "Location not specified";
   };
 
@@ -30,7 +33,7 @@ export default function ReferralDetailsHeader({
   return (
     <div className="flex items-center justify-between gap-2 border-b border-divider pb-3 mb-3">
       <div className="min-w-0">
-        <h1 
+        <h1
           onClick={handleJobTitleClick}
           className="text-base font-bold text-primary truncate cursor-pointer hover:text-primary transition-colors duration-200"
         >
@@ -45,25 +48,32 @@ export default function ReferralDetailsHeader({
       <span
         className={`
           badge
-          rounded-full px-3 py-0.5 
+          h-8 min-w-[86px]
+          rounded-full px-3
           text-[11px] font-medium 
           border 
           transition-all duration-200
-          flex items-center gap-1.5
-          ${
-            referral.inactive
-              ? "border-theme text-muted bg-background-soft hover:bg-card-hover"
+          inline-flex items-center justify-center gap-1.5 text-center leading-none
+          ${status === "Closed"
+            ? "border-theme text-muted bg-background-soft hover:bg-card-hover"
+            : status === "Paused"
+              ? "border-warning/40 text-warning bg-warning-soft"
               : "badge-success hover:border-success/50"
           }
         `}
       >
         <span
           className={`
-            inline-block w-1.5 h-1.5 rounded-full
-            ${referral.inactive ? "bg-muted" : "bg-success animate-pulse"}
+            inline-block w-1.5 h-1.5 rounded-full shrink-0
+            ${status === "Closed"
+              ? "bg-muted"
+              : status === "Paused"
+                ? "bg-warning animate-pulse"
+                : "bg-success animate-pulse"
+            }
           `}
         />
-        {referral.inactive ? "Closed" : "Live"}
+        <span className="leading-none">{status}</span>
       </span>
     </div>
   );

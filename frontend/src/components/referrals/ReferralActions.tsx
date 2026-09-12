@@ -7,37 +7,62 @@ export default function ReferralActions({
   onPause,
   handleDelete,
   inactive,
+  status,
 }: ReferralActionsProps) {
+  const isClosed = status === "Closed";
+
   return (
     <div className="flex items-center justify-between border-t border-divider pt-4 mt-4">
-      {/* Left Side - Pause/Reactivate Button */}
       <div className="flex gap-3">
-        <button
-          onClick={onPause}
-          className="
-            btn-secondary
-            flex items-center gap-2
-            px-4 py-2 
-            rounded-lg 
-            border border-theme 
-            hover:bg-card-hover 
-            transition-all duration-200
-            hover:border-primary/30
-            text-sm font-medium
-          "
-        >
-          {inactive ? (
-            <>
-              <Play className="w-4 h-4 text-success" />
-              <span className="text-success">Reactivate</span>
-            </>
-          ) : (
-            <>
-              <Pause className="w-4 h-4 text-warning" />
-              <span className="text-warning">Pause</span>
-            </>
-          )}
-        </button>
+        {!isClosed && (
+          <button
+            onClick={onPause}
+            className="
+              btn-secondary
+              flex items-center gap-2
+              px-4 py-2 
+              rounded-lg 
+              border border-theme 
+              hover:bg-card-hover 
+              transition-all duration-200
+              hover:border-primary/30
+              text-sm font-medium
+            "
+          >
+            {inactive ? (
+              <>
+                <Play className="w-4 h-4 text-success" />
+                <span className="text-success">Reactivate</span>
+              </>
+            ) : (
+              <>
+                <Pause className="w-4 h-4 text-warning" />
+                <span className="text-warning">Pause</span>
+              </>
+            )}
+          </button>
+        )}
+
+        {isClosed && (
+          <button
+            onClick={onPause}
+            className="
+              btn-secondary
+              flex items-center gap-2
+              px-4 py-2 
+              rounded-lg 
+              border border-success/20 
+              hover:bg-success-soft 
+              transition-all duration-200
+              hover:border-success/40
+              text-sm font-medium
+              text-success
+            "
+          >
+            <Play className="w-4 h-4 text-success" />
+            <span className="text-success">Reactivate</span>
+          </button>
+        )}
 
         <button
           onClick={handleDelete}
@@ -59,7 +84,6 @@ export default function ReferralActions({
           Delete Referral
         </button>
       </div>
-      {/* Right Side - Delete Button */}
     </div>
   );
 }

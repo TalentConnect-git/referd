@@ -88,6 +88,7 @@ export interface ReferralActionsProps {
   onPause?: () => void;
   handleDelete?: () => void;
   inactive: boolean;
+  status?: "Live" | "Paused" | "Closed";
 }
 export interface ReferralDetailsProps {
   referral: ReferralJob;
