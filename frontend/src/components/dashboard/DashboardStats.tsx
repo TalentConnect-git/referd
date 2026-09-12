@@ -10,9 +10,9 @@ import axiosInstance from "@/lib/axiosInstance";
 import { DashboardStatsProps } from "@/types/dashboard";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { 
-  UserPlus, 
-  Users, 
+import {
+  UserPlus,
+  Users,
   ChevronRight,
   Briefcase,
   Star,
@@ -25,7 +25,7 @@ import {
   Sparkles,
   Building2,
   Zap,
-  Eye
+  Eye,
 } from "lucide-react";
 
 // Lazy load child components
@@ -37,7 +37,6 @@ const QuickActionChips = lazy(() => import("./QuickActionChips"));
 // SKELETON LOADING COMPONENTS
 // ==========================================
 
-// Professional stats skeleton
 const ProfStatsSkeleton = () => (
   <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
     {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -58,7 +57,6 @@ const ProfStatsSkeleton = () => (
   </div>
 );
 
-// Student stats skeleton
 const StudStatsSkeleton = () => (
   <div className="space-y-4">
     <div className="flex flex-wrap gap-2">
@@ -86,7 +84,6 @@ const StudStatsSkeleton = () => (
   </div>
 );
 
-// Main loading skeleton
 const MainSkeleton = () => (
   <div className="flex flex-wrap gap-4">
     {[1, 2, 3, 4, 5, 6].map((item) => (
@@ -98,7 +95,6 @@ const MainSkeleton = () => (
   </div>
 );
 
-// Alumni Section Skeleton
 const AlumniSectionSkeleton = () => (
   <div className="card p-4">
     <div className="flex items-center justify-between mb-3">
@@ -127,7 +123,11 @@ interface StaggeredSuspenseProps {
   delay?: number;
 }
 
-const StaggeredSuspense = ({ children, fallback, delay = 0 }: StaggeredSuspenseProps) => {
+const StaggeredSuspense = ({
+  children,
+  fallback,
+  delay = 0,
+}: StaggeredSuspenseProps) => {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -166,9 +166,9 @@ interface AlumniReferredStatus {
   message: string;
 }
 
-type SliderItem = 
-  | (AlumniPostedJob & { type: 'posted' })
-  | (AlumniReferredStatus & { type: 'referred' });
+type SliderItem =
+  | (AlumniPostedJob & { type: "posted" })
+  | (AlumniReferredStatus & { type: "referred" });
 
 // ==========================================
 // MAIN COMPONENT
@@ -177,7 +177,7 @@ type SliderItem =
 export default function DashboardStats({ userType }: DashboardStatsProps) {
   const router = useRouter();
   const { user, role } = useAuth();
-  
+
   // Professional Stats
   const [totalReferralsPosted, setTotalReferralsPosted] = useState(0);
   const [totalApplicationsReceived, setTotalApplicationsReceived] = useState(0);
@@ -195,7 +195,9 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
 
   // Alumni Jobs Data
   const [alumniPostedJobs, setAlumniPostedJobs] = useState<AlumniPostedJob[]>([]);
-  const [alumniReferredStatus, setAlumniReferredStatus] = useState<AlumniReferredStatus[]>([]);
+  const [alumniReferredStatus, setAlumniReferredStatus] = useState<
+    AlumniReferredStatus[]
+  >([]);
   const [alumniJobsLoading, setAlumniJobsLoading] = useState(true);
 
   // Slider state
@@ -203,22 +205,35 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Swipe states
+  const [dragStartX, setDragStartX] = useState<number | null>(null);
+  const [dragDeltaX, setDragDeltaX] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const sliderRef = useRef<HTMLDivElement | null>(null);
+
   const [loading, setLoading] = useState(true);
 
-  // Auto-play for slider
+  const totalSliderItems =
+    alumniPostedJobs.length + alumniReferredStatus.length;
+
+  // Auto-play for slider (3.5s)
   useEffect(() => {
-    const totalItems = alumniPostedJobs.length + alumniReferredStatus.length;
-    if (totalItems > 0 && isAutoPlaying) {
+    if (totalSliderItems > 0 && isAutoPlaying && !isDragging) {
       autoPlayRef.current = setInterval(() => {
-        setCurrentIndex((prev) => (prev + 1) % totalItems);
-      }, 4000);
+        setCurrentIndex((prev) => (prev + 1) % totalSliderItems);
+      }, 3500);
     }
     return () => {
-      if (autoPlayRef.current) {
-        clearInterval(autoPlayRef.current);
-      }
+      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
     };
-  }, [alumniPostedJobs.length, alumniReferredStatus.length, isAutoPlaying]);
+  }, [totalSliderItems, isAutoPlaying, isDragging]);
+
+  // Reset index if items shrink
+  useEffect(() => {
+    if (currentIndex >= totalSliderItems && totalSliderItems > 0) {
+      setCurrentIndex(0);
+    }
+  }, [totalSliderItems, currentIndex]);
 
   // Helper function to safely get count from API response
   const getCountFromResponse = (response: CountResponse): number => {
@@ -245,32 +260,32 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
     }
   }, []);
 
-  // Fetch alumni posted jobs from /jobs/alumni-posted
+  // Fetch alumni posted jobs
   const fetchAlumniPostedJobs = useCallback(async () => {
     try {
-      const response = await axiosInstance.get('/jobs/alumni-posted');
+      const response = await axiosInstance.get("/jobs/alumni-posted");
       if (response.data.success && response.data.data) {
         setAlumniPostedJobs(response.data.data);
       } else {
         setAlumniPostedJobs([]);
       }
     } catch (error) {
-      console.error('Error fetching alumni posted jobs:', error);
+      console.error("Error fetching alumni posted jobs:", error);
       setAlumniPostedJobs([]);
     }
   }, []);
 
-  // Fetch alumni referred status from /application/alumni-referred
+  // Fetch alumni referred status
   const fetchAlumniReferredStatus = useCallback(async () => {
     try {
-      const response = await axiosInstance.get('/application/alumni-referred');
+      const response = await axiosInstance.get("/application/alumni-referred");
       if (response.data.success && response.data.data) {
         setAlumniReferredStatus(response.data.data);
       } else {
         setAlumniReferredStatus([]);
       }
     } catch (error) {
-      console.error('Error fetching alumni referred status:', error);
+      console.error("Error fetching alumni referred status:", error);
       setAlumniReferredStatus([]);
     }
   }, []);
@@ -279,12 +294,9 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
   const fetchAlumniJobsData = useCallback(async () => {
     try {
       setAlumniJobsLoading(true);
-      await Promise.all([
-        fetchAlumniPostedJobs(),
-        fetchAlumniReferredStatus()
-      ]);
+      await Promise.all([fetchAlumniPostedJobs(), fetchAlumniReferredStatus()]);
     } catch (error) {
-      console.error('Error fetching alumni jobs data:', error);
+      console.error("Error fetching alumni jobs data:", error);
     } finally {
       setAlumniJobsLoading(false);
     }
@@ -358,21 +370,20 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
     }
   }, [fetchDashboardStats, userType]);
 
-  // Handle job click - redirect to role-based job page (for posted jobs)
+  // Handle job click
   const handleJobClick = (jobId: string) => {
     if (!user) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
-    
     const matchScore = Math.floor(Math.random() * 40) + 60;
     router.push(`/${role}/jobs/referral-jobs/${jobId}?matchScore=${matchScore}`);
   };
 
-  // Handle view for referred status - redirect to alumni profile
+  // Handle referred view
   const handleReferredViewClick = (alumniId: string) => {
     if (!user) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
     router.push(`/${role}/profile/${alumniId}`);
@@ -381,7 +392,7 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
   // Handle alumni click
   const handleAlumniClick = (alumniId: string) => {
     if (!user) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
     router.push(`/${role}/profile/${alumniId}`);
@@ -394,84 +405,130 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
       return {
         name: match[1].trim(),
         organization: match[2].trim(),
-        jobRole: match[3].trim()
+        jobRole: match[3].trim(),
       };
     }
     return {
-      name: 'Alumni',
-      organization: 'Organization',
-      jobRole: 'position'
+      name: "Alumni",
+      organization: "Organization",
+      jobRole: "position",
     };
   };
 
-  // Extract referral info from message for referred status
+  // Extract referral info from message
   const extractReferralInfo = (message: string) => {
-    const match = message.match(/^([^(]+)\s*\(([^)]+)\)\s*got referred to\s*(.+?)\s*@(.+)/);
+    const match = message.match(
+      /^([^(]+)\s*\(([^)]+)\)\s*got referred to\s*(.+?)\s*@(.+)/
+    );
     if (match) {
       return {
         name: match[1].trim(),
         organization: match[2].trim(),
         jobRole: match[3].trim(),
-        company: match[4].trim()
+        company: match[4].trim(),
       };
     }
     return {
-      name: 'Alumni',
-      organization: 'Organization',
-      jobRole: 'position',
-      company: 'Company'
+      name: "Alumni",
+      organization: "Organization",
+      jobRole: "position",
+      company: "Company",
     };
   };
 
   // Get status color
   const getStatusColor = (status: string) => {
     const statusMap: Record<string, string> = {
-      'shortlisted': 'badge-info',
-      'referred to company': 'badge-info',
-      'interview scheduled': 'badge-warning',
-      'offer extended': 'badge-success',
-      'offer accepted': 'badge-primary',
-      'rejected': 'badge-danger',
-      'pending': 'badge-warning'
+      shortlisted: "badge-info",
+      "referred to company": "badge-info",
+      "interview scheduled": "badge-warning",
+      "offer extended": "badge-success",
+      "offer accepted": "badge-primary",
+      rejected: "badge-danger",
+      pending: "badge-warning",
     };
-    return statusMap[status.toLowerCase()] || 'badge';
+    return statusMap[status.toLowerCase()] || "badge";
   };
 
   // Get status icon
   const getStatusIcon = (status: string) => {
     const statusMap: Record<string, any> = {
-      'shortlisted': Users,
-      'referred to company': Users,
-      'interview scheduled': Calendar,
-      'offer extended': Award,
-      'offer accepted': CheckCircle,
-      'rejected': Clock,
-      'pending': Clock
+      shortlisted: Users,
+      "referred to company": Users,
+      "interview scheduled": Calendar,
+      "offer extended": Award,
+      "offer accepted": CheckCircle,
+      rejected: Clock,
+      pending: Clock,
     };
     return statusMap[status.toLowerCase()] || Clock;
   };
 
-  // Render Alumni Sections with Motion Slider
+  // ===== Swipe handlers =====
+  const handleDragStart = (clientX: number) => {
+    setDragStartX(clientX);
+    setIsDragging(true);
+    setDragDeltaX(0);
+  };
+
+  const handleDragMove = (clientX: number) => {
+    if (dragStartX === null) return;
+    setDragDeltaX(clientX - dragStartX);
+  };
+
+  const handleDragEnd = () => {
+    const threshold = 60; // px
+    if (totalSliderItems > 0) {
+      if (dragDeltaX < -threshold) {
+        // swipe left → next
+        setCurrentIndex((prev) => (prev + 1) % totalSliderItems);
+      } else if (dragDeltaX > threshold) {
+        // swipe right → prev
+        setCurrentIndex(
+          (prev) => (prev - 1 + totalSliderItems) % totalSliderItems
+        );
+      }
+    }
+    setDragStartX(null);
+    setDragDeltaX(0);
+    setIsDragging(false);
+  };
+
+  const goToNext = () => {
+    if (totalSliderItems === 0) return;
+    setCurrentIndex((prev) => (prev + 1) % totalSliderItems);
+  };
+
+  const goToPrev = () => {
+    if (totalSliderItems === 0) return;
+    setCurrentIndex(
+      (prev) => (prev - 1 + totalSliderItems) % totalSliderItems
+    );
+  };
+
+  // Render Alumni Sections with Professional Swipe Slider
   const renderAlumniSections = () => {
     if (alumniJobsLoading) {
       return <AlumniSectionSkeleton />;
     }
 
     const totalItems = alumniPostedJobs.length + alumniReferredStatus.length;
-    if (totalItems === 0) {
-      return null;
-    }
+    if (totalItems === 0) return null;
 
-    // Combine both lists for slider
     const allItems: SliderItem[] = [
-      ...alumniPostedJobs.map(item => ({ ...item, type: 'posted' as const })),
-      ...alumniReferredStatus.map(item => ({ ...item, type: 'referred' as const }))
+      ...alumniPostedJobs.map((item) => ({ ...item, type: "posted" as const })),
+      ...alumniReferredStatus.map((item) => ({
+        ...item,
+        type: "referred" as const,
+      })),
     ];
 
-    const currentItem = allItems[currentIndex % allItems.length];
+    const activeIndex = currentIndex % allItems.length;
+    const dragOffset = isDragging ? dragDeltaX : 0;
 
     return (
       <div className="card p-4 mt-4">
+        {/* ===== Header ===== */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2.5">
             <div className="p-1.5 rounded-lg bg-[var(--primary-soft)]">
@@ -484,130 +541,227 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
               {totalItems}
             </span>
           </div>
+
           <div className="flex items-center gap-2">
+            {/* Pause / Play toggle */}
             <button
-              onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+              onClick={() => setIsAutoPlaying((p) => !p)}
               className="p-1 rounded hover:bg-[var(--card-hover)] transition-colors"
+              aria-label={isAutoPlaying ? "Pause" : "Play"}
             >
-              <div className={`w-1.5 h-1.5 rounded-full ${isAutoPlaying ? 'bg-[var(--primary)]' : 'bg-[var(--text-muted)]'}`} />
+              <div
+                className={`w-1.5 h-1.5 rounded-full ${
+                  isAutoPlaying
+                    ? "bg-[var(--primary)]"
+                    : "bg-[var(--text-muted)]"
+                }`}
+              />
             </button>
-            <div className="flex gap-1">
+
+            {/* Prev / Next buttons */}
+            <button
+              onClick={goToPrev}
+              className="p-1 rounded hover:bg-[var(--card-hover)] transition-colors text-[var(--text-muted)] hover:text-[var(--primary)]"
+              aria-label="Previous"
+            >
+              <ChevronRight className="w-4 h-4 rotate-180" />
+            </button>
+            <button
+              onClick={goToNext}
+              className="p-1 rounded hover:bg-[var(--card-hover)] transition-colors text-[var(--text-muted)] hover:text-[var(--primary)]"
+              aria-label="Next"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+
+            {/* Dots */}
+            <div className="flex gap-1 ml-1">
               {allItems.slice(0, 5).map((_, idx) => (
                 <button
                   key={idx}
                   onClick={() => setCurrentIndex(idx)}
                   className={`h-1 rounded-full transition-all duration-300 ${
-                    idx === currentIndex % 5 
-                      ? 'w-4 bg-[var(--primary)]' 
-                      : 'w-1.5 bg-[var(--text-muted)] hover:bg-[var(--primary)]/50'
+                    idx === activeIndex % 5
+                      ? "w-4 bg-[var(--primary)]"
+                      : "w-1.5 bg-[var(--text-muted)] hover:bg-[var(--primary)]/50"
                   }`}
+                  aria-label={`Go to slide ${idx + 1}`}
                 />
               ))}
             </div>
           </div>
         </div>
 
-        {/* Slider Item */}
-        <div 
-          className="p-3 rounded-lg bg-[var(--background-soft)] hover:bg-[var(--card-hover)] transition-colors cursor-pointer border border-[var(--border)] relative overflow-hidden min-h-[72px] flex items-center"
-          onClick={() => {
-            if (currentItem.type === 'posted') {
-              handleJobClick(currentItem.jobId);
-            } else {
-              handleReferredViewClick(currentItem.alumniId);
-            }
-          }}
+        {/* ===== Swipeable Slider ===== */}
+        <div
+          ref={sliderRef}
+          className="relative overflow-hidden rounded-lg select-none"
           onMouseEnter={() => setIsAutoPlaying(false)}
-          onMouseLeave={() => setIsAutoPlaying(true)}
+          onMouseLeave={() => {
+            setIsAutoPlaying(true);
+            if (isDragging) handleDragEnd();
+          }}
+          onTouchStart={(e) => handleDragStart(e.touches[0].clientX)}
+          onTouchMove={(e) => handleDragMove(e.touches[0].clientX)}
+          onTouchEnd={handleDragEnd}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            handleDragStart(e.clientX);
+          }}
+          onMouseMove={(e) => isDragging && handleDragMove(e.clientX)}
+          onMouseUp={handleDragEnd}
         >
-          {currentItem.type === 'posted' ? (
-            // Alumni Posted Job - View redirects to job page
-            (() => {
-              const info = extractAlumniInfo(currentItem.message);
-              return (
-                <div className="flex items-center gap-3 w-full">
-                  <div className="flex-shrink-0">
-                    <div className="w-9 h-9 rounded-full bg-[var(--primary-soft)] flex items-center justify-center">
-                      <UserPlus className="w-4 h-4 text-[var(--primary)]" />
-                    </div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                      <span className="font-semibold text-[var(--text-primary)]">{info.name}</span>
-                      <span className="text-[var(--text-muted)]"> ({info.organization})</span>
-                      <span className="text-[var(--text-secondary)]"> posted </span>
-                      <span className="font-medium text-[var(--primary)]">{info.jobRole}</span>
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <button 
-                      className="btn-primary text-xs px-3 py-1 min-h-[1.75rem] flex items-center gap-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleJobClick(currentItem.jobId);
-                      }}
-                    >
-                      View
-                    </button>
-                  </div>
-                  <div className="flex-shrink-0">
-                    <div className="w-2 h-2 rounded-full bg-[var(--primary)] animate-pulse" />
-                  </div>
+          <div
+            className={`flex ${
+              isDragging ? "" : "transition-transform duration-500 ease-out"
+            }`}
+            style={{
+              transform: `translateX(calc(-${activeIndex * 100}% + ${dragOffset}px))`,
+            }}
+          >
+            {allItems.map((item, idx) => (
+              <div
+                key={`${item.type}-${idx}`}
+                className="w-full flex-shrink-0 px-0.5"
+              >
+                <div
+                  className="p-3 rounded-lg bg-[var(--background-soft)] hover:bg-[var(--card-hover)] transition-colors cursor-pointer border border-[var(--border)] relative overflow-hidden min-h-[72px] flex items-center"
+                  onClick={() => {
+                    if (isDragging) return;
+                    if (item.type === "posted") {
+                      handleJobClick(item.jobId);
+                    } else {
+                      handleReferredViewClick(item.alumniId);
+                    }
+                  }}
+                >
+                  {item.type === "posted" ? (
+                    (() => {
+                      const info = extractAlumniInfo(item.message);
+                      return (
+                        <div className="flex items-center gap-3 w-full">
+                          <div className="flex-shrink-0">
+                            <div className="w-9 h-9 rounded-full bg-[var(--primary-soft)] flex items-center justify-center">
+                              <UserPlus className="w-4 h-4 text-[var(--primary)]" />
+                            </div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                              <span className="font-semibold text-[var(--text-primary)]">
+                                {info.name}
+                              </span>
+                              <span className="text-[var(--text-muted)]">
+                                {" "}
+                                ({info.organization})
+                              </span>
+                              <span className="text-[var(--text-secondary)]">
+                                {" "}
+                                posted{" "}
+                              </span>
+                              <span className="font-medium text-[var(--primary)]">
+                                {info.jobRole}
+                              </span>
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <button
+                              className="btn-primary text-xs px-3 py-1 min-h-[1.75rem] flex items-center gap-1"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleJobClick(item.jobId);
+                              }}
+                            >
+                              View
+                            </button>
+                          </div>
+                          <div className="flex-shrink-0">
+                            <div className="w-2 h-2 rounded-full bg-[var(--primary)] animate-pulse" />
+                          </div>
+                        </div>
+                      );
+                    })()
+                  ) : (
+                    (() => {
+                      const info = extractReferralInfo(item.message);
+                      const StatusIcon = getStatusIcon(item.currentStatus);
+                      const statusColor = getStatusColor(item.currentStatus);
+                      return (
+                        <div className="flex items-center gap-3 w-full">
+                          <div className="flex-shrink-0">
+                            <div className="w-9 h-9 rounded-full bg-[var(--primary-soft)] flex items-center justify-center">
+                              <Zap className="w-4 h-4 text-[var(--primary)]" />
+                            </div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                              <span className="font-semibold text-[var(--text-primary)]">
+                                {info.name}
+                              </span>
+                              <span className="text-[var(--text-muted)]">
+                                {" "}
+                                ({info.organization})
+                              </span>
+                              <span className="text-[var(--text-secondary)]">
+                                {" "}
+                                →{" "}
+                              </span>
+                              <span className="font-medium text-[var(--primary)]">
+                                {info.jobRole}
+                              </span>
+                              <span className="text-[var(--text-secondary)]">
+                                {" "}
+                                @{" "}
+                              </span>
+                              <span className="font-medium text-[var(--text-primary)]">
+                                {info.company}
+                              </span>
+                            </p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span
+                                className={`badge ${statusColor} text-[10px] px-2 py-0.5 flex items-center gap-1`}
+                              >
+                                <StatusIcon className="w-3 h-3" />
+                                {item.currentStatus}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <button
+                              className="btn-primary text-xs px-3 py-1 min-h-[1.75rem] flex items-center gap-1"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleReferredViewClick(item.alumniId);
+                              }}
+                            >
+                              View
+                            </button>
+                          </div>
+                          <div className="flex-shrink-0">
+                            <div className="w-2 h-2 rounded-full bg-[var(--primary)] animate-pulse" />
+                          </div>
+                        </div>
+                      );
+                    })()
+                  )}
                 </div>
-              );
-            })()
-          ) : (
-            // Alumni Referred Status - View redirects to alumni profile
-            (() => {
-              const info = extractReferralInfo(currentItem.message);
-              const StatusIcon = getStatusIcon(currentItem.currentStatus);
-              const statusColor = getStatusColor(currentItem.currentStatus);
-              return (
-                <div className="flex items-center gap-3 w-full">
-                  <div className="flex-shrink-0">
-                    <div className="w-9 h-9 rounded-full bg-[var(--primary-soft)] flex items-center justify-center">
-                      <Zap className="w-4 h-4 text-[var(--primary)]" />
-                    </div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                      <span className="font-semibold text-[var(--text-primary)]">{info.name}</span>
-                      <span className="text-[var(--text-muted)]"> ({info.organization})</span>
-                      <span className="text-[var(--text-secondary)]"> → </span>
-                      <span className="font-medium text-[var(--primary)]">{info.jobRole}</span>
-                      <span className="text-[var(--text-secondary)]"> @ </span>
-                      <span className="font-medium text-[var(--text-primary)]">{info.company}</span>
-                    </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className={`badge ${statusColor} text-[10px] px-2 py-0.5 flex items-center gap-1`}>
-                        <StatusIcon className="w-3 h-3" />
-                        {currentItem.currentStatus}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <button 
-                      className="btn-primary text-xs px-3 py-1 min-h-[1.75rem] flex items-center gap-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleReferredViewClick(currentItem.alumniId);
-                      }}
-                    >
-                      View
-                    </button>
-                  </div>
-                  <div className="flex-shrink-0">
-                    <div className="w-2 h-2 rounded-full bg-[var(--primary)] animate-pulse" />
-                  </div>
-                </div>
-              );
-            })()
-          )}
-
-         
+              </div>
+            ))}
+          </div>
         </div>
 
-       
+        {/* ===== Progress bar (auto-play indicator) ===== */}
+        <div className="mt-3 h-0.5 w-full bg-[var(--background-soft)] rounded-full overflow-hidden">
+          <div
+            key={`${activeIndex}-${isAutoPlaying}`}
+            className="h-full bg-[var(--primary)] rounded-full"
+            style={{
+              animation: isAutoPlaying
+                ? "alumniProgress 3.5s linear forwards"
+                : "none",
+              width: isAutoPlaying ? "100%" : "0%",
+            }}
+          />
+        </div>
       </div>
     );
   };
@@ -632,7 +786,7 @@ export default function DashboardStats({ userType }: DashboardStatsProps) {
             userType={userType}
           />
         </StaggeredSuspense>
-        
+
         {/* Alumni Sections with Motion Slider */}
         {renderAlumniSections()}
       </>
