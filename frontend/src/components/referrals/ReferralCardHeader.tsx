@@ -2,11 +2,13 @@ import { ReferralJob, ReferralCardHeaderProps } from '@/types/referral';
 import { MapPin, ExternalLink, X } from 'lucide-react';
 import { useState } from 'react';
 import ReferralDetailsOverview from './ReferralDetailsOverview';
+import { getReferralDisplayStatus } from '@/utils/referralStatus';
 
 export default function ReferralCardHeader({
   referral,
 }: ReferralCardHeaderProps) {
   const [isOverviewModalOpen, setIsOverviewModalOpen] = useState(false);
+  const status = getReferralDisplayStatus(referral);
 
   // Get initials from job title
   const getInitials = (title: string) => {
@@ -22,19 +24,17 @@ export default function ReferralCardHeader({
   // Get location display
   const getLocation = () => {
     if (referral.location?.[0]) return referral.location[0];
-    
+
     return 'Remote';
   };
 
   const handleJobTitleClick = () => {
-    if (!referral.inactive) {
-      setIsOverviewModalOpen(true);
-    }
+    setIsOverviewModalOpen(true);
   };
 
   return (
     <>
-      <div className="flex items-start justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div className="flex gap-3">
           {/* Enhanced Avatar */}
           <div className={`
@@ -42,8 +42,8 @@ export default function ReferralCardHeader({
             flex items-center justify-center 
             text-lg font-bold
             transition-all duration-300
-            ${referral.inactive 
-              ? 'bg-background-soft/50 text-muted border border-theme/50' 
+            ${status !== 'Live'
+              ? 'bg-background-soft/50 text-muted border border-theme/50'
               : 'bg-primary-soft text-primary border border-primary/20 hover:scale-105'
             }
           `}>
@@ -54,21 +54,15 @@ export default function ReferralCardHeader({
           <div className="space-y-0.5">
             <button
               onClick={handleJobTitleClick}
-              disabled={referral.inactive}
               className={`
                 text-md font-semibold 
                 transition-all duration-200
                 flex items-center gap-2
-                ${referral.inactive 
-                  ? 'text-muted cursor-not-allowed' 
-                  : 'text-primary hover:text-primary group'
-                }
+                text-primary hover:text-primary group
               `}
             >
               {referral.jobTitle?.[0] || 'Untitled Position'}
-              {!referral.inactive && (
-                <ExternalLink className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-primary" />
-              )}
+              <ExternalLink className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-primary" />
             </button>
 
             <div className="flex items-center gap-1.5">
@@ -81,41 +75,46 @@ export default function ReferralCardHeader({
         </div>
 
         {/* Status Badge */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 self-center">
           <span
             className={`
               badge
-              rounded-full px-3 py-0.5 
+              h-8 min-w-[86px]
+              rounded-full px-3
               text-[11px] font-medium 
               border 
               transition-all duration-200
-              flex items-center gap-1.5
-              ${referral.inactive
+              inline-flex items-center justify-center gap-1.5 text-center leading-none
+              ${status === 'Closed'
                 ? 'border-theme text-muted bg-background-soft hover:bg-card-hover'
-                : 'badge-success hover:border-success/50'
+                : status === 'Paused'
+                  ? 'border-warning/40 text-warning bg-warning-soft'
+                  : 'badge-success hover:border-success/50'
               }
             `}
           >
             {/* Status Dot */}
             <span className={`
-              inline-block w-1.5 h-1.5 rounded-full
-              ${referral.inactive 
-                ? 'bg-muted' 
-                : 'bg-success animate-pulse'
+              inline-block w-1.5 h-1.5 rounded-full shrink-0
+              ${status === 'Closed'
+                ? 'bg-muted'
+                : status === 'Paused'
+                  ? 'bg-warning animate-pulse'
+                  : 'bg-success animate-pulse'
               }
             `} />
-            {referral.inactive ? 'Closed' : 'Live'}
+            <span className="leading-none">{status}</span>
           </span>
         </div>
       </div>
 
       {/* Overview Modal */}
       {isOverviewModalOpen && (
-        <div 
+        <div
           className="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-overlay backdrop-blur-sm p-4"
           onClick={() => setIsOverviewModalOpen(false)}
         >
-          <div 
+          <div
             className="modal-content relative w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-theme rounded-2xl shadow-xl bg-card"
             onClick={(e) => e.stopPropagation()}
           >

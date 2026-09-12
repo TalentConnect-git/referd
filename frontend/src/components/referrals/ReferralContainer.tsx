@@ -11,19 +11,20 @@ import ReferralDetails from "./ReferralDetails";
 import { deleteReferral, pauseReferral, reactivateReferral } from "@/services/referral.service";
 import toast from "react-hot-toast";
 import { Loader2, Inbox, RefreshCw, BarChart3 } from "lucide-react";
+import { getReferralDisplayStatus } from "@/utils/referralStatus";
 
 export default function ReferralContainer() {
   const [referrals, setReferrals] = useState<ReferralJob[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  
+
   const [meta, setMeta] = useState({
     totalPages: 1,
     hasNext: false,
     hasPrev: false,
   });
   const [selectedReferral, setSelectedReferral] = useState<ReferralJob | null>(null);
-  
+
   const [showResumeModal, setShowResumeModal] = useState(false);
   const [resumeReferralJob, setResumeReferralJob] = useState<ReferralJob | null>(null);
 
@@ -32,7 +33,7 @@ export default function ReferralContainer() {
       setLoading(true);
 
       const response = await getMyReferrals(page, 10);
-      
+
       setReferrals(response.data || []);
 
       setMeta({
@@ -184,7 +185,7 @@ export default function ReferralContainer() {
                   <div>
                     <p className="text-[10px] text-muted font-medium uppercase tracking-wider">Active</p>
                     <p className="text-xl font-bold text-success mt-0.5">
-                      {referrals.filter(r => !r.inactive).length}
+                      {referrals.filter(r => getReferralDisplayStatus(r) === "Paused").length}
                     </p>
                   </div>
                   <div className="w-8 h-8 rounded-lg bg-success-soft flex items-center justify-center">
