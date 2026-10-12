@@ -225,7 +225,7 @@ export default function BasicJobDetails({
 
       if (!extracted && !jobId) {
         setExtractionMessage("Job not found in cache. Starting extraction...");
-        const startResponse = await axios.post(
+        const startResponse = await  axiosInstance.post(
           `${API_URL}/api/job-extraction/extract-from-url`,
           { url },
           { headers: { "Content-Type": "application/json" } },
@@ -252,7 +252,7 @@ export default function BasicJobDetails({
         // Poll for up to 2 minutes (30 attempts, 4 seconds apart).
         for (let attempt = 0; attempt < 30; attempt += 1) {
           if (attempt > 0) await sleep(4000);
-          const statusResponse = await axios.get(
+          const statusResponse = await  axiosInstance.get(
             `${API_URL}/api/job-extraction/${encodeURIComponent(jobId)}/status`,
           );
           const statusBody = statusResponse.data;
