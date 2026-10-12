@@ -235,7 +235,9 @@ export interface ReferralPostingPayload {
 
 export interface BasicJobDetailsProps {
   formData: ReferralPostingPayload;
-  setFormData: (data: ReferralPostingPayload) => void;
+ setFormData: React.Dispatch<
+  React.SetStateAction<ReferralPostingPayload>
+>;
   onNext: () => void;
 }
 
