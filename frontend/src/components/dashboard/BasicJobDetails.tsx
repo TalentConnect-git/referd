@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
 import {
   BookOpen,
   Briefcase,
@@ -162,298 +161,361 @@ export default function BasicJobDetails({
   const [isExtractingJob, setIsExtractingJob] = useState(false);
   const [extractionMessage, setExtractionMessage] = useState("");
 
-  const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
   const handleAutoFillJob = async () => {
     const url = jobUrl.trim();
+
     if (!url) {
       setExtractionMessage("Please enter a job posting URL.");
       return;
     }
 
     try {
-      new URL(url);
+      const parsedUrl = new URL(url);
+
+      if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+        throw new Error("Only HTTP and HTTPS URLs are supported.");
+      }
     } catch {
       setExtractionMessage("Please enter a valid URL, including https://.");
       return;
     }
 
-    // Wait until the authenticated user's company is loaded; otherwise the mismatch
-    // check can be skipped if extraction finishes before the profile request.
     if (loadingProfile) {
-      setExtractionMessage("Please wait while we load your profile and current company.");
+      setExtractionMessage(
+        "Please wait while we load your profile and current company.",
+      );
       return;
     }
+
     if (!currentCompany.trim()) {
-      setExtractionMessage("Your current company could not be verified. Please add it to your profile before extracting a job.");
+      setExtractionMessage(
+        "Your current company could not be verified. Please add it to your profile first.",
+      );
       return;
     }
 
     setCompanyMismatch(null);
     setShowCompanyMismatch(false);
     setIsExtractingJob(true);
-    setExtractionMessage("Starting job extraction...");
+    setExtractionMessage("Extracting job details. Please wait...");
 
     try {
-      let extracted: any = null;
-      let jobId: string | undefined;
+      // One synchronous API call; no cache lookup and no polling.
+      const response = await axiosInstance.post(
+        "/api/job-extraction/extract-from-url",
+        { url },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          timeout: 180000,
+        },
+      );
 
-      // Cache-first: try the URL lookup GET endpoint first. If the backend has
-      // no GET-by-URL route or the URL is not cached, fall back to POST.
-      try {
-        const cacheResponse = await axios.get(
-          `${API_URL}/api/job-extraction/extract-from-url`,
-          { params: { url } },
-        );
-        const cacheBody = cacheResponse.data;
-        jobId = cacheBody?.jobId ?? cacheBody?.data?.jobId ?? cacheBody?.data?.id ?? cacheBody?.id;
-        const cacheStatus = String(cacheBody?.status ?? cacheBody?.data?.status ?? "").toLowerCase();
-        const possibleCachedData = cacheBody?.data?.data ?? cacheBody?.data?.job ?? cacheBody?.data;
-        if (
-          possibleCachedData && typeof possibleCachedData === "object" &&
-          (cacheStatus === "completed" || cacheStatus === "complete" || cacheStatus === "success" ||
-            (possibleCachedData.title && !jobId))
-        ) {
-          extracted = possibleCachedData;
-        }
-      } catch (cacheError: any) {
-        // 404/405 is expected if GET-by-URL cache lookup is not implemented yet.
-        if (![404, 405].includes(cacheError?.response?.status)) {
-          console.warn("Job extraction cache lookup failed; starting extraction instead.", cacheError);
-        }
-      }
+      const body = response.data;
 
-      if (!extracted && !jobId) {
-        setExtractionMessage("Job not found in cache. Starting extraction...");
-        const startResponse = await  axiosInstance.post(
-          `${API_URL}/api/job-extraction/extract-from-url`,
-          { url },
-          { headers: { "Content-Type": "application/json" } },
-        );
-        const startBody = startResponse.data;
-        jobId = startBody?.jobId ?? startBody?.data?.jobId ?? startBody?.data?.id ?? startBody?.id;
-        const immediateData = startBody?.data?.data ?? startBody?.data?.job ?? startBody?.data;
-        const startStatus = String(startBody?.status ?? startBody?.data?.status ?? "").toLowerCase();
-        if (
-          immediateData && typeof immediateData === "object" &&
-          (startStatus === "completed" || startStatus === "complete" || startStatus === "success" ||
-            (immediateData.title && !jobId))
-        ) {
-          extracted = immediateData;
-        }
-      }
+      // Supports the direct response and common response wrappers.
+      const extracted =
+        body?.data?.job ??
+        body?.data?.data ??
+        body?.data ??
+        body?.job ??
+        body?.result ??
+        body;
 
-      if (!extracted && (!jobId || typeof jobId !== "string")) {
-        throw new Error("The extraction API did not return cached job details or a job ID.");
-      }
-
-      if (!extracted && jobId) {
-        setExtractionMessage("Extracting job details. Please wait...");
-        // Poll for up to 2 minutes (30 attempts, 4 seconds apart).
-        for (let attempt = 0; attempt < 30; attempt += 1) {
-          if (attempt > 0) await sleep(4000);
-          const statusResponse = await  axiosInstance.get(
-            `${API_URL}/api/job-extraction/${encodeURIComponent(jobId)}/status`,
-          );
-          const statusBody = statusResponse.data;
-          const status = String(statusBody?.status ?? statusBody?.data?.status ?? "").toLowerCase();
-          if (["completed", "complete", "success"].includes(status)) {
-            extracted = statusBody?.data?.data ?? statusBody?.data;
-            break;
-          }
-          if (["failed", "error", "cancelled", "canceled"].includes(status)) {
-            throw new Error(statusBody?.message || statusBody?.data?.message || "Job extraction failed.");
-          }
-          setExtractionMessage(`Extracting job details... (${attempt + 1}/30)`);
-        }
-      }
-
-      if (!extracted || typeof extracted !== "object") {
-        throw new Error("Extraction is taking too long. Please try again.");
+      if (
+        !extracted ||
+        typeof extracted !== "object" ||
+        Array.isArray(extracted)
+      ) {
+        throw new Error("The extraction API returned an invalid job response.");
       }
 
       const nonEmptyString = (value: unknown): string =>
         typeof value === "string" ? value.trim() : "";
 
-      // Verify the extracted company before changing any form fields.
-      // Extraction responses may use different keys or wrap the job in another object.
+      const stringArray = (value: unknown): string[] =>
+        Array.isArray(value)
+          ? value
+              .filter(
+                (item): item is string =>
+                  typeof item === "string" && item.trim().length > 0,
+              )
+              .map((item) => item.trim())
+          : [];
+
       const normalizeCompanyName = (name: string) =>
         name
           .normalize("NFKC")
           .replace(/[.,]/g, " ")
-          .replace(/\b(private limited|pvt ltd|pvt limited|limited|ltd|incorporated|inc|corporation|corp)\b/gi, " ")
+          .replace(
+            /\b(private limited|pvt ltd|pvt limited|limited|ltd|incorporated|inc|corporation|corp)\b/gi,
+            " ",
+          )
           .replace(/\s+/g, " ")
           .trim()
-          .toLocaleLowerCase();
+          .toLowerCase();
 
-      const getCompanyName = (value: any, depth = 0): string => {
-        if (!value || typeof value !== "object" || depth > 4) return "";
+      // The extraction response may use `company` or `companyName`.
+      const extractedCompany =
+        nonEmptyString(extracted.company) ||
+        nonEmptyString(extracted.companyName) ||
+        nonEmptyString(extracted.company_name);
 
-        const companyKeys = [
-          "companyName", "company_name", "currentCompany", "current_company",
-          "employerName", "employer_name", "organizationName", "organization_name",
-          "company", "employer", "organization",
-        ];
-
-        for (const key of companyKeys) {
-          const candidate = value[key];
-          if (typeof candidate === "string" && candidate.trim()) return candidate.trim();
-          if (candidate && typeof candidate === "object") {
-            const nestedName = nonEmptyString(candidate.name) ||
-              nonEmptyString(candidate.value) ||
-              nonEmptyString(candidate.companyName) ||
-              nonEmptyString(candidate.company_name);
-            if (nestedName) return nestedName;
-          }
-        }
-
-        const wrapperKeys = ["job", "jobDetails", "job_details", "extractedJob", "extracted_job", "data", "result", "details"];
-        for (const key of wrapperKeys) {
-          const nested = value[key];
-          if (nested && typeof nested === "object" && nested !== value) {
-            const result = getCompanyName(nested, depth + 1);
-            if (result) return result;
-          }
-        }
-        return "";
-      };
-
-      const extractedCompany = getCompanyName(extracted);
       const profileCompany = currentCompany.trim();
 
-      // Do not fill a job when its company cannot be verified.
+      // Never populate the form if the company cannot be verified.
       if (!extractedCompany) {
         setCompanyMismatch({
           extractedCompany: "Company could not be identified from this job URL",
           currentCompany: profileCompany,
         });
-        setShowCompanyMismatch(true);
-        setExtractionMessage("We could not verify the company in this job posting. Please try a job URL from your own company.");
-        return;
-      }
 
-      if (normalizeCompanyName(extractedCompany) !== normalizeCompanyName(profileCompany)) {
-        setCompanyMismatch({ extractedCompany, currentCompany: profileCompany });
         setShowCompanyMismatch(true);
         setExtractionMessage(
-          `Company mismatch: the extracted job belongs to ${extractedCompany}, but your current company is ${profileCompany}. Please try a job URL from your own company.`,
+          "Could not verify the company. Please try another job URL.",
         );
         return;
       }
 
-      setCompanyMismatch(null);
-      setShowCompanyMismatch(false);
+      if (
+        normalizeCompanyName(extractedCompany) !==
+        normalizeCompanyName(profileCompany)
+      ) {
+        setCompanyMismatch({
+          extractedCompany,
+          currentCompany: profileCompany,
+        });
 
-      const stringArray = (value: unknown): string[] =>
-        Array.isArray(value)
-          ? value.filter((item): item is string => typeof item === "string" && item.trim().length > 0).map((item) => item.trim())
-          : [];
+        setShowCompanyMismatch(true);
+        setExtractionMessage(
+          `Company mismatch: this job belongs to ${extractedCompany}, but your current company is ${profileCompany}.`,
+        );
+        return;
+      }
 
       const title = nonEmptyString(extracted.title);
-      const city = nonEmptyString(extracted.location?.city);
-      const state = nonEmptyString(extracted.location?.state);
-      const workModeValue = nonEmptyString(extracted.workMode).toLowerCase().replace(/[_-]/g, " ");
-      const employmentValue = nonEmptyString(extracted.employmentType).toLowerCase().replace(/[_-]/g, " ");
-      const experienceRequirement = nonEmptyString(extracted.experienceRequired);
-      const extractedEligibility = nonEmptyString(extracted.eligibilityCriteria);
-      const eligibilityCriteria = [extractedEligibility, experienceRequirement]
+      const description = nonEmptyString(extracted.description);
+
+      const experienceRequirement = nonEmptyString(
+        extracted.experienceRequired ?? extracted.experience ?? extracted.experience_required,
+      );
+
+      // Accept ISO dates such as 2027-03-29T00:00:00.000Z and map them to endDate.
+      const rawDeadline =
+        extracted.applicationDeadline ?? extracted.endDate ?? extracted.deadline;
+      const parsedDeadline = rawDeadline ? new Date(rawDeadline) : null;
+      const extractedDeadline =
+        parsedDeadline && !Number.isNaN(parsedDeadline.getTime())
+          ? parsedDeadline.toISOString()
+          : "";
+
+      const eligibility = nonEmptyString(extracted.eligibilityCriteria);
+
+      const eligibilityCriteria = [eligibility, experienceRequirement]
         .filter(Boolean)
         .filter((value, index, values) => values.indexOf(value) === index)
         .join("\n\n");
-      const extractedDegrees = stringArray(extracted.degree ?? extracted.degrees);
+
+      // Support location as either an object, string, or null.
+      const city = nonEmptyString(extracted.location?.city);
+      const state = nonEmptyString(extracted.location?.state);
+      const country = nonEmptyString(extracted.location?.country);
+
+      const location =
+        typeof extracted.location === "string"
+          ? extracted.location.trim()
+          : [city, state, country].filter(Boolean).join(", ");
+
+      const normalizeWorkMode = (value: unknown): string => {
+        const mode = nonEmptyString(value).toLowerCase().replace(/[_-]/g, " ");
+
+        if (mode.includes("remote")) return "Remote";
+        if (mode.includes("hybrid")) return "Hybrid";
+        if (mode.includes("onsite") || mode.includes("on site")) {
+          return "On-site";
+        }
+
+        return "";
+      };
+
+      const normalizeEmploymentType = (value: unknown): string => {
+        const type = nonEmptyString(value).toLowerCase().replace(/[_-]/g, " ");
+
+        if (type.includes("full")) return "Full-time";
+        if (type.includes("part")) return "Part-time";
+        if (type.includes("intern")) return "Internship";
+        if (type.includes("contract")) return "Contract";
+        if (type.includes("freelance")) return "Freelance";
+
+        return "";
+      };
+
+      const workMode = normalizeWorkMode(extracted.workMode);
+      const employmentType = normalizeEmploymentType(extracted.employmentType);
+
+      // Resolve extracted degrees against master data.
+      const extractedDegrees = stringArray(
+        extracted.degree ?? extracted.degrees,
+      );
+
       const resolvedExtractedDegrees: MasterDegree[] = [];
+
       for (const degreeValue of extractedDegrees) {
         let degreeRecord = masterDegrees.find(
           (item) => item.value.toLowerCase() === degreeValue.toLowerCase(),
         );
+
         if (!degreeRecord) {
           try {
             const created = await createMasterData("DEGREE", degreeValue);
+
             if (created.success && created.data) {
               degreeRecord = {
-                _id: created.data._id || `temp-${Date.now()}-${resolvedExtractedDegrees.length}`,
+                _id:
+                  created.data._id ||
+                  `temp-${Date.now()}-${resolvedExtractedDegrees.length}`,
                 value: created.data.value || degreeValue,
                 type: "DEGREE",
               };
             }
-          } catch (degreeCreateError) {
-            console.warn(`Could not save extracted degree: ${degreeValue}`, degreeCreateError);
+          } catch (error) {
+            console.warn(
+              "Could not save extracted degree:",
+              degreeValue,
+              error,
+            );
           }
         }
-        if (degreeRecord) resolvedExtractedDegrees.push(degreeRecord);
+
+        if (degreeRecord) {
+          resolvedExtractedDegrees.push(degreeRecord);
+        }
       }
-      if (resolvedExtractedDegrees.length) {
+
+      if (resolvedExtractedDegrees.length > 0) {
         setMasterDegrees((previous) => {
           const merged = [...previous];
+
           for (const item of resolvedExtractedDegrees) {
-            if (!merged.some((existing) => existing.value.toLowerCase() === item.value.toLowerCase())) {
+            if (
+              !merged.some(
+                (existing) =>
+                  existing.value.toLowerCase() === item.value.toLowerCase(),
+              )
+            ) {
               merged.push(item);
             }
           }
+
           return merged;
         });
       }
+
       const degreesToSelect = resolvedExtractedDegrees.length
         ? resolvedExtractedDegrees.map((item) => item.value)
         : extractedDegrees;
-      const firstExtractedDegreeId = resolvedExtractedDegrees[0]?._id || "";
 
-      const workMode = workModeValue
-        ? workModeValue.includes("remote")
-          ? "Remote"
-          : workModeValue.includes("hybrid")
-            ? "Hybrid"
-            : workModeValue.includes("onsite") || workModeValue.includes("on site")
-              ? "On-site"
-              : ""
-        : "";
+      const firstDegreeId = resolvedExtractedDegrees[0]?._id || "";
 
-      const employmentType = employmentValue
-        ? employmentValue.includes("full")
-          ? "Full-time"
-          : employmentValue.includes("part")
-            ? "Part-time"
-            : employmentValue.includes("intern")
-              ? "Internship"
-              : employmentValue.includes("contract")
-                ? "Contract"
-                : employmentValue.includes("freelance")
-                  ? "Freelance"
-                  : ""
-        : "";
+      // Map the returned salary object into the existing form schema.
+      const salary =
+        extracted.salary &&
+        typeof extracted.salary === "object" &&
+        !Array.isArray(extracted.salary)
+          ? extracted.salary
+          : null;
 
-      // Merge only fields that were actually extracted. Do not overwrite the
-      // referral poster's current company or invent salary/deadline/degree values.
+      const salaryTotal =
+        typeof salary?.totalCTC === "number" ? salary.totalCTC : undefined;
+
+      const fixedPay =
+        typeof salary?.fixedPay === "number" ? salary.fixedPay : undefined;
+
+      const variablePay =
+        typeof salary?.variablePay === "number"
+          ? salary.variablePay
+          : undefined;
+
+      const skills = stringArray(extracted.requiredSkills);
+      const certifications = stringArray(extracted.certifications);
+      const benefits = stringArray(extracted.benefits);
+
+      // Populate only fields supported by the extraction response.
       setFormData((previous) => ({
         ...previous,
+
         ...(title ? { jobTitle: [title] } : {}),
-        ...(nonEmptyString(extracted.description) ? { description: nonEmptyString(extracted.description) } : {}),
+        ...(description ? { description } : {}),
         ...(workMode ? { workMode: [workMode] } : {}),
         ...(employmentType ? { employmentType: [employmentType] } : {}),
-        ...(stringArray(extracted.requiredSkills).length ? { skills: stringArray(extracted.requiredSkills) } : {}),
-        ...(stringArray(extracted.certifications).length ? { certifications: stringArray(extracted.certifications) } : {}),
-        ...(stringArray(extracted.benefits).length ? { benefits: stringArray(extracted.benefits) } : {}),
+
+        ...(skills.length ? { skills } : {}),
+        ...(certifications.length ? { certifications } : {}),
+        ...(benefits.length ? { benefits } : {}),
+
         ...(eligibilityCriteria ? { eligibilityCriteria } : {}),
-        ...(degreesToSelect.length ? {
-          degree: degreesToSelect,
-          minEducation: degreesToSelect[0],
-          degreeId: firstExtractedDegreeId || previous.degreeId || "",
-          studentStreams: firstExtractedDegreeId && firstExtractedDegreeId !== previous.degreeId
-            ? []
-            : (previous.studentStreams || []),
-        } : {}),
-        ...(url ? { careerPageUrl: url } : {}),
+        ...(experienceRequirement ? { experience: experienceRequirement } : {}),
+        ...(extractedDeadline ? { endDate: extractedDeadline } : {}),
+
+        ...(degreesToSelect.length
+          ? {
+              degree: degreesToSelect,
+              minEducation: degreesToSelect[0],
+              degreeId: firstDegreeId || previous.degreeId || "",
+              studentStreams:
+                firstDegreeId && firstDegreeId !== previous.degreeId
+                  ? []
+                  : previous.studentStreams || [],
+            }
+          : {}),
+
+        careerPageUrl: url,
+
         ...(city ? { city } : {}),
         ...(state ? { state } : {}),
-        ...(city || state ? { location: [city, state, previous.country || ""].filter(Boolean) } : {}),
+
+        ...(location ? { location: [location] } : {}),
+
+        ...(salary
+          ? {
+              packageDetails: {
+                ...previous.packageDetails,
+
+                ...(typeof salary.currency === "string" &&
+                salary.currency.trim()
+                  ? { currency: salary.currency }
+                  : {}),
+
+                ...(salaryTotal !== undefined ? { totalCTC: salaryTotal } : {}),
+
+                ...(fixedPay !== undefined ? { fixedPay } : {}),
+
+                ...(variablePay !== undefined
+                  ? { joiningBonus: variablePay }
+                  : {}),
+              },
+            }
+          : {}),
       }));
 
-      setExtractionMessage("Job details extracted. Please review the fields and complete any missing information.");
+      setCompanyMismatch(null);
+      setShowCompanyMismatch(false);
+
+      setExtractionMessage(
+        "Job details extracted successfully. Please review the fields and complete any missing information.",
+      );
     } catch (error: any) {
       console.error("Job URL extraction failed:", error);
-      setExtractionMessage(
-        error?.response?.data?.message || error?.message || "Unable to extract this job. Please fill the form manually.",
-      );
+
+      const message =
+        error?.code === "ECONNABORTED"
+          ? "Extraction timed out. Please try again."
+          : error?.response?.data?.message ||
+            error?.message ||
+            "Unable to extract this job. Please fill the form manually.";
+
+      setExtractionMessage(message);
     } finally {
       setIsExtractingJob(false);
     }
@@ -563,10 +625,10 @@ export default function BasicJobDetails({
 
           // Update formData with company name - use direct object update
           if (company) {
-            setFormData({
-              ...formData,
+            setFormData((previous) => ({
+              ...previous,
               companyName: company,
-            });
+            }));
           }
 
           if (!company) {
@@ -638,20 +700,30 @@ export default function BasicJobDetails({
 
   // Degree is stored as a string array, so users can select multiple degrees.
   const selectDegree = async (degree: MasterDegree) => {
-    const currentDegrees: string[] = Array.isArray(formData.degree) ? formData.degree : [];
-    const alreadySelected = currentDegrees.some((value) => value.toLowerCase() === degree.value.toLowerCase());
+    const currentDegrees: string[] = Array.isArray(formData.degree)
+      ? formData.degree
+      : [];
+    const alreadySelected = currentDegrees.some(
+      (value) => value.toLowerCase() === degree.value.toLowerCase(),
+    );
     const nextDegrees = alreadySelected
-      ? currentDegrees.filter((value) => value.toLowerCase() !== degree.value.toLowerCase())
+      ? currentDegrees.filter(
+          (value) => value.toLowerCase() !== degree.value.toLowerCase(),
+        )
       : [...currentDegrees, degree.value];
     const nextFirstDegree = nextDegrees[0] || "";
-    const nextFirstDegreeId = masterDegrees.find((item) => item.value === nextFirstDegree)?._id || "";
+    const nextFirstDegreeId =
+      masterDegrees.find((item) => item.value === nextFirstDegree)?._id || "";
 
     setFormData({
       ...formData,
       minEducation: nextFirstDegree,
       degree: nextDegrees,
       degreeId: nextFirstDegreeId,
-      studentStreams: nextFirstDegreeId === formData.degreeId ? (formData.studentStreams || []) : [],
+      studentStreams:
+        nextFirstDegreeId === formData.degreeId
+          ? formData.studentStreams || []
+          : [],
     });
     setErrors((prev) => ({ ...prev, degreeId: "" }));
     if (nextFirstDegreeId) await loadStreamsForDegree(nextFirstDegreeId);
@@ -661,7 +733,9 @@ export default function BasicJobDetails({
   const handleCreateDegree = async (degreeValue: string) => {
     const value = degreeValue.trim();
     if (!value) return;
-    const existing = masterDegrees.find((degree) => degree.value.toLowerCase() === value.toLowerCase());
+    const existing = masterDegrees.find(
+      (degree) => degree.value.toLowerCase() === value.toLowerCase(),
+    );
     if (existing) {
       await selectDegree(existing);
       setDegreeInput("");
@@ -678,18 +752,27 @@ export default function BasicJobDetails({
           type: "DEGREE",
         };
         setMasterDegrees((previous) => [...previous, newDegree]);
-        const currentDegrees: string[] = Array.isArray(formData.degree) ? formData.degree : [];
-        const nextDegrees = currentDegrees.some((item) => item.toLowerCase() === newDegree.value.toLowerCase())
+        const currentDegrees: string[] = Array.isArray(formData.degree)
+          ? formData.degree
+          : [];
+        const nextDegrees = currentDegrees.some(
+          (item) => item.toLowerCase() === newDegree.value.toLowerCase(),
+        )
           ? currentDegrees
           : [...currentDegrees, newDegree.value];
         const firstDegree = nextDegrees[0] || newDegree.value;
-        const firstDegreeId = masterDegrees.find((item) => item.value === firstDegree)?._id || newDegree._id;
+        const firstDegreeId =
+          masterDegrees.find((item) => item.value === firstDegree)?._id ||
+          newDegree._id;
         setFormData({
           ...formData,
           minEducation: firstDegree,
           degree: nextDegrees,
           degreeId: firstDegreeId,
-          studentStreams: firstDegreeId === formData.degreeId ? (formData.studentStreams || []) : [],
+          studentStreams:
+            firstDegreeId === formData.degreeId
+              ? formData.studentStreams || []
+              : [],
         });
         await loadStreamsForDegree(firstDegreeId);
         setDegreeInput("");
@@ -697,29 +780,41 @@ export default function BasicJobDetails({
       }
     } catch (error) {
       console.error("Error creating degree:", error);
-      setErrors((previous) => ({ ...previous, degreeId: "Failed to create degree. Please try again." }));
+      setErrors((previous) => ({
+        ...previous,
+        degreeId: "Failed to create degree. Please try again.",
+      }));
     } finally {
       setIsCreatingDegree(false);
     }
   };
 
   const toggleDegree = async (item: { id: string; label: string }) => {
-    const degree = masterDegrees.find((candidate) => candidate._id === item.id || candidate.value === item.label);
+    const degree = masterDegrees.find(
+      (candidate) =>
+        candidate._id === item.id || candidate.value === item.label,
+    );
     if (degree) await selectDegree(degree);
     setDegreeInput("");
   };
 
   const removeDegree = async (degreeValue: string) => {
-    const currentDegrees: string[] = Array.isArray(formData.degree) ? formData.degree : [];
+    const currentDegrees: string[] = Array.isArray(formData.degree)
+      ? formData.degree
+      : [];
     const nextDegrees = currentDegrees.filter((value) => value !== degreeValue);
     const firstDegree = nextDegrees[0] || "";
-    const firstDegreeId = masterDegrees.find((item) => item.value === firstDegree)?._id || "";
+    const firstDegreeId =
+      masterDegrees.find((item) => item.value === firstDegree)?._id || "";
     setFormData({
       ...formData,
       minEducation: firstDegree,
       degree: nextDegrees,
       degreeId: firstDegreeId,
-      studentStreams: firstDegreeId === formData.degreeId ? (formData.studentStreams || []) : [],
+      studentStreams:
+        firstDegreeId === formData.degreeId
+          ? formData.studentStreams || []
+          : [],
     });
     if (firstDegreeId) await loadStreamsForDegree(firstDegreeId);
     else setStreamError("");
@@ -1303,9 +1398,12 @@ export default function BasicJobDetails({
             <Sparkles className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="font-semibold text-[var(--text-primary)]">Fill job details</h3>
+            <h3 className="font-semibold text-[var(--text-primary)]">
+              Fill job details
+            </h3>
             <p className="mt-1 text-sm text-[var(--text-muted)]">
-              Enter details manually or extract available information from a job posting URL.
+              Enter details manually or extract available information from a job
+              posting URL.
             </p>
           </div>
         </div>
@@ -1329,7 +1427,10 @@ export default function BasicJobDetails({
 
         {fillingMode === "auto" && (
           <div className="space-y-3">
-            <label htmlFor="job-extraction-url" className="block text-sm font-medium text-[var(--text-secondary)]">
+            <label
+              htmlFor="job-extraction-url"
+              className="block text-sm font-medium text-[var(--text-secondary)]"
+            >
               Job posting URL
             </label>
             <div className="flex flex-col gap-2 sm:flex-row">
@@ -1348,17 +1449,26 @@ export default function BasicJobDetails({
                 disabled={isExtractingJob || !jobUrl.trim()}
                 className="btn-primary inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-medium disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {isExtractingJob ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                {isExtractingJob ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Sparkles className="h-4 w-4" />
+                )}
                 {isExtractingJob ? "Extracting..." : "Extract & Auto-fill"}
               </button>
             </div>
             {extractionMessage && (
-              <p aria-live="polite" className={`text-sm ${extractionMessage.toLowerCase().includes("unable") || extractionMessage.toLowerCase().includes("failed") || extractionMessage.toLowerCase().includes("valid url") || extractionMessage.toLowerCase().includes("please enter") ? "text-[var(--danger)]" : "text-[var(--text-muted)]"}`}>
+              <p
+                aria-live="polite"
+                className={`text-sm ${extractionMessage.toLowerCase().includes("unable") || extractionMessage.toLowerCase().includes("failed") || extractionMessage.toLowerCase().includes("valid url") || extractionMessage.toLowerCase().includes("please enter") ? "text-[var(--danger)]" : "text-[var(--text-muted)]"}`}
+              >
                 {extractionMessage}
               </p>
             )}
             <p className="text-xs text-[var(--text-muted)]">
-              Extracted values will be added to the form for review. Missing values, salary, deadline, and education requirements are not guessed.
+              Extracted values will be added to the form for review. Missing
+              values, salary, deadline, and education requirements are not
+              guessed.
             </p>
           </div>
         )}
@@ -1481,11 +1591,10 @@ export default function BasicJobDetails({
             onChange={(event) => {
               const dateValue = event.target.value;
               if (dateValue) {
-                const date = new Date(dateValue);
-                date.setHours(23, 59, 59, 999);
-                handleChange("endDate", date.toISOString());
+                // Preserve the selected calendar date consistently across time zones.
+                handleChange("endDate", `${dateValue}T23:59:59.999Z`);
               } else {
-                handleChange("endDate", null);
+                handleChange("endDate", "");
               }
             }}
             min={new Date().toISOString().split("T")[0]}
@@ -1548,19 +1657,29 @@ export default function BasicJobDetails({
           <label className="mb-1.5 block text-sm font-medium text-[var(--text-secondary)]">
             Experience Required
           </label>
-          <select
+          <input
+            type="text"
+            list="experience-options"
             value={formData.experience || ""}
             onChange={(event) => handleChange("experience", event.target.value)}
-            className="select-field"
-          >
-            <option value="">Select Experience</option>
-            <option value="Fresher">Fresher</option>
-            <option value="0-1 years">0-1 years</option>
-            <option value="1-3 years">1-3 years</option>
-            <option value="3-5 years">3-5 years</option>
-            <option value="5-8 years">5-8 years</option>
-            <option value="8+ years">8+ years</option>
-          </select>
+            placeholder="e.g. 3+ years"
+            className="input-field"
+            autoComplete="off"
+          />
+          <datalist id="experience-options">
+            <option value="Fresher" />
+            <option value="0-1 years" />
+            <option value="1-2 years" />
+            <option value="1-3 years" />
+            <option value="2+ years" />
+            <option value="3+ years" />
+            <option value="3-5 years" />
+            <option value="5-8 years" />
+            <option value="8+ years" />
+          </datalist>
+          <p className="form-helper mt-1">
+            Select a suggestion or type any experience requirement.
+          </p>
         </div>
 
         {/* Broadcast Type */}
@@ -1829,7 +1948,6 @@ export default function BasicJobDetails({
             <div>
               <label className="mb-1 block text-xs text-[var(--text-muted)]">
                 Total CTC <span className="text-[var(--danger)]">*</span>
-               
               </label>
               <input
                 type="number"
@@ -1870,7 +1988,6 @@ export default function BasicJobDetails({
             <div>
               <label className="mb-1 block text-xs text-[var(--text-muted)]">
                 Fixed Pay
-               
               </label>
               <input
                 type="number"
@@ -1905,7 +2022,6 @@ export default function BasicJobDetails({
             <div>
               <label className="mb-1 block text-xs text-[var(--text-muted)]">
                 Variable Pay
-               
               </label>
               <input
                 type="number"
@@ -1956,10 +2072,21 @@ export default function BasicJobDetails({
                   Company Mismatch
                 </h3>
                 <p className="mt-1 text-sm leading-6 text-[var(--text-secondary)]">
-                  {companyMismatch.extractedCompany.startsWith("Company could not be identified") ? (
-                    <>We could not identify the company from this job URL. Your current company is <strong>{companyMismatch.currentCompany}</strong>.</>
+                  {companyMismatch.extractedCompany.startsWith(
+                    "Company could not be identified",
+                  ) ? (
+                    <>
+                      We could not identify the company from this job URL. Your
+                      current company is{" "}
+                      <strong>{companyMismatch.currentCompany}</strong>.
+                    </>
                   ) : (
-                    <>The extracted job belongs to <strong>{companyMismatch.extractedCompany}</strong>, but your current company is <strong>{companyMismatch.currentCompany}</strong>.</>
+                    <>
+                      The extracted job belongs to{" "}
+                      <strong>{companyMismatch.extractedCompany}</strong>, but
+                      your current company is{" "}
+                      <strong>{companyMismatch.currentCompany}</strong>.
+                    </>
                   )}
                 </p>
               </div>
@@ -1974,7 +2101,10 @@ export default function BasicJobDetails({
             </div>
 
             <div className="mb-5 rounded-xl bg-[var(--danger)]/5 p-3 text-sm leading-6 text-[var(--text-secondary)]">
-              You can only post referrals for your own current company. Please try a job URL from <strong>{companyMismatch.currentCompany}</strong>. No job details have been filled from this posting.
+              You can only post referrals for your own current company. Please
+              try a job URL from{" "}
+              <strong>{companyMismatch.currentCompany}</strong>. No job details
+              have been filled from this posting.
             </div>
 
             <button
