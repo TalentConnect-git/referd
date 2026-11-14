@@ -561,6 +561,63 @@ export default function StepFivePage() {
           isCurrent: Boolean(experience.isCurrent),
         })),
       );
+    } else {
+      const parsedResume = safeJsonParse<{
+        work_experience?: Array<{
+          organization?: string;
+          title?: string;
+          start_date?: string;
+          end_date?: string;
+          description?: string | string[];
+        }>;
+      }>(localStorage.getItem("parsedResume"), {});
+
+      const normalizeDate = (value?: string): string => {
+        const text = cleanText(value);
+
+        if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return text;
+        if (/^\d{4}-\d{2}$/.test(text)) return `${text}-01`;
+
+        const match = text.match(/^([A-Za-z]{3,9})\s+(\d{4})$/);
+        if (!match) return "";
+
+        const month = [
+          "jan", "feb", "mar", "apr", "may", "jun",
+          "jul", "aug", "sep", "oct", "nov", "dec",
+        ].indexOf(match[1].slice(0, 3).toLowerCase());
+
+        return month >= 0
+          ? `${match[2]}-${String(month + 1).padStart(2, "0")}-01`
+          : "";
+      };
+
+      const parsedExperiences = (
+        Array.isArray(parsedResume.work_experience)
+          ? parsedResume.work_experience
+          : []
+      ).map((item) => {
+        const company = cleanText(item.organization);
+        const isCurrent = /^(present|current|ongoing)$/i.test(
+          cleanText(item.end_date),
+        );
+
+        return {
+          ...createEmptyExperience(),
+          company,
+          company_display: company,
+          role: cleanText(item.title),
+          startDate: normalizeDate(item.start_date),
+          endDate: isCurrent ? "" : normalizeDate(item.end_date),
+          description: Array.isArray(item.description)
+            ? item.description.join("\n")
+            : cleanText(item.description),
+          isCurrent,
+        };
+      }).filter(hasMeaningfulExperienceData);
+
+      if (parsedExperiences.length > 0) {
+        setExperiences(parsedExperiences);
+      }
     }
 
     setCompanyEmail(storedStep.companyEmail || "");
